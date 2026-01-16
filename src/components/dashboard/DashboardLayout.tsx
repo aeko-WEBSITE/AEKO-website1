@@ -90,7 +90,28 @@ const DashboardLayout = () => {
             sidebarOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
-          {/* Purple Rainbow Gradient Border */}
+          {/* Bold Black Animated Border */}
+          <motion.div
+            className="absolute inset-0 rounded-r-2xl pointer-events-none"
+            style={{
+              padding: '4px',
+              background: 'linear-gradient(135deg, #000000, #1a1a1a, #000000, #0a0a0a, #000000)',
+              backgroundSize: '300% 300%',
+              WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+              WebkitMaskComposite: 'xor',
+              maskComposite: 'exclude',
+            }}
+            animate={{
+              backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+            }}
+            transition={{
+              duration: 3,
+              repeat: Infinity,
+              ease: 'linear',
+            }}
+          />
+          
+          {/* Purple Rainbow Gradient Border - Inner Layer */}
           <motion.div
             className="absolute inset-0 rounded-r-2xl pointer-events-none"
             style={{
@@ -111,15 +132,58 @@ const DashboardLayout = () => {
             }}
           />
           
-          <div className="flex flex-col h-full bg-card border-r border-border rounded-r-2xl relative z-10">
+          {/* White Animation Highlight Border */}
+          <motion.div
+            className="absolute inset-0 rounded-r-2xl pointer-events-none"
+            style={{
+              padding: '2px',
+              background: 'linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.5), rgba(255,255,255,0.9), rgba(255,255,255,0.3), rgba(255,255,255,0.9))',
+              backgroundSize: '200% 200%',
+              WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+              WebkitMaskComposite: 'xor',
+              maskComposite: 'exclude',
+            }}
+            animate={{
+              backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+            }}
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              ease: 'linear',
+            }}
+          />
+          
+          <div className="flex flex-col h-full bg-gradient-to-b from-purple-900/90 via-purple-800/80 to-purple-900/90 border-r border-border rounded-r-2xl relative z-10 backdrop-blur-sm">
+            {/* Rainbow Gradient Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-600/30 via-pink-500/20 via-blue-500/20 via-green-500/20 via-yellow-500/20 to-purple-600/30 rounded-r-2xl pointer-events-none" />
+            <div className="relative z-10 flex flex-col h-full">
             {/* Logo */}
             <div className="flex items-center justify-center py-5 border-b border-border relative">
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Link to="/" className="flex items-center justify-center">
                     <div className="relative w-12 h-12 flex items-center justify-center">
-                      {/* Perfect round white border */}
-                      <div className="absolute inset-0 rounded-full border-3 border-white shadow-lg shadow-white/20 transition-all duration-200" style={{ borderWidth: '3px' }} />
+                      {/* Animated Border */}
+                      <motion.div
+                        className="absolute inset-0 rounded-full"
+                        style={{
+                          padding: '3px',
+                          background: 'linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.5), rgba(255,255,255,0.9))',
+                          backgroundSize: '200% 200%',
+                          WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                          WebkitMaskComposite: 'xor',
+                          maskComposite: 'exclude',
+                        }}
+                        animate={{
+                          backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+                        }}
+                        transition={{
+                          duration: 3,
+                          repeat: Infinity,
+                          ease: 'linear',
+                        }}
+                      />
+                      {/* Logo Container - Simple as before */}
                       <div className="relative w-10 h-10 rounded-full overflow-hidden bg-transparent flex items-center justify-center">
                         <img 
                           src={logoDark} 
@@ -131,7 +195,7 @@ const DashboardLayout = () => {
                   </Link>
                 </TooltipTrigger>
                 <TooltipContent side="right">
-                  <p>AEKO</p>
+                  <p>AEKO.AI</p>
                 </TooltipContent>
               </Tooltip>
               <button
@@ -161,10 +225,53 @@ const DashboardLayout = () => {
                         }`}
                       >
                         <motion.div
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.95 }}
+                          whileHover={{ scale: 1.15, rotate: 5 }}
+                          whileTap={{ scale: 0.85, rotate: -5 }}
+                          className="relative"
+                          animate={isActive ? {
+                            scale: [1, 1.2, 1],
+                            rotate: [0, 5, -5, 0],
+                          } : {}}
+                          transition={{
+                            duration: 0.3,
+                            ease: 'easeInOut',
+                          }}
                         >
-                          <Icon className={`w-5 h-5 ${isActive ? 'drop-shadow-lg' : ''}`} />
+                          <Icon className={`w-5 h-5 stroke-2 transition-all ${isActive ? 'text-white font-bold drop-shadow-2xl' : 'text-white font-bold hover:text-white'}`} style={{ filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.8))' }} />
+                          {isActive && (
+                            <motion.div
+                              className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-400/40 via-pink-400/40 to-blue-400/40 blur-md"
+                              animate={{
+                                opacity: [0.4, 0.8, 0.4],
+                                scale: [1, 1.3, 1],
+                              }}
+                              transition={{
+                                duration: 2,
+                                repeat: Infinity,
+                                ease: 'easeInOut',
+                              }}
+                            />
+                          )}
+                          {/* Bright Click Animation Effect */}
+                          <motion.div
+                            className="absolute inset-0 rounded-full bg-white blur-xl"
+                            initial={{ scale: 0, opacity: 0 }}
+                            whileTap={{ 
+                              scale: [0, 2, 2.5, 0],
+                              opacity: [0, 1, 0.8, 0]
+                            }}
+                            transition={{ duration: 0.6, ease: "easeOut" }}
+                          />
+                          {/* Secondary Bright Ring on Click */}
+                          <motion.div
+                            className="absolute inset-0 rounded-full border-2 border-white"
+                            initial={{ scale: 1, opacity: 0 }}
+                            whileTap={{ 
+                              scale: [1, 2, 2.5],
+                              opacity: [0, 0.9, 0]
+                            }}
+                            transition={{ duration: 0.5, ease: "easeOut" }}
+                          />
                         </motion.div>
                       </Link>
                     </TooltipTrigger>
@@ -192,10 +299,53 @@ const DashboardLayout = () => {
                         }`}
                       >
                         <motion.div
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.95 }}
+                          whileHover={{ scale: 1.15, rotate: 5 }}
+                          whileTap={{ scale: 0.85, rotate: -5 }}
+                          className="relative"
+                          animate={isActive ? {
+                            scale: [1, 1.2, 1],
+                            rotate: [0, 5, -5, 0],
+                          } : {}}
+                          transition={{
+                            duration: 0.3,
+                            ease: 'easeInOut',
+                          }}
                         >
-                          <Icon className={`w-5 h-5 ${isActive ? 'drop-shadow-lg' : ''}`} />
+                          <Icon className={`w-5 h-5 stroke-2 transition-all ${isActive ? 'text-white font-bold drop-shadow-2xl' : 'text-white font-bold hover:text-white'}`} style={{ filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.8))' }} />
+                          {isActive && (
+                            <motion.div
+                              className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-400/40 via-pink-400/40 to-blue-400/40 blur-md"
+                              animate={{
+                                opacity: [0.4, 0.8, 0.4],
+                                scale: [1, 1.3, 1],
+                              }}
+                              transition={{
+                                duration: 2,
+                                repeat: Infinity,
+                                ease: 'easeInOut',
+                              }}
+                            />
+                          )}
+                          {/* Bright Click Animation Effect */}
+                          <motion.div
+                            className="absolute inset-0 rounded-full bg-white blur-xl"
+                            initial={{ scale: 0, opacity: 0 }}
+                            whileTap={{ 
+                              scale: [0, 2, 2.5, 0],
+                              opacity: [0, 1, 0.8, 0]
+                            }}
+                            transition={{ duration: 0.6, ease: "easeOut" }}
+                          />
+                          {/* Secondary Bright Ring on Click */}
+                          <motion.div
+                            className="absolute inset-0 rounded-full border-2 border-white"
+                            initial={{ scale: 1, opacity: 0 }}
+                            whileTap={{ 
+                              scale: [1, 2, 2.5],
+                              opacity: [0, 0.9, 0]
+                            }}
+                            transition={{ duration: 0.5, ease: "easeOut" }}
+                          />
                         </motion.div>
                       </Link>
                     </TooltipTrigger>
@@ -210,16 +360,38 @@ const DashboardLayout = () => {
               <div>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <button
+                    <motion.button
                       onClick={() => setToolsDropdownOpen(!toolsDropdownOpen)}
-                      className={`flex items-center justify-center w-10 h-10 rounded-full transition-all ${
+                      whileHover={{ scale: 1.15, rotate: 5 }}
+                      whileTap={{ scale: 0.85, rotate: -5 }}
+                      className={`relative flex items-center justify-center w-10 h-10 rounded-full transition-all ${
                         isToolsActive
                           ? "bg-pink-500/20 text-foreground"
                           : "text-muted-foreground hover:text-foreground hover:bg-secondary/30"
                       }`}
                     >
-                      <Wrench className="w-5 h-5" />
-                    </button>
+                      <Wrench className="w-5 h-5 stroke-2 text-white font-bold" style={{ filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.8))' }} />
+                      {/* Bright Click Animation Effect */}
+                      <motion.div
+                        className="absolute inset-0 rounded-full bg-white blur-xl"
+                        initial={{ scale: 0, opacity: 0 }}
+                        whileTap={{ 
+                          scale: [0, 2, 2.5, 0],
+                          opacity: [0, 1, 0.8, 0]
+                        }}
+                        transition={{ duration: 0.6, ease: "easeOut" }}
+                      />
+                      {/* Secondary Bright Ring on Click */}
+                      <motion.div
+                        className="absolute inset-0 rounded-full border-2 border-white"
+                        initial={{ scale: 1, opacity: 0 }}
+                        whileTap={{ 
+                          scale: [1, 2, 2.5],
+                          opacity: [0, 0.9, 0]
+                        }}
+                        transition={{ duration: 0.5, ease: "easeOut" }}
+                      />
+                    </motion.button>
                   </TooltipTrigger>
                   <TooltipContent side="right">
                     <p>AI Tools</p>
@@ -252,10 +424,31 @@ const DashboardLayout = () => {
                                   }`}
                                 >
                                   <motion.div
-                                    whileHover={{ scale: 1.1 }}
-                                    whileTap={{ scale: 0.95 }}
+                                    whileHover={{ scale: 1.15, rotate: 5 }}
+                                    whileTap={{ scale: 0.85, rotate: -5 }}
+                                    className="relative"
                                   >
-                                    <Icon className={`w-4 h-4 ${isActive ? 'drop-shadow-lg' : ''}`} />
+                                    <Icon className={`w-4 h-4 stroke-2 text-white font-bold ${isActive ? 'drop-shadow-2xl' : ''}`} style={{ filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.8))' }} />
+                                    {/* Bright Click Animation Effect */}
+                                    <motion.div
+                                      className="absolute inset-0 rounded-full bg-white blur-xl"
+                                      initial={{ scale: 0, opacity: 0 }}
+                                      whileTap={{ 
+                                        scale: [0, 2, 2.5, 0],
+                                        opacity: [0, 1, 0.8, 0]
+                                      }}
+                                      transition={{ duration: 0.6, ease: "easeOut" }}
+                                    />
+                                    {/* Secondary Bright Ring on Click */}
+                                    <motion.div
+                                      className="absolute inset-0 rounded-full border-2 border-white"
+                                      initial={{ scale: 1, opacity: 0 }}
+                                      whileTap={{ 
+                                        scale: [1, 2, 2.5],
+                                        opacity: [0, 0.9, 0]
+                                      }}
+                                      transition={{ duration: 0.5, ease: "easeOut" }}
+                                    />
                                   </motion.div>
                                 </Link>
                               </TooltipTrigger>
@@ -274,17 +467,43 @@ const DashboardLayout = () => {
               {/* 4. Agent Store */}
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Link
-                    to="/dashboard/agent-store"
-                    onClick={() => setSidebarOpen(false)}
-                    className={`flex items-center justify-center w-10 h-10 rounded-full transition-all ${
-                      location.pathname === "/dashboard/agent-store"
-                        ? "bg-pink-500/20 text-foreground"
-                        : "text-muted-foreground hover:text-foreground hover:bg-secondary/30"
-                    }`}
+                  <motion.div
+                    whileHover={{ scale: 1.15, rotate: 5 }}
+                    whileTap={{ scale: 0.85, rotate: -5 }}
+                    className="relative"
                   >
-                    <Store className="w-5 h-5" />
-                  </Link>
+                    <Link
+                      to="/dashboard/agent-store"
+                      onClick={() => setSidebarOpen(false)}
+                      className={`flex items-center justify-center w-10 h-10 rounded-full transition-all ${
+                        location.pathname === "/dashboard/agent-store"
+                          ? "bg-pink-500/20 text-foreground"
+                          : "text-muted-foreground hover:text-foreground hover:bg-secondary/30"
+                      }`}
+                    >
+                      <Store className="w-5 h-5 stroke-2 text-white font-bold" style={{ filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.8))' }} />
+                      {/* Bright Click Animation Effect */}
+                      <motion.div
+                        className="absolute inset-0 rounded-full bg-white blur-xl"
+                        initial={{ scale: 0, opacity: 0 }}
+                        whileTap={{ 
+                          scale: [0, 2, 2.5, 0],
+                          opacity: [0, 1, 0.8, 0]
+                        }}
+                        transition={{ duration: 0.6, ease: "easeOut" }}
+                      />
+                      {/* Secondary Bright Ring on Click */}
+                      <motion.div
+                        className="absolute inset-0 rounded-full border-2 border-white"
+                        initial={{ scale: 1, opacity: 0 }}
+                        whileTap={{ 
+                          scale: [1, 2, 2.5],
+                          opacity: [0, 0.9, 0]
+                        }}
+                        transition={{ duration: 0.5, ease: "easeOut" }}
+                      />
+                    </Link>
+                  </motion.div>
                 </TooltipTrigger>
                 <TooltipContent side="right">
                   <p>Agent Store</p>
@@ -308,10 +527,53 @@ const DashboardLayout = () => {
                         }`}
                       >
                         <motion.div
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.95 }}
+                          whileHover={{ scale: 1.15, rotate: 5 }}
+                          whileTap={{ scale: 0.85, rotate: -5 }}
+                          className="relative"
+                          animate={isActive ? {
+                            scale: [1, 1.2, 1],
+                            rotate: [0, 5, -5, 0],
+                          } : {}}
+                          transition={{
+                            duration: 0.3,
+                            ease: 'easeInOut',
+                          }}
                         >
-                          <Icon className={`w-5 h-5 ${isActive ? 'drop-shadow-lg' : ''}`} />
+                          <Icon className={`w-5 h-5 stroke-2 transition-all ${isActive ? 'text-white font-bold drop-shadow-2xl' : 'text-white font-bold hover:text-white'}`} style={{ filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.8))' }} />
+                          {isActive && (
+                            <motion.div
+                              className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-400/40 via-pink-400/40 to-blue-400/40 blur-md"
+                              animate={{
+                                opacity: [0.4, 0.8, 0.4],
+                                scale: [1, 1.3, 1],
+                              }}
+                              transition={{
+                                duration: 2,
+                                repeat: Infinity,
+                                ease: 'easeInOut',
+                              }}
+                            />
+                          )}
+                          {/* Bright Click Animation Effect */}
+                          <motion.div
+                            className="absolute inset-0 rounded-full bg-white blur-xl"
+                            initial={{ scale: 0, opacity: 0 }}
+                            whileTap={{ 
+                              scale: [0, 2, 2.5, 0],
+                              opacity: [0, 1, 0.8, 0]
+                            }}
+                            transition={{ duration: 0.6, ease: "easeOut" }}
+                          />
+                          {/* Secondary Bright Ring on Click */}
+                          <motion.div
+                            className="absolute inset-0 rounded-full border-2 border-white"
+                            initial={{ scale: 1, opacity: 0 }}
+                            whileTap={{ 
+                              scale: [1, 2, 2.5],
+                              opacity: [0, 0.9, 0]
+                            }}
+                            transition={{ duration: 0.5, ease: "easeOut" }}
+                          />
                         </motion.div>
                       </Link>
                     </TooltipTrigger>
@@ -328,17 +590,39 @@ const DashboardLayout = () => {
               {/* Theme Toggle */}
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button
+                  <motion.button
                     onClick={toggleTheme}
-                    className="flex items-center justify-center w-10 h-10 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary/30 transition-all"
+                    whileHover={{ scale: 1.15, rotate: 5 }}
+                    whileTap={{ scale: 0.85, rotate: -5 }}
+                    className="relative flex items-center justify-center w-10 h-10 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary/30 transition-all"
                     title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
                   >
                     {theme === "dark" ? (
-                      <Sun className="w-5 h-5" />
+                      <Sun className="w-5 h-5 stroke-2 text-white font-bold" style={{ filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.8))' }} />
                     ) : (
-                      <Moon className="w-5 h-5" />
+                      <Moon className="w-5 h-5 stroke-2 text-white font-bold" style={{ filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.8))' }} />
                     )}
-                  </button>
+                    {/* Bright Click Animation Effect */}
+                    <motion.div
+                      className="absolute inset-0 rounded-full bg-white blur-xl"
+                      initial={{ scale: 0, opacity: 0 }}
+                      whileTap={{ 
+                        scale: [0, 2, 2.5, 0],
+                        opacity: [0, 1, 0.8, 0]
+                      }}
+                      transition={{ duration: 0.6, ease: "easeOut" }}
+                    />
+                    {/* Secondary Bright Ring on Click */}
+                    <motion.div
+                      className="absolute inset-0 rounded-full border-2 border-white"
+                      initial={{ scale: 1, opacity: 0 }}
+                      whileTap={{ 
+                        scale: [1, 2, 2.5],
+                        opacity: [0, 0.9, 0]
+                      }}
+                      transition={{ duration: 0.5, ease: "easeOut" }}
+                    />
+                  </motion.button>
                 </TooltipTrigger>
                 <TooltipContent side="right">
                   <p>{theme === "dark" ? "Light Mode" : "Dark Mode"}</p>
@@ -348,12 +632,38 @@ const DashboardLayout = () => {
               {/* Upgrade Button */}
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Link
-                    to="/dashboard/account"
-                    className="flex items-center justify-center w-10 h-10 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary/30 transition-all"
+                  <motion.div
+                    whileHover={{ scale: 1.15, rotate: 5 }}
+                    whileTap={{ scale: 0.85, rotate: -5 }}
+                    className="relative"
                   >
-                    <CreditCard className="w-5 h-5" />
-                  </Link>
+                    <Link
+                      to="/dashboard/account"
+                      className="flex items-center justify-center w-10 h-10 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary/30 transition-all"
+                    >
+                      <CreditCard className="w-5 h-5 stroke-2 text-white font-bold" style={{ filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.8))' }} />
+                      {/* Bright Click Animation Effect */}
+                      <motion.div
+                        className="absolute inset-0 rounded-full bg-white blur-xl"
+                        initial={{ scale: 0, opacity: 0 }}
+                        whileTap={{ 
+                          scale: [0, 2, 2.5, 0],
+                          opacity: [0, 1, 0.8, 0]
+                        }}
+                        transition={{ duration: 0.6, ease: "easeOut" }}
+                      />
+                      {/* Secondary Bright Ring on Click */}
+                      <motion.div
+                        className="absolute inset-0 rounded-full border-2 border-white"
+                        initial={{ scale: 1, opacity: 0 }}
+                        whileTap={{ 
+                          scale: [1, 2, 2.5],
+                          opacity: [0, 0.9, 0]
+                        }}
+                        transition={{ duration: 0.5, ease: "easeOut" }}
+                      />
+                    </Link>
+                  </motion.div>
                 </TooltipTrigger>
                 <TooltipContent side="right">
                   <p>Upgrade</p>
@@ -363,14 +673,40 @@ const DashboardLayout = () => {
               {/* Account Icon */}
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Link
-                    to="/dashboard/account"
-                    className="flex items-center justify-center w-10 h-10 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary/30 transition-all"
+                  <motion.div
+                    whileHover={{ scale: 1.15, rotate: 5 }}
+                    whileTap={{ scale: 0.85, rotate: -5 }}
+                    className="relative"
                   >
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-medium text-sm">
-                      A
-                    </div>
-                  </Link>
+                    <Link
+                      to="/dashboard/account"
+                      className="flex items-center justify-center w-10 h-10 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary/30 transition-all"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-medium text-sm">
+                        A
+                      </div>
+                      {/* Bright Click Animation Effect */}
+                      <motion.div
+                        className="absolute inset-0 rounded-full bg-white blur-xl"
+                        initial={{ scale: 0, opacity: 0 }}
+                        whileTap={{ 
+                          scale: [0, 2, 2.5, 0],
+                          opacity: [0, 1, 0.8, 0]
+                        }}
+                        transition={{ duration: 0.6, ease: "easeOut" }}
+                      />
+                      {/* Secondary Bright Ring on Click */}
+                      <motion.div
+                        className="absolute inset-0 rounded-full border-2 border-white"
+                        initial={{ scale: 1, opacity: 0 }}
+                        whileTap={{ 
+                          scale: [1, 2, 2.5],
+                          opacity: [0, 0.9, 0]
+                        }}
+                        transition={{ duration: 0.5, ease: "easeOut" }}
+                      />
+                    </Link>
+                  </motion.div>
                 </TooltipTrigger>
                 <TooltipContent side="right">
                   <p>Account</p>
@@ -380,18 +716,27 @@ const DashboardLayout = () => {
               {/* Logout */}
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button
+                  <motion.button
                     type="button"
                     onClick={handleLogout}
-                    className="flex items-center justify-center w-10 h-10 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary/30 transition-all"
+                    whileHover={{ scale: 1.15, rotate: 5 }}
+                    whileTap={{ scale: 0.85, rotate: -5 }}
+                    className="relative flex items-center justify-center w-10 h-10 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary/30 transition-all"
                   >
-                    <LogOut className="w-5 h-5" />
-                  </button>
+                    <LogOut className="w-5 h-5 stroke-2 text-white font-bold" style={{ filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.8))' }} />
+                    <motion.div
+                      className="absolute inset-0 rounded-full bg-white/30"
+                      initial={{ scale: 0, opacity: 0 }}
+                      whileTap={{ scale: 1.5, opacity: [0.5, 0] }}
+                      transition={{ duration: 0.3 }}
+                    />
+                  </motion.button>
                 </TooltipTrigger>
                 <TooltipContent side="right">
                   <p>Logout</p>
                 </TooltipContent>
               </Tooltip>
+            </div>
             </div>
           </div>
         </aside>

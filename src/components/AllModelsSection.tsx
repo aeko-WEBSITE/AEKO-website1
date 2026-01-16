@@ -265,24 +265,16 @@ const AllModelsSection = () => {
 
         {/* Two Cards */}
         <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
-          {/* AI Video Generators Card - Anime Style */}
+          {/* AI Video Generators Card */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="relative group"
+            className="relative group h-full flex"
           >
-            {/* Glowing Border Effect */}
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800 rounded-3xl blur opacity-75 group-hover:opacity-100 transition-opacity duration-300 animate-pulse" />
-            
             {/* Card Content */}
-            <div className="relative bg-gradient-to-br from-[#0a0a0a]/90 via-[#1a1a1a]/90 to-[#0a0a0a]/90 backdrop-blur-xl border-2 border-white/20 rounded-3xl p-8 lg:p-10 shadow-2xl">
-              {/* Anime-style corner accents */}
-              <div className="absolute top-0 left-0 w-20 h-20 border-t-2 border-l-2 border-white/30 rounded-tl-3xl" />
-              <div className="absolute top-0 right-0 w-20 h-20 border-t-2 border-r-2 border-white/30 rounded-tr-3xl" />
-              <div className="absolute bottom-0 left-0 w-20 h-20 border-b-2 border-l-2 border-white/30 rounded-bl-3xl" />
-              <div className="absolute bottom-0 right-0 w-20 h-20 border-b-2 border-r-2 border-white/30 rounded-br-3xl" />
+            <div className="relative w-full bg-gradient-to-br from-[#0a0a0a]/90 via-[#1a1a1a]/90 to-[#0a0a0a]/90 backdrop-blur-xl border-4 border-white rounded-3xl p-8 lg:p-10 shadow-2xl flex flex-col">
               
               {/* Icon and Title */}
               <div className="flex items-start gap-4 mb-6">
@@ -308,7 +300,7 @@ const AllModelsSection = () => {
               </p>
 
               {/* Model List */}
-              <div className="flex flex-wrap gap-2 mb-8">
+              <div className="flex flex-wrap gap-2 mb-8 flex-grow">
                 {videoModels.map((model) => (
                   <span key={model} className="text-white font-semibold text-base px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all cursor-default">
                     {model}
@@ -317,7 +309,7 @@ const AllModelsSection = () => {
               </div>
 
               {/* Button */}
-              <Link to="/dashboard/tools/video">
+              <Link to="/dashboard/tools/video" className="mt-auto">
                 <Button
                   variant="hero"
                   size="lg"
@@ -330,24 +322,16 @@ const AllModelsSection = () => {
             </div>
           </motion.div>
 
-          {/* AI Image Generators Card - Anime Style */}
+          {/* AI Image Generators Card */}
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="relative group"
+            className="relative group h-full flex"
           >
-            {/* Glowing Border Effect */}
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800 rounded-3xl blur opacity-75 group-hover:opacity-100 transition-opacity duration-300 animate-pulse" />
-            
             {/* Card Content */}
-            <div className="relative bg-gradient-to-br from-[#0a0a0a]/90 via-[#1a1a1a]/90 to-[#0a0a0a]/90 backdrop-blur-xl border-2 border-white/20 rounded-3xl p-8 lg:p-10 shadow-2xl">
-              {/* Anime-style corner accents */}
-              <div className="absolute top-0 left-0 w-20 h-20 border-t-2 border-l-2 border-white/30 rounded-tl-3xl" />
-              <div className="absolute top-0 right-0 w-20 h-20 border-t-2 border-r-2 border-white/30 rounded-tr-3xl" />
-              <div className="absolute bottom-0 left-0 w-20 h-20 border-b-2 border-l-2 border-white/30 rounded-bl-3xl" />
-              <div className="absolute bottom-0 right-0 w-20 h-20 border-b-2 border-r-2 border-white/30 rounded-br-3xl" />
+            <div className="relative w-full bg-gradient-to-br from-[#0a0a0a]/90 via-[#1a1a1a]/90 to-[#0a0a0a]/90 backdrop-blur-xl border-4 border-white rounded-3xl p-8 lg:p-10 shadow-2xl flex flex-col">
               
               {/* Icon and Title */}
               <div className="flex items-start gap-4 mb-6">
@@ -373,7 +357,7 @@ const AllModelsSection = () => {
               </p>
 
               {/* Model List */}
-              <div className="flex flex-wrap gap-2 mb-8">
+              <div className="flex flex-wrap gap-2 mb-8 flex-grow">
                 {imageModels.map((model) => (
                   <span key={model} className="text-white font-semibold text-base px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all cursor-default">
                     {model}
@@ -382,7 +366,7 @@ const AllModelsSection = () => {
               </div>
 
               {/* Button */}
-              <Link to="/dashboard/tools/image">
+              <Link to="/dashboard/tools/image" className="mt-auto">
                 <Button
                   variant="hero"
                   size="lg"

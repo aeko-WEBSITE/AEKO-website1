@@ -128,7 +128,7 @@ const VideoToolsFeaturesSection = () => {
               className="group cursor-pointer"
             >
               {/* Card Container */}
-              <div className="relative bg-gradient-to-br from-[#0a0a0a]/90 to-[#1a1a1a]/90 backdrop-blur-md border-2 border-white/30 overflow-hidden shadow-xl">
+              <div className="relative bg-gradient-to-br from-[#0a0a0a]/90 to-[#1a1a1a]/90 backdrop-blur-md border-4 border-white overflow-hidden shadow-xl">
                 {/* Image */}
                 <div className="relative w-full h-64 overflow-hidden">
                   <img

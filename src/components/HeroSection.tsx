@@ -273,7 +273,7 @@ const HeroSection = () => {
                     }}
                   >
                     <Link
-                      to="/dashboard/tools"
+                      to="/auth/sign-in"
                       className="relative flex items-center gap-2 w-full h-full"
                     >
                       <MessageSquare className="w-5 h-5 relative z-10" style={{ color: "#E5E7EB" }} />
@@ -333,7 +333,7 @@ const HeroSection = () => {
                     }}
                   >
                     <Link
-                      to="/dashboard/tools"
+                      to="/auth/sign-in"
                       className="relative flex items-center gap-2 w-full h-full"
                     >
                       <Image className="w-5 h-5 relative z-10" style={{ color: "#E5E7EB" }} />
@@ -393,7 +393,7 @@ const HeroSection = () => {
                     }}
                   >
                     <Link
-                      to="/dashboard/tools"
+                      to="/auth/sign-in"
                       className="relative flex items-center gap-2 w-full h-full"
                     >
                       <Video className="w-5 h-5 relative z-10" style={{ color: "#E5E7EB" }} />

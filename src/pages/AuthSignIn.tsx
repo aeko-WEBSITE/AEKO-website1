@@ -68,8 +68,27 @@ const AuthSignIn = () => {
           className="flex items-center gap-3 mb-12 relative z-10"
         >
           <div className="relative w-12 h-12 flex items-center justify-center">
-            {/* Perfect round white border */}
-            <div className="absolute inset-0 rounded-full border-3 border-white shadow-lg shadow-white/20 transition-all duration-200" style={{ borderWidth: '3px' }} />
+            {/* Animated Border */}
+            <motion.div
+              className="absolute inset-0 rounded-full"
+              style={{
+                padding: '3px',
+                background: 'linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.5), rgba(255,255,255,0.9))',
+                backgroundSize: '200% 200%',
+                WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                WebkitMaskComposite: 'xor',
+                maskComposite: 'exclude',
+              }}
+              animate={{
+                backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                ease: 'linear',
+              }}
+            />
+            {/* Logo Container - Simple as before */}
             <div className="relative w-10 h-10 rounded-full overflow-hidden bg-transparent flex items-center justify-center">
               <img 
                 src={logoDark} 
@@ -78,9 +97,28 @@ const AuthSignIn = () => {
               />
             </div>
           </div>
-          <div className="flex items-baseline gap-1">
-            <span className="text-2xl font-bold text-white">AEKO</span>
-            <span className="text-2xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">.Ai</span>
+          <div className="flex items-baseline gap-0.5">
+            <span className="text-2xl font-bold text-white">AEKO.</span>
+            <motion.span
+              className="text-2xl font-bold"
+              style={{
+                background: 'linear-gradient(135deg, #7C3AED, #3B82F6, #22D3EE, #22C55E, #FACC15, #EC4899, #7C3AED)',
+                backgroundSize: '200% 200%',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}
+              animate={{
+                backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                ease: 'linear',
+              }}
+            >
+              AI
+            </motion.span>
           </div>
         </motion.div>
 

@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import connectDB from './config/database.js';
 import authRoutes from './routes/authRoutes.js';
 import llmRoutes from './routes/llmRoutes.js';
+import crawlRoutes from './routes/crawlRoutes.js';
 
 // Load environment variables
 dotenv.config();
@@ -38,6 +39,7 @@ app.get('/', (req, res) => {
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/llm', llmRoutes);
+app.use('/api/crawl', crawlRoutes);
 
 // 404 handler
 app.use((req, res) => {

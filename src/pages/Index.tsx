@@ -1,5 +1,4 @@
 import Navbar from "@/components/Navbar";
-import HeroSection from "@/components/HeroSection";
 import CreateAgentSection from "@/components/CreateAgentSection";
 import AllModelsSection from "@/components/AllModelsSection";
 import ImageToolsFeaturesSection from "@/components/ImageToolsFeaturesSection";
@@ -27,7 +26,6 @@ const Index = () => {
       
       <div className="relative z-10">
         <Navbar />
-        <HeroSection />
         <CreateAgentSection />
         <AllModelsSection />
         <ImageToolsFeaturesSection />

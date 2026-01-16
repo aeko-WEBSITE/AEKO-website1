@@ -25,7 +25,8 @@ import {
   User,
   Hand,
   Brain,
-  Play
+  Play,
+  Video
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -143,13 +144,16 @@ const CreateAgentSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="text-center mb-12"
+          className="text-center mb-12 relative z-10"
         >
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4">
             Create Custom AI Agents with{" "}
             <span className="gradient-text">Multi-Flow Intelligence</span>{" "}
             for Any Use Case
           </h2>
+          <p className="text-lg text-white max-w-2xl mx-auto mb-2">
+            All-in-one AI platform for chat, images, and videos — powered by the world's best models.
+          </p>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Build intelligent agents tailored to your specific needs
           </p>
@@ -161,7 +165,7 @@ const CreateAgentSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="max-w-5xl mx-auto"
+          className="max-w-5xl mx-auto relative z-10"
         >
           <div className="relative group">
             {/* Colorful Outer Glow */}
@@ -530,36 +534,10 @@ const CreateAgentSection = () => {
                   transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
                   className="relative group"
                 >
-                  {/* Card with glassmorphism - Compact with Rich Animated Border */}
-                  <div className="relative rounded-xl p-4 overflow-hidden" style={{ borderRadius: '12px' }}>
-                    {/* Rich Animated Gradient Border - Color matched to use case */}
-                    <motion.div
-                      className="absolute inset-0 rounded-xl pointer-events-none"
-                      style={{
-                        padding: '1.5px',
-                        background: useCase.color.includes('green') 
-                          ? 'linear-gradient(135deg, #22C55E, #10B981, #34D399, #22C55E)'
-                          : useCase.color.includes('purple') 
-                          ? 'linear-gradient(135deg, #A855F7, #EC4899, #F472B6, #A855F7)'
-                          : useCase.color.includes('blue')
-                          ? 'linear-gradient(135deg, #3B82F6, #06B6D4, #22D3EE, #3B82F6)'
-                          : 'linear-gradient(135deg, #F97316, #EF4444, #F87171, #F97316)',
-                        backgroundSize: '200% 200%',
-                        WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                        WebkitMaskComposite: 'xor',
-                        maskComposite: 'exclude',
-                      }}
-                      animate={{
-                        backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
-                      }}
-                      transition={{
-                        duration: 3,
-                        repeat: Infinity,
-                        ease: 'linear',
-                      }}
-                    />
-                    {/* Inner Background - More Blurred */}
-                    <div className="absolute inset-[1.5px] rounded-xl bg-[#12162A]/80 backdrop-blur-2xl" style={{ borderRadius: '10.5px' }} />
+                  {/* Card with Bold White Border */}
+                  <div className="relative rounded-xl p-4 overflow-hidden border-4 border-white shadow-lg" style={{ borderRadius: '12px' }}>
+                    {/* Inner Background */}
+                    <div className="absolute inset-0 rounded-xl bg-[#12162A]/80 backdrop-blur-2xl" style={{ borderRadius: '8px' }} />
                     <div className="relative z-10 flex items-start gap-3">
                       {/* Icon */}
                       <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${useCase.color} flex items-center justify-center flex-shrink-0 shadow-lg`}>

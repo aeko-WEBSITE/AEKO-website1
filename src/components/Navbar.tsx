@@ -97,8 +97,27 @@ const Navbar = () => {
           <div className="flex items-center">
             <a href="#" className="flex items-center gap-2">
               <div className="relative w-10 h-10 flex items-center justify-center">
-                {/* Perfect round white border */}
-                <div className="absolute inset-0 rounded-full border-3 border-white shadow-lg shadow-white/20 transition-all duration-200" style={{ borderWidth: '3px' }} />
+                {/* Animated Border */}
+                <motion.div
+                  className="absolute inset-0 rounded-full"
+                  style={{
+                    padding: '3px',
+                    background: 'linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.5), rgba(255,255,255,0.9))',
+                    backgroundSize: '200% 200%',
+                    WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                    WebkitMaskComposite: 'xor',
+                    maskComposite: 'exclude',
+                  }}
+                  animate={{
+                    backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    ease: 'linear',
+                  }}
+                />
+                {/* Logo Container - Simple as before */}
                 <div className="relative w-8 h-8 rounded-full overflow-hidden bg-transparent flex items-center justify-center">
                   <img 
                     src={logoDark} 
@@ -107,7 +126,29 @@ const Navbar = () => {
                   />
                 </div>
               </div>
-              <span className="text-lg font-bold text-white">AEKO</span>
+              <div className="flex items-baseline gap-0.5">
+                <span className="text-lg font-bold text-white">AEKO.</span>
+                <motion.span
+                  className="text-lg font-bold"
+                  style={{
+                    background: 'linear-gradient(135deg, #7C3AED, #3B82F6, #22D3EE, #22C55E, #FACC15, #EC4899, #7C3AED)',
+                    backgroundSize: '200% 200%',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                  }}
+                  animate={{
+                    backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    ease: 'linear',
+                  }}
+                >
+                  AI
+                </motion.span>
+              </div>
             </a>
           </div>
 
@@ -189,7 +230,7 @@ const Navbar = () => {
             <Button
               variant="default"
               size="sm"
-              onClick={() => navigate("/dashboard/tools")}
+              onClick={() => navigate("/auth/sign-in")}
               className="bg-white text-black hover:bg-white/90"
             >
               Start Creating
@@ -287,7 +328,7 @@ const Navbar = () => {
                 className="w-full"
                 onClick={() => {
                   setIsOpen(false);
-                  navigate("/dashboard/tools");
+                  navigate("/auth/sign-in");
                 }}
               >
                 Start Creating
