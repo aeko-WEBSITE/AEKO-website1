@@ -226,11 +226,7 @@ const Navbar = () => {
                     </div>
                   </div>
                   <div className="flex items-baseline gap-0.5">
-<<<<<<< HEAD
                     <span className="text-sm md:text-base font-bold text-white">AEKO.</span>
-=======
-                    <span className="text-base md:text-lg font-bold text-foreground dark:text-white">AEKO.</span>
->>>>>>> f5092f976b48ccbfe68bb675eef8b9f9915b350d
                     <motion.span
                       className="text-sm md:text-base font-bold"
                       style={{
@@ -260,11 +256,7 @@ const Navbar = () => {
                   <DropdownMenu onOpenChange={(open) => setIsExpanded(open)}>
                     <DropdownMenuTrigger asChild>
                       <motion.button
-<<<<<<< HEAD
                         className="text-xs sm:text-sm text-white/90 hover:text-white transition-colors duration-200 flex items-center gap-1.5 px-2 sm:px-3 py-1 rounded-lg hover:bg-white/5"
-=======
-                        className="text-sm text-foreground/90 dark:text-white/90 hover:text-foreground dark:hover:text-white transition-colors duration-200 flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-accent dark:hover:bg-white/5"
->>>>>>> f5092f976b48ccbfe68bb675eef8b9f9915b350d
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
@@ -296,11 +288,7 @@ const Navbar = () => {
                   <DropdownMenu onOpenChange={(open) => setIsExpanded(open)}>
                     <DropdownMenuTrigger asChild>
                       <motion.button
-<<<<<<< HEAD
                         className="text-xs sm:text-sm text-white/90 hover:text-white transition-colors duration-200 flex items-center gap-1.5 px-2 sm:px-3 py-1 rounded-lg hover:bg-white/5"
-=======
-                        className="text-sm text-foreground/90 dark:text-white/90 hover:text-foreground dark:hover:text-white transition-colors duration-200 flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-accent dark:hover:bg-white/5"
->>>>>>> f5092f976b48ccbfe68bb675eef8b9f9915b350d
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
@@ -332,11 +320,7 @@ const Navbar = () => {
                     <motion.a
                       key={link.name}
                       href={link.href}
-<<<<<<< HEAD
                       className="text-xs sm:text-sm text-white/90 hover:text-white transition-colors duration-200 px-2 sm:px-3 py-1 rounded-lg hover:bg-white/5"
-=======
-                      className="text-sm text-foreground/90 dark:text-white/90 hover:text-foreground dark:hover:text-white transition-colors duration-200 px-3 py-1.5 rounded-lg hover:bg-accent dark:hover:bg-white/5"
->>>>>>> f5092f976b48ccbfe68bb675eef8b9f9915b350d
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                     >
@@ -393,11 +377,7 @@ const Navbar = () => {
             className="fixed top-20 md:top-24 left-4 right-4 md:hidden z-40"
           >
             <motion.div
-<<<<<<< HEAD
               className="backdrop-blur-2xl bg-gradient-to-b from-purple-900/90 via-purple-800/80 to-purple-900/90 border border-white/10 rounded-2xl shadow-2xl overflow-hidden relative"
-=======
-              className="backdrop-blur-2xl bg-card dark:bg-black/80 border border-border dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden"
->>>>>>> f5092f976b48ccbfe68bb675eef8b9f9915b350d
               initial={{ borderRadius: "9999px" }}
               animate={{ borderRadius: "20px" }}
               transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
