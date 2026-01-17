@@ -38,10 +38,9 @@ const ShowcaseSection = () => {
                 className="relative group"
               >
                 <div
-                  className="relative overflow-hidden rounded-3xl"
+                  className="relative overflow-hidden rounded-3xl border-4 border-border dark:border-white"
                   style={{
-                    border: "5px solid white",
-                    boxShadow: "0 0 20px rgba(255, 255, 255, 0.3), 0 0 40px rgba(255, 255, 255, 0.1)",
+                    boxShadow: "0 0 20px rgba(0, 0, 0, 0.1), 0 0 40px rgba(0, 0, 0, 0.05)",
                   }}
                 >
                   <img
@@ -72,18 +71,18 @@ const ShowcaseSection = () => {
                 repeat: Infinity,
                 ease: "linear",
               }}
-              className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 border-2 border-white/30 mb-4"
+              className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 border-2 border-border dark:border-white/30 mb-4"
             >
-              <Sparkles className="w-8 h-8 text-white" />
+              <Sparkles className="w-8 h-8 text-purple-600 dark:text-white" />
             </motion.div>
 
             {/* Headline */}
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-4 tracking-tight leading-tight">
-              <span className="bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-transparent">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-foreground dark:text-white mb-4 tracking-tight leading-tight">
+              <span className="bg-gradient-to-r from-foreground via-purple-600 to-pink-600 dark:from-white dark:via-purple-200 dark:to-pink-200 bg-clip-text text-transparent">
                 Showcase Your
               </span>
               <br />
-              <span className="text-white">Creative Work</span>
+              <span className="text-foreground dark:text-white">Creative Work</span>
             </h2>
 
             {/* Profile Images */}
@@ -93,7 +92,7 @@ const ShowcaseSection = () => {
                   key={index}
                   src={profile}
                   alt={`Profile ${index + 1}`}
-                  className="w-10 h-10 rounded-full border-2 border-white/50 object-cover"
+                  className="w-10 h-10 rounded-full border-2 border-border dark:border-white/50 object-cover"
                   initial={{ opacity: 0, scale: 0 }}
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
@@ -101,27 +100,27 @@ const ShowcaseSection = () => {
                   style={{ marginLeft: index > 0 ? "-8px" : "0" }}
                 />
               ))}
-              <span className="text-white/80 text-sm ml-2">+2.5K creators</span>
+              <span className="text-muted-foreground dark:text-white/80 text-sm ml-2">+2.5K creators</span>
             </div>
 
             {/* Stats */}
             <div className="flex items-center gap-8 mb-6">
               <div>
-                <div className="text-3xl font-black text-white">10M+</div>
-                <div className="text-sm text-white/70">Generations</div>
+                <div className="text-3xl font-black text-foreground dark:text-white">10M+</div>
+                <div className="text-sm text-muted-foreground dark:text-white/70">Generations</div>
               </div>
               <div>
-                <div className="text-3xl font-black text-white">50K+</div>
-                <div className="text-sm text-white/70">Active Users</div>
+                <div className="text-3xl font-black text-foreground dark:text-white">50K+</div>
+                <div className="text-sm text-muted-foreground dark:text-white/70">Active Users</div>
               </div>
               <div>
-                <div className="text-3xl font-black text-white">99.9%</div>
-                <div className="text-sm text-white/70">Uptime</div>
+                <div className="text-3xl font-black text-foreground dark:text-white">99.9%</div>
+                <div className="text-sm text-muted-foreground dark:text-white/70">Uptime</div>
               </div>
             </div>
 
             {/* Description */}
-            <p className="text-lg text-white/80 leading-relaxed mb-8">
+            <p className="text-lg text-muted-foreground dark:text-white/80 leading-relaxed mb-8">
               Join thousands of creators, designers, and developers who are using AEKO to bring their creative visions to life. 
               Generate stunning images, create amazing videos, and build powerful AI agents—all in one platform.
             </p>
@@ -129,7 +128,7 @@ const ShowcaseSection = () => {
             {/* CTA Button */}
             <Button
               size="lg"
-              className="group gap-2 px-8 py-6 text-lg bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white border-2 border-white/30"
+              className="group gap-2 px-8 py-6 text-lg bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white border-2 border-border dark:border-white/30"
             >
               Start Creating Now
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />

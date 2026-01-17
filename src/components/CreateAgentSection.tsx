@@ -109,13 +109,13 @@ const CreateAgentSection = () => {
 
   return (
     <TooltipProvider>
-    <section className="py-24 lg:py-32 relative overflow-hidden w-full">
-      {/* Base Dark Gradient Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a1a] via-[#1a0b2e] to-[#0f0517] w-full" />
+    <section className="py-24 lg:py-32 relative overflow-hidden w-full bg-background dark:bg-gradient-to-br dark:from-[#0a0a1a] dark:via-[#1a0b2e] dark:to-[#0f0517]">
+      {/* Theme-Aware Base Gradient Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-purple-50/30 to-blue-50/30 dark:from-[#0a0a1a] dark:via-[#1a0b2e] dark:to-[#0f0517] w-full" />
       
-      {/* Animated Mesh Gradient Overlay */}
+      {/* Animated Mesh Gradient Overlay - Theme Aware */}
       <motion.div
-        className="absolute inset-0 opacity-60"
+        className="absolute inset-0 opacity-30 dark:opacity-60"
         style={{
           background: `
             radial-gradient(at 20% 30%, rgba(168, 85, 247, 0.2) 0px, transparent 50%),
@@ -135,17 +135,17 @@ const CreateAgentSection = () => {
         }}
       />
       
-      {/* Large Floating Gradient Orbs */}
+      {/* Large Floating Gradient Orbs - Theme Aware */}
       <motion.div
-        className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl opacity-30"
+        className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl opacity-15 dark:opacity-30"
         style={{
-          background: "radial-gradient(circle, rgba(168, 85, 247, 0.4) 0%, transparent 70%)",
+          background: "radial-gradient(circle, rgba(168, 85, 247, 0.3) 0%, transparent 70%)",
         }}
         animate={{
           x: [0, 60, 0],
           y: [0, 40, 0],
           scale: [1, 1.3, 1],
-          opacity: [0.2, 0.4, 0.2],
+          opacity: [0.1, 0.25, 0.1],
         }}
         transition={{
           duration: 20,
@@ -154,15 +154,15 @@ const CreateAgentSection = () => {
         }}
       />
       <motion.div
-        className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full blur-3xl opacity-25"
+        className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full blur-3xl opacity-12 dark:opacity-25"
         style={{
-          background: "radial-gradient(circle, rgba(34, 211, 238, 0.4) 0%, transparent 70%)",
+          background: "radial-gradient(circle, rgba(34, 211, 238, 0.3) 0%, transparent 70%)",
         }}
         animate={{
           x: [0, -60, 0],
           y: [0, -40, 0],
           scale: [1, 1.4, 1],
-          opacity: [0.15, 0.35, 0.15],
+          opacity: [0.08, 0.2, 0.08],
         }}
         transition={{
           duration: 25,
@@ -172,15 +172,15 @@ const CreateAgentSection = () => {
         }}
       />
       <motion.div
-        className="absolute top-1/2 right-1/3 w-80 h-80 rounded-full blur-3xl opacity-20"
+        className="absolute top-1/2 right-1/3 w-80 h-80 rounded-full blur-3xl opacity-10 dark:opacity-20"
         style={{
-          background: "radial-gradient(circle, rgba(236, 72, 153, 0.4) 0%, transparent 70%)",
+          background: "radial-gradient(circle, rgba(236, 72, 153, 0.3) 0%, transparent 70%)",
         }}
         animate={{
           x: [0, 50, -50, 0],
           y: [0, -50, 50, 0],
           scale: [1, 1.2, 1.3, 1],
-          opacity: [0.1, 0.3, 0.2, 0.1],
+          opacity: [0.05, 0.15, 0.1, 0.05],
         }}
         transition={{
           duration: 18,
@@ -190,11 +190,11 @@ const CreateAgentSection = () => {
         }}
       />
       
-      {/* Star Field */}
+      {/* Star Field - Theme Aware */}
       {stars.map((star) => (
         <motion.div
           key={star.id}
-          className="absolute rounded-full bg-white"
+          className="absolute rounded-full bg-foreground/20 dark:bg-white"
           style={{
             left: `${star.x}%`,
             top: `${star.y}%`,
@@ -202,7 +202,7 @@ const CreateAgentSection = () => {
             height: `${star.size}px`,
           }}
           animate={{
-            opacity: [0.2, 1, 0.2],
+            opacity: [0.1, 0.4, 0.1],
             scale: [1, 1.3, 1],
           }}
           transition={{
@@ -214,12 +214,12 @@ const CreateAgentSection = () => {
         />
       ))}
       
-      {/* Animated Grid Overlay */}
-      <div className="absolute inset-0 opacity-10">
+      {/* Animated Grid Overlay - Theme Aware */}
+      <div className="absolute inset-0 opacity-[0.03] dark:opacity-10">
         <div className="absolute inset-0" style={{
           backgroundImage: `
-            linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px)
+            linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px)
           `,
           backgroundSize: "60px 60px",
         }}>
@@ -237,11 +237,11 @@ const CreateAgentSection = () => {
         </div>
       </div>
       
-      {/* Flowing Light Beams */}
+      {/* Flowing Light Beams - Theme Aware */}
       <motion.div
-        className="absolute inset-0 opacity-20"
+        className="absolute inset-0 opacity-10 dark:opacity-20"
         style={{
-          background: "linear-gradient(45deg, transparent 30%, rgba(168, 85, 247, 0.2) 50%, transparent 70%)",
+          background: "linear-gradient(45deg, transparent 30%, rgba(168, 85, 247, 0.15) 50%, transparent 70%)",
           backgroundSize: "300% 300%",
         }}
         animate={{
@@ -254,9 +254,9 @@ const CreateAgentSection = () => {
         }}
       />
       <motion.div
-        className="absolute inset-0 opacity-15"
+        className="absolute inset-0 opacity-8 dark:opacity-15"
         style={{
-          background: "linear-gradient(-45deg, transparent 30%, rgba(34, 211, 238, 0.2) 50%, transparent 70%)",
+          background: "linear-gradient(-45deg, transparent 30%, rgba(34, 211, 238, 0.15) 50%, transparent 70%)",
           backgroundSize: "300% 300%",
         }}
         animate={{
@@ -269,11 +269,11 @@ const CreateAgentSection = () => {
         }}
       />
       
-      {/* Animated Highlight Rings */}
+      {/* Animated Highlight Rings - Theme Aware */}
       {[...Array(4)].map((_, i) => (
         <motion.div
           key={`ring-${i}`}
-          className="absolute rounded-full border border-white/10"
+          className="absolute rounded-full border border-foreground/5 dark:border-white/10"
           style={{
             width: `${400 + i * 300}px`,
             height: `${400 + i * 300}px`,
@@ -295,11 +295,11 @@ const CreateAgentSection = () => {
         />
       ))}
       
-      {/* Floating Particles */}
+      {/* Floating Particles - Theme Aware */}
       {Array.from({ length: 15 }).map((_, i) => (
         <motion.div
           key={`particle-${i}`}
-          className="absolute rounded-full bg-white/10 blur-sm"
+          className="absolute rounded-full bg-foreground/5 dark:bg-white/10 blur-sm"
           style={{
             width: `${20 + Math.random() * 40}px`,
             height: `${20 + Math.random() * 40}px`,
@@ -310,7 +310,7 @@ const CreateAgentSection = () => {
             y: [0, -100, 0],
             x: [0, Math.random() * 100 - 50, 0],
             scale: [1, 1.5, 1],
-            opacity: [0.1, 0.3, 0.1],
+            opacity: [0.05, 0.15, 0.05],
           }}
           transition={{
             duration: 10 + Math.random() * 10,
@@ -321,8 +321,8 @@ const CreateAgentSection = () => {
         />
       ))}
       
-      {/* Gradient Overlay for Depth */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/50" />
+      {/* Gradient Overlay for Depth - Theme Aware */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-transparent to-background/60 dark:from-black/40 dark:via-transparent dark:to-black/50" />
 
       <div className="container mx-auto px-4 lg:px-8 relative z-10">
         {/* Header */}
@@ -338,7 +338,7 @@ const CreateAgentSection = () => {
             <span className="gradient-text">Multi-Flow Intelligence</span>{" "}
             for Any Use Case
           </h2>
-          <p className="text-lg text-white max-w-2xl mx-auto mb-2">
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-2">
             All-in-one AI platform for chat, images, and videos — powered by the world's best models.
           </p>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
@@ -396,8 +396,8 @@ const CreateAgentSection = () => {
                 }}
               />
               
-              {/* Inner Background */}
-              <div className="absolute inset-[2px] rounded-3xl bg-card/30 backdrop-blur-xl" style={{ borderRadius: '22px' }} />
+              {/* Inner Background - Theme Aware */}
+              <div className="absolute inset-[2px] rounded-3xl bg-card/80 dark:bg-card/30 backdrop-blur-xl border border-border/50" style={{ borderRadius: '22px' }} />
               
               <div className="relative z-10">
             {/* Top Section - Textarea */}
@@ -591,8 +591,8 @@ const CreateAgentSection = () => {
                     ease: 'linear',
                   }}
                 />
-                {/* Inner Background */}
-                <div className="absolute inset-[3px] rounded-3xl bg-gradient-to-br from-green-100 to-emerald-100" style={{ borderRadius: '21px' }} />
+                {/* Inner Background - Theme Aware */}
+                <div className="absolute inset-[3px] rounded-3xl bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-100 dark:to-emerald-100" style={{ borderRadius: '21px' }} />
                 {/* Mobile Chat Interface with Flowing Smooth Color Border */}
                 <div className="relative rounded-2xl p-6 overflow-hidden shadow-xl" style={{ borderRadius: '16px' }}>
                   {/* Flowing Smooth Rainbow Gradient Border - Inner */}
@@ -636,11 +636,11 @@ const CreateAgentSection = () => {
                       ease: 'linear',
                     }}
                   />
-                  {/* Inner Background */}
-                  <div className="absolute inset-[3px] rounded-xl bg-gray-800" style={{ borderRadius: '13px' }} />
+                  {/* Inner Background - Theme Aware */}
+                  <div className="absolute inset-[3px] rounded-xl bg-gray-900 dark:bg-gray-800" style={{ borderRadius: '13px' }} />
                   <div className="relative z-10">
                   {/* AI Agent Header */}
-                  <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-700">
+                  <div className="flex items-center justify-between mb-4 pb-3 ">
                     <div className="flex items-center gap-2">
                       <Brain className="w-5 h-5 text-gray-200" />
                       <span className="font-semibold text-gray-100">AI agent</span>
@@ -648,7 +648,7 @@ const CreateAgentSection = () => {
                   </div>
 
                   {/* Chain of Thought Overlay - Top Right */}
-                  <div className="absolute top-12 right-4 bg-white rounded-xl p-4 border-2 border-gray-200 shadow-2xl z-20 max-w-[280px]">
+                  <div className="absolute top-12 right-4 bg-white rounded-xl p-4  shadow-2xl z-20 max-w-[280px]">
                     <div className="flex items-center gap-2 mb-3">
                       <Brain className="w-4 h-4 text-gray-700" />
                       <span className="text-sm font-bold text-gray-900">AI agent chain of thought</span>
@@ -763,10 +763,30 @@ const CreateAgentSection = () => {
                   transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
                   className="relative group"
                 >
-                  {/* Card with Bold White Border */}
-                  <div className="relative rounded-xl p-4 overflow-hidden border-4 border-white shadow-lg" style={{ borderRadius: '12px' }}>
-                    {/* Inner Background */}
-                    <div className="absolute inset-0 rounded-xl bg-[#12162A]/80 backdrop-blur-2xl" style={{ borderRadius: '8px' }} />
+                  {/* Card with Animated Gradient Border */}
+                  <div className="relative rounded-xl p-4 overflow-hidden shadow-lg" style={{ borderRadius: '12px' }}>
+                    {/* Animated Gradient Border */}
+                    <motion.div
+                      className="absolute inset-0 rounded-xl pointer-events-none"
+                      style={{
+                        padding: '2px',
+                        background: 'linear-gradient(135deg, #7C3AED, #3B82F6, #22D3EE, #10B981, #F59E0B, #EC4899, #7C3AED)',
+                        backgroundSize: '300% 300%',
+                        WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                        WebkitMaskComposite: 'xor',
+                        maskComposite: 'exclude',
+                      }}
+                      animate={{
+                        backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+                      }}
+                      transition={{
+                        duration: 4,
+                        repeat: Infinity,
+                        ease: 'linear',
+                      }}
+                    />
+                    {/* Inner Background - Theme Aware */}
+                    <div className="absolute inset-[2px] rounded-xl bg-card dark:bg-[#12162A]/80 backdrop-blur-2xl border border-border/30" style={{ borderRadius: '10px' }} />
                     <div className="relative z-10 flex items-start gap-3">
                       {/* Icon */}
                       <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${useCase.color} flex items-center justify-center flex-shrink-0 shadow-lg`}>
@@ -800,10 +820,10 @@ const CreateAgentSection = () => {
                   transition={{ duration: 0.6, delay: 0.7 }}
                   className="mt-8"
                 >
-                  {/* Rich Container with Rich White Border */}
-                  <div className="relative rounded-3xl p-8 lg:p-10 shadow-2xl overflow-hidden border-2 border-white" style={{ borderRadius: '24px' }}>
-                    {/* Inner Background - More Blurred */}
-                    <div className="absolute inset-0 rounded-3xl bg-[#12162A]/90 backdrop-blur-2xl" style={{ borderRadius: '22px' }} />
+                  {/* Rich Container with Theme-Aware Border */}
+                  <div className="relative rounded-3xl p-8 lg:p-10 shadow-2xl overflow-hidden border-2 border-border dark:border-white" style={{ borderRadius: '24px' }}>
+                    {/* Inner Background - Theme Aware */}
+                    <div className="absolute inset-0 rounded-3xl bg-card/90 dark:bg-[#12162A]/90 backdrop-blur-2xl" style={{ borderRadius: '22px' }} />
                     {/* Decorative Gradient Overlay */}
                     <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-purple-500/5 via-pink-500/5 to-blue-500/5 pointer-events-none" style={{ borderRadius: '22px' }} />
                     

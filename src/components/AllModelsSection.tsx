@@ -125,7 +125,7 @@ const AllModelsSection = () => {
   ];
 
   return (
-    <section className=" relative overflow-hidden w-full">
+    <section className=" relative overflow-hidden w-full mt-6">
       {/* Animated Background Effects */}
       <div className="absolute inset-0 w-full">
         <motion.div
@@ -169,12 +169,12 @@ const AllModelsSection = () => {
             <span className="text-sm font-semibold text-purple-400 uppercase tracking-wider">Premium Models</span>
             <Sparkles className="w-6 h-6 text-pink-400" />
           </motion.div>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-4 tracking-tight leading-tight">
-            <span className="bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-transparent">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-foreground dark:text-white mb-4 tracking-tight leading-tight">
+            <span className="bg-gradient-to-r from-foreground via-purple-600 to-pink-600 dark:from-white dark:via-purple-200 dark:to-pink-200 bg-clip-text text-transparent">
               ALL the Great AI Video & Image Models
             </span>
             <br />
-            <span className="text-white">in ONE Place!</span>
+            <span className="text-foreground dark:text-white">in ONE Place!</span>
           </h2>
           <motion.div
             className="flex items-center justify-center gap-2 mt-4"
@@ -211,15 +211,15 @@ const AllModelsSection = () => {
               >
                 <Sparkles className="w-5 h-5 text-purple-400" />
               </motion.div>
-              <h3 className="text-2xl md:text-3xl font-black text-white">
-                <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">
+              <h3 className="text-2xl md:text-3xl font-black text-foreground dark:text-white">
+                <span className="bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 dark:from-purple-400 dark:via-pink-400 dark:to-purple-400 bg-clip-text text-transparent">
                   Platform Gallery
                 </span>
               </h3>
             </div>
             <Link
               to="/dashboard/feed"
-              className="hidden md:flex items-center gap-2 text-white/80 hover:text-white transition-colors group text-sm font-semibold"
+              className="hidden md:flex items-center gap-2 text-muted-foreground dark:text-white/80 hover:text-foreground dark:hover:text-white transition-colors group text-sm font-semibold"
             >
               <span>View All</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />

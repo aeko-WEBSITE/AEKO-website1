@@ -142,15 +142,19 @@ const Navbar = () => {
             className="relative overflow-hidden"
             animate={{
               backdropFilter: "blur(20px) saturate(180%)",
-              backgroundColor: isScrolled || isOpen 
-                ? "rgba(0, 0, 0, 0.7)" 
-                : "rgba(0, 0, 0, 0.4)",
+              backgroundColor: theme === "dark" 
+                ? (isScrolled || isOpen ? "rgba(0, 0, 0, 0.7)" : "rgba(0, 0, 0, 0.4)")
+                : (isScrolled || isOpen ? "rgba(255, 255, 255, 0.9)" : "rgba(255, 255, 255, 0.8)"),
               borderWidth: "1px",
-              borderColor: "rgba(255, 255, 255, 0.1)",
+              borderColor: theme === "dark" ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
               borderRadius: isScrolled || isOpen ? "20px" : "9999px",
-              boxShadow: isScrolled || isOpen
-                ? "0 8px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1)"
-                : "0 8px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.1)",
+              boxShadow: theme === "dark"
+                ? (isScrolled || isOpen
+                  ? "0 8px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1)"
+                  : "0 8px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.1)")
+                : (isScrolled || isOpen
+                  ? "0 8px 32px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.1)"
+                  : "0 8px 32px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.1)"),
             }}
             transition={{
               duration: 0.4,
@@ -227,7 +231,7 @@ const Navbar = () => {
                     </div>
                   </div>
                   <div className="flex items-baseline gap-0.5">
-                    <span className="text-base md:text-lg font-bold text-white">AEKO.</span>
+                    <span className="text-base md:text-lg font-bold text-foreground dark:text-white">AEKO.</span>
                     <motion.span
                       className="text-base md:text-lg font-bold"
                       style={{
@@ -257,7 +261,7 @@ const Navbar = () => {
                   <DropdownMenu onOpenChange={(open) => setIsExpanded(open)}>
                     <DropdownMenuTrigger asChild>
                       <motion.button
-                        className="text-sm text-white/90 hover:text-white transition-colors duration-200 flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-white/5"
+                        className="text-sm text-foreground/90 dark:text-white/90 hover:text-foreground dark:hover:text-white transition-colors duration-200 flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-accent dark:hover:bg-white/5"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
@@ -265,19 +269,19 @@ const Navbar = () => {
                         <ChevronDown className="w-3.5 h-3.5" />
                       </motion.button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-64 backdrop-blur-xl bg-black/80 border-white/10">
+                    <DropdownMenuContent align="start" className="w-64 backdrop-blur-xl bg-card dark:bg-black/80 border-border dark:border-white/10">
                       {modelsMenuItems.map((item) => {
                         const Icon = item.icon;
                         return (
                           <DropdownMenuItem
                             key={item.path}
                             onClick={() => navigate(item.path)}
-                            className="cursor-pointer hover:bg-white/10"
+                            className="cursor-pointer hover:bg-accent dark:hover:bg-white/10"
                           >
                             <Icon className="w-4 h-4 mr-2" aria-hidden="true" />
                             <div className="flex flex-col">
-                              <span className="font-medium text-white">{item.name}</span>
-                              <span className="text-xs text-white/60">{item.description}</span>
+                              <span className="font-medium text-foreground dark:text-white">{item.name}</span>
+                              <span className="text-xs text-muted-foreground dark:text-white/60">{item.description}</span>
                             </div>
                           </DropdownMenuItem>
                         );
@@ -289,7 +293,7 @@ const Navbar = () => {
                   <DropdownMenu onOpenChange={(open) => setIsExpanded(open)}>
                     <DropdownMenuTrigger asChild>
                       <motion.button
-                        className="text-sm text-white/90 hover:text-white transition-colors duration-200 flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-white/5"
+                        className="text-sm text-foreground/90 dark:text-white/90 hover:text-foreground dark:hover:text-white transition-colors duration-200 flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-accent dark:hover:bg-white/5"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
@@ -297,19 +301,19 @@ const Navbar = () => {
                         <ChevronDown className="w-3.5 h-3.5" />
                       </motion.button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-64 backdrop-blur-xl bg-black/80 border-white/10">
+                    <DropdownMenuContent align="start" className="w-64 backdrop-blur-xl bg-card dark:bg-black/80 border-border dark:border-white/10">
                       {featuresMenuItems.map((item) => {
                         const Icon = item.icon;
                         return (
                           <DropdownMenuItem
                             key={item.path}
                             onClick={() => navigate(item.path)}
-                            className="cursor-pointer hover:bg-white/10"
+                            className="cursor-pointer hover:bg-accent dark:hover:bg-white/10"
                           >
                             <Icon className="w-4 h-4 mr-2" aria-hidden="true" />
                             <div className="flex flex-col">
-                              <span className="font-medium text-white">{item.name}</span>
-                              <span className="text-xs text-white/60">{item.description}</span>
+                              <span className="font-medium text-foreground dark:text-white">{item.name}</span>
+                              <span className="text-xs text-muted-foreground dark:text-white/60">{item.description}</span>
                             </div>
                           </DropdownMenuItem>
                         );
@@ -321,7 +325,7 @@ const Navbar = () => {
                     <motion.a
                       key={link.name}
                       href={link.href}
-                      className="text-sm text-white/90 hover:text-white transition-colors duration-200 px-3 py-1.5 rounded-lg hover:bg-white/5"
+                      className="text-sm text-foreground/90 dark:text-white/90 hover:text-foreground dark:hover:text-white transition-colors duration-200 px-3 py-1.5 rounded-lg hover:bg-accent dark:hover:bg-white/5"
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                     >
@@ -334,7 +338,7 @@ const Navbar = () => {
                       variant="ghost"
                       size="sm"
                       onClick={() => navigate("/auth/sign-in")}
-                      className="text-white/90 hover:text-white hover:bg-white/10"
+                      className="text-foreground/90 dark:text-white/90 hover:text-foreground dark:hover:text-white hover:bg-accent dark:hover:bg-white/10"
                     >
                       Sign In
                     </Button>
@@ -345,7 +349,7 @@ const Navbar = () => {
                       variant="default"
                       size="sm"
                       onClick={() => navigate("/auth/sign-in")}
-                      className="bg-white text-black hover:bg-white/90 font-semibold shadow-lg"
+                      className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold shadow-lg"
                     >
                       Start Creating
                     </Button>
@@ -355,7 +359,7 @@ const Navbar = () => {
                 {/* Mobile Menu Button */}
                 <motion.button
                   onClick={() => setIsOpen(!isOpen)}
-                  className="md:hidden p-2 text-white rounded-lg hover:bg-white/10 transition-colors"
+                  className="md:hidden p-2 text-foreground dark:text-white rounded-lg hover:bg-accent dark:hover:bg-white/10 transition-colors"
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                 >
@@ -378,7 +382,7 @@ const Navbar = () => {
             className="fixed top-20 md:top-24 left-4 right-4 md:hidden z-40"
           >
             <motion.div
-              className="backdrop-blur-2xl bg-black/80 border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
+              className="backdrop-blur-2xl bg-card dark:bg-black/80 border border-border dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden"
               initial={{ borderRadius: "9999px" }}
               animate={{ borderRadius: "20px" }}
               transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
@@ -386,7 +390,7 @@ const Navbar = () => {
               <div className="px-6 py-6 space-y-4 max-h-[80vh] overflow-y-auto">
                 {/* Mobile Models Menu */}
                 <div>
-                  <div className="text-sm font-semibold text-white mb-3 px-2">Models</div>
+                  <div className="text-sm font-semibold text-foreground dark:text-white mb-3 px-2">Models</div>
                   <div className="space-y-1">
                     {modelsMenuItems.map((item) => {
                       const Icon = item.icon;
@@ -399,14 +403,14 @@ const Navbar = () => {
                             setIsOpen(false);
                             navigate(item.path);
                           }}
-                          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+                          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-foreground/80 dark:text-white/80 hover:text-foreground dark:hover:text-white hover:bg-accent dark:hover:bg-white/10 transition-colors"
                           whileHover={{ x: 4 }}
                           whileTap={{ scale: 0.98 }}
                         >
                           <Icon className="w-4 h-4" />
                           <div className="flex flex-col">
                             <span className="font-medium">{item.name}</span>
-                            <span className="text-xs text-white/50">{item.description}</span>
+                            <span className="text-xs text-muted-foreground dark:text-white/50">{item.description}</span>
                           </div>
                         </motion.a>
                       );
@@ -416,7 +420,7 @@ const Navbar = () => {
 
                 {/* Mobile Features Menu */}
                 <div>
-                  <div className="text-sm font-semibold text-white mb-3 px-2">Features</div>
+                  <div className="text-sm font-semibold text-foreground dark:text-white mb-3 px-2">Features</div>
                   <div className="space-y-1">
                     {featuresMenuItems.map((item) => {
                       const Icon = item.icon;
@@ -429,14 +433,14 @@ const Navbar = () => {
                             setIsOpen(false);
                             navigate(item.path);
                           }}
-                          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+                          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-foreground/80 dark:text-white/80 hover:text-foreground dark:hover:text-white hover:bg-accent dark:hover:bg-white/10 transition-colors"
                           whileHover={{ x: 4 }}
                           whileTap={{ scale: 0.98 }}
                         >
                           <Icon className="w-4 h-4" />
                           <div className="flex flex-col">
                             <span className="font-medium">{item.name}</span>
-                            <span className="text-xs text-white/50">{item.description}</span>
+                            <span className="text-xs text-muted-foreground dark:text-white/50">{item.description}</span>
                           </div>
                         </motion.a>
                       );
@@ -449,7 +453,7 @@ const Navbar = () => {
                     key={link.name}
                     href={link.href}
                     onClick={() => setIsOpen(false)}
-                    className="block px-3 py-2.5 rounded-lg text-sm text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+                    className="block px-3 py-2.5 rounded-lg text-sm text-foreground/80 dark:text-white/80 hover:text-foreground dark:hover:text-white hover:bg-accent dark:hover:bg-white/10 transition-colors"
                     whileHover={{ x: 4 }}
                     whileTap={{ scale: 0.98 }}
                   >
@@ -461,7 +465,7 @@ const Navbar = () => {
                   <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                     <Button
                       variant="ghost"
-                      className="w-full justify-center text-white hover:bg-white/10"
+                      className="w-full justify-center text-foreground dark:text-white hover:bg-accent dark:hover:bg-white/10"
                       onClick={() => {
                         setIsOpen(false);
                         navigate("/auth/sign-in");
@@ -473,7 +477,7 @@ const Navbar = () => {
                   <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                     <Button
                       variant="default"
-                      className="w-full bg-white text-black hover:bg-white/90 font-semibold"
+                      className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-semibold"
                       onClick={() => {
                         setIsOpen(false);
                         navigate("/auth/sign-in");
