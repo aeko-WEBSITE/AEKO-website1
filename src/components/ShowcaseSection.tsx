@@ -1,13 +1,37 @@
 import { motion } from "framer-motion";
-import { Sparkles, ArrowRight } from "lucide-react";
+import { Sparkles, ArrowRight, Play, Image as ImageIcon, Video, MessageSquare, Bot, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const ShowcaseSection = () => {
-  const showcaseImages = [
-    "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80",
-    "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=800&q=80",
-    "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=800&q=80",
-    "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800&q=80",
+  const showcaseContent = [
+    {
+      type: "image",
+      url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80",
+      title: "AI Generated Art",
+      icon: ImageIcon,
+    },
+    {
+      type: "video",
+      url: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=800&q=80",
+      title: "AI Video Creation",
+      icon: Video,
+    },
+    {
+      type: "chat",
+      url: null,
+      title: "AI Chat Assistant",
+      icon: MessageSquare,
+      messages: [
+        { role: "user", text: "Create a logo for my startup" },
+        { role: "assistant", text: "I'll generate a modern logo design for you!" },
+      ],
+    },
+    {
+      type: "image",
+      url: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=800&q=80",
+      title: "Creative Designs",
+      icon: ImageIcon,
+    },
   ];
 
   const profileImages = [
@@ -20,7 +44,7 @@ const ShowcaseSection = () => {
     <section className="py-14 lg:py-12 relative overflow-hidden w-full">
       <div className="container mx-auto px-4 lg:px-8 relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 items-center max-w-7xl mx-auto">
-          {/* Left Side - Images Grid */}
+          {/* Left Side - Mixed Content Grid (Images, Videos, AI Chat) */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -28,29 +52,120 @@ const ShowcaseSection = () => {
             transition={{ duration: 0.6 }}
             className="grid grid-cols-2 gap-4"
           >
-            {showcaseImages.map((image, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="relative group"
-              >
-                <div
-                  className="relative overflow-hidden rounded-3xl border-4 border-border dark:border-white"
-                  style={{
-                    boxShadow: "0 0 20px rgba(0, 0, 0, 0.1), 0 0 40px rgba(0, 0, 0, 0.05)",
-                  }}
+            {showcaseContent.map((item, index) => {
+              const Icon = item.icon;
+              return (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  className="relative group"
                 >
-                  <img
-                    src={image}
-                    alt={`Showcase ${index + 1}`}
-                    className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                </div>
-              </motion.div>
-            ))}
+                  <div
+                    className="relative overflow-hidden rounded-3xl border-4 border-border dark:border-white bg-card"
+                    style={{
+                      boxShadow: "0 0 20px rgba(0, 0, 0, 0.1), 0 0 40px rgba(0, 0, 0, 0.05)",
+                    }}
+                  >
+                    {/* Image/Video Content */}
+                    {item.type !== "chat" && item.url && (
+                      <>
+                        <img
+                          src={item.url}
+                          alt={item.title}
+                          className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110"
+                        />
+                        {/* Video Play Overlay */}
+                        {item.type === "video" && (
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10 transition-colors">
+                            <motion.div
+                              className="w-16 h-16 rounded-full bg-white/90 dark:bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform"
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.95 }}
+                            >
+                              <Play className="w-8 h-8 text-purple-600 dark:text-purple-500 ml-1" fill="currentColor" />
+                            </motion.div>
+                          </div>
+                        )}
+                        {/* Type Badge */}
+                        <div className="absolute top-3 left-3 px-3 py-1.5 rounded-lg bg-background/90 dark:bg-black/80 backdrop-blur-sm border border-border dark:border-white/20 flex items-center gap-2">
+                          <Icon className="w-4 h-4 text-primary" />
+                          <span className="text-xs font-semibold text-foreground dark:text-white uppercase">
+                            {item.type}
+                          </span>
+                        </div>
+                      </>
+                    )}
+
+                    {/* AI Chat Interface */}
+                    {item.type === "chat" && (
+                      <div className="w-full h-64 p-4 flex flex-col gap-3 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30">
+                        {/* Chat Header */}
+                        <div className="flex items-center gap-2 pb-2 border-b border-border/30 dark:border-white/10">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                            <Bot className="w-4 h-4 text-white" />
+                          </div>
+                          <div>
+                            <p className="text-xs font-semibold text-foreground dark:text-white">AI Assistant</p>
+                            <p className="text-xs text-muted-foreground dark:text-white/60">Online</p>
+                          </div>
+                        </div>
+
+                        {/* Chat Messages */}
+                        <div className="flex-1 flex flex-col gap-2 overflow-hidden">
+                          {item.messages?.map((msg, msgIndex) => (
+                            <motion.div
+                              key={msgIndex}
+                              initial={{ opacity: 0, x: msg.role === "user" ? 10 : -10 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: msgIndex * 0.2 }}
+                              className={`flex gap-2 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                            >
+                              {msg.role === "assistant" && (
+                                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
+                                  <Bot className="w-3 h-3 text-white" />
+                                </div>
+                              )}
+                              <div
+                                className={`max-w-[80%] rounded-lg px-3 py-2 text-xs ${
+                                  msg.role === "user"
+                                    ? "bg-primary text-primary-foreground"
+                                    : "bg-card dark:bg-white/10 border border-border dark:border-white/20 text-foreground dark:text-white"
+                                }`}
+                              >
+                                {msg.text}
+                              </div>
+                              {msg.role === "user" && (
+                                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center flex-shrink-0">
+                                  <User className="w-3 h-3 text-white" />
+                                </div>
+                              )}
+                            </motion.div>
+                          ))}
+                        </div>
+
+                        {/* Type Badge */}
+                        <div className="absolute top-3 right-3 px-3 py-1.5 rounded-lg bg-background/90 dark:bg-black/80 backdrop-blur-sm border border-border dark:border-white/20 flex items-center gap-2">
+                          <Icon className="w-4 h-4 text-primary" />
+                          <span className="text-xs font-semibold text-foreground dark:text-white uppercase">
+                            {item.type}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Hover Overlay Effect */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <div className="absolute bottom-4 left-4 right-4">
+                        <p className="text-sm font-semibold text-white">{item.title}</p>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
           </motion.div>
 
           {/* Right Side - Content */}

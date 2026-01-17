@@ -73,7 +73,7 @@ const MasonryCard = ({
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="relative rounded-xl overflow-hidden cursor-pointer group border border-border/50 bg-card shadow-sm hover:shadow-lg hover:border-border transition-all duration-300"
+      className="relative rounded-lg overflow-hidden cursor-pointer group transition-all duration-300 bg-background"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={handleClick}

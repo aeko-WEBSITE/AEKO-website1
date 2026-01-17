@@ -82,7 +82,7 @@ const DashboardLayout = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex w-full overflow-x-hidden" style={{ maxWidth: '90vw', margin: '0 auto' }}>
+    <div className="min-h-screen bg-background flex w-full overflow-x-hidden mx-[1px]">
       {/* Sidebar - Icon Only with Tooltips */}
       <TooltipProvider>
         <aside
