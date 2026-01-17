@@ -41,6 +41,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 const CreateAgentSection = () => {
   const [agentDescription, setAgentDescription] = useState("");
@@ -109,13 +115,13 @@ const CreateAgentSection = () => {
 
   return (
     <TooltipProvider>
-    <section className="py-24 lg:py-32 relative overflow-hidden w-full">
-      {/* Base Dark Gradient Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a1a] via-[#1a0b2e] to-[#0f0517] w-full" />
+    <section className="py-24 lg:py-32 relative overflow-hidden w-full bg-background dark:bg-gradient-to-br dark:from-[#0a0a1a] dark:via-[#1a0b2e] dark:to-[#0f0517]">
+      {/* Theme-Aware Base Gradient Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-purple-50/30 to-blue-50/30 dark:from-[#0a0a1a] dark:via-[#1a0b2e] dark:to-[#0f0517] w-full" />
       
-      {/* Animated Mesh Gradient Overlay */}
+      {/* Animated Mesh Gradient Overlay - Theme Aware */}
       <motion.div
-        className="absolute inset-0 opacity-60"
+        className="absolute inset-0 opacity-30 dark:opacity-60"
         style={{
           background: `
             radial-gradient(at 20% 30%, rgba(168, 85, 247, 0.2) 0px, transparent 50%),
@@ -135,17 +141,17 @@ const CreateAgentSection = () => {
         }}
       />
       
-      {/* Large Floating Gradient Orbs */}
+      {/* Large Floating Gradient Orbs - Theme Aware */}
       <motion.div
-        className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl opacity-30"
+        className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl opacity-15 dark:opacity-30"
         style={{
-          background: "radial-gradient(circle, rgba(168, 85, 247, 0.4) 0%, transparent 70%)",
+          background: "radial-gradient(circle, rgba(168, 85, 247, 0.3) 0%, transparent 70%)",
         }}
         animate={{
           x: [0, 60, 0],
           y: [0, 40, 0],
           scale: [1, 1.3, 1],
-          opacity: [0.2, 0.4, 0.2],
+          opacity: [0.1, 0.25, 0.1],
         }}
         transition={{
           duration: 20,
@@ -154,15 +160,15 @@ const CreateAgentSection = () => {
         }}
       />
       <motion.div
-        className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full blur-3xl opacity-25"
+        className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full blur-3xl opacity-12 dark:opacity-25"
         style={{
-          background: "radial-gradient(circle, rgba(34, 211, 238, 0.4) 0%, transparent 70%)",
+          background: "radial-gradient(circle, rgba(34, 211, 238, 0.3) 0%, transparent 70%)",
         }}
         animate={{
           x: [0, -60, 0],
           y: [0, -40, 0],
           scale: [1, 1.4, 1],
-          opacity: [0.15, 0.35, 0.15],
+          opacity: [0.08, 0.2, 0.08],
         }}
         transition={{
           duration: 25,
@@ -172,15 +178,15 @@ const CreateAgentSection = () => {
         }}
       />
       <motion.div
-        className="absolute top-1/2 right-1/3 w-80 h-80 rounded-full blur-3xl opacity-20"
+        className="absolute top-1/2 right-1/3 w-80 h-80 rounded-full blur-3xl opacity-10 dark:opacity-20"
         style={{
-          background: "radial-gradient(circle, rgba(236, 72, 153, 0.4) 0%, transparent 70%)",
+          background: "radial-gradient(circle, rgba(236, 72, 153, 0.3) 0%, transparent 70%)",
         }}
         animate={{
           x: [0, 50, -50, 0],
           y: [0, -50, 50, 0],
           scale: [1, 1.2, 1.3, 1],
-          opacity: [0.1, 0.3, 0.2, 0.1],
+          opacity: [0.05, 0.15, 0.1, 0.05],
         }}
         transition={{
           duration: 18,
@@ -190,11 +196,11 @@ const CreateAgentSection = () => {
         }}
       />
       
-      {/* Star Field */}
+      {/* Star Field - Theme Aware */}
       {stars.map((star) => (
         <motion.div
           key={star.id}
-          className="absolute rounded-full bg-white"
+          className="absolute rounded-full bg-foreground/20 dark:bg-white"
           style={{
             left: `${star.x}%`,
             top: `${star.y}%`,
@@ -202,7 +208,7 @@ const CreateAgentSection = () => {
             height: `${star.size}px`,
           }}
           animate={{
-            opacity: [0.2, 1, 0.2],
+            opacity: [0.1, 0.4, 0.1],
             scale: [1, 1.3, 1],
           }}
           transition={{
@@ -214,12 +220,12 @@ const CreateAgentSection = () => {
         />
       ))}
       
-      {/* Animated Grid Overlay */}
-      <div className="absolute inset-0 opacity-10">
+      {/* Animated Grid Overlay - Theme Aware */}
+      <div className="absolute inset-0 opacity-[0.03] dark:opacity-10">
         <div className="absolute inset-0" style={{
           backgroundImage: `
-            linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px)
+            linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px)
           `,
           backgroundSize: "60px 60px",
         }}>
@@ -237,11 +243,11 @@ const CreateAgentSection = () => {
         </div>
       </div>
       
-      {/* Flowing Light Beams */}
+      {/* Flowing Light Beams - Theme Aware */}
       <motion.div
-        className="absolute inset-0 opacity-20"
+        className="absolute inset-0 opacity-10 dark:opacity-20"
         style={{
-          background: "linear-gradient(45deg, transparent 30%, rgba(168, 85, 247, 0.2) 50%, transparent 70%)",
+          background: "linear-gradient(45deg, transparent 30%, rgba(168, 85, 247, 0.15) 50%, transparent 70%)",
           backgroundSize: "300% 300%",
         }}
         animate={{
@@ -254,9 +260,9 @@ const CreateAgentSection = () => {
         }}
       />
       <motion.div
-        className="absolute inset-0 opacity-15"
+        className="absolute inset-0 opacity-8 dark:opacity-15"
         style={{
-          background: "linear-gradient(-45deg, transparent 30%, rgba(34, 211, 238, 0.2) 50%, transparent 70%)",
+          background: "linear-gradient(-45deg, transparent 30%, rgba(34, 211, 238, 0.15) 50%, transparent 70%)",
           backgroundSize: "300% 300%",
         }}
         animate={{
@@ -269,11 +275,11 @@ const CreateAgentSection = () => {
         }}
       />
       
-      {/* Animated Highlight Rings */}
+      {/* Animated Highlight Rings - Theme Aware */}
       {[...Array(4)].map((_, i) => (
         <motion.div
           key={`ring-${i}`}
-          className="absolute rounded-full border border-white/10"
+          className="absolute rounded-full border border-foreground/5 dark:border-white/10"
           style={{
             width: `${400 + i * 300}px`,
             height: `${400 + i * 300}px`,
@@ -295,11 +301,11 @@ const CreateAgentSection = () => {
         />
       ))}
       
-      {/* Floating Particles */}
+      {/* Floating Particles - Theme Aware */}
       {Array.from({ length: 15 }).map((_, i) => (
         <motion.div
           key={`particle-${i}`}
-          className="absolute rounded-full bg-white/10 blur-sm"
+          className="absolute rounded-full bg-foreground/5 dark:bg-white/10 blur-sm"
           style={{
             width: `${20 + Math.random() * 40}px`,
             height: `${20 + Math.random() * 40}px`,
@@ -310,7 +316,7 @@ const CreateAgentSection = () => {
             y: [0, -100, 0],
             x: [0, Math.random() * 100 - 50, 0],
             scale: [1, 1.5, 1],
-            opacity: [0.1, 0.3, 0.1],
+            opacity: [0.05, 0.15, 0.05],
           }}
           transition={{
             duration: 10 + Math.random() * 10,
@@ -321,8 +327,8 @@ const CreateAgentSection = () => {
         />
       ))}
       
-      {/* Gradient Overlay for Depth */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/50" />
+      {/* Gradient Overlay for Depth - Theme Aware */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-transparent to-background/60 dark:from-black/40 dark:via-transparent dark:to-black/50" />
 
       <div className="container mx-auto px-4 lg:px-8 relative z-10">
         {/* Header */}
@@ -338,7 +344,7 @@ const CreateAgentSection = () => {
             <span className="gradient-text">Multi-Flow Intelligence</span>{" "}
             for Any Use Case
           </h2>
-          <p className="text-lg text-white max-w-2xl mx-auto mb-2">
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-2">
             All-in-one AI platform for chat, images, and videos — powered by the world's best models.
           </p>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
@@ -396,8 +402,8 @@ const CreateAgentSection = () => {
                 }}
               />
               
-              {/* Inner Background */}
-              <div className="absolute inset-[2px] rounded-3xl bg-card/30 backdrop-blur-xl" style={{ borderRadius: '22px' }} />
+              {/* Inner Background - Theme Aware */}
+              <div className="absolute inset-[2px] rounded-3xl bg-card/80 dark:bg-card/30 backdrop-blur-xl border border-border/50" style={{ borderRadius: '22px' }} />
               
               <div className="relative z-10">
             {/* Top Section - Textarea */}
@@ -591,8 +597,8 @@ const CreateAgentSection = () => {
                     ease: 'linear',
                   }}
                 />
-                {/* Inner Background */}
-                <div className="absolute inset-[3px] rounded-3xl bg-gradient-to-br from-green-100 to-emerald-100" style={{ borderRadius: '21px' }} />
+                {/* Inner Background - Theme Aware */}
+                <div className="absolute inset-[3px] rounded-3xl bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-100 dark:to-emerald-100" style={{ borderRadius: '21px' }} />
                 {/* Mobile Chat Interface with Flowing Smooth Color Border */}
                 <div className="relative rounded-2xl p-6 overflow-hidden shadow-xl" style={{ borderRadius: '16px' }}>
                   {/* Flowing Smooth Rainbow Gradient Border - Inner */}
@@ -636,11 +642,11 @@ const CreateAgentSection = () => {
                       ease: 'linear',
                     }}
                   />
-                  {/* Inner Background */}
-                  <div className="absolute inset-[3px] rounded-xl bg-gray-800" style={{ borderRadius: '13px' }} />
+                  {/* Inner Background - Theme Aware */}
+                  <div className="absolute inset-[3px] rounded-xl bg-gray-900 dark:bg-gray-800" style={{ borderRadius: '13px' }} />
                   <div className="relative z-10">
                   {/* AI Agent Header */}
-                  <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-700">
+                  <div className="flex items-center justify-between mb-4 pb-3 ">
                     <div className="flex items-center gap-2">
                       <Brain className="w-5 h-5 text-gray-200" />
                       <span className="font-semibold text-gray-100">AI agent</span>
@@ -648,7 +654,7 @@ const CreateAgentSection = () => {
                   </div>
 
                   {/* Chain of Thought Overlay - Top Right */}
-                  <div className="absolute top-12 right-4 bg-white rounded-xl p-4 border-2 border-gray-200 shadow-2xl z-20 max-w-[280px]">
+                  <div className="absolute top-12 right-4 bg-white rounded-xl p-4  shadow-2xl z-20 max-w-[280px]">
                     <div className="flex items-center gap-2 mb-3">
                       <Brain className="w-4 h-4 text-gray-700" />
                       <span className="text-sm font-bold text-gray-900">AI agent chain of thought</span>
@@ -734,137 +740,266 @@ const CreateAgentSection = () => {
           </div>
         </motion.div>
 
-        {/* Use Cases Examples - Compact */}
+        {/* Use Cases Examples - Modern Accordion Design */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.6 }}
-          className="mt-12 max-w-6xl mx-auto"
+          className="mt-12 max-w-5xl mx-auto"
         >
-          <div className="text-center mb-6">
-            <h3 className="text-xl md:text-2xl font-bold text-foreground mb-1">
+          <div className="text-center mb-8">
+            <motion.h3 
+              className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-foreground mb-2"
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+            >
               Launch AI Agents in Minutes
-            </h3>
-            <p className="text-sm text-muted-foreground">
+            </motion.h3>
+            <motion.p 
+              className="text-base md:text-lg text-muted-foreground"
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
               See how custom agents work in real-world scenarios
-            </p>
+            </motion.p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            {useCases.map((useCase, index) => {
-              const Icon = useCase.icon;
-              return (
-                <motion.div
-                  key={useCase.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
-                  className="relative group"
-                >
-                  {/* Card with Bold White Border */}
-                  <div className="relative rounded-xl p-4 overflow-hidden border-4 border-white shadow-lg" style={{ borderRadius: '12px' }}>
-                    {/* Inner Background */}
-                    <div className="absolute inset-0 rounded-xl bg-[#12162A]/80 backdrop-blur-2xl" style={{ borderRadius: '8px' }} />
-                    <div className="relative z-10 flex items-start gap-3">
-                      {/* Icon */}
-                      <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${useCase.color} flex items-center justify-center flex-shrink-0 shadow-lg`}>
-                        <Icon className="w-5 h-5 text-white" />
-                      </div>
-
-                      {/* Content */}
-                      <div className="flex-1 min-w-0">
-                        {/* Title */}
-                        <h4 className="text-base font-semibold text-foreground mb-1">
-                          {useCase.title}
-                        </h4>
-
-                        {/* Description */}
-                        <p className="text-xs text-muted-foreground">
-                          {useCase.description}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              );
-            })}
+          {/* Modern Accordion Container */}
+          <div className="relative">
+            {/* Outer Glow */}
+            <motion.div
+              className="absolute -inset-1 rounded-2xl blur-xl opacity-30"
+              style={{
+                background: "linear-gradient(135deg, rgba(124, 58, 237, 0.3), rgba(59, 130, 246, 0.3), rgba(236, 72, 153, 0.3))",
+              }}
+              animate={{
+                opacity: [0.2, 0.4, 0.2],
+              }}
+              transition={{
+                duration: 4,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
+            
+            <div className="relative rounded-2xl bg-card/60 dark:bg-card/40 backdrop-blur-xl border border-border/50 dark:border-white/10 p-1 shadow-xl">
+              <Accordion type="single" collapsible className="w-full space-y-2">
+                {useCases.map((useCase, index) => {
+                  const Icon = useCase.icon;
+                  return (
+                    <AccordionItem
+                      key={useCase.title}
+                      value={`item-${index}`}
+                      className="border-none"
+                    >
+                      <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
+                      >
+                        {/* Accordion Trigger with Rich Design */}
+                        <AccordionTrigger className="relative group hover:no-underline px-6 py-5 rounded-xl bg-gradient-to-r from-card/80 to-card/60 dark:from-white/5 dark:to-white/[0.02] border border-border/30 dark:border-white/10 hover:border-primary/50 dark:hover:border-white/30 transition-all duration-300">
+                          <div className="flex items-center gap-4 w-full">
+                            {/* Icon with Gradient Background */}
+                            <div className={`relative w-12 h-12 rounded-xl bg-gradient-to-br ${useCase.color} flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                              <Icon className="w-6 h-6 text-white" />
+                              <div className="absolute inset-0 rounded-xl bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                            </div>
+                            
+                            {/* Content */}
+                            <div className="flex-1 text-left">
+                              <h4 className="text-lg font-bold text-foreground dark:text-white mb-1 group-hover:text-primary dark:group-hover:text-purple-300 transition-colors">
+                                {useCase.title}
+                              </h4>
+                              <p className="text-sm text-muted-foreground dark:text-white/70 line-clamp-1">
+                                {useCase.description}
+                              </p>
+                            </div>
+                            
+                            {/* Expand Indicator */}
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-semibold text-primary hidden sm:inline">Learn more</span>
+                            </div>
+                          </div>
+                        </AccordionTrigger>
+                        
+                        {/* Accordion Content */}
+                        <AccordionContent className="px-6 pb-5 pt-2">
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="relative"
+                          >
+                            {/* Example Conversation Card */}
+                            <div className="mt-4 p-5 rounded-xl bg-muted/30 dark:bg-white/5 border border-border/30 dark:border-white/10 backdrop-blur-sm">
+                              <div className="flex items-center gap-2 mb-3">
+                                <MessageSquare className="w-4 h-4 text-primary" />
+                                <span className="text-xs font-semibold text-foreground dark:text-white uppercase tracking-wider">
+                                  Example Conversation
+                                </span>
+                              </div>
+                              <div className="space-y-3">
+                                {useCase.example.split('\n').map((line, lineIndex) => {
+                                  const isCustomer = line.startsWith('Customer:') || line.startsWith('AI Intelligence Dashboard');
+                                  return (
+                                    <motion.div
+                                      key={lineIndex}
+                                      initial={{ opacity: 0, x: isCustomer ? 10 : -10 }}
+                                      animate={{ opacity: 1, x: 0 }}
+                                      transition={{ delay: lineIndex * 0.1 }}
+                                      className={`flex gap-3 ${isCustomer ? 'justify-end' : 'justify-start'}`}
+                                    >
+                                      {!isCustomer && (
+                                        <div className={`w-6 h-6 rounded-full bg-gradient-to-br ${useCase.color} flex items-center justify-center flex-shrink-0`}>
+                                          <Bot className="w-3 h-3 text-white" />
+                                        </div>
+                                      )}
+                                      <div className={`max-w-[85%] rounded-lg px-4 py-2.5 text-sm ${
+                                        isCustomer
+                                          ? 'bg-primary/10 dark:bg-primary/20 text-foreground dark:text-white border border-primary/20'
+                                          : `bg-gradient-to-br ${useCase.color}/20 dark:${useCase.color}/30 text-foreground dark:text-white border border-border/30`
+                                      }`}>
+                                        <span className="font-semibold text-primary dark:text-purple-300">
+                                          {isCustomer ? (line.includes('Customer:') ? 'Customer: ' : '') : 'Agent: '}
+                                        </span>
+                                        <span>{line.replace(/^(Customer:|Agent:)\s*/, '')}</span>
+                                      </div>
+                                      {isCustomer && (
+                                        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center flex-shrink-0">
+                                          <User className="w-3 h-3 text-white" />
+                                        </div>
+                                      )}
+                                    </motion.div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          </motion.div>
+                        </AccordionContent>
+                      </motion.div>
+                    </AccordionItem>
+                  );
+                })}
+              </Accordion>
+            </div>
           </div>
 
-                {/* What Your Custom Agent Can Do - Enhanced Rich UI/UX */}
+                {/* What Your Custom Agent Can Do - Modern Interactive Design */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.6, delay: 0.7 }}
-                  className="mt-8"
+                  className="mt-12"
                 >
-                  {/* Rich Container with Rich White Border */}
-                  <div className="relative rounded-3xl p-8 lg:p-10 shadow-2xl overflow-hidden border-2 border-white" style={{ borderRadius: '24px' }}>
-                    {/* Inner Background - More Blurred */}
-                    <div className="absolute inset-0 rounded-3xl bg-[#12162A]/90 backdrop-blur-2xl" style={{ borderRadius: '22px' }} />
+                  {/* Rich Container with Theme-Aware Border */}
+                  <div className="relative rounded-3xl p-8 lg:p-10 shadow-2xl overflow-hidden border-2 border-border dark:border-white" style={{ borderRadius: '24px' }}>
+                    {/* Animated Gradient Border */}
+                    <motion.div
+                      className="absolute inset-0 rounded-3xl pointer-events-none"
+                      style={{
+                        padding: '2px',
+                        background: 'linear-gradient(135deg, #7C3AED, #3B82F6, #22D3EE, #10B981, #F59E0B, #EC4899, #7C3AED)',
+                        backgroundSize: '300% 300%',
+                        WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                        WebkitMaskComposite: 'xor',
+                        maskComposite: 'exclude',
+                      }}
+                      animate={{
+                        backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+                      }}
+                      transition={{
+                        duration: 5,
+                        repeat: Infinity,
+                        ease: 'linear',
+                      }}
+                    />
+                    
+                    {/* Inner Background - Theme Aware */}
+                    <div className="absolute inset-[2px] rounded-3xl bg-card/90 dark:bg-[#12162A]/90 backdrop-blur-2xl" style={{ borderRadius: '22px' }} />
                     {/* Decorative Gradient Overlay */}
-                    <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-purple-500/5 via-pink-500/5 to-blue-500/5 pointer-events-none" style={{ borderRadius: '22px' }} />
+                    <div className="absolute inset-[2px] rounded-3xl bg-gradient-to-br from-purple-500/5 via-pink-500/5 to-blue-500/5 pointer-events-none" style={{ borderRadius: '22px' }} />
                     
                     {/* Content */}
                     <div className="relative z-10">
                       {/* Enhanced Header */}
-                      <div className="text-center mb-10">
+                      <motion.div 
+                        className="text-center mb-10"
+                        initial={{ opacity: 0, y: 10 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.5 }}
+                      >
                         <h4 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-foreground mb-4 tracking-tight leading-tight">
                           What Your Custom Agent Can Do
                         </h4>
                         <p className="text-base md:text-lg text-muted-foreground/90 font-medium max-w-2xl mx-auto">
                           Powerful capabilities to automate and enhance your business operations
                         </p>
-                      </div>
+                      </motion.div>
                       
-                      {/* Enhanced Grid with Rich Borders */}
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 lg:gap-8">
+                      {/* Modern Interactive Grid with Hover Cards */}
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 lg:gap-6">
                         {[
                           {
                             icon: MessageSquare,
                             title: "Handle customer inquiries 24/7",
+                            description: "Round-the-clock support with instant responses",
                             color: "from-blue-500 to-cyan-500",
                           },
                           {
                             icon: ShoppingCart,
                             title: "Process orders and bookings automatically",
+                            description: "Seamless order management and booking systems",
                             color: "from-purple-500 to-pink-500",
                           },
                           {
                             icon: Zap,
                             title: "Analyze sentiment and resolve issues",
+                            description: "Real-time sentiment analysis and issue resolution",
                             color: "from-orange-500 to-red-500",
                           },
                           {
                             icon: Globe,
                             title: "Integrate with your existing tools",
+                            description: "Connect with your favorite business tools",
                             color: "from-green-500 to-emerald-500",
                           },
                           {
                             icon: Sparkles,
                             title: "Learn from your business data",
+                            description: "AI-powered insights from your data",
                             color: "from-indigo-500 to-purple-500",
                           },
                           {
                             icon: Rocket,
                             title: "Scale with your business needs",
+                            description: "Grow seamlessly as your business expands",
                             color: "from-pink-500 to-rose-500",
                           },
                           {
                             icon: Ticket,
                             title: "Support ticket creation",
+                            description: "Automated ticket generation and tracking",
                             color: "from-yellow-500 to-orange-500",
                           },
                           {
                             icon: Clock,
                             title: "Reminder tool",
+                            description: "Never miss important deadlines",
                             color: "from-teal-500 to-cyan-500",
                           },
                           {
                             icon: FileCheck,
                             title: "Docs convert tool",
+                            description: "Transform documents effortlessly",
                             color: "from-violet-500 to-purple-500",
                           },
                         ].map((feature, index) => {
@@ -876,37 +1011,61 @@ const CreateAgentSection = () => {
                               whileInView={{ opacity: 1, scale: 1, y: 0 }}
                               viewport={{ once: true }}
                               transition={{ duration: 0.4, delay: 0.8 + index * 0.05 }}
-                              whileHover={{ y: -5, scale: 1.05 }}
-                              className="flex flex-col items-center gap-4 group cursor-pointer"
+                              whileHover={{ y: -8, scale: 1.05 }}
+                              className="group cursor-pointer"
                             >
-                              {/* Enhanced Icon Container with Rich White Border */}
-                              <div className="relative">
-                                {/* Outer Glow Effect */}
-                                <motion.div
-                                  className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${feature.color} opacity-20 blur-xl group-hover:opacity-30 transition-opacity`}
-                                  animate={{
-                                    opacity: [0.2, 0.3, 0.2],
-                                  }}
-                                  transition={{
-                                    duration: 2,
-                                    repeat: Infinity,
-                                    ease: "easeInOut",
-                                  }}
-                                />
+                              {/* Modern Card with Hover Effects */}
+                              <div className="relative p-5 rounded-2xl bg-card/50 dark:bg-white/5 border border-border/30 dark:border-white/10 hover:border-primary/50 dark:hover:border-white/30 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 dark:hover:shadow-purple-500/20 h-full">
+                                {/* Gradient Background on Hover */}
+                                <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-10 dark:group-hover:opacity-20 transition-opacity duration-300`} />
                                 
-                                {/* Icon Container with White Border */}
-                                <div className={`relative w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-br ${feature.color} flex items-center justify-center shadow-2xl border-2 border-white/40 group-hover:border-white/60 transition-all duration-300 group-hover:shadow-3xl`}>
-                                  <Icon className="w-8 h-8 md:w-10 md:h-10 text-white drop-shadow-lg" />
+                                {/* Content */}
+                                <div className="relative z-10 flex flex-col items-center gap-4 text-center">
+                                  {/* Icon Container */}
+                                  <div className="relative">
+                                    {/* Outer Glow Effect */}
+                                    <motion.div
+                                      className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${feature.color} opacity-20 blur-xl group-hover:opacity-30 transition-opacity`}
+                                      animate={{
+                                        opacity: [0.15, 0.25, 0.15],
+                                      }}
+                                      transition={{
+                                        duration: 2,
+                                        repeat: Infinity,
+                                        ease: "easeInOut",
+                                      }}
+                                    />
+                                    
+                                    {/* Icon Container */}
+                                    <div className={`relative w-16 h-16 md:w-18 md:h-18 rounded-2xl bg-gradient-to-br ${feature.color} flex items-center justify-center shadow-xl border-2 border-white/30 dark:border-white/40 group-hover:border-white/50 dark:group-hover:border-white/60 transition-all duration-300 group-hover:shadow-2xl`}>
+                                      <Icon className="w-8 h-8 md:w-9 md:h-9 text-white drop-shadow-lg" />
+                                      
+                                      {/* Inner Glow on Hover */}
+                                      <div className="absolute inset-0 rounded-2xl bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                    </div>
+                                  </div>
                                   
-                                  {/* Inner Glow on Hover */}
-                                  <div className="absolute inset-0 rounded-2xl bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                  {/* Text Content */}
+                                  <div className="space-y-1">
+                                    <h5 className="text-sm md:text-base font-bold text-foreground dark:text-white group-hover:text-primary dark:group-hover:text-purple-300 transition-colors duration-300 leading-tight">
+                                      {feature.title}
+                                    </h5>
+                                    <p className="text-xs text-muted-foreground dark:text-white/60 line-clamp-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                      {feature.description}
+                                    </p>
+                                  </div>
+                                </div>
+                                
+                                {/* Shine Effect on Hover */}
+                                <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 overflow-hidden">
+                                  <motion.div
+                                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+                                    initial={{ x: "-100%" }}
+                                    whileHover={{ x: "200%" }}
+                                    transition={{ duration: 1, ease: "easeInOut" }}
+                                  />
                                 </div>
                               </div>
-                              
-                              {/* Enhanced Text with Better Typography */}
-                              <p className="text-sm md:text-base text-center text-foreground font-semibold leading-tight max-w-[140px] group-hover:text-primary transition-colors duration-300">
-                                {feature.title}
-                              </p>
                             </motion.div>
                           );
                         })}

@@ -237,7 +237,7 @@ const AgentStorePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background mt-7">
       {/* Header */}
       <div className="mb-3 px-1">
         <div className="flex items-center justify-between mb-3">

@@ -31,11 +31,11 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-32 md:pt-40 z-20 w-full bg-[#0a0a0f]">
-      {/* Professional Dark Background with Mesh Gradient */}
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-32 md:pt-40 z-20 w-full bg-background dark:bg-[#0a0a0f]">
+      {/* Professional Background with Mesh Gradient */}
       <div className="absolute inset-0 z-0 w-full">
-        {/* Base dark gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#050508]" />
+        {/* Base gradient - Theme Aware */}
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 dark:from-[#0a0a0f] dark:via-[#0f0f1a] dark:to-[#050508]" />
         
         {/* Animated mesh gradient overlay */}
         <motion.div
@@ -58,8 +58,8 @@ const HeroSection = () => {
           }}
         />
         
-        {/* Dark overlay for depth */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70" />
+        {/* Overlay for depth - Theme Aware */}
+        <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-white/20 to-white/50 dark:from-black/60 dark:via-black/40 dark:to-black/70" />
         
         {/* Professional animated gradient orbs */}
         <motion.div
@@ -261,7 +261,7 @@ const HeroSection = () => {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
-            className="inline-flex items-center gap-3 px-6 py-3 rounded-full backdrop-blur-2xl bg-white/5 border border-white/10 mb-12 shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
+            className="inline-flex items-center gap-3 px-6 py-3 rounded-full backdrop-blur-2xl bg-card/60 dark:bg-white/5 border border-border dark:border-white/10 mb-12 shadow-lg dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
             whileHover={{ 
               scale: 1.03, 
               borderColor: "rgba(124, 58, 237, 0.4)",
@@ -283,7 +283,7 @@ const HeroSection = () => {
               />
               <span className="relative inline-flex rounded-full h-3 w-3 bg-gradient-to-r from-purple-500 to-pink-500 shadow-[0_0_8px_rgba(124,58,237,0.6)]"></span>
             </span>
-            <span className="text-sm font-semibold text-white/95 tracking-wide">
+            <span className="text-sm font-semibold text-foreground dark:text-white/95 tracking-wide">
               Powered by GPT-4, FLUX & Stable Diffusion
             </span>
           </motion.div>
@@ -293,7 +293,7 @@ const HeroSection = () => {
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, delay: 0.3, ease: [0.4, 0, 0.2, 1] }}
-            className="text-6xl md:text-7xl lg:text-9xl font-extrabold text-white mb-10 leading-[1.1] tracking-[-0.02em]"
+            className="text-6xl md:text-7xl lg:text-9xl font-extrabold text-foreground dark:text-white mb-10 leading-[1.1] tracking-[-0.02em]"
           >
             <motion.span
               initial={{ opacity: 0, y: 30 }}
@@ -326,7 +326,7 @@ const HeroSection = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5, ease: [0.4, 0, 0.2, 1] }}
-            className="text-xl md:text-2xl lg:text-3xl text-white/70 mb-14 max-w-4xl mx-auto leading-relaxed font-light"
+            className="text-xl md:text-2xl lg:text-3xl text-muted-foreground dark:text-white/70 mb-14 max-w-4xl mx-auto leading-relaxed font-light"
           >
             All-in-one AI platform for chat, images, and videos — powered by the
             world's best models.
@@ -358,7 +358,7 @@ const HeroSection = () => {
               
               {/* Input container - professional glass morphism */}
               <motion.div
-                className="relative flex items-center gap-4 backdrop-blur-2xl bg-white/5 border border-white/10 text-white px-8 py-6 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] transition-all duration-300"
+                className="relative flex items-center gap-4 backdrop-blur-2xl bg-card dark:bg-white/5 border border-border dark:border-white/10 text-foreground dark:text-white px-8 py-6 rounded-2xl shadow-lg dark:shadow-[0_8px_32px_rgba(0,0,0,0.5)] transition-all duration-300"
                 whileHover={{ 
                   borderColor: "rgba(124, 58, 237, 0.3)",
                   boxShadow: "0 12px 40px rgba(124, 58, 237, 0.15)",
@@ -379,7 +379,7 @@ const HeroSection = () => {
                     }
                   }}
                   placeholder="Ask Me Anything..."
-                  className="flex-1 bg-transparent text-white placeholder:text-white/40 focus:outline-none text-lg md:text-xl font-medium"
+                  className="flex-1 bg-transparent text-foreground dark:text-white placeholder:text-muted-foreground dark:placeholder:text-white/40 focus:outline-none text-lg md:text-xl font-medium"
                 />
                 <motion.button
                   onClick={handleSubmit}
@@ -389,7 +389,7 @@ const HeroSection = () => {
                   whileHover={{ scale: 1.1, rotate: 5 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <ArrowRight className="w-6 h-6 text-white" />
+                  <ArrowRight className="w-6 h-6 text-foreground dark:text-white" />
                 </motion.button>
               </motion.div>
             </div>
@@ -595,7 +595,7 @@ const HeroSection = () => {
             ].map((stat, index) => (
               <motion.div
                 key={stat.label}
-                className="text-center px-8 py-6 rounded-2xl backdrop-blur-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300 min-w-[140px]"
+                className="text-center px-8 py-6 rounded-2xl backdrop-blur-2xl bg-card dark:bg-white/5 border border-border dark:border-white/10 hover:bg-accent dark:hover:bg-white/10 transition-all duration-300 min-w-[140px]"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.8 + index * 0.15 }}
@@ -606,14 +606,14 @@ const HeroSection = () => {
                 }}
               >
                 <motion.div
-                  className="text-4xl md:text-5xl font-extrabold text-white mb-2 bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent"
+                  className="text-4xl md:text-5xl font-extrabold text-foreground dark:text-white mb-2 bg-gradient-to-r from-foreground to-foreground/80 dark:from-white dark:to-white/80 bg-clip-text text-transparent"
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ duration: 0.6, delay: 0.9 + index * 0.15, type: "spring", stiffness: 200 }}
                 >
                   {stat.value}
                 </motion.div>
-                <div className="text-sm md:text-base text-white/60 font-semibold uppercase tracking-wider">{stat.label}</div>
+                <div className="text-sm md:text-base text-muted-foreground dark:text-white/60 font-semibold uppercase tracking-wider">{stat.label}</div>
               </motion.div>
             ))}
           </motion.div>
