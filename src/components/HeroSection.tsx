@@ -31,29 +31,25 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-24 z-20 w-full">
-      {/* Astronaut Image Background */}
-      <div className="absolute inset-0 z-0 bg-background w-full">
-        {/* Base image - Replace URL with your astronaut/flower image */}
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: `url('https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=1920&q=80')`,
-          }}
-        />
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-32 md:pt-40 z-20 w-full bg-[#0a0a0f]">
+      {/* Professional Dark Background with Mesh Gradient */}
+      <div className="absolute inset-0 z-0 w-full">
+        {/* Base dark gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#050508]" />
         
-        {/* Dark overlay for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black/80" />
-        
-        {/* Flowing highlight animations */}
+        {/* Animated mesh gradient overlay */}
         <motion.div
-          className="absolute inset-0"
+          className="absolute inset-0 opacity-30"
           style={{
-            background: "linear-gradient(45deg, transparent 30%, rgba(139, 92, 246, 0.3) 50%, transparent 70%)",
-            backgroundSize: "200% 200%",
+            background: `
+              radial-gradient(at 20% 30%, rgba(124, 58, 237, 0.15) 0px, transparent 50%),
+              radial-gradient(at 80% 70%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
+              radial-gradient(at 50% 50%, rgba(236, 72, 153, 0.1) 0px, transparent 50%),
+              radial-gradient(at 0% 100%, rgba(34, 211, 238, 0.1) 0px, transparent 50%)
+            `,
           }}
           animate={{
-            backgroundPosition: ["0% 0%", "100% 100%", "0% 0%"],
+            opacity: [0.2, 0.35, 0.2],
           }}
           transition={{
             duration: 8,
@@ -62,61 +58,107 @@ const HeroSection = () => {
           }}
         />
         
-        {/* Additional flowing highlights */}
+        {/* Dark overlay for depth */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70" />
+        
+        {/* Professional animated gradient orbs */}
         <motion.div
-          className="absolute inset-0"
+          className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full blur-[120px]"
           style={{
-            background: "linear-gradient(-45deg, transparent 30%, rgba(236, 72, 153, 0.2) 50%, transparent 70%)",
-            backgroundSize: "200% 200%",
+            background: "radial-gradient(circle, rgba(124, 58, 237, 0.25) 0%, transparent 70%)",
           }}
           animate={{
-            backgroundPosition: ["100% 100%", "0% 0%", "100% 100%"],
+            x: [0, 80, 0],
+            y: [0, 50, 0],
+            scale: [1, 1.3, 1],
+            opacity: [0.2, 0.35, 0.2],
           }}
           transition={{
-            duration: 10,
+            duration: 20,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+        <motion.div
+          className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full blur-[120px]"
+          style={{
+            background: "radial-gradient(circle, rgba(59, 130, 246, 0.25) 0%, transparent 70%)",
+          }}
+          animate={{
+            x: [0, -80, 0],
+            y: [0, -50, 0],
+            scale: [1, 1.3, 1],
+            opacity: [0.2, 0.35, 0.2],
+          }}
+          transition={{
+            duration: 25,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 0.5,
+          }}
+        />
+        <motion.div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full blur-[100px]"
+          style={{
+            background: "radial-gradient(circle, rgba(236, 72, 153, 0.2) 0%, transparent 70%)",
+          }}
+          animate={{
+            scale: [1, 1.4, 1],
+            opacity: [0.15, 0.3, 0.15],
+          }}
+          transition={{
+            duration: 15,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 1,
+          }}
+        />
+        
+        {/* Subtle flowing light beams */}
+        <motion.div
+          className="absolute inset-0 opacity-20"
+          style={{
+            background: "linear-gradient(45deg, transparent 40%, rgba(124, 58, 237, 0.15) 50%, transparent 60%)",
+            backgroundSize: "300% 300%",
+          }}
+          animate={{
+            backgroundPosition: ["0% 0%", "100% 100%", "0% 0%"],
+          }}
+          transition={{
+            duration: 12,
             repeat: Infinity,
             ease: "easeInOut",
           }}
         />
         
-        {/* Pink/purple flower highlights */}
-        <motion.div
-          className="absolute inset-0 opacity-40"
-          style={{
-            background: "radial-gradient(circle at 30% 50%, rgba(236, 72, 153, 0.3) 0%, transparent 40%), radial-gradient(circle at 70% 50%, rgba(139, 92, 246, 0.3) 0%, transparent 40%)",
-          }}
-          animate={{
-            opacity: [0.3, 0.5, 0.3],
-            scale: [1, 1.1, 1],
-          }}
-          transition={{
-            duration: 6,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
-        
-        {/* Star field effect */}
+        {/* Refined star field - subtle and professional */}
         <div className="absolute inset-0">
-          {Array.from({ length: 50 }).map((_, i) => {
-            const size = Math.random() * 2 + 1;
+          {Array.from({ length: 60 }).map((_, i) => {
+            const size = Math.random() * 1.5 + 0.5;
             const startX = Math.random() * 100;
             const startY = Math.random() * 100;
-            const duration = Math.random() * 3 + 2;
-            const delay = Math.random() * 2;
+            const duration = Math.random() * 5 + 3;
+            const delay = Math.random() * 4;
+            const colors = [
+              "rgba(255, 255, 255, 0.6)",
+              "rgba(124, 58, 237, 0.5)",
+              "rgba(59, 130, 246, 0.5)",
+            ];
+            const color = colors[Math.floor(Math.random() * colors.length)];
             return (
               <motion.div
                 key={i}
-                className="absolute rounded-full bg-white"
+                className="absolute rounded-full"
                 style={{
                   width: `${size}px`,
                   height: `${size}px`,
                   left: `${startX}%`,
                   top: `${startY}%`,
-                  boxShadow: `0 0 ${size * 3}px rgba(255, 255, 255, 0.8)`,
+                  background: color,
+                  boxShadow: `0 0 ${size * 3}px ${color}`,
                 }}
                 animate={{
-                  opacity: [0.2, 1, 0.2],
+                  opacity: [0.2, 0.8, 0.2],
                   scale: [1, 1.5, 1],
                 }}
                 transition={{
@@ -131,70 +173,202 @@ const HeroSection = () => {
         </div>
       </div>
 
-      {/* Subtle grid overlay */}
-      <div className="absolute inset-0 z-[1] opacity-10">
-        <div
+      {/* Professional grid overlay - subtle and crisp */}
+      <div className="absolute inset-0 z-[1] opacity-[0.05]">
+        <motion.div
           className="absolute inset-0"
           style={{
             backgroundImage: `
-              linear-gradient(to right, rgba(139, 92, 246, 0.1) 1px, transparent 1px),
-              linear-gradient(to bottom, rgba(139, 92, 246, 0.1) 1px, transparent 1px)
+              linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+              linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px)
             `,
             backgroundSize: "80px 80px",
+          }}
+          animate={{
+            backgroundPosition: ["0 0", "80px 80px"],
+          }}
+          transition={{
+            duration: 30,
+            repeat: Infinity,
+            ease: "linear",
+          }}
+        />
+      </div>
+      
+      {/* Subtle floating particles - minimal and elegant */}
+      <div className="absolute inset-0 z-[1] overflow-hidden pointer-events-none">
+        {Array.from({ length: 15 }).map((_, i) => {
+          const startX = Math.random() * 100;
+          const startY = Math.random() * 100;
+          const duration = Math.random() * 15 + 12;
+          const delay = Math.random() * 8;
+          return (
+            <motion.div
+              key={`particle-${i}`}
+              className="absolute w-0.5 h-0.5 rounded-full bg-white/30"
+              style={{
+                left: `${startX}%`,
+                top: `${startY}%`,
+              }}
+              animate={{
+                y: [0, -150, 0],
+                x: [0, Math.random() * 40 - 20, 0],
+                opacity: [0, 0.6, 0],
+              }}
+              transition={{
+                duration: duration,
+                repeat: Infinity,
+                delay: delay,
+                ease: "easeInOut",
+              }}
+            />
+          );
+        })}
+      </div>
+      
+      {/* Neon accent lines - innovative touch */}
+      <div className="absolute inset-0 z-[1] overflow-hidden pointer-events-none">
+        <motion.div
+          className="absolute top-1/4 left-0 w-full h-px bg-gradient-to-r from-transparent via-purple-500/30 to-transparent"
+          animate={{
+            opacity: [0.3, 0.6, 0.3],
+          }}
+          transition={{
+            duration: 4,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+        <motion.div
+          className="absolute bottom-1/4 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-500/30 to-transparent"
+          animate={{
+            opacity: [0.3, 0.6, 0.3],
+          }}
+          transition={{
+            duration: 4,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 1,
           }}
         />
       </div>
 
       {/* Content */}
       <div className="container mx-auto px-4 lg:px-8 relative z-10">
-        <div className="max-w-4xl mx-auto text-center">
-          {/* Badge */}
+        <div className="max-w-5xl mx-auto text-center">
+          {/* Professional Badge - crisp and modern */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary/50 border border-border/50 backdrop-blur-sm mb-8"
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
+            className="inline-flex items-center gap-3 px-6 py-3 rounded-full backdrop-blur-2xl bg-white/5 border border-white/10 mb-12 shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
+            whileHover={{ 
+              scale: 1.03, 
+              borderColor: "rgba(124, 58, 237, 0.4)",
+              boxShadow: "0 12px 40px rgba(124, 58, 237, 0.2)",
+            }}
           >
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+            <span className="relative flex h-3 w-3">
+              <motion.span
+                className="absolute inline-flex h-full w-full rounded-full bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 opacity-80"
+                animate={{
+                  scale: [1, 1.6, 1],
+                  opacity: [0.8, 0, 0.8],
+                }}
+                transition={{
+                  duration: 2.5,
+                  repeat: Infinity,
+                  ease: "easeOut",
+                }}
+              />
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-gradient-to-r from-purple-500 to-pink-500 shadow-[0_0_8px_rgba(124,58,237,0.6)]"></span>
             </span>
-            <span className="text-sm text-muted-foreground">
+            <span className="text-sm font-semibold text-white/95 tracking-wide">
               Powered by GPT-4, FLUX & Stable Diffusion
             </span>
           </motion.div>
 
-          {/* Headline */}
+          {/* Professional Headline - crisp typography */}
           <motion.h1
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-4xl md:text-5xl lg:text-7xl font-bold text-foreground mb-6 leading-tight"
+            transition={{ duration: 0.9, delay: 0.3, ease: [0.4, 0, 0.2, 1] }}
+            className="text-6xl md:text-7xl lg:text-9xl font-extrabold text-white mb-10 leading-[1.1] tracking-[-0.02em]"
           >
-            Chat Smarter. Create Faster.{" "}
-            <span className="gradient-text">Powered by AI.</span>
+            <motion.span
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.4 }}
+              className="block mb-2"
+            >
+              Chat Smarter.
+            </motion.span>
+            <motion.span
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.5 }}
+              className="block mb-2"
+            >
+              Create Faster.
+            </motion.span>
+            <motion.span
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.7, delay: 0.6, type: "spring", stiffness: 200 }}
+              className="block gradient-text mt-3"
+            >
+              Powered by AI.
+            </motion.span>
           </motion.h1>
 
-          {/* Subheadline */}
+          {/* Professional Subheadline */}
           <motion.p
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto"
+            transition={{ duration: 0.8, delay: 0.5, ease: [0.4, 0, 0.2, 1] }}
+            className="text-xl md:text-2xl lg:text-3xl text-white/70 mb-14 max-w-4xl mx-auto leading-relaxed font-light"
           >
             All-in-one AI platform for chat, images, and videos — powered by the
             world's best models.
           </motion.p>
 
-          {/* Ask Me Anything Textbox */}
+          {/* Professional Input - crisp and modern */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.25 }}
-            className="mb-8 max-w-2xl mx-auto"
+            initial={{ opacity: 0, y: 30, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.7, delay: 0.6, ease: [0.4, 0, 0.2, 1] }}
+            className="mb-14 max-w-4xl mx-auto"
           >
-            <div className="relative">
-              <div className="flex items-center gap-3 bg-black text-white px-6 py-4 rounded-full shadow-lg hover:bg-black/90 transition-all duration-200 focus-within:ring-2 focus-within:ring-white/20">
+            <div className="relative group">
+              {/* Animated glow effect */}
+              <motion.div
+                className="absolute -inset-1 rounded-full opacity-0 group-focus-within:opacity-100 blur-2xl transition-opacity duration-500"
+                style={{
+                  background: "linear-gradient(135deg, rgba(124, 58, 237, 0.4), rgba(59, 130, 246, 0.4), rgba(236, 72, 153, 0.4))",
+                }}
+                animate={{
+                  opacity: [0, 0.6, 0],
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+              />
+              
+              {/* Input container - professional glass morphism */}
+              <motion.div
+                className="relative flex items-center gap-4 backdrop-blur-2xl bg-white/5 border border-white/10 text-white px-8 py-6 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] transition-all duration-300"
+                whileHover={{ 
+                  borderColor: "rgba(124, 58, 237, 0.3)",
+                  boxShadow: "0 12px 40px rgba(124, 58, 237, 0.15)",
+                  scale: 1.01,
+                }}
+                whileFocus={{ 
+                  borderColor: "rgba(124, 58, 237, 0.5)",
+                  boxShadow: "0 12px 40px rgba(124, 58, 237, 0.25)",
+                }}
+              >
                 <input
                   type="text"
                   value={input}
@@ -204,18 +378,20 @@ const HeroSection = () => {
                       handleSubmit();
                     }
                   }}
-                  placeholder="Ask Me Anything"
-                  className="flex-1 bg-transparent text-white placeholder:text-white/60 focus:outline-none text-base md:text-lg font-medium"
+                  placeholder="Ask Me Anything..."
+                  className="flex-1 bg-transparent text-white placeholder:text-white/40 focus:outline-none text-lg md:text-xl font-medium"
                 />
-                <button
+                <motion.button
                   onClick={handleSubmit}
                   disabled={!input.trim()}
-                  className="w-8 h-8 rounded-full bg-white flex items-center justify-center flex-shrink-0 hover:bg-white/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-12 h-12 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0 hover:from-purple-600 hover:to-pink-600 transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-lg"
                   title="Submit"
+                  whileHover={{ scale: 1.1, rotate: 5 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  <ArrowRight className="w-4 h-4 text-black" />
-                </button>
-              </div>
+                  <ArrowRight className="w-6 h-6 text-white" />
+                </motion.button>
+              </motion.div>
             </div>
           </motion.div>
 
@@ -405,24 +581,40 @@ const HeroSection = () => {
             </motion.div>
           </motion.div>
 
-          {/* Stats */}
+          {/* Professional Stats - crisp cards */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="flex items-center justify-center gap-8 md:gap-16 mt-16 pt-8 border-t border-border/30"
+            transition={{ duration: 0.9, delay: 0.7, ease: [0.4, 0, 0.2, 1] }}
+            className="flex items-center justify-center gap-8 md:gap-16 mt-24 pt-16 border-t border-white/10"
           >
             {[
               { value: "5M+", label: "Generations" },
               { value: "50+", label: "AI Models" },
               { value: "200K+", label: "Creators" },
-            ].map((stat) => (
-              <div key={stat.label} className="text-center">
-                <div className="text-2xl md:text-3xl font-bold text-foreground">
+            ].map((stat, index) => (
+              <motion.div
+                key={stat.label}
+                className="text-center px-8 py-6 rounded-2xl backdrop-blur-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300 min-w-[140px]"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.8 + index * 0.15 }}
+                whileHover={{ 
+                  scale: 1.05, 
+                  borderColor: "rgba(124, 58, 237, 0.3)",
+                  boxShadow: "0 8px 32px rgba(124, 58, 237, 0.2)",
+                }}
+              >
+                <motion.div
+                  className="text-4xl md:text-5xl font-extrabold text-white mb-2 bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 0.6, delay: 0.9 + index * 0.15, type: "spring", stiffness: 200 }}
+                >
                   {stat.value}
-                </div>
-                <div className="text-sm text-muted-foreground">{stat.label}</div>
-              </div>
+                </motion.div>
+                <div className="text-sm md:text-base text-white/60 font-semibold uppercase tracking-wider">{stat.label}</div>
+              </motion.div>
             ))}
           </motion.div>
         </div>
@@ -433,3 +625,4 @@ const HeroSection = () => {
 };
 
 export default HeroSection;
+

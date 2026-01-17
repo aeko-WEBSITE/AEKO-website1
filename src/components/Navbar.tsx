@@ -1,6 +1,6 @@
-import { motion } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
 import { Menu, X, MessageSquare, Image, Video, Sparkles, Bot, Plug, Film, Mic, Zap, ChevronDown } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,8 +15,28 @@ import { useTheme } from "@/hooks/use-theme";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const navigate = useNavigate();
   const { theme } = useTheme();
+  const { scrollY } = useScroll();
+
+  // Track scroll position for Dynamic Island morphing
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    setIsScrolled(latest > 50);
+  });
+
+  // Close mobile menu when clicking outside
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isOpen]);
 
   const modelsMenuItems = [
     { 
@@ -88,255 +108,386 @@ const Navbar = () => {
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="fixed top-0 left-0 right-0 z-50"
-      style={{ background: 'transparent' }}
+      className="fixed top-0 left-0 right-0 z-50 flex items-center justify-center pt-4 md:pt-6"
     >
-      <div className="container mx-auto px-4 lg:px-6" style={{ maxWidth: '1100px' }}>
-        <div className="flex items-center justify-between h-14">
-          {/* Left Side - Logo */}
-          <div className="flex items-center">
-            <a href="#" className="flex items-center gap-2">
-              <div className="relative w-10 h-10 flex items-center justify-center">
-                {/* Animated Border */}
-                <motion.div
-                  className="absolute inset-0 rounded-full"
-                  style={{
-                    padding: '3px',
-                    background: 'linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.5), rgba(255,255,255,0.9))',
-                    backgroundSize: '200% 200%',
-                    WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                    WebkitMaskComposite: 'xor',
-                    maskComposite: 'exclude',
-                  }}
-                  animate={{
-                    backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
-                  }}
-                  transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                    ease: 'linear',
-                  }}
-                />
-                {/* Logo Container - Simple as before */}
-                <div className="relative w-8 h-8 rounded-full overflow-hidden bg-transparent flex items-center justify-center">
-                  <img 
-                    src={logoDark} 
-                    alt="AEKO" 
-                    className="w-full h-full object-contain" 
-                  />
+      {/* Dynamic Island Container */}
+      <motion.div
+        className="relative"
+        animate={{
+          width: isExpanded || isOpen ? "100%" : "auto",
+        }}
+        transition={{
+          duration: 0.4,
+          ease: [0.4, 0, 0.2, 1],
+        }}
+        style={{
+          maxWidth: isExpanded || isOpen ? "100%" : "fit-content",
+        }}
+      >
+        {/* Dynamic Island Capsule */}
+        <motion.div
+          className="relative mx-auto"
+          animate={{
+            borderRadius: isScrolled || isOpen ? "20px" : "9999px",
+            padding: isScrolled || isOpen ? "0px" : "0px",
+            width: isExpanded || isOpen ? "100%" : "auto",
+          }}
+          transition={{
+            duration: 0.4,
+            ease: [0.4, 0, 0.2, 1],
+          }}
+        >
+          {/* Glass Background with Blur */}
+          <motion.div
+            className="relative overflow-hidden"
+            animate={{
+              backdropFilter: "blur(20px) saturate(180%)",
+              backgroundColor: isScrolled || isOpen 
+                ? "rgba(0, 0, 0, 0.7)" 
+                : "rgba(0, 0, 0, 0.4)",
+              borderWidth: "1px",
+              borderColor: "rgba(255, 255, 255, 0.1)",
+              borderRadius: isScrolled || isOpen ? "20px" : "9999px",
+              boxShadow: isScrolled || isOpen
+                ? "0 8px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1)"
+                : "0 8px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.1)",
+            }}
+            transition={{
+              duration: 0.4,
+              ease: [0.4, 0, 0.2, 1],
+            }}
+          >
+            {/* Animated Gradient Border */}
+            <motion.div
+              className="absolute inset-0 rounded-full opacity-50"
+              style={{
+                background: "linear-gradient(135deg, rgba(124, 58, 237, 0.5), rgba(59, 130, 246, 0.5), rgba(34, 211, 238, 0.5), rgba(236, 72, 153, 0.5))",
+                backgroundSize: "200% 200%",
+                borderRadius: "inherit",
+                padding: "1px",
+                WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+                WebkitMaskComposite: "xor",
+                maskComposite: "exclude",
+              }}
+              animate={{
+                backgroundPosition: ["0% 0%", "100% 100%", "0% 0%"],
+                borderRadius: isScrolled || isOpen ? "20px" : "9999px",
+              }}
+              transition={{
+                backgroundPosition: {
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: "linear",
+                },
+                borderRadius: {
+                  duration: 0.4,
+                  ease: [0.4, 0, 0.2, 1],
+                },
+              }}
+            />
+
+            {/* Content Container */}
+            <div className="relative px-4 md:px-6 py-3 md:py-3.5">
+              <div className="flex items-center justify-between gap-4 md:gap-8">
+                {/* Left Side - Logo */}
+                <motion.a
+                  href="#"
+                  className="flex items-center gap-2 flex-shrink-0"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <div className="relative w-9 h-9 md:w-10 md:h-10 flex items-center justify-center">
+                    {/* Animated Border */}
+                    <motion.div
+                      className="absolute inset-0 rounded-full"
+                      style={{
+                        padding: '2px',
+                        background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.8), rgba(59, 130, 246, 0.8), rgba(34, 211, 238, 0.8), rgba(236, 72, 153, 0.8))',
+                        backgroundSize: '200% 200%',
+                        WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                        WebkitMaskComposite: 'xor',
+                        maskComposite: 'exclude',
+                      }}
+                      animate={{
+                        backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+                      }}
+                      transition={{
+                        duration: 3,
+                        repeat: Infinity,
+                        ease: 'linear',
+                      }}
+                    />
+                    {/* Logo Container */}
+                    <div className="relative w-7 h-7 md:w-8 md:h-8 rounded-full overflow-hidden bg-transparent flex items-center justify-center">
+                      <img 
+                        src={logoDark} 
+                        alt="AEKO" 
+                        className="w-full h-full object-contain" 
+                      />
+                    </div>
+                  </div>
+                  <div className="flex items-baseline gap-0.5">
+                    <span className="text-base md:text-lg font-bold text-white">AEKO.</span>
+                    <motion.span
+                      className="text-base md:text-lg font-bold"
+                      style={{
+                        background: 'linear-gradient(135deg, #7C3AED, #3B82F6, #22D3EE, #22C55E, #FACC15, #EC4899, #7C3AED)',
+                        backgroundSize: '200% 200%',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text',
+                      }}
+                      animate={{
+                        backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+                      }}
+                      transition={{
+                        duration: 3,
+                        repeat: Infinity,
+                        ease: 'linear',
+                      }}
+                    >
+                      AI
+                    </motion.span>
+                  </div>
+                </motion.a>
+
+                {/* Right Side - All Nav Links + CTA */}
+                <div className="hidden md:flex items-center gap-4 lg:gap-6">
+                  {/* Models Dropdown */}
+                  <DropdownMenu onOpenChange={(open) => setIsExpanded(open)}>
+                    <DropdownMenuTrigger asChild>
+                      <motion.button
+                        className="text-sm text-white/90 hover:text-white transition-colors duration-200 flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-white/5"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        Models
+                        <ChevronDown className="w-3.5 h-3.5" />
+                      </motion.button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="w-64 backdrop-blur-xl bg-black/80 border-white/10">
+                      {modelsMenuItems.map((item) => {
+                        const Icon = item.icon;
+                        return (
+                          <DropdownMenuItem
+                            key={item.path}
+                            onClick={() => navigate(item.path)}
+                            className="cursor-pointer hover:bg-white/10"
+                          >
+                            <Icon className="w-4 h-4 mr-2" aria-hidden="true" />
+                            <div className="flex flex-col">
+                              <span className="font-medium text-white">{item.name}</span>
+                              <span className="text-xs text-white/60">{item.description}</span>
+                            </div>
+                          </DropdownMenuItem>
+                        );
+                      })}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+
+                  {/* Features Dropdown */}
+                  <DropdownMenu onOpenChange={(open) => setIsExpanded(open)}>
+                    <DropdownMenuTrigger asChild>
+                      <motion.button
+                        className="text-sm text-white/90 hover:text-white transition-colors duration-200 flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-white/5"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        Features
+                        <ChevronDown className="w-3.5 h-3.5" />
+                      </motion.button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="w-64 backdrop-blur-xl bg-black/80 border-white/10">
+                      {featuresMenuItems.map((item) => {
+                        const Icon = item.icon;
+                        return (
+                          <DropdownMenuItem
+                            key={item.path}
+                            onClick={() => navigate(item.path)}
+                            className="cursor-pointer hover:bg-white/10"
+                          >
+                            <Icon className="w-4 h-4 mr-2" aria-hidden="true" />
+                            <div className="flex flex-col">
+                              <span className="font-medium text-white">{item.name}</span>
+                              <span className="text-xs text-white/60">{item.description}</span>
+                            </div>
+                          </DropdownMenuItem>
+                        );
+                      })}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+
+                  {navLinks.map((link) => (
+                    <motion.a
+                      key={link.name}
+                      href={link.href}
+                      className="text-sm text-white/90 hover:text-white transition-colors duration-200 px-3 py-1.5 rounded-lg hover:bg-white/5"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      {link.name}
+                    </motion.a>
+                  ))}
+                  
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => navigate("/auth/sign-in")}
+                      className="text-white/90 hover:text-white hover:bg-white/10"
+                    >
+                      Sign In
+                    </Button>
+                  </motion.div>
+                  
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={() => navigate("/auth/sign-in")}
+                      className="bg-white text-black hover:bg-white/90 font-semibold shadow-lg"
+                    >
+                      Start Creating
+                    </Button>
+                  </motion.div>
+                </div>
+
+                {/* Mobile Menu Button */}
+                <motion.button
+                  onClick={() => setIsOpen(!isOpen)}
+                  className="md:hidden p-2 text-white rounded-lg hover:bg-white/10 transition-colors"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                </motion.button>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      </motion.div>
+
+      {/* Mobile Menu - Expanded from Dynamic Island */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+            transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+            className="fixed top-20 md:top-24 left-4 right-4 md:hidden z-40"
+          >
+            <motion.div
+              className="backdrop-blur-2xl bg-black/80 border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
+              initial={{ borderRadius: "9999px" }}
+              animate={{ borderRadius: "20px" }}
+              transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+            >
+              <div className="px-6 py-6 space-y-4 max-h-[80vh] overflow-y-auto">
+                {/* Mobile Models Menu */}
+                <div>
+                  <div className="text-sm font-semibold text-white mb-3 px-2">Models</div>
+                  <div className="space-y-1">
+                    {modelsMenuItems.map((item) => {
+                      const Icon = item.icon;
+                      return (
+                        <motion.a
+                          key={item.path}
+                          href="#"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setIsOpen(false);
+                            navigate(item.path);
+                          }}
+                          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+                          whileHover={{ x: 4 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <Icon className="w-4 h-4" />
+                          <div className="flex flex-col">
+                            <span className="font-medium">{item.name}</span>
+                            <span className="text-xs text-white/50">{item.description}</span>
+                          </div>
+                        </motion.a>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Mobile Features Menu */}
+                <div>
+                  <div className="text-sm font-semibold text-white mb-3 px-2">Features</div>
+                  <div className="space-y-1">
+                    {featuresMenuItems.map((item) => {
+                      const Icon = item.icon;
+                      return (
+                        <motion.a
+                          key={item.path}
+                          href="#"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setIsOpen(false);
+                            navigate(item.path);
+                          }}
+                          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+                          whileHover={{ x: 4 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <Icon className="w-4 h-4" />
+                          <div className="flex flex-col">
+                            <span className="font-medium">{item.name}</span>
+                            <span className="text-xs text-white/50">{item.description}</span>
+                          </div>
+                        </motion.a>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {navLinks.map((link) => (
+                  <motion.a
+                    key={link.name}
+                    href={link.href}
+                    onClick={() => setIsOpen(false)}
+                    className="block px-3 py-2.5 rounded-lg text-sm text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+                    whileHover={{ x: 4 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    {link.name}
+                  </motion.a>
+                ))}
+                
+                <div className="pt-4 border-t border-white/10 space-y-2">
+                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-center text-white hover:bg-white/10"
+                      onClick={() => {
+                        setIsOpen(false);
+                        navigate("/auth/sign-in");
+                      }}
+                    >
+                      Sign In
+                    </Button>
+                  </motion.div>
+                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <Button
+                      variant="default"
+                      className="w-full bg-white text-black hover:bg-white/90 font-semibold"
+                      onClick={() => {
+                        setIsOpen(false);
+                        navigate("/auth/sign-in");
+                      }}
+                    >
+                      Start Creating
+                    </Button>
+                  </motion.div>
                 </div>
               </div>
-              <div className="flex items-baseline gap-0.5">
-                <span className="text-lg font-bold text-white">AEKO.</span>
-                <motion.span
-                  className="text-lg font-bold"
-                  style={{
-                    background: 'linear-gradient(135deg, #7C3AED, #3B82F6, #22D3EE, #22C55E, #FACC15, #EC4899, #7C3AED)',
-                    backgroundSize: '200% 200%',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    backgroundClip: 'text',
-                  }}
-                  animate={{
-                    backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
-                  }}
-                  transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                    ease: 'linear',
-                  }}
-                >
-                  AI
-                </motion.span>
-              </div>
-            </a>
-          </div>
-
-          {/* Right Side - All Nav Links + CTA */}
-          <div className="hidden md:flex items-center gap-6">
-            {/* Models Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="text-sm text-white/90 hover:text-white transition-colors duration-200 flex items-center gap-1">
-                  Models
-                  <ChevronDown className="w-4 h-4" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-64">
-                {modelsMenuItems.map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <DropdownMenuItem
-                      key={item.path}
-                      onClick={() => navigate(item.path)}
-                      className="cursor-pointer"
-                    >
-                      <Icon className="w-4 h-4 mr-2" aria-hidden="true" />
-                      <div className="flex flex-col">
-                        <span className="font-medium">{item.name}</span>
-                        <span className="text-xs text-muted-foreground">{item.description}</span>
-                      </div>
-                    </DropdownMenuItem>
-                  );
-                })}
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {/* Features Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="text-sm text-white/90 hover:text-white transition-colors duration-200 flex items-center gap-1">
-                  Features
-                  <ChevronDown className="w-4 h-4" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-64">
-                {featuresMenuItems.map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <DropdownMenuItem
-                      key={item.path}
-                      onClick={() => navigate(item.path)}
-                      className="cursor-pointer"
-                    >
-                      <Icon className="w-4 h-4 mr-2" aria-hidden="true" />
-                      <div className="flex flex-col">
-                        <span className="font-medium">{item.name}</span>
-                        <span className="text-xs text-muted-foreground">{item.description}</span>
-                      </div>
-                    </DropdownMenuItem>
-                  );
-                })}
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                className="text-sm text-white/90 hover:text-white transition-colors duration-200"
-              >
-                {link.name}
-              </a>
-            ))}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate("/auth/sign-in")}
-              className="text-white/90 hover:text-white hover:bg-white/10"
-            >
-              Sign In
-            </Button>
-            <Button
-              variant="default"
-              size="sm"
-              onClick={() => navigate("/auth/sign-in")}
-              className="bg-white text-black hover:bg-white/90"
-            >
-              Start Creating
-            </Button>
-          </div>
-
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden p-2 text-white"
-          >
-            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
-        </div>
-      </div>
-
-      {/* Mobile Menu */}
-      {isOpen && (
-        <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: "auto" }}
-          exit={{ opacity: 0, height: 0 }}
-          className="md:hidden bg-background/95 backdrop-blur-xl"
-        >
-          <div className="container mx-auto px-4 py-4 space-y-4">
-            {/* Mobile Models Menu */}
-            <div>
-              <button className="block w-full text-left text-muted-foreground hover:text-foreground transition-colors font-medium mb-2">
-                Models
-              </button>
-              <div className="pl-4 space-y-2">
-                {modelsMenuItems.map((item) => (
-                  <a
-                    key={item.path}
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setIsOpen(false);
-                      navigate(item.path);
-                    }}
-                    className="block text-sm text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {item.name}
-                  </a>
-                ))}
-              </div>
-            </div>
-
-            {/* Mobile Features Menu */}
-            <div>
-              <button className="block w-full text-left text-muted-foreground hover:text-foreground transition-colors font-medium mb-2">
-                Features
-              </button>
-              <div className="pl-4 space-y-2">
-                {featuresMenuItems.map((item) => (
-                  <a
-                    key={item.path}
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setIsOpen(false);
-                      navigate(item.path);
-                    }}
-                    className="block text-sm text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {item.name}
-                  </a>
-                ))}
-              </div>
-            </div>
-
-            {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                onClick={() => setIsOpen(false)}
-                className="block text-muted-foreground hover:text-foreground transition-colors"
-              >
-                {link.name}
-              </a>
-            ))}
-            <div className="pt-4 border-t border-border space-y-2">
-              <Button
-                variant="ghost"
-                className="w-full justify-start"
-                onClick={() => {
-                  setIsOpen(false);
-                  navigate("/auth/sign-in");
-                }}
-              >
-                Sign In
-              </Button>
-              <Button
-                variant="default"
-                className="w-full"
-                onClick={() => {
-                  setIsOpen(false);
-                  navigate("/auth/sign-in");
-                }}
-              >
-                Start Creating
-              </Button>
-            </div>
-          </div>
-        </motion.div>
-      )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.nav>
   );
 };

@@ -97,21 +97,36 @@ const CreateAgentSection = () => {
     },
   ];
 
+  // Generate stars for background
+  const stars = Array.from({ length: 80 }).map((_, i) => ({
+    id: i,
+    x: Math.random() * 100,
+    y: Math.random() * 100,
+    size: Math.random() * 2 + 0.5,
+    delay: Math.random() * 3,
+    duration: 2 + Math.random() * 3,
+  }));
+
   return (
     <TooltipProvider>
     <section className="py-24 lg:py-32 relative overflow-hidden w-full">
-      {/* Colorful Vibrant Background */}
+      {/* Base Dark Gradient Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a1a] via-[#1a0b2e] to-[#0f0517] w-full" />
       
-      {/* Colorful Animated Gradient Orbs */}
+      {/* Animated Mesh Gradient Overlay */}
       <motion.div
-        className="absolute inset-0"
+        className="absolute inset-0 opacity-60"
+        style={{
+          background: `
+            radial-gradient(at 20% 30%, rgba(168, 85, 247, 0.2) 0px, transparent 50%),
+            radial-gradient(at 80% 70%, rgba(34, 211, 238, 0.15) 0px, transparent 50%),
+            radial-gradient(at 50% 50%, rgba(236, 72, 153, 0.15) 0px, transparent 50%),
+            radial-gradient(at 0% 100%, rgba(59, 130, 246, 0.1) 0px, transparent 50%),
+            radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.1) 0px, transparent 50%)
+          `,
+        }}
         animate={{
-          background: [
-            "radial-gradient(circle at 20% 30%, rgba(168, 85, 247, 0.3) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(34, 211, 238, 0.25) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.2) 0%, transparent 50%)",
-            "radial-gradient(circle at 60% 20%, rgba(34, 211, 238, 0.3) 0%, transparent 50%), radial-gradient(circle at 30% 80%, rgba(168, 85, 247, 0.25) 0%, transparent 50%), radial-gradient(circle at 70% 60%, rgba(236, 72, 153, 0.2) 0%, transparent 50%)",
-            "radial-gradient(circle at 20% 30%, rgba(168, 85, 247, 0.3) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(34, 211, 238, 0.25) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.2) 0%, transparent 50%)",
-          ],
+          opacity: [0.5, 0.7, 0.5],
         }}
         transition={{
           duration: 8,
@@ -120,22 +135,194 @@ const CreateAgentSection = () => {
         }}
       />
       
-      {/* Additional Colorful Layers */}
+      {/* Large Floating Gradient Orbs */}
       <motion.div
-        className="absolute inset-0 opacity-40"
+        className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl opacity-30"
+        style={{
+          background: "radial-gradient(circle, rgba(168, 85, 247, 0.4) 0%, transparent 70%)",
+        }}
         animate={{
-          background: [
-            "radial-gradient(ellipse at top left, rgba(168, 85, 247, 0.15), transparent), radial-gradient(ellipse at bottom right, rgba(34, 211, 238, 0.15), transparent)",
-            "radial-gradient(ellipse at top right, rgba(236, 72, 153, 0.15), transparent), radial-gradient(ellipse at bottom left, rgba(168, 85, 247, 0.15), transparent)",
-            "radial-gradient(ellipse at top left, rgba(168, 85, 247, 0.15), transparent), radial-gradient(ellipse at bottom right, rgba(34, 211, 238, 0.15), transparent)",
-          ],
+          x: [0, 60, 0],
+          y: [0, 40, 0],
+          scale: [1, 1.3, 1],
+          opacity: [0.2, 0.4, 0.2],
         }}
         transition={{
-          duration: 12,
+          duration: 20,
           repeat: Infinity,
           ease: "easeInOut",
         }}
       />
+      <motion.div
+        className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full blur-3xl opacity-25"
+        style={{
+          background: "radial-gradient(circle, rgba(34, 211, 238, 0.4) 0%, transparent 70%)",
+        }}
+        animate={{
+          x: [0, -60, 0],
+          y: [0, -40, 0],
+          scale: [1, 1.4, 1],
+          opacity: [0.15, 0.35, 0.15],
+        }}
+        transition={{
+          duration: 25,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: 0.5,
+        }}
+      />
+      <motion.div
+        className="absolute top-1/2 right-1/3 w-80 h-80 rounded-full blur-3xl opacity-20"
+        style={{
+          background: "radial-gradient(circle, rgba(236, 72, 153, 0.4) 0%, transparent 70%)",
+        }}
+        animate={{
+          x: [0, 50, -50, 0],
+          y: [0, -50, 50, 0],
+          scale: [1, 1.2, 1.3, 1],
+          opacity: [0.1, 0.3, 0.2, 0.1],
+        }}
+        transition={{
+          duration: 18,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: 1,
+        }}
+      />
+      
+      {/* Star Field */}
+      {stars.map((star) => (
+        <motion.div
+          key={star.id}
+          className="absolute rounded-full bg-white"
+          style={{
+            left: `${star.x}%`,
+            top: `${star.y}%`,
+            width: `${star.size}px`,
+            height: `${star.size}px`,
+          }}
+          animate={{
+            opacity: [0.2, 1, 0.2],
+            scale: [1, 1.3, 1],
+          }}
+          transition={{
+            duration: star.duration,
+            repeat: Infinity,
+            delay: star.delay,
+            ease: "easeInOut",
+          }}
+        />
+      ))}
+      
+      {/* Animated Grid Overlay */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute inset-0" style={{
+          backgroundImage: `
+            linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px)
+          `,
+          backgroundSize: "60px 60px",
+        }}>
+          <motion.div
+            className="absolute inset-0"
+            animate={{
+              backgroundPosition: ["0 0", "60px 60px"],
+            }}
+            transition={{
+              duration: 20,
+              repeat: Infinity,
+              ease: "linear",
+            }}
+          />
+        </div>
+      </div>
+      
+      {/* Flowing Light Beams */}
+      <motion.div
+        className="absolute inset-0 opacity-20"
+        style={{
+          background: "linear-gradient(45deg, transparent 30%, rgba(168, 85, 247, 0.2) 50%, transparent 70%)",
+          backgroundSize: "300% 300%",
+        }}
+        animate={{
+          backgroundPosition: ["0% 0%", "100% 100%", "0% 0%"],
+        }}
+        transition={{
+          duration: 15,
+          repeat: Infinity,
+          ease: "linear",
+        }}
+      />
+      <motion.div
+        className="absolute inset-0 opacity-15"
+        style={{
+          background: "linear-gradient(-45deg, transparent 30%, rgba(34, 211, 238, 0.2) 50%, transparent 70%)",
+          backgroundSize: "300% 300%",
+        }}
+        animate={{
+          backgroundPosition: ["100% 100%", "0% 0%", "100% 100%"],
+        }}
+        transition={{
+          duration: 18,
+          repeat: Infinity,
+          ease: "linear",
+        }}
+      />
+      
+      {/* Animated Highlight Rings */}
+      {[...Array(4)].map((_, i) => (
+        <motion.div
+          key={`ring-${i}`}
+          className="absolute rounded-full border border-white/10"
+          style={{
+            width: `${400 + i * 300}px`,
+            height: `${400 + i * 300}px`,
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
+          }}
+          animate={{
+            scale: [1, 1.4, 1],
+            opacity: [0.05, 0.15, 0.05],
+            rotate: [0, 360],
+          }}
+          transition={{
+            duration: 20 + i * 5,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: i * 1.5,
+          }}
+        />
+      ))}
+      
+      {/* Floating Particles */}
+      {Array.from({ length: 15 }).map((_, i) => (
+        <motion.div
+          key={`particle-${i}`}
+          className="absolute rounded-full bg-white/10 blur-sm"
+          style={{
+            width: `${20 + Math.random() * 40}px`,
+            height: `${20 + Math.random() * 40}px`,
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+          }}
+          animate={{
+            y: [0, -100, 0],
+            x: [0, Math.random() * 100 - 50, 0],
+            scale: [1, 1.5, 1],
+            opacity: [0.1, 0.3, 0.1],
+          }}
+          transition={{
+            duration: 10 + Math.random() * 10,
+            repeat: Infinity,
+            delay: Math.random() * 5,
+            ease: "easeInOut",
+          }}
+        />
+      ))}
+      
+      {/* Gradient Overlay for Depth */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/50" />
 
       <div className="container mx-auto px-4 lg:px-8 relative z-10">
         {/* Header */}

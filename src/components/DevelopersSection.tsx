@@ -1,9 +1,14 @@
 import { motion } from "framer-motion";
-import { Terminal, Zap, Server } from "lucide-react";
+import { Terminal, Zap, Server, Code, Key, Book, Shield, Clock, Globe, ArrowRight, Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
 
 const DevelopersSection = () => {
-  const codeSnippet = `const response = await fetch('https://api.aeko.ai/v1/generate', {
+  const [copied, setCopied] = useState(false);
+  const [activeTab, setActiveTab] = useState<'image' | 'video' | 'chat'>('image');
+
+  const codeSnippets = {
+    image: `const response = await fetch('https://api.aeko.ai/v1/images/generate', {
   method: 'POST',
   headers: {
     'Authorization': 'Bearer YOUR_API_KEY',
@@ -12,107 +17,348 @@ const DevelopersSection = () => {
   body: JSON.stringify({
     model: 'flux-pro',
     prompt: 'A futuristic city at sunset',
-    size: '1024x1024'
+    size: '1024x1024',
+    num_images: 1
   })
 });
 
-const { image_url } = await response.json();`;
+const { image_url } = await response.json();`,
+    video: `const response = await fetch('https://api.aeko.ai/v1/videos/generate', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer YOUR_API_KEY',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    model: 'pollo-2.5',
+    prompt: 'A serene landscape with mountains',
+    duration: 5,
+    fps: 24
+  })
+});
+
+const { video_url } = await response.json();`,
+    chat: `const response = await fetch('https://api.aeko.ai/v1/chat/completions', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer YOUR_API_KEY',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    model: 'gpt-4-turbo',
+    messages: [
+      { role: 'user', content: 'Hello, how can you help me?' }
+    ],
+    temperature: 0.7
+  })
+});
+
+const { choices } = await response.json();`
+  };
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(codeSnippets[activeTab]);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const features = [
+    {
+      icon: Zap,
+      title: "Fast Inference",
+      description: "Sub-second response times with global CDN",
+      color: "from-yellow-500 to-orange-500",
+    },
+    {
+      icon: Server,
+      title: "99.9% Uptime",
+      description: "Enterprise-grade reliability and SLA",
+      color: "from-green-500 to-emerald-500",
+    },
+    {
+      icon: Shield,
+      title: "Secure & Private",
+      description: "End-to-end encryption and data protection",
+      color: "from-blue-500 to-cyan-500",
+    },
+    {
+      icon: Clock,
+      title: "Real-time",
+      description: "WebSocket support for streaming responses",
+      color: "from-purple-500 to-pink-500",
+    },
+    {
+      icon: Globe,
+      title: "Global Scale",
+      description: "Multi-region deployment for low latency",
+      color: "from-indigo-500 to-purple-500",
+    },
+    {
+      icon: Code,
+      title: "SDKs Available",
+      description: "Python, Node.js, Go, and more",
+      color: "from-red-500 to-pink-500",
+    },
+  ];
 
   return (
-    <section id="developers" className="py-24 lg:py-32 relative overflow-hidden">
-      {/* Background gradient */}
-      <div className="absolute inset-0 hero-gradient opacity-20" />
+    <section id="developers" className="py-32 lg:py-40 relative overflow-hidden w-full">
+      {/* Professional Dark Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#050508] w-full" />
+      
+      {/* Animated Gradient Orbs */}
+      <motion.div
+        className="absolute top-1/4 right-1/4 w-[500px] h-[500px] rounded-full blur-[120px] opacity-15"
+        style={{
+          background: "radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 70%)",
+        }}
+        animate={{
+          x: [0, -50, 0],
+          y: [0, 30, 0],
+          scale: [1, 1.2, 1],
+        }}
+        transition={{
+          duration: 20,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      />
+      <motion.div
+        className="absolute bottom-1/4 left-1/4 w-[500px] h-[500px] rounded-full blur-[120px] opacity-15"
+        style={{
+          background: "radial-gradient(circle, rgba(124, 58, 237, 0.3) 0%, transparent 70%)",
+        }}
+        animate={{
+          x: [0, 50, 0],
+          y: [0, -30, 0],
+          scale: [1, 1.2, 1],
+        }}
+        transition={{
+          duration: 25,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: 0.5,
+        }}
+      />
+      
+      {/* Subtle Grid Overlay */}
+      <div className="absolute inset-0 opacity-[0.03]">
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `
+              linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+              linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px)
+            `,
+            backgroundSize: "100px 100px",
+          }}
+        />
+      </div>
 
       <div className="container mx-auto px-4 lg:px-8 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        {/* Professional Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
+          className="text-center mb-20"
+        >
+          {/* Badge */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="inline-flex items-center gap-3 px-6 py-3 rounded-full backdrop-blur-2xl bg-white/5 border border-white/10 mb-8"
+            whileHover={{ scale: 1.05, borderColor: "rgba(59, 130, 246, 0.3)" }}
+          >
+            <Code className="w-5 h-5 text-blue-400" />
+            <span className="text-sm font-bold text-blue-400 uppercase tracking-widest">For Developers</span>
+            <Code className="w-5 h-5 text-blue-400" />
+          </motion.div>
+
+          {/* Main Headline */}
+          <motion.h2 
+            className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-white mb-6 leading-[1.1] tracking-tight"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            <span className="block mb-2">Built for Creators.</span>
+            <span className="block gradient-text">Loved by Developers.</span>
+          </motion.h2>
+          
+          {/* Subheadline */}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="text-xl md:text-2xl text-white/70 max-w-3xl mx-auto leading-relaxed font-light"
+          >
+            Integrate AI generation into your applications with our powerful REST API. 
+            Fast inference, simple authentication, and scalable infrastructure.
+          </motion.p>
+        </motion.div>
+
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-start mb-20">
           {/* Content */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
+            className="space-y-8"
           >
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6">
-              Built for Creators.{" "}
-              <span className="gradient-text">Loved by Developers.</span>
-            </h2>
-            <p className="text-lg text-muted-foreground mb-8">
-              Integrate AI generation into your applications with our powerful
-              REST API. Fast inference, simple authentication, and scalable
-              infrastructure.
-            </p>
-
             {/* Feature pills */}
-            <div className="flex flex-wrap gap-4 mb-8">
+            <div className="flex flex-wrap gap-3">
               {[
-                { icon: Terminal, text: "REST API" },
-                { icon: Zap, text: "Fast Inference" },
-                { icon: Server, text: "99.9% Uptime" },
+                { icon: Terminal, text: "REST API", color: "from-blue-500 to-cyan-500" },
+                { icon: Zap, text: "Fast Inference", color: "from-yellow-500 to-orange-500" },
+                { icon: Server, text: "99.9% Uptime", color: "from-green-500 to-emerald-500" },
               ].map((item) => (
-                <div
+                <motion.div
                   key={item.text}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary/50 border border-border/50"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl backdrop-blur-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all"
+                  whileHover={{ scale: 1.05 }}
                 >
-                  <item.icon className="w-4 h-4 text-primary" />
-                  <span className="text-sm text-foreground">{item.text}</span>
-                </div>
+                  <div className={`p-1.5 rounded-lg bg-gradient-to-br ${item.color}`}>
+                    <item.icon className="w-4 h-4 text-white" />
+                  </div>
+                  <span className="text-sm font-semibold text-white">{item.text}</span>
+                </motion.div>
               ))}
             </div>
 
+            {/* Description */}
+            <p className="text-lg text-white/80 leading-relaxed">
+              Our API is designed for developers who need reliable, fast, and easy-to-integrate AI capabilities. 
+              Whether you're building image generation, video creation, or chat applications, we've got you covered.
+            </p>
+
+            {/* CTA Buttons */}
             <div className="flex flex-wrap gap-4">
-              <Button variant="default" size="lg">
-                View API Docs
-              </Button>
-              <Button variant="outline" size="lg">
-                Get API Key
-              </Button>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button variant="default" size="lg" className="gap-2 px-8 py-6 text-base font-bold rounded-xl">
+                  <Book className="w-5 h-5" />
+                  View API Docs
+                </Button>
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button variant="outline" size="lg" className="gap-2 px-8 py-6 text-base font-bold rounded-xl border-2 border-white/20 bg-white/5 hover:bg-white/10 text-white">
+                  <Key className="w-5 h-5" />
+                  Get API Key
+                </Button>
+              </motion.div>
             </div>
           </motion.div>
 
-          {/* Code block */}
+          {/* Professional Code Block */}
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            transition={{ duration: 0.8, delay: 0.2, ease: [0.4, 0, 0.2, 1] }}
             className="relative"
           >
-            <div className="glass-card rounded-2xl overflow-hidden border border-border/50">
+            {/* Outer Glow */}
+            <motion.div
+              className="absolute -inset-1 rounded-3xl blur-2xl opacity-50"
+              style={{
+                background: "radial-gradient(circle, rgba(59, 130, 246, 0.3), rgba(124, 58, 237, 0.2), transparent)",
+              }}
+              animate={{
+                opacity: [0.3, 0.5, 0.3],
+              }}
+              transition={{
+                duration: 4,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
+
+            <div className="relative rounded-3xl overflow-hidden backdrop-blur-2xl bg-black/40 border-2 border-white/10 shadow-2xl">
               {/* Terminal header */}
-              <div className="flex items-center gap-2 px-4 py-3 bg-secondary/50 border-b border-border/50">
-                <div className="flex gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-destructive/60" />
-                  <div className="w-3 h-3 rounded-full bg-yellow-500/60" />
-                  <div className="w-3 h-3 rounded-full bg-green-500/60" />
+              <div className="flex items-center justify-between px-6 py-4 bg-white/5 border-b border-white/10">
+                <div className="flex items-center gap-3">
+                  <div className="flex gap-1.5">
+                    <div className="w-3 h-3 rounded-full bg-red-500/80" />
+                    <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
+                    <div className="w-3 h-3 rounded-full bg-green-500/80" />
+                  </div>
+                  <span className="text-sm text-white/60 font-medium ml-3">
+                    api-example.js
+                  </span>
                 </div>
-                <span className="text-xs text-muted-foreground ml-2">
-                  api-example.js
-                </span>
+                <button
+                  onClick={handleCopy}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white/80 hover:text-white transition-all text-xs font-medium"
+                >
+                  {copied ? (
+                    <>
+                      <Check className="w-3.5 h-3.5" />
+                      Copied!
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5" />
+                      Copy
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {/* Tab Selector */}
+              <div className="flex items-center gap-2 px-6 py-3 bg-white/5 border-b border-white/10">
+                {(['image', 'video', 'chat'] as const).map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all capitalize ${
+                      activeTab === tab
+                        ? 'bg-white/10 text-white border border-white/20'
+                        : 'text-white/50 hover:text-white/80 hover:bg-white/5'
+                    }`}
+                  >
+                    {tab}
+                  </button>
+                ))}
               </div>
 
               {/* Code content */}
-              <div className="p-4 lg:p-6 overflow-x-auto">
-                <pre className="text-sm leading-relaxed">
-                  <code className="text-muted-foreground">
-                    {codeSnippet.split("\n").map((line, i) => (
-                      <div key={i} className="flex">
-                        <span className="select-none text-muted-foreground/40 mr-4 w-6 text-right">
+              <div className="p-6 overflow-x-auto bg-[#0a0a0f]">
+                <pre className="text-sm leading-relaxed font-mono">
+                  <code className="text-white/90">
+                    {codeSnippets[activeTab].split("\n").map((line, i) => (
+                      <div key={i} className="flex hover:bg-white/5 transition-colors">
+                        <span className="select-none text-white/30 mr-6 w-8 text-right font-normal">
                           {i + 1}
                         </span>
                         <span
+                          className="flex-1"
                           dangerouslySetInnerHTML={{
                             __html: line
                               .replace(
-                                /(const|await|fetch)/g,
-                                '<span class="text-accent">$1</span>'
+                                /(const|await|fetch|async|function|return)/g,
+                                '<span class="text-blue-400">$1</span>'
                               )
                               .replace(
                                 /('.*?')/g,
                                 '<span class="text-green-400">$1</span>'
                               )
                               .replace(
-                                /(method|headers|body|model|prompt|size)/g,
-                                '<span class="text-primary">$1</span>'
+                                /(method|headers|body|model|prompt|size|duration|fps|messages|role|content|temperature|num_images)/g,
+                                '<span class="text-purple-400">$1</span>'
+                              )
+                              .replace(
+                                /(POST|GET|PUT|DELETE)/g,
+                                '<span class="text-yellow-400">$1</span>'
+                              )
+                              .replace(
+                                /(https?:\/\/[^\s']+)/g,
+                                '<span class="text-cyan-400">$1</span>'
                               ),
                           }}
                         />
@@ -122,11 +368,52 @@ const { image_url } = await response.json();`;
                 </pre>
               </div>
             </div>
-
-            {/* Decorative glow */}
-            <div className="absolute -inset-4 bg-gradient-to-r from-primary/5 via-accent/5 to-primary/5 rounded-3xl blur-2xl -z-10" />
           </motion.div>
         </div>
+
+        {/* Features Grid */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className="max-w-6xl mx-auto"
+        >
+          <h3 className="text-3xl md:text-4xl font-extrabold text-white text-center mb-12">
+            Why Developers Choose AEKO
+          </h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {features.map((feature, index) => {
+              const Icon = feature.icon;
+              return (
+                <motion.div
+                  key={feature.title}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: 0.5 + index * 0.1 }}
+                  whileHover={{ y: -5, scale: 1.02 }}
+                  className="relative group"
+                >
+                  <div className="relative p-6 rounded-2xl backdrop-blur-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300">
+                    {/* Icon */}
+                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-4 shadow-lg`}>
+                      <Icon className="w-6 h-6 text-white" />
+                    </div>
+                    
+                    {/* Content */}
+                    <h4 className="text-xl font-bold text-white mb-2">{feature.title}</h4>
+                    <p className="text-white/60 text-sm leading-relaxed">{feature.description}</p>
+                    
+                    {/* Hover Glow */}
+                    <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-10 blur-xl transition-opacity duration-300 -z-10`} />
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </motion.div>
       </div>
     </section>
   );

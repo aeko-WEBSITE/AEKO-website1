@@ -17,7 +17,7 @@ const ShowcaseSection = () => {
   ];
 
   return (
-    <section className="py-24 lg:py-32 relative overflow-hidden w-full">
+    <section className="py-14 lg:py-12 relative overflow-hidden w-full">
       <div className="container mx-auto px-4 lg:px-8 relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 items-center max-w-7xl mx-auto">
           {/* Left Side - Images Grid */}

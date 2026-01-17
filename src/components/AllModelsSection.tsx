@@ -8,35 +8,65 @@ const AllModelsSection = () => {
   const navigate = useNavigate();
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll functionality - fast continuous scrolling
+  // Professional smooth infinite scroll functionality
   useEffect(() => {
     const scrollContainer = scrollRef.current;
     if (!scrollContainer) return;
 
     let scrollPosition = 0;
-    const scrollSpeed = 2.5; // Fast continuous scrolling
+    const scrollSpeed = 1.5; // Smooth, professional scrolling speed
     let animationFrameId: number;
+    let isPaused = false;
+    let lastTime = performance.now();
 
-    const autoScroll = () => {
-      if (scrollContainer) {
-        const maxScroll = scrollContainer.scrollWidth / 2; // Since we duplicated content
-        if (scrollPosition < maxScroll) {
-          scrollPosition += scrollSpeed;
-          scrollContainer.scrollLeft = scrollPosition;
-        } else {
-          // Reset to start for seamless infinite loop
-          scrollPosition = 0;
-          scrollContainer.scrollLeft = 0;
-        }
+    const autoScroll = (currentTime: number) => {
+      if (!scrollContainer || isPaused) {
+        animationFrameId = requestAnimationFrame(autoScroll);
+        return;
       }
+
+      const deltaTime = currentTime - lastTime;
+      lastTime = currentTime;
+      
+      // Smooth scrolling based on time delta for consistent speed
+      const scrollDelta = (scrollSpeed * deltaTime) / 16; // Normalize to 60fps
+      
+      // Since we triple-duplicated content, reset at 1/3 of scrollWidth for seamless loop
+      const singleSetWidth = scrollContainer.scrollWidth / 3;
+      const maxScroll = singleSetWidth;
+      
+      if (scrollPosition < maxScroll) {
+        scrollPosition += scrollDelta;
+        scrollContainer.scrollLeft = scrollPosition;
+      } else {
+        // Smooth reset to start for seamless infinite loop
+        scrollPosition = 0;
+        scrollContainer.scrollLeft = 0;
+      }
+      
       animationFrameId = requestAnimationFrame(autoScroll);
     };
     
-    // Start auto-scroll immediately - continuous, no pause on hover
+    // Pause on hover for better UX
+    const handleMouseEnter = () => {
+      isPaused = true;
+    };
+    
+    const handleMouseLeave = () => {
+      isPaused = false;
+      lastTime = performance.now();
+    };
+    
+    scrollContainer.addEventListener('mouseenter', handleMouseEnter);
+    scrollContainer.addEventListener('mouseleave', handleMouseLeave);
+    
+    // Start auto-scroll
     animationFrameId = requestAnimationFrame(autoScroll);
 
     return () => {
       cancelAnimationFrame(animationFrameId);
+      scrollContainer.removeEventListener('mouseenter', handleMouseEnter);
+      scrollContainer.removeEventListener('mouseleave', handleMouseLeave);
     };
   }, []);
 
@@ -59,8 +89,8 @@ const AllModelsSection = () => {
     { id: 15, url: "https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=800&q=80", title: "Digital Art", type: "image" },
   ];
 
-  // Duplicate content for seamless loop
-  const duplicatedContent = [...galleryContent, ...galleryContent];
+  // Triple duplicate content for ultra-smooth seamless infinite loop
+  const duplicatedContent = [...galleryContent, ...galleryContent, ...galleryContent];
 
   const videoModels = [
     "Pollo 2.5",
@@ -95,7 +125,7 @@ const AllModelsSection = () => {
   ];
 
   return (
-    <section className="py-24 lg:py-32 relative overflow-hidden w-full">
+    <section className=" relative overflow-hidden w-full">
       {/* Animated Background Effects */}
       <div className="absolute inset-0 w-full">
         <motion.div
@@ -196,76 +226,97 @@ const AllModelsSection = () => {
             </Link>
           </div>
 
-          {/* Horizontal Scrolling Container */}
-          <div className="relative overflow-hidden">
-            {/* Gradient Fade Edges */}
-            <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-[#0a0a1a] via-[#0a0a1a]/80 to-transparent z-10 pointer-events-none" />
-            <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-[#0a0a1a] via-[#0a0a1a]/80 to-transparent z-10 pointer-events-none" />
+          {/* Professional Smooth Infinite Scrolling Container */}
+          <div className="relative overflow-hidden rounded-2xl">
+            {/* Enhanced Gradient Fade Edges */}
+            <div className="absolute left-0 top-0 bottom-0 w-40 bg-gradient-to-r from-[#0a0a0f] via-[#0a0a0f]/80 to-transparent z-10 pointer-events-none" />
+            <div className="absolute right-0 top-0 bottom-0 w-40 bg-gradient-to-l from-[#0a0a0f] via-[#0a0a0f]/80 to-transparent z-10 pointer-events-none" />
             
-            {/* Scrolling Content */}
+            {/* Smooth Scrolling Content */}
             <div
               ref={scrollRef}
-              className="flex overflow-x-auto scrollbar-hide pb-4"
+              className="flex overflow-x-hidden scrollbar-hide pb-6 gap-6 px-4"
               style={{
-                scrollBehavior: 'smooth',
+                scrollBehavior: 'auto',
                 scrollbarWidth: 'none',
                 msOverflowStyle: 'none',
+                willChange: 'scroll-position',
               }}
             >
               {duplicatedContent.map((item, index) => (
-                <div
+                <motion.div
                   key={`${item.id}-${index}`}
                   className="relative group cursor-pointer flex-shrink-0"
                   onClick={() => navigate("/dashboard/feed")}
+                  whileHover={{ scale: 1.05, y: -5 }}
+                  transition={{ duration: 0.3, ease: "easeOut" }}
+                  style={{ willChange: 'transform' }}
                 >
-                  {/* Content Card - Curved with bold white border */}
-                  <div className="relative w-56 h-40 md:w-72 md:h-48 overflow-hidden rounded-3xl border-4 border-white bg-gradient-to-br from-[#0a0a0a]/95 to-[#1a1a1a]/95 backdrop-blur-md shadow-xl">
-                    {/* Image/Video */}
-                    <div className="relative w-full h-full">
-                      <img
+                  {/* Professional Content Card */}
+                  <div className="relative w-64 h-44 md:w-80 md:h-56 overflow-hidden rounded-2xl border-2 border-white/20 bg-gradient-to-br from-[#0a0a0a]/95 to-[#1a1a1a]/95 backdrop-blur-xl shadow-2xl transition-all duration-300 group-hover:border-white/40 group-hover:shadow-[0_20px_60px_rgba(124,58,237,0.3)]">
+                    {/* Image/Video with smooth hover effect */}
+                    <div className="relative w-full h-full overflow-hidden">
+                      <motion.img
                         src={item.url}
                         alt={item.title}
                         className="w-full h-full object-cover"
+                        whileHover={{ scale: 1.1 }}
+                        transition={{ duration: 0.5, ease: "easeOut" }}
+                        loading="lazy"
                       />
+                      
+                      {/* Gradient Overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-300" />
                       
                       {/* Video Play Icon */}
                       {item.type === "video" && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-                          <div className="w-10 h-10 bg-white/25 backdrop-blur-md flex items-center justify-center border-2 border-white/60">
-                            <Play className="w-5 h-5 text-white ml-0.5" fill="white" />
+                        <motion.div 
+                          className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/20 transition-colors duration-300"
+                          whileHover={{ scale: 1.1 }}
+                        >
+                          <div className="w-14 h-14 bg-white/20 backdrop-blur-xl flex items-center justify-center rounded-full border-2 border-white/40 group-hover:bg-white/30 group-hover:border-white/60 transition-all duration-300">
+                            <Play className="w-7 h-7 text-white ml-1" fill="white" />
                           </div>
-                        </div>
+                        </motion.div>
                       )}
                       
-                      {/* Title - Always Visible */}
-                      <div className="absolute bottom-0 left-0 right-0 p-1.5 bg-gradient-to-t from-black/90 via-black/70 to-transparent">
-                        <div className="flex items-center gap-1">
+                      {/* Title - Enhanced visibility */}
+                      <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/95 via-black/80 to-transparent">
+                        <div className="flex items-center gap-2">
                           {item.type === "video" ? (
-                            <Video className="w-2.5 h-2.5 text-white/80 flex-shrink-0" />
+                            <Video className="w-4 h-4 text-white/90 flex-shrink-0" />
                           ) : (
-                            <ImageIcon className="w-2.5 h-2.5 text-white/80 flex-shrink-0" />
+                            <ImageIcon className="w-4 h-4 text-white/90 flex-shrink-0" />
                           )}
-                          <p className="text-white font-semibold text-[10px] truncate leading-tight">{item.title}</p>
+                          <p className="text-white font-semibold text-sm truncate leading-tight">{item.title}</p>
                         </div>
                       </div>
                     </div>
                     
-                    
-                    {/* Type Badge */}
-                    <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 bg-black/80 backdrop-blur-md text-white text-[10px] font-bold border border-white/50">
+                    {/* Professional Type Badge */}
+                    <motion.div 
+                      className="absolute top-3 left-3 px-3 py-1.5 bg-black/80 backdrop-blur-xl text-white text-xs font-bold border border-white/30 rounded-lg z-10"
+                      whileHover={{ scale: 1.05 }}
+                    >
                       {item.type === "video" ? "VIDEO" : "IMAGE"}
-                    </div>
+                    </motion.div>
                     
+                    {/* Hover Glow Effect */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                      <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-purple-500/10 blur-xl" />
+                    </div>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           </div>
         </motion.div>
 
-        {/* Two Cards */}
+
+{/* 
+        {/ Two Cards /}
         <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
-          {/* AI Video Generators Card */}
+          {/ AI Video Generators Card /}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -273,10 +324,10 @@ const AllModelsSection = () => {
             transition={{ duration: 0.6 }}
             className="relative group h-full flex"
           >
-            {/* Card Content */}
+            {/ Card Content /}
             <div className="relative w-full bg-gradient-to-br from-[#0a0a0a]/90 via-[#1a1a1a]/90 to-[#0a0a0a]/90 backdrop-blur-xl border-4 border-white rounded-3xl p-8 lg:p-10 shadow-2xl flex flex-col">
               
-              {/* Icon and Title */}
+              {/ Icon and Title /}
               <div className="flex items-start gap-4 mb-6">
                 <motion.div
                   whileHover={{ scale: 1.1, rotate: 5 }}
@@ -299,7 +350,7 @@ const AllModelsSection = () => {
                 With AEKO AI video generator, you can tap into our flagship AEKO 1.6 video model and all top-tier video models in the industry, like:
               </p>
 
-              {/* Model List */}
+              {/ Model List /}
               <div className="flex flex-wrap gap-2 mb-8 flex-grow">
                 {videoModels.map((model) => (
                   <span key={model} className="text-white font-semibold text-base px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all cursor-default">
@@ -308,7 +359,7 @@ const AllModelsSection = () => {
                 ))}
               </div>
 
-              {/* Button */}
+              {/ Button /}
               <Link to="/dashboard/tools/video" className="mt-auto">
                 <Button
                   variant="hero"
@@ -322,7 +373,7 @@ const AllModelsSection = () => {
             </div>
           </motion.div>
 
-          {/* AI Image Generators Card */}
+          {/ AI Image Generators Card /}
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -330,10 +381,10 @@ const AllModelsSection = () => {
             transition={{ duration: 0.6 }}
             className="relative group h-full flex"
           >
-            {/* Card Content */}
+            {/ Card Content /}
             <div className="relative w-full bg-gradient-to-br from-[#0a0a0a]/90 via-[#1a1a1a]/90 to-[#0a0a0a]/90 backdrop-blur-xl border-4 border-white rounded-3xl p-8 lg:p-10 shadow-2xl flex flex-col">
               
-              {/* Icon and Title */}
+              {/ Icon and Title /}
               <div className="flex items-start gap-4 mb-6">
                 <motion.div
                   whileHover={{ scale: 1.1, rotate: 5 }}
@@ -356,7 +407,7 @@ const AllModelsSection = () => {
                 AEKO AI image generator also allows you to choose from a selection of leading image models. They include:
               </p>
 
-              {/* Model List */}
+              {/ Model List /}
               <div className="flex flex-wrap gap-2 mb-8 flex-grow">
                 {imageModels.map((model) => (
                   <span key={model} className="text-white font-semibold text-base px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all cursor-default">
@@ -365,7 +416,7 @@ const AllModelsSection = () => {
                 ))}
               </div>
 
-              {/* Button */}
+              {/ Button /}
               <Link to="/dashboard/tools/image" className="mt-auto">
                 <Button
                   variant="hero"
@@ -378,7 +429,10 @@ const AllModelsSection = () => {
               </Link>
             </div>
           </motion.div>
-        </div>
+        </div> */}
+
+
+
       </div>
     </section>
   );

@@ -367,113 +367,153 @@ const FeedPage = () => {
   const videoItems = items.filter((item) => item.type === "video");
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header - Matching Midjourney Layout */}
-      <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-xl border-b border-border -mx-2 lg:-mx-4 px-3 lg:px-4 py-2">
-        <div className="flex items-center justify-between gap-3">
-          {/* Left: Compass Icon */}
-          <div className="flex items-center gap-3">
-            <Compass className="w-4 h-4 text-red-500" />
+    <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#050508]">
+      {/* Professional Header */}
+      <header className="sticky top-0 z-30 backdrop-blur-2xl bg-black/40 border-b border-white/10 -mx-2 lg:-mx-4 px-4 lg:px-6 py-3 shadow-lg">
+        <div className="flex items-center justify-between gap-4">
+          {/* Left: Logo/Icon and Sort Options */}
+          <div className="flex items-center gap-4">
+            <motion.div
+              whileHover={{ scale: 1.1, rotate: 15 }}
+              className="p-2 rounded-lg bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30"
+            >
+              <Compass className="w-5 h-5 text-purple-400" />
+            </motion.div>
             
-            {/* Center: Sort Options */}
-            <div className="flex items-center gap-1.5">
+            {/* Sort Options */}
+            <div className="flex items-center gap-2">
               {sortOptions.map((option) => {
+                const Icon = option.icon;
                 return (
-                  <button
+                  <motion.button
                     key={option.id}
                     onClick={() => setActiveSort(option.id)}
-                    className={`px-2 py-1 rounded text-sm font-medium transition-all ${
+                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
                       activeSort === option.id
-                        ? "text-foreground font-semibold"
-                        : "text-muted-foreground hover:text-foreground"
+                        ? "bg-white/10 text-white border-2 border-white/20"
+                        : "text-white/60 hover:text-white hover:bg-white/5 border-2 border-transparent"
                     }`}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     aria-pressed={activeSort === option.id}
                   >
+                    <Icon className="w-4 h-4" />
                     {option.label}
-                  </button>
+                  </motion.button>
                 );
               })}
             </div>
           </div>
 
           {/* Right: Filter Options */}
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
             {filters.map((filter) => {
+              const Icon = filter.icon;
               return (
-                <button
+                <motion.button
                   key={filter.id}
                   onClick={() => setActiveFilter(filter.id)}
-                  className={`px-3 py-1.5 rounded text-sm font-medium transition-all ${
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
                     activeFilter === filter.id
-                      ? "bg-red-500 text-white"
-                      : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+                      ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/30"
+                      : "text-white/60 hover:text-white hover:bg-white/5 border-2 border-transparent"
                   }`}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   aria-pressed={activeFilter === filter.id}
                 >
+                  <Icon className="w-4 h-4" />
                   {filter.label}
-                </button>
+                </motion.button>
               );
             })}
           </div>
         </div>
       </header>
 
-      {/* Exploration Sections - Show only when agents filter is active */}
+      {/* Professional Agents Section - Show only when agents filter is active */}
       {activeFilter === "agents" && (
-        <div className="px-2 lg:px-4 py-4 space-y-4">
-          {/* Section 1: Explore Agents */}
+        <div className="px-4 lg:px-6 py-8 space-y-8">
+          {/* Section 1: Explore Agents - Professional Design */}
           <motion.section
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="bg-card border border-border/50 rounded-xl p-4"
+            transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+            className="relative"
           >
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30 flex items-center justify-center">
-                  <Bot className="w-5 h-5 text-purple-500" />
-                </div>
+            {/* Section Header */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-4">
+                <motion.div
+                  className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 border-2 border-purple-500/30 flex items-center justify-center shadow-lg"
+                  whileHover={{ scale: 1.1, rotate: 5 }}
+                >
+                  <Bot className="w-7 h-7 text-purple-400" />
+                </motion.div>
                 <div>
-                  <h2 className="text-lg font-bold text-foreground">Explore Agents</h2>
-                  <p className="text-xs text-muted-foreground">Discover and interact with AI agents</p>
+                  <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-1">Explore Agents</h2>
+                  <p className="text-sm text-white/60">Discover and interact with powerful AI agents</p>
                 </div>
               </div>
-              <button
+              <motion.button
                 onClick={() => navigate("/dashboard/agent-store")}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary text-sm font-medium transition-colors"
+                className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-bold hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg shadow-purple-500/30"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
                 View All
                 <ArrowRight className="w-4 h-4" />
-              </button>
+              </motion.button>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-              {mockAgents.slice(0, 6).map((agent) => (
+
+            {/* Agents Grid - Professional Cards */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {mockAgents.slice(0, 6).map((agent, index) => (
                 <motion.div
                   key={agent.id}
-                  whileHover={{ scale: 1.02, y: -2 }}
-                  className="bg-background/50 border border-border/50 rounded-lg p-3 cursor-pointer hover:border-primary/50 transition-all group"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  whileHover={{ scale: 1.05, y: -5 }}
+                  className="relative group cursor-pointer"
                   onClick={() => navigate("/dashboard/agent-store")}
                 >
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <Bot className="w-4 h-4 text-primary" />
+                  {/* Card with Glass Morphism */}
+                  <div className="relative rounded-2xl p-4 backdrop-blur-xl bg-white/5 border-2 border-white/10 hover:border-purple-500/50 transition-all duration-300 shadow-lg hover:shadow-2xl hover:shadow-purple-500/20 overflow-hidden">
+                    {/* Gradient Overlay on Hover */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    
+                    {/* Agent Icon */}
+                    <div className="relative mb-3">
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500/30 to-pink-500/30 border-2 border-purple-500/40 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                        <Bot className="w-6 h-6 text-purple-300" />
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-sm font-semibold text-foreground truncate group-hover:text-primary transition-colors">
+                    
+                    {/* Agent Info */}
+                    <div className="relative z-10">
+                      <h3 className="text-sm font-bold text-white mb-2 line-clamp-1 group-hover:text-purple-300 transition-colors">
                         {agent.name}
                       </h3>
+                      <p className="text-xs text-white/60 line-clamp-2 mb-3 leading-relaxed">
+                        {agent.description}
+                      </p>
+                      
+                      {/* Footer */}
+                      <div className="flex items-center justify-between pt-3 border-t border-white/10">
+                        <span className="text-xs px-2 py-1 rounded-lg bg-green-500/20 text-green-400 font-semibold border border-green-500/30">
+                          {agent.pricing}
+                        </span>
+                        <div className="flex items-center gap-1 text-xs text-white/50">
+                          <Zap className="w-3 h-3 text-yellow-400" />
+                          <span className="font-semibold">{agent.interactions}</span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
-                    {agent.description}
-                  </p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs px-1.5 py-0.5 rounded bg-green-500/10 text-green-500">
-                      {agent.pricing}
-                    </span>
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Zap className="w-3 h-3" />
-                      {agent.interactions}
+                    
+                    {/* Shine Effect */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                     </div>
                   </div>
                 </motion.div>
@@ -481,123 +521,195 @@ const FeedPage = () => {
             </div>
           </motion.section>
 
-        {/* Section 2: Trending Agents */}
+        {/* Section 2: Trending Agents - Premium Design */}
         <motion.section
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.1 }}
-          className="bg-card border border-border/50 rounded-xl p-4"
+          transition={{ duration: 0.5, delay: 0.1, ease: [0.4, 0, 0.2, 1] }}
+          className="relative"
         >
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-orange-500/20 to-red-500/20 border border-orange-500/30 flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-orange-500" />
-              </div>
+          {/* Section Header */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-4">
+              <motion.div
+                className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500/20 to-red-500/20 border-2 border-orange-500/30 flex items-center justify-center shadow-lg"
+                whileHover={{ scale: 1.1, rotate: -5 }}
+              >
+                <TrendingUp className="w-7 h-7 text-orange-400" />
+              </motion.div>
               <div>
-                <h2 className="text-lg font-bold text-foreground">Trending Agents</h2>
-                <p className="text-xs text-muted-foreground">Most popular agents this week</p>
+                <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-1">Trending Agents</h2>
+                <p className="text-sm text-white/60">Most popular agents this week</p>
               </div>
             </div>
-            <button
+            <motion.button
               onClick={() => navigate("/dashboard/agent-store")}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary text-sm font-medium transition-colors"
+              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 border-2 border-white/10 hover:border-white/20 text-white text-sm font-bold transition-all"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               See More
               <ArrowRight className="w-4 h-4" />
-            </button>
+            </motion.button>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+
+          {/* Trending Agents Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {mockAgents
               .sort((a, b) => (b.interactions || 0) - (a.interactions || 0))
               .slice(0, 4)
               .map((agent, index) => (
                 <motion.div
                   key={agent.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  whileHover={{ scale: 1.02, y: -2 }}
-                  className="bg-background/50 border border-border/50 rounded-lg p-4 cursor-pointer hover:border-primary/50 transition-all group relative overflow-hidden"
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.2 + index * 0.1 }}
+                  whileHover={{ scale: 1.03, y: -8 }}
+                  className="relative group cursor-pointer"
                   onClick={() => navigate("/dashboard/agent-store")}
                 >
-                  {index === 0 && (
-                    <div className="absolute top-2 right-2 px-2 py-0.5 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold rounded-full flex items-center gap-1">
-                      <Star className="w-3 h-3 fill-white" />
-                      #1
-                    </div>
-                  )}
-                  <div className="flex items-start gap-3 mb-3">
-                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/30 flex items-center justify-center flex-shrink-0">
-                      <Bot className="w-6 h-6 text-primary" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-base font-bold text-foreground group-hover:text-primary transition-colors mb-1">
-                        {agent.name}
-                      </h3>
-                      <p className="text-xs text-muted-foreground line-clamp-2">
+                  {/* Premium Card */}
+                  <div className="relative rounded-2xl p-6 backdrop-blur-xl bg-gradient-to-br from-white/5 to-white/[0.02] border-2 border-white/10 hover:border-orange-500/50 transition-all duration-300 shadow-xl hover:shadow-2xl hover:shadow-orange-500/20 overflow-hidden">
+                    {/* Ranking Badge */}
+                    {index === 0 && (
+                      <motion.div
+                        className="absolute top-4 right-4 px-3 py-1.5 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold rounded-full flex items-center gap-1.5 shadow-lg z-10"
+                        animate={{ scale: [1, 1.1, 1] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      >
+                        <Star className="w-3.5 h-3.5 fill-white" />
+                        #1 Trending
+                      </motion.div>
+                    )}
+                    
+                    {/* Gradient Background on Hover */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    
+                    {/* Agent Content */}
+                    <div className="relative z-10">
+                      <div className="flex items-start gap-4 mb-4">
+                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500/30 to-red-500/30 border-2 border-orange-500/40 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                          <Bot className="w-8 h-8 text-orange-300" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-lg font-extrabold text-white mb-2 group-hover:text-orange-300 transition-colors">
+                            {agent.name}
+                          </h3>
+                          {agent.category && (
+                            <span className="inline-block px-2 py-1 rounded-lg bg-white/5 text-white/60 text-xs font-semibold mb-2">
+                              {agent.category}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <p className="text-sm text-white/70 line-clamp-3 mb-4 leading-relaxed">
                         {agent.description}
                       </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between pt-3 border-t border-border/50">
-                    <div className="flex items-center gap-2">
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <Zap className="w-3 h-3" />
-                        {agent.interactions}
+                      
+                      {/* Stats Footer */}
+                      <div className="flex items-center justify-between pt-4 border-t border-white/10">
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-yellow-500/20 border border-yellow-500/30">
+                            <Zap className="w-3.5 h-3.5 text-yellow-400" />
+                            <span className="text-xs font-bold text-yellow-400">{agent.interactions}</span>
+                          </div>
+                          <span className="text-xs px-2 py-1 rounded-lg bg-green-500/20 text-green-400 font-semibold border border-green-500/30">
+                            {agent.pricing}
+                          </span>
+                        </div>
+                        <motion.button
+                          className="text-xs text-white/80 hover:text-white font-bold flex items-center gap-1"
+                          whileHover={{ x: 3 }}
+                        >
+                          Interact
+                          <ArrowRight className="w-3 h-3" />
+                        </motion.button>
                       </div>
-                      <span className="text-xs text-muted-foreground">•</span>
-                      <span className="text-xs px-1.5 py-0.5 rounded bg-green-500/10 text-green-500">
-                        {agent.pricing}
-                      </span>
                     </div>
-                    <button className="text-xs text-primary hover:text-primary/80 font-medium">
-                      Interact →
-                    </button>
+                    
+                    {/* Shine Effect */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                    </div>
                   </div>
                 </motion.div>
               ))}
           </div>
         </motion.section>
 
-        {/* Section 3: Agent Categories */}
+        {/* Section 3: Agent Categories - Professional Design */}
         <motion.section
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.2 }}
-          className="bg-card border border-border/50 rounded-xl p-4"
+          transition={{ duration: 0.5, delay: 0.2, ease: [0.4, 0, 0.2, 1] }}
+          className="relative"
         >
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border border-blue-500/30 flex items-center justify-center">
-                <Grid3x3 className="w-5 h-5 text-blue-500" />
-              </div>
+          {/* Section Header */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-4">
+              <motion.div
+                className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border-2 border-blue-500/30 flex items-center justify-center shadow-lg"
+                whileHover={{ scale: 1.1, rotate: 5 }}
+              >
+                <Grid3x3 className="w-7 h-7 text-blue-400" />
+              </motion.div>
               <div>
-                <h2 className="text-lg font-bold text-foreground">Agent Categories</h2>
-                <p className="text-xs text-muted-foreground">Browse agents by category</p>
+                <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-1">Agent Categories</h2>
+                <p className="text-sm text-white/60">Browse agents by category</p>
               </div>
             </div>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {agentCategories.map((category) => {
+
+          {/* Categories Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {agentCategories.map((category, index) => {
               const Icon = category.icon;
+              const colors = [
+                { from: "from-blue-500", to: "to-cyan-500" },
+                { from: "from-purple-500", to: "to-pink-500" },
+                { from: "from-green-500", to: "to-emerald-500" },
+                { from: "from-orange-500", to: "to-red-500" },
+              ];
+              const color = colors[index % colors.length];
+              
               return (
                 <motion.div
                   key={category.id}
-                  whileHover={{ scale: 1.05, y: -2 }}
-                  className="bg-background/50 border border-border/50 rounded-lg p-4 cursor-pointer hover:border-primary/50 transition-all group"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5, delay: 0.3 + index * 0.1 }}
+                  whileHover={{ scale: 1.08, y: -8 }}
+                  className="relative group cursor-pointer"
                   onClick={() => navigate("/dashboard/agent-store")}
                 >
-                  <div className="flex flex-col items-center text-center gap-3">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/30 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <Icon className="w-6 h-6 text-primary" />
+                  {/* Category Card */}
+                  <div className={`relative rounded-2xl p-6 backdrop-blur-xl bg-gradient-to-br ${color.from}/10 ${color.to}/5 border-2 border-white/10 hover:border-white/30 transition-all duration-300 shadow-lg hover:shadow-2xl overflow-hidden`}>
+                    {/* Gradient Overlay */}
+                    <div className={`absolute inset-0 bg-gradient-to-br ${color.from}/20 ${color.to}/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+                    
+                    {/* Content */}
+                    <div className="relative z-10 flex flex-col items-center text-center gap-4">
+                      <motion.div
+                        className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${color.from} ${color.to} flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform duration-300`}
+                        whileHover={{ rotate: 360 }}
+                        transition={{ duration: 0.6 }}
+                      >
+                        <Icon className="w-8 h-8 text-white" />
+                      </motion.div>
+                      <div>
+                        <h3 className="text-base font-extrabold text-white mb-1 group-hover:text-white/90 transition-colors">
+                          {category.label}
+                        </h3>
+                        <p className="text-sm text-white/60 font-semibold">
+                          {category.count} agents
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors mb-1">
-                        {category.label}
-                      </h3>
-                      <p className="text-xs text-muted-foreground">
-                        {category.count} agents
-                      </p>
+                    
+                    {/* Shine Effect */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                     </div>
                   </div>
                 </motion.div>
@@ -606,92 +718,134 @@ const FeedPage = () => {
           </div>
         </motion.section>
 
-        {/* Section 4: My Agents */}
+        {/* Section 4: My Agents - Premium Design */}
         <motion.section
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.3 }}
-          className="bg-card border border-border/50 rounded-xl p-4"
+          transition={{ duration: 0.5, delay: 0.3, ease: [0.4, 0, 0.2, 1] }}
+          className="relative"
         >
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-green-500/20 to-emerald-500/20 border border-green-500/30 flex items-center justify-center">
-                <User className="w-5 h-5 text-green-500" />
-              </div>
+          {/* Section Header */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-4">
+              <motion.div
+                className="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-500/20 to-emerald-500/20 border-2 border-green-500/30 flex items-center justify-center shadow-lg"
+                whileHover={{ scale: 1.1, rotate: -5 }}
+              >
+                <User className="w-7 h-7 text-green-400" />
+              </motion.div>
               <div>
-                <h2 className="text-lg font-bold text-foreground">My Agents</h2>
-                <p className="text-xs text-muted-foreground">Your created and saved agents</p>
+                <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-1">My Agents</h2>
+                <p className="text-sm text-white/60">Your created and saved agents</p>
               </div>
             </div>
-            <button
+            <motion.button
               onClick={() => navigate("/dashboard/agent-store")}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
+              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 text-white text-sm font-bold hover:from-green-600 hover:to-emerald-600 transition-all shadow-lg shadow-green-500/30"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               Create Agent
               <ArrowRight className="w-4 h-4" />
-            </button>
+            </motion.button>
           </div>
+
           {mockAgents.slice(0, 3).length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-              {mockAgents.slice(0, 3).map((agent) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {mockAgents.slice(0, 3).map((agent, index) => (
                 <motion.div
                   key={agent.id}
-                  whileHover={{ scale: 1.02, y: -2 }}
-                  className="bg-background/50 border border-border/50 rounded-lg p-4 cursor-pointer hover:border-primary/50 transition-all group"
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.4 + index * 0.1 }}
+                  whileHover={{ scale: 1.03, y: -8 }}
+                  className="relative group cursor-pointer"
                   onClick={() => navigate("/dashboard/agent-store")}
                 >
-                  <div className="flex items-start gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/30 flex items-center justify-center flex-shrink-0">
-                      <Bot className="w-5 h-5 text-primary" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
-                          {agent.name}
-                        </h3>
-                        <span className="text-xs px-1.5 py-0.5 rounded bg-secondary/50 text-muted-foreground">
-                          {agent.status}
-                        </span>
+                  {/* My Agent Card */}
+                  <div className="relative rounded-2xl p-6 backdrop-blur-xl bg-gradient-to-br from-white/5 to-white/[0.02] border-2 border-white/10 hover:border-green-500/50 transition-all duration-300 shadow-xl hover:shadow-2xl hover:shadow-green-500/20 overflow-hidden">
+                    {/* Gradient Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    
+                    {/* Content */}
+                    <div className="relative z-10">
+                      <div className="flex items-start gap-4 mb-4">
+                        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-green-500/30 to-emerald-500/30 border-2 border-green-500/40 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                          <Bot className="w-7 h-7 text-green-300" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-2">
+                            <h3 className="text-base font-extrabold text-white group-hover:text-green-300 transition-colors">
+                              {agent.name}
+                            </h3>
+                            <span className="text-xs px-2 py-1 rounded-lg bg-white/10 text-white/70 font-semibold border border-white/20">
+                              {agent.status}
+                            </span>
+                          </div>
+                          <p className="text-sm text-white/70 line-clamp-2 leading-relaxed">
+                            {agent.description}
+                          </p>
+                        </div>
                       </div>
-                      <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
-                        {agent.description}
-                      </p>
+                      
+                      {/* Footer */}
+                      <div className="flex items-center justify-between pt-4 border-t border-white/10">
+                        <span className="text-xs px-2 py-1 rounded-lg bg-green-500/20 text-green-400 font-semibold border border-green-500/30">
+                          {agent.pricing}
+                        </span>
+                        <motion.button
+                          className="text-xs text-white/80 hover:text-white font-bold flex items-center gap-1"
+                          whileHover={{ x: 3 }}
+                        >
+                          Manage
+                          <ArrowRight className="w-3 h-3" />
+                        </motion.button>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-center justify-between pt-3 border-t border-border/50">
-                    <span className="text-xs px-1.5 py-0.5 rounded bg-green-500/10 text-green-500">
-                      {agent.pricing}
-                    </span>
-                    <button className="text-xs text-primary hover:text-primary/80 font-medium">
-                      Manage →
-                    </button>
+                    
+                    {/* Shine Effect */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                    </div>
                   </div>
                 </motion.div>
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 border border-dashed border-border/50 rounded-lg">
-              <Bot className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
-              <p className="text-sm text-muted-foreground mb-2">No agents created yet</p>
-              <button
-                onClick={() => navigate("/dashboard/agent-store")}
-                className="text-sm text-primary hover:text-primary/80 font-medium"
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="text-center py-16 border-2 border-dashed border-white/10 rounded-2xl backdrop-blur-xl bg-white/5"
+            >
+              <motion.div
+                animate={{ y: [0, -10, 0] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="w-20 h-20 rounded-2xl bg-gradient-to-br from-green-500/20 to-emerald-500/20 border-2 border-green-500/30 flex items-center justify-center mx-auto mb-4"
               >
-                Create your first agent →
-              </button>
-            </div>
+                <Bot className="w-10 h-10 text-green-400" />
+              </motion.div>
+              <p className="text-base text-white/80 mb-3 font-semibold">No agents created yet</p>
+              <motion.button
+                onClick={() => navigate("/dashboard/agent-store")}
+                className="text-sm text-green-400 hover:text-green-300 font-bold flex items-center gap-2 mx-auto"
+                whileHover={{ scale: 1.05 }}
+              >
+                Create your first agent
+                <ArrowRight className="w-4 h-4" />
+              </motion.button>
+            </motion.div>
           )}
         </motion.section>
         </div>
       )}
 
-      {/* Masonry Grid - Full Width Like Midjourney - Hide when agents filter is active */}
+      {/* Professional Masonry Grid - Hide when agents filter is active */}
       {activeFilter !== "agents" && (
       <motion.main
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-          transition={{ delay: 0.4, duration: 0.3 }}
-        className="pt-2 px-0.5 sm:px-1"
+        transition={{ delay: 0.2, duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+        className="pt-6 px-2 sm:px-4"
       >
         <div className="w-full">
           <div
