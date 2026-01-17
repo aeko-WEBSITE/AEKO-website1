@@ -548,15 +548,15 @@ const CreateAgentSection = () => {
 
             {/* Right Side - Mobile Interface Demo */}
             <div className="relative">
-              {/* Large Light Green Background Container with Rich Animated Border */}
-              <div className="relative rounded-3xl p-8 overflow-hidden shadow-2xl" style={{ borderRadius: '24px' }}>
-                {/* Rich Animated Gradient Border */}
+              {/* Large Light Green Background Container with Flowing Smooth Color Border */}
+              <div className="relative rounded-3xl p-1 overflow-hidden shadow-2xl" style={{ borderRadius: '24px' }}>
+                {/* Flowing Smooth Rainbow Gradient Border - Outer */}
                 <motion.div
                   className="absolute inset-0 rounded-3xl pointer-events-none"
                   style={{
-                    padding: '2px',
-                    background: 'linear-gradient(135deg, #22C55E, #10B981, #34D399, #6EE7B7, #22C55E)',
-                    backgroundSize: '200% 200%',
+                    padding: '3px',
+                    background: 'linear-gradient(135deg, #22C55E, #10B981, #34D399, #3B82F6, #7C3AED, #EC4899, #F59E0B, #22C55E)',
+                    backgroundSize: '300% 300%',
                     WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
                     WebkitMaskComposite: 'xor',
                     maskComposite: 'exclude',
@@ -565,22 +565,43 @@ const CreateAgentSection = () => {
                     backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
                   }}
                   transition={{
-                    duration: 4,
+                    duration: 5,
+                    repeat: Infinity,
+                    ease: 'linear',
+                  }}
+                />
+                {/* Secondary Flowing Border Layer for Extra Smoothness */}
+                <motion.div
+                  className="absolute inset-0 rounded-3xl pointer-events-none"
+                  style={{
+                    padding: '2px',
+                    background: 'linear-gradient(225deg, #EC4899, #7C3AED, #3B82F6, #22D3EE, #10B981, #22C55E, #F59E0B, #EC4899)',
+                    backgroundSize: '300% 300%',
+                    WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                    WebkitMaskComposite: 'xor',
+                    maskComposite: 'exclude',
+                    opacity: 0.7,
+                  }}
+                  animate={{
+                    backgroundPosition: ['100% 100%', '0% 0%', '100% 100%'],
+                  }}
+                  transition={{
+                    duration: 6,
                     repeat: Infinity,
                     ease: 'linear',
                   }}
                 />
                 {/* Inner Background */}
-                <div className="absolute inset-[2px] rounded-3xl bg-gradient-to-br from-green-100 to-emerald-100" style={{ borderRadius: '22px' }} />
-                {/* Mobile Chat Interface with Rich Border */}
+                <div className="absolute inset-[3px] rounded-3xl bg-gradient-to-br from-green-100 to-emerald-100" style={{ borderRadius: '21px' }} />
+                {/* Mobile Chat Interface with Flowing Smooth Color Border */}
                 <div className="relative rounded-2xl p-6 overflow-hidden shadow-xl" style={{ borderRadius: '16px' }}>
-                  {/* Rich Animated Gradient Border */}
+                  {/* Flowing Smooth Rainbow Gradient Border - Inner */}
                   <motion.div
                     className="absolute inset-0 rounded-2xl pointer-events-none"
                     style={{
-                      padding: '2px',
-                      background: 'linear-gradient(135deg, #4B5563, #6B7280, #9CA3AF, #6B7280, #4B5563)',
-                      backgroundSize: '200% 200%',
+                      padding: '3px',
+                      background: 'linear-gradient(135deg, #7C3AED, #3B82F6, #22D3EE, #10B981, #F59E0B, #EC4899, #7C3AED)',
+                      backgroundSize: '300% 300%',
                       WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
                       WebkitMaskComposite: 'xor',
                       maskComposite: 'exclude',
@@ -589,13 +610,34 @@ const CreateAgentSection = () => {
                       backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
                     }}
                     transition={{
-                      duration: 3,
+                      duration: 4,
+                      repeat: Infinity,
+                      ease: 'linear',
+                    }}
+                  />
+                  {/* Secondary Flowing Border Layer for Extra Smoothness */}
+                  <motion.div
+                    className="absolute inset-0 rounded-2xl pointer-events-none"
+                    style={{
+                      padding: '2px',
+                      background: 'linear-gradient(225deg, #EC4899, #F59E0B, #10B981, #22D3EE, #3B82F6, #7C3AED, #EC4899)',
+                      backgroundSize: '300% 300%',
+                      WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                      WebkitMaskComposite: 'xor',
+                      maskComposite: 'exclude',
+                      opacity: 0.6,
+                    }}
+                    animate={{
+                      backgroundPosition: ['100% 100%', '0% 0%', '100% 100%'],
+                    }}
+                    transition={{
+                      duration: 5,
                       repeat: Infinity,
                       ease: 'linear',
                     }}
                   />
                   {/* Inner Background */}
-                  <div className="absolute inset-[2px] rounded-2xl bg-gray-800" style={{ borderRadius: '14px' }} />
+                  <div className="absolute inset-[3px] rounded-xl bg-gray-800" style={{ borderRadius: '13px' }} />
                   <div className="relative z-10">
                   {/* AI Agent Header */}
                   <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-700">
