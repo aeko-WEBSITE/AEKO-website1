@@ -142,26 +142,10 @@ const Navbar = () => {
             className="relative overflow-hidden bg-gradient-to-b from-purple-900/90 via-purple-800/80 to-purple-900/90 border-2 border-white"
             animate={{
               backdropFilter: "blur(20px) saturate(180%)",
-<<<<<<< HEAD
               borderRadius: isScrolled || isOpen ? "20px" : "9999px",
               boxShadow: isScrolled || isOpen
                 ? "0 8px 32px rgba(124, 58, 237, 0.3)"
                 : "0 8px 32px rgba(124, 58, 237, 0.2)",
-=======
-              backgroundColor: theme === "dark" 
-                ? (isScrolled || isOpen ? "rgba(0, 0, 0, 0.7)" : "rgba(0, 0, 0, 0.4)")
-                : (isScrolled || isOpen ? "rgba(255, 255, 255, 0.9)" : "rgba(255, 255, 255, 0.8)"),
-              borderWidth: "1px",
-              borderColor: theme === "dark" ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
-              borderRadius: isScrolled || isOpen ? "20px" : "9999px",
-              boxShadow: theme === "dark"
-                ? (isScrolled || isOpen
-                  ? "0 8px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1)"
-                  : "0 8px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.1)")
-                : (isScrolled || isOpen
-                  ? "0 8px 32px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.1)"
-                  : "0 8px 32px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.1)"),
->>>>>>> f5092f976b48ccbfe68bb675eef8b9f9915b350d
             }}
             transition={{
               duration: 0.4,
