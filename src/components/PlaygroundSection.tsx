@@ -96,14 +96,14 @@ const PlaygroundSection = () => {
         </motion.div>
 
         {/* Two Column Layout */}
-        <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+        <div className="grid lg:grid-cols-5 gap-8 max-w-7xl mx-auto">
           {/* LEFT: Playground */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="glass-card rounded-2xl p-6"
+            className="lg:col-span-2 glass-card rounded-2xl p-6 border-2 border-border/50"
           >
             <div className="flex items-center gap-2 mb-6">
               <Wand2 className="w-5 h-5 text-primary" />
@@ -119,7 +119,7 @@ const PlaygroundSection = () => {
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 placeholder="A futuristic cityscape at sunset, neon lights reflecting on wet streets..."
-                className="w-full h-32 px-4 py-3 rounded-xl bg-secondary/30 border border-border/50 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
+                className="w-full h-40 px-4 py-3 rounded-xl bg-secondary/40 border-2 border-border/50 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 resize-none font-medium"
               />
             </div>
 
@@ -192,7 +192,7 @@ const PlaygroundSection = () => {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="glass-card rounded-2xl p-6"
+            className="lg:col-span-3 glass-card rounded-2xl p-6 border-2 border-border/50"
           >
             <div className="flex items-center gap-2 mb-6">
               <Sparkles className="w-5 h-5 text-primary" />

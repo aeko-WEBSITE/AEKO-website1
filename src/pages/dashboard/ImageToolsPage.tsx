@@ -1,51 +1,73 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Image,
-  ArrowLeftRight,
-  Maximize2,
-  Paperclip,
-  Settings2,
-  Zap,
+  Trash2,
+  Grid3x3,
+  Square,
+  Info,
+  Star,
   Loader2,
   Sparkles,
   ChevronDown,
   Download,
   Share2,
   Copy,
+  Image as ImageIcon,
+  ArrowLeftRight,
+  Eraser,
+  Maximize2,
   Wand2,
+  Film,
+  Zap,
+  Camera,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useTheme } from "@/hooks/use-theme";
+import { Switch } from "@/components/ui/switch";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-const imageTools = [
-  { id: "text-to-image", label: "Text to Image", icon: Image, color: "from-purple-500 to-pink-500", description: "Generate images from text descriptions" },
-  { id: "image-to-image", label: "Image to Image", icon: ArrowLeftRight, color: "from-green-500 to-emerald-500", description: "Transform existing images" },
-  { id: "upscale", label: "Upscale", icon: Maximize2, color: "from-pink-500 to-rose-500", description: "Enhance image resolution" },
+const imageSizes = [
+  { ratio: "1:1", label: "1:1" },
+  { ratio: "2:3", label: "2:3" },
+  { ratio: "2:2", label: "2:2" },
+  { ratio: "4:5", label: "4:5" },
+  { ratio: "5:4", label: "5:4" },
+  { ratio: "2:4", label: "2:4" },
+];
+
+const imageModes = [
+  { id: "text-to-image", label: "Text to Image", icon: ImageIcon, color: "from-purple-500 to-pink-500" },
+  { id: "image-to-image", label: "Image to Image", icon: ArrowLeftRight, color: "from-blue-500 to-cyan-500" },
+  { id: "bg-removal", label: "BG Removal", icon: Eraser, color: "from-green-500 to-emerald-500" },
+  { id: "upscale", label: "Upscale", icon: Maximize2, color: "from-orange-500 to-red-500" },
+  { id: "enhance", label: "Enhance", icon: Wand2, color: "from-pink-500 to-rose-500" },
 ];
 
 const imageModels = [
-  { id: "flux", name: "FLUX Pro", icon: "✨", description: "High-quality realistic images" },
-  { id: "sdxl", name: "Stable Diffusion XL", icon: "🎨", description: "Creative and artistic styles" },
-  { id: "dalle", name: "DALL-E 3", icon: "🖼️", description: "Photorealistic and detailed" },
+  { id: "flux-pro", name: "FLUX Pro", icon: Film, description: "Cinematic quality images" },
+  { id: "flux", name: "FLUX", icon: Film, description: "High-quality realistic images" },
+  { id: "kingly", name: "Kingly", icon: Sparkles, description: "Artistic and creative styles" },
+  { id: "google", name: "Google", icon: ImageIcon, description: "Fast and reliable generation" },
+  { id: "dalle", name: "DALL-E 3", icon: Camera, description: "Photorealistic and detailed" },
+  { id: "sdxl", name: "Stable Diffusion XL", icon: Zap, description: "Versatile and powerful" },
 ];
 
 const ImageToolsPage = () => {
-  const [activeTool, setActiveTool] = useState("text-to-image");
-  const [prompt, setPrompt] = useState("");
+  const [activeMode, setActiveMode] = useState("text-to-image");
   const [selectedModel, setSelectedModel] = useState(imageModels[0]);
   const [isModelOpen, setIsModelOpen] = useState(false);
-  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [prompt, setPrompt] = useState("");
+  const [enhancePrompt, setEnhancePrompt] = useState(false);
+  const [selectedSize, setSelectedSize] = useState("1:1");
+  const [numberOfImages, setNumberOfImages] = useState("1");
+  const [seed, setSeed] = useState("");
+  const [viewMode, setViewMode] = useState<"grid" | "single">("single");
   const [isLoading, setIsLoading] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
-  const { theme } = useTheme();
-
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && e.ctrlKey) {
-      e.preventDefault();
-      handleGenerate();
-    }
-  };
 
   const handleGenerate = async () => {
     if (!prompt.trim() || isLoading) return;
@@ -58,289 +80,378 @@ const ImageToolsPage = () => {
   };
 
   return (
-    <div className="absolute inset-0 flex flex-col relative overflow-y-auto">
-      {/* Animated Background */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />
-        <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-accent/5 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '10s', animationDelay: '1s' }} />
-        <div className="absolute bottom-0 left-1/2 w-96 h-96 bg-primary/3 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '12s', animationDelay: '2s' }} />
-      </div>
-
-      <div className="relative z-10 space-y-6 p-4 sm:p-6 lg:p-8">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 1, y: 0 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="space-y-2"
-        >
-          <h1 className="text-3xl sm:text-4xl font-bold text-foreground">Image Tools</h1>
-          <p className="text-muted-foreground text-sm sm:text-base">Create stunning images with AI-powered generation</p>
-        </motion.div>
-
-        {/* Tool Selection */}
-        <motion.div
-          initial={{ opacity: 1, y: 0 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide"
-        >
-          {imageTools.map((tool) => {
-            const Icon = tool.icon;
-            const isActive = activeTool === tool.id;
+    <div className="flex flex-col h-full w-full overflow-hidden bg-background">
+      {/* Mode Switcher - Top */}
+      <div className="flex-shrink-0 border-b-2 border-purple-500/30 bg-secondary/20 px-3 sm:px-4 py-2 sm:py-3">
+        <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+          {imageModes.map((mode) => {
+            const Icon = mode.icon;
+            const isActive = activeMode === mode.id;
             return (
               <motion.button
-                key={tool.id}
+                key={mode.id}
+                onClick={() => setActiveMode(mode.id)}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => setActiveTool(tool.id)}
-                className={`flex flex-col sm:flex-row items-center gap-2 px-4 py-3 rounded-xl transition-all whitespace-nowrap min-w-fit ${
+                className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 border ${
                   isActive
-                    ? `bg-gradient-to-r ${tool.color} text-white shadow-lg`
-                    : "bg-secondary/50 text-muted-foreground hover:text-foreground hover:bg-secondary"
+                    ? `bg-gradient-to-r ${mode.color} text-white border-transparent shadow-lg`
+                    : "bg-secondary/40 text-muted-foreground border-border/50 hover:bg-secondary/60 hover:text-foreground"
                 }`}
               >
-                <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
-                <div className="text-left">
-                  <span className="text-sm font-medium block">{tool.label}</span>
-                  <span className={`text-xs ${isActive ? 'text-white/80' : 'text-muted-foreground'} hidden sm:block`}>{tool.description}</span>
-                </div>
+                <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span>{mode.label}</span>
               </motion.button>
             );
           })}
-        </motion.div>
+        </div>
+      </div>
 
-        {/* Main Tool Interface */}
-        <motion.div
-          initial={{ opacity: 1, y: 0 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="grid lg:grid-cols-3 gap-6"
-        >
-          {/* Left: Input Area */}
-          <div className="lg:col-span-2 space-y-4">
-            <div className="glass-card rounded-2xl p-4 sm:p-6">
-              {/* Model Selector */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
-                <div className="relative w-full sm:w-auto">
-                  <button
-                    onClick={() => setIsModelOpen(!isModelOpen)}
-                    className="flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary/50 hover:bg-secondary transition-colors w-full sm:w-auto"
+      {/* Full Frame Layout */}
+      <div className="flex flex-1 h-full w-full min-w-0 gap-1 sm:gap-2 overflow-hidden">
+        {/* LEFT: Input Section */}
+        <div className="flex flex-col w-full lg:w-[52%] min-w-0 border-r-2 border-purple-500/30 bg-secondary/10 overflow-y-auto scrollbar-hide">
+          <div className="p-3 sm:p-4 space-y-3 sm:space-y-4 min-h-full border-2 border-purple-500/20 rounded-lg m-2 sm:m-3">
+            {/* Title and Model Selector */}
+            <div className="flex items-center justify-between pb-2 border-b border-purple-500/20">
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground">Input</h2>
+              
+              {/* Model Dropdown */}
+              <DropdownMenu open={isModelOpen} onOpenChange={setIsModelOpen}>
+                <DropdownMenuTrigger asChild>
+                  <motion.div
+                    className="relative"
+                    animate={{
+                      scale: [1, 1.05, 1],
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }}
                   >
-                    <span className="text-lg">{selectedModel.icon}</span>
-                    <span className="text-sm font-medium text-foreground">
-                      {selectedModel.name}
-                    </span>
-                    <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ml-auto ${isModelOpen ? 'rotate-180' : ''}`} />
-                  </button>
-
-                  <AnimatePresence>
-                    {isModelOpen && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        className="absolute top-full left-0 mt-2 w-full sm:w-64 rounded-lg bg-card border border-border shadow-xl z-20"
-                      >
-                        {imageModels.map((model) => (
-                          <button
-                            key={model.id}
-                            onClick={() => {
-                              setSelectedModel(model);
-                              setIsModelOpen(false);
+                    {/* Highlight Border Animation */}
+                    <motion.div
+                      className="absolute inset-0 rounded-lg"
+                      animate={{
+                        boxShadow: [
+                          "0 0 0px rgba(124, 58, 237, 0)",
+                          "0 0 15px rgba(124, 58, 237, 0.6)",
+                          "0 0 0px rgba(124, 58, 237, 0)",
+                        ],
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                      }}
+                    />
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="relative flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-gradient-to-r from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30 border-2 border-purple-500/50 hover:border-purple-400 text-foreground text-xs sm:text-sm font-medium transition-all shadow-lg"
+                    >
+                      {(() => {
+                        const ModelIcon = selectedModel.icon;
+                        return (
+                          <motion.div
+                            animate={{
+                              rotate: [0, 10, -10, 0],
                             }}
-                            className="w-full flex items-center gap-3 px-4 py-3 hover:bg-secondary/50 transition-colors first:rounded-t-lg last:rounded-b-lg text-left"
+                            transition={{
+                              duration: 3,
+                              repeat: Infinity,
+                              ease: "easeInOut",
+                            }}
                           >
-                            <span className="text-xl">{model.icon}</span>
-                            <div>
-                              <span className="text-sm font-medium text-foreground block">{model.name}</span>
-                              <span className="text-xs text-muted-foreground">{model.description}</span>
-                            </div>
-                          </button>
-                        ))}
+                            <ModelIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                          </motion.div>
+                        );
+                      })()}
+                      <span className="hidden sm:inline">{selectedModel.name}</span>
+                      <span className="sm:hidden">{selectedModel.name.split(' ')[0]}</span>
+                      <motion.div
+                        animate={{
+                          y: [0, 3, 0],
+                        }}
+                        transition={{
+                          duration: 1.5,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                        }}
+                      >
+                        <ChevronDown className={`w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground transition-transform ${isModelOpen ? 'rotate-180' : ''}`} />
                       </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
+                    </motion.button>
+                  </motion.div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-64 backdrop-blur-xl bg-secondary/95 border border-border/50">
+                  {imageModels.map((model) => {
+                    const ModelIcon = model.icon;
+                    const isSelected = selectedModel.id === model.id;
+                    return (
+                      <DropdownMenuItem
+                        key={model.id}
+                        onClick={() => {
+                          setSelectedModel(model);
+                          setIsModelOpen(false);
+                        }}
+                        className={`cursor-pointer hover:bg-secondary/70 transition-colors ${
+                          isSelected ? "bg-secondary/50" : ""
+                        }`}
+                      >
+                        <ModelIcon className="w-4 h-4 mr-3 text-foreground" />
+                        <div className="flex flex-col flex-1">
+                          <span className="font-medium text-foreground text-sm">{model.name}</span>
+                          <span className="text-xs text-muted-foreground">{model.description}</span>
+                        </div>
+                      </DropdownMenuItem>
+                    );
+                  })}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
 
-                <button
-                  onClick={() => setShowAdvanced(!showAdvanced)}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors w-full sm:w-auto justify-center ${
-                    showAdvanced ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-secondary/50"
-                  }`}
-                >
-                  <Settings2 className="w-4 h-4" />
-                  <span className="text-sm">Advanced</span>
-                </button>
-              </div>
-
-              {/* Prompt Input */}
+            {/* Prompt Input */}
+            <div className="space-y-2">
               <textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
-                onKeyDown={handleKeyPress}
-                disabled={isLoading}
-                placeholder="Describe what you want to create... (Ctrl+Enter to generate)"
-                className="w-full h-32 sm:h-40 bg-secondary/30 border border-border/50 rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm sm:text-base disabled:opacity-50 transition-all"
+                placeholder="Enter negative prompt"
+                disabled={activeMode === "bg-removal" || activeMode === "upscale"}
+                className="w-full h-28 sm:h-36 bg-secondary/40 border border-border/50 rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-primary/50 text-xs sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               />
-
-              {/* Advanced Settings */}
-              <AnimatePresence>
-                {showAdvanced && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="pt-4 border-t border-border/50 mt-4 overflow-hidden"
+              
+              {/* Image Upload for Image-to-Image, BG Removal, Upscale */}
+              {(activeMode === "image-to-image" || activeMode === "bg-removal" || activeMode === "upscale") && (
+                <div className="border-2 border-dashed border-border/50 rounded-lg p-4 text-center bg-secondary/20">
+                  <ImageIcon className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                  <p className="text-xs sm:text-sm text-muted-foreground mb-2">
+                    {activeMode === "image-to-image" && "Upload an image to transform"}
+                    {activeMode === "bg-removal" && "Upload an image to remove background"}
+                    {activeMode === "upscale" && "Upload an image to upscale"}
+                  </p>
+                  <Button variant="outline" size="sm" className="text-xs">
+                    Choose Image
+                  </Button>
+                </div>
+              )}
+              
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Switch
+                    checked={enhancePrompt}
+                    onCheckedChange={setEnhancePrompt}
+                  />
+                  <span className="text-sm text-muted-foreground">Enhance your prompt</span>
+                </div>
+                <div className="flex items-center gap-4">
+                  <button className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+                    <Star className="w-3 h-3" />
+                    <span>AI Translate</span>
+                  </button>
+                  <button
+                    onClick={() => setPrompt("")}
+                    className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      <div>
-                        <label className="block text-xs text-muted-foreground mb-1">Steps</label>
-                        <input
-                          type="number"
-                          defaultValue={30}
-                          className="w-full px-3 py-2 rounded-lg bg-secondary/30 border border-border/50 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs text-muted-foreground mb-1">Guidance</label>
-                        <input
-                          type="number"
-                          step="0.5"
-                          defaultValue={7.5}
-                          className="w-full px-3 py-2 rounded-lg bg-secondary/30 border border-border/50 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs text-muted-foreground mb-1">Seed</label>
-                        <input
-                          type="number"
-                          defaultValue={-1}
-                          className="w-full px-3 py-2 rounded-lg bg-secondary/30 border border-border/50 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                        />
-                      </div>
+                    <Trash2 className="w-3 h-3" />
+                    <span>Clear</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Size and Number of Images - Side by Side */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              {/* Image Size - Only for Text to Image and Image to Image */}
+              {(activeMode === "text-to-image" || activeMode === "image-to-image") && (
+                <div className="space-y-1.5">
+                  <label className="text-xs sm:text-sm font-medium text-foreground">Size</label>
+                  <div className="flex gap-1.5 sm:gap-2 flex-wrap">
+                    {imageSizes.map((size) => (
+                      <button
+                        key={size.ratio}
+                        onClick={() => setSelectedSize(size.ratio)}
+                        className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-medium transition-all border flex-shrink-0 ${
+                          selectedSize === size.ratio
+                            ? "bg-foreground text-background border-foreground"
+                            : "bg-secondary/40 text-muted-foreground border-border/50 hover:bg-secondary/60 hover:text-foreground"
+                        }`}
+                      >
+                        {size.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Number of Images - Dropdown */}
+              <div className="space-y-1.5">
+                <label className="text-xs sm:text-sm font-medium text-foreground">Number of Images</label>
+                <div className="relative">
+                  <select
+                    value={numberOfImages}
+                    onChange={(e) => setNumberOfImages(e.target.value)}
+                    className="w-full px-3 sm:px-4 py-1.5 sm:py-2 bg-secondary/40 border border-border/50 rounded-lg text-foreground text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 appearance-none"
+                  >
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="4">4</option>
+                    <option value="8">8</option>
+                  </select>
+                  <ChevronDown className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground pointer-events-none" />
+                </div>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">This feature is only available to paid users</p>
+              </div>
+            </div>
+
+            {/* Generate Button */}
+            <Button
+              onClick={handleGenerate}
+              disabled={isLoading || !prompt.trim()}
+              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold py-3 sm:py-4 text-sm sm:text-base"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Generate
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+
+        {/* RIGHT: Output Section */}
+        <div className="flex flex-col w-full lg:w-[48%] min-w-0 border-l-2 border-purple-500/30 bg-secondary/5 overflow-y-auto scrollbar-hide">
+          <div className="p-3 sm:p-4 space-y-3 sm:space-y-4 h-full flex flex-col min-h-0 border-2 border-purple-500/20 rounded-lg m-2 sm:m-3">
+            {/* Title and View Options */}
+            <div className="flex items-center justify-between pb-2 border-b border-purple-500/20">
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground">Output</h2>
+              <div className="flex gap-2">
+                {/* Download Icon */}
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  className="p-2 rounded-lg transition-all border bg-secondary/20 border-border/30 hover:bg-secondary/40 hover:border-primary/50"
+                  title="Download"
+                >
+                  <Download className="w-4 h-4 text-foreground" />
+                </motion.button>
+                <button
+                  onClick={() => setViewMode("grid")}
+                  className={`p-2 rounded-lg transition-all border ${
+                    viewMode === "grid"
+                      ? "bg-secondary/60 border-border/50"
+                      : "bg-secondary/20 border-border/30 hover:bg-secondary/40"
+                  }`}
+                >
+                  <Grid3x3 className="w-4 h-4 text-foreground" />
+                </button>
+                <button
+                  onClick={() => setViewMode("single")}
+                  className={`p-2 rounded-lg transition-all border ${
+                    viewMode === "single"
+                      ? "bg-secondary/60 border-border/50"
+                      : "bg-secondary/20 border-border/30 hover:bg-secondary/40"
+                  }`}
+                >
+                  <Square className="w-4 h-4 text-foreground" />
+                </button>
+              </div>
+            </div>
+
+            {/* Image Preview Area */}
+            <div className="flex-1 flex items-center justify-center min-h-0 overflow-hidden">
+              <AnimatePresence mode="wait">
+                {generatedImage ? (
+                  <motion.div
+                    key="image"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    className="w-full h-full flex flex-col min-h-0"
+                  >
+                    <div className="relative rounded-lg overflow-hidden mb-4 flex-1 min-h-0 bg-secondary/30 border border-border/50">
+                      <img
+                        src={generatedImage}
+                        alt="Generated"
+                        className="w-full h-full object-cover"
+                      />
                     </div>
+                    <div className="flex gap-2 flex-shrink-0">
+                      <Button variant="outline" size="sm" className="flex-1 gap-2">
+                        <Download className="w-4 h-4" />
+                        Download
+                      </Button>
+                      <Button variant="outline" size="sm" className="flex-1 gap-2">
+                        <Share2 className="w-4 h-4" />
+                        Share
+                      </Button>
+                      <Button variant="outline" size="sm" className="gap-2">
+                        <Copy className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="placeholder"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="flex flex-col items-center justify-center text-center w-full max-w-md px-4"
+                  >
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-4 rounded-lg bg-secondary/40 border border-border/50 flex items-center justify-center">
+                      <motion.div
+                        className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-primary/20 to-accent/20 rounded-lg flex items-center justify-center"
+                        animate={{
+                          scale: [1, 1.1, 1],
+                          rotate: [0, 5, -5, 0],
+                        }}
+                        transition={{
+                          duration: 3,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                        }}
+                      >
+                        <motion.div
+                          animate={{
+                            rotate: [0, 360],
+                            scale: [1, 1.2, 1],
+                          }}
+                          transition={{
+                            rotate: {
+                              duration: 4,
+                              repeat: Infinity,
+                              ease: "linear",
+                            },
+                            scale: {
+                              duration: 2,
+                              repeat: Infinity,
+                              ease: "easeInOut",
+                            },
+                          }}
+                        >
+                          <Sparkles className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
+                        </motion.div>
+                      </motion.div>
+                    </div>
+                    <h3 className="text-base sm:text-lg font-semibold text-foreground mb-2">
+                      Ready to generate
+                    </h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
+                      Enter negative prompt to start generating images
+                    </p>
                   </motion.div>
                 )}
               </AnimatePresence>
-
-              {/* Actions */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-4 border-t border-border/50 mt-4">
-                <button className="flex items-center justify-center gap-2 px-3 py-2 rounded-lg hover:bg-secondary/50 transition-colors text-muted-foreground hover:text-foreground">
-                  <Paperclip className="w-4 h-4" />
-                  <span className="text-sm">Attach Image</span>
-                </button>
-
-                <Button
-                  variant="hero"
-                  size="lg"
-                  className="gap-2 w-full sm:w-auto"
-                  disabled={isLoading || !prompt.trim()}
-                  onClick={handleGenerate}
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Generating...
-                    </>
-                  ) : (
-                    <>
-                      <Zap className="w-4 h-4" />
-                      Generate
-                    </>
-                  )}
-                </Button>
-              </div>
             </div>
           </div>
-
-          {/* Right: Output Preview */}
-          <div className="glass-card rounded-2xl p-4 sm:p-6 flex flex-col min-h-[300px] sm:min-h-[400px] max-h-[600px]">
-            <AnimatePresence mode="wait">
-              {generatedImage ? (
-                <motion.div
-                  key="image"
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  className="flex flex-col h-full"
-                >
-                  <div className="relative rounded-xl overflow-hidden mb-4 flex-1 bg-secondary/30">
-                    <img
-                      src={generatedImage}
-                      alt="Generated"
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent opacity-0 hover:opacity-100 transition-opacity" />
-                  </div>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" className="flex-1 gap-2">
-                      <Download className="w-4 h-4" />
-                      Download
-                    </Button>
-                    <Button variant="outline" size="sm" className="flex-1 gap-2">
-                      <Share2 className="w-4 h-4" />
-                      Share
-                    </Button>
-                    <Button variant="outline" size="sm" className="gap-2">
-                      <Copy className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="placeholder"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="flex flex-col items-center justify-center h-full text-center"
-                >
-                  <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                    <Sparkles className="w-8 h-8 text-primary" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-foreground mb-2">
-                    Ready to Create
-                  </h3>
-                  <p className="text-sm text-muted-foreground max-w-xs">
-                    Enter a prompt and click Generate to see your AI creation appear here
-                  </p>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </motion.div>
-
-        {/* Prompt Library */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="glass-card rounded-2xl p-4 sm:p-6"
-        >
-          <div className="flex items-center gap-2 mb-4">
-            <Wand2 className="w-5 h-5 text-primary" />
-            <h3 className="text-lg font-semibold text-foreground">
-              Prompt Ideas
-            </h3>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {[
-              "Cyberpunk cityscape at night",
-              "Portrait in studio lighting",
-              "Abstract digital art",
-              "Fantasy landscape",
-              "Product mockup render",
-              "Anime character design",
-            ].map((idea) => (
-              <motion.button
-                key={idea}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setPrompt(idea)}
-                className="px-4 py-2 rounded-full bg-secondary/30 hover:bg-secondary/50 border border-border/50 text-sm text-muted-foreground hover:text-foreground transition-all"
-              >
-                {idea}
-              </motion.button>
-            ))}
-          </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   );

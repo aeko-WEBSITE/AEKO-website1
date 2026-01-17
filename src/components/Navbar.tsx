@@ -108,7 +108,7 @@ const Navbar = () => {
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="fixed top-0 left-0 right-0 z-50 flex items-center justify-center pt-4 md:pt-6"
+      className="fixed top-0 left-0 right-0 z-50 flex items-center justify-center pt-2 md:pt-3"
     >
       {/* Dynamic Island Container */}
       <motion.div
@@ -137,26 +137,25 @@ const Navbar = () => {
             ease: [0.4, 0, 0.2, 1],
           }}
         >
-          {/* Glass Background with Blur */}
+          {/* Glass Background with Blur - Purple Gradient */}
           <motion.div
-            className="relative overflow-hidden"
+            className="relative overflow-hidden bg-gradient-to-b from-purple-900/90 via-purple-800/80 to-purple-900/90 border-2 border-white"
             animate={{
               backdropFilter: "blur(20px) saturate(180%)",
-              backgroundColor: isScrolled || isOpen 
-                ? "rgba(0, 0, 0, 0.7)" 
-                : "rgba(0, 0, 0, 0.4)",
-              borderWidth: "1px",
-              borderColor: "rgba(255, 255, 255, 0.1)",
               borderRadius: isScrolled || isOpen ? "20px" : "9999px",
               boxShadow: isScrolled || isOpen
-                ? "0 8px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1)"
-                : "0 8px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.1)",
+                ? "0 8px 32px rgba(124, 58, 237, 0.3)"
+                : "0 8px 32px rgba(124, 58, 237, 0.2)",
             }}
             transition={{
               duration: 0.4,
               ease: [0.4, 0, 0.2, 1],
             }}
           >
+            {/* Rainbow Gradient Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-600/30 via-pink-500/20 via-blue-500/20 via-green-500/20 via-yellow-500/20 to-purple-600/30 rounded-r-2xl pointer-events-none" 
+              style={{ borderRadius: isScrolled || isOpen ? "20px" : "9999px" }}
+            />
             {/* Animated Gradient Border */}
             <motion.div
               className="absolute inset-0 rounded-full opacity-50"
@@ -187,7 +186,7 @@ const Navbar = () => {
             />
 
             {/* Content Container */}
-            <div className="relative px-4 md:px-6 py-3 md:py-3.5">
+            <div className="relative px-4 md:px-6 py-1.5 md:py-2 z-10">
               <div className="flex items-center justify-between gap-4 md:gap-8">
                 {/* Left Side - Logo */}
                 <motion.a
@@ -196,7 +195,7 @@ const Navbar = () => {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <div className="relative w-9 h-9 md:w-10 md:h-10 flex items-center justify-center">
+                  <div className="relative w-7 h-7 md:w-8 md:h-8 flex items-center justify-center">
                     {/* Animated Border */}
                     <motion.div
                       className="absolute inset-0 rounded-full"
@@ -218,7 +217,7 @@ const Navbar = () => {
                       }}
                     />
                     {/* Logo Container */}
-                    <div className="relative w-7 h-7 md:w-8 md:h-8 rounded-full overflow-hidden bg-transparent flex items-center justify-center">
+                    <div className="relative w-5 h-5 md:w-6 md:h-6 rounded-full overflow-hidden bg-transparent flex items-center justify-center">
                       <img 
                         src={logoDark} 
                         alt="AEKO" 
@@ -227,9 +226,9 @@ const Navbar = () => {
                     </div>
                   </div>
                   <div className="flex items-baseline gap-0.5">
-                    <span className="text-base md:text-lg font-bold text-white">AEKO.</span>
+                    <span className="text-sm md:text-base font-bold text-white">AEKO.</span>
                     <motion.span
-                      className="text-base md:text-lg font-bold"
+                      className="text-sm md:text-base font-bold"
                       style={{
                         background: 'linear-gradient(135deg, #7C3AED, #3B82F6, #22D3EE, #22C55E, #FACC15, #EC4899, #7C3AED)',
                         backgroundSize: '200% 200%',
@@ -257,12 +256,12 @@ const Navbar = () => {
                   <DropdownMenu onOpenChange={(open) => setIsExpanded(open)}>
                     <DropdownMenuTrigger asChild>
                       <motion.button
-                        className="text-sm text-white/90 hover:text-white transition-colors duration-200 flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-white/5"
+                        className="text-xs sm:text-sm text-white/90 hover:text-white transition-colors duration-200 flex items-center gap-1.5 px-2 sm:px-3 py-1 rounded-lg hover:bg-white/5"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
                         Models
-                        <ChevronDown className="w-3.5 h-3.5" />
+                        <ChevronDown className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                       </motion.button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start" className="w-64 backdrop-blur-xl bg-black/80 border-white/10">
@@ -289,12 +288,12 @@ const Navbar = () => {
                   <DropdownMenu onOpenChange={(open) => setIsExpanded(open)}>
                     <DropdownMenuTrigger asChild>
                       <motion.button
-                        className="text-sm text-white/90 hover:text-white transition-colors duration-200 flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-white/5"
+                        className="text-xs sm:text-sm text-white/90 hover:text-white transition-colors duration-200 flex items-center gap-1.5 px-2 sm:px-3 py-1 rounded-lg hover:bg-white/5"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
                         Features
-                        <ChevronDown className="w-3.5 h-3.5" />
+                        <ChevronDown className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                       </motion.button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start" className="w-64 backdrop-blur-xl bg-black/80 border-white/10">
@@ -321,7 +320,7 @@ const Navbar = () => {
                     <motion.a
                       key={link.name}
                       href={link.href}
-                      className="text-sm text-white/90 hover:text-white transition-colors duration-200 px-3 py-1.5 rounded-lg hover:bg-white/5"
+                      className="text-xs sm:text-sm text-white/90 hover:text-white transition-colors duration-200 px-2 sm:px-3 py-1 rounded-lg hover:bg-white/5"
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                     >
@@ -378,12 +377,14 @@ const Navbar = () => {
             className="fixed top-20 md:top-24 left-4 right-4 md:hidden z-40"
           >
             <motion.div
-              className="backdrop-blur-2xl bg-black/80 border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
+              className="backdrop-blur-2xl bg-gradient-to-b from-purple-900/90 via-purple-800/80 to-purple-900/90 border border-white/10 rounded-2xl shadow-2xl overflow-hidden relative"
               initial={{ borderRadius: "9999px" }}
               animate={{ borderRadius: "20px" }}
               transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
             >
-              <div className="px-6 py-6 space-y-4 max-h-[80vh] overflow-y-auto">
+              {/* Rainbow Gradient Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-600/30 via-pink-500/20 via-blue-500/20 via-green-500/20 via-yellow-500/20 to-purple-600/30 rounded-2xl pointer-events-none" />
+              <div className="relative z-10 px-6 py-6 space-y-4 max-h-[80vh] overflow-y-auto">
                 {/* Mobile Models Menu */}
                 <div>
                   <div className="text-sm font-semibold text-white mb-3 px-2">Models</div>
