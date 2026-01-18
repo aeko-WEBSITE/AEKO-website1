@@ -1,6 +1,26 @@
 import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
-import { TrendingUp, Clock, Image, Video, Loader2, Sparkles, Heart, Compass, Bot, TrendingDown, Grid3x3, User, ArrowRight, Star, Zap, Users, Briefcase, Code2, Globe } from "lucide-react";
+import { 
+  TrendingUp, 
+  Clock, 
+  Image, 
+  Video, 
+  Loader2, 
+  Sparkles, 
+  Heart, 
+  Compass, 
+  Bot, 
+  TrendingDown, 
+  Grid3x3, 
+  User, 
+  ArrowRight, 
+  Star, 
+  Zap, 
+  Users, 
+  Briefcase, 
+  Code2, 
+  Globe 
+} from "lucide-react";
 import { toast } from "sonner";
 import { FeedItem } from "@/components/feed/FeedCard";
 import MasonryCard from "@/components/feed/MasonryCard";
@@ -23,8 +43,49 @@ const sortOptions = [
   { id: "likes", label: "Likes", icon: Heart },
 ];
 
-const generateMockItems = (startId: number, count: number): FeedItem[] => {
-  // ...no change...
+// 1. Define your local images here.
+const LOCAL_IMAGES = [
+  "/feeds/image1.jpg",
+  "/feeds/image2.jpg",
+  "/feeds/image3.png",
+  "/feeds/image4.jpg",
+  "/feeds/image5.jpg",
+  "/feeds/image6.jpg",
+  "/feeds/image7.jpg",
+  "/feeds/image8.jpg",
+  "/feeds/image9.jpg",
+  "/feeds/image10.jpg",
+  "/feeds/image11.jpg",
+  "/feeds/image12.png", 
+  "/feeds/image13.jpg",
+  "/feeds/image14.jpg",
+  "/feeds/image15.jpg",
+  "/feeds/image16.jpg",
+  "/feeds/image17.jpg",
+  "/feeds/image18.jpg",
+  "https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=800",
+  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800",
+  "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=800",
+  "https://images.unsplash.com/photo-1557672172-298e090bd0f1?w=800",
+  "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=800",
+  "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=800",
+  "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=800",
+  "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=800&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1635322966219-b75ed372eb01?w=800&auto=format&fit=crop", 
+  "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?w=800&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1634152962476-4b8a00e1915c?w=800&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1633511090164-b43840ea1607?w=800&auto=format&fit=crop", 
+  "https://images.unsplash.com/photo-1618172193763-c511deb635ca?w=800&auto=format&fit=crop", 
+  "https://images.unsplash.com/photo-1617791160505-6f00504e3519?w=800&auto=format&fit=crop", 
+  "https://images.unsplash.com/photo-1620121692029-d088224ddc74?w=800&auto=format&fit=crop", 
+
+  "/feeds/video1.mp4",
+  "/feeds/video2.mp4",
+  "/feeds/video3.mp4",
+];
+
+const generateMockItems = (startId: number, useImages: string[]): FeedItem[] => {
   const models = [
     "FLUX Pro",
     "Stable Diffusion XL",
@@ -72,31 +133,18 @@ const generateMockItems = (startId: number, count: number): FeedItem[] => {
     "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100",
     "https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=100",
   ];
-  const images = [
-    "https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?w=800",
-    "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800",
-    "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800",
-    "https://images.unsplash.com/photo-1534972195531-d756b9bfa9f2?w=800",
-    "https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=800",
-    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800",
-    "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=800",
-    "https://images.unsplash.com/photo-1557672172-298e090bd0f1?w=800",
-    "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=800",
-    "https://images.unsplash.com/photo-1604076913837-52ab5f6a3b5e?w=800",
-    "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800",
-    "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=800",
-    "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=800",
-    "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=800",
-  ];
 
-  return Array.from({ length: count }, (_, i) => {
-    const id = startId + i;
-    const isVideo = Math.random() > 0.8;
-    const randomUser = Math.floor(Math.random() * usernames.length);
-    const randomAvatar = Math.floor(Math.random() * avatars.length);
-    const randomImage = Math.floor(Math.random() * images.length);
-    const randomPrompt = Math.floor(Math.random() * prompts.length);
-    const randomModel = Math.floor(Math.random() * models.length);
+  // 1-to-1 Mapping: Generate exactly one item per image in the list.
+  return useImages.map((imagePath, index) => {
+    const id = startId + index;
+    // Set to true if you have video files and want to detect them by extension
+    const isVideo = imagePath.endsWith('.mp4') || imagePath.endsWith('.webm'); 
+    
+    // Cycle through other data if we have more images than prompts/users
+    const randomUser = index % usernames.length;
+    const randomAvatar = index % avatars.length;
+    const randomPrompt = index % prompts.length;
+    const randomModel = index % models.length;
 
     const hoursAgo = Math.floor(Math.random() * 168);
     const createdAt = new Date(
@@ -106,8 +154,8 @@ const generateMockItems = (startId: number, count: number): FeedItem[] => {
     return {
       id,
       type: isVideo ? "video" : "image",
-      mediaUrl: images[randomImage],
-      thumbnailUrl: isVideo ? images[randomImage] : undefined,
+      mediaUrl: imagePath,
+      thumbnailUrl: isVideo ? imagePath : undefined, 
       prompt: prompts[randomPrompt],
       author: {
         username: usernames[randomUser],
@@ -213,11 +261,14 @@ const FeedPage = () => {
   const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState("styles");
   const [activeSort, setActiveSort] = useState("top");
+  
   const [items, setItems] = useState<FeedItem[]>(() =>
-    generateMockItems(1, 20)
+    generateMockItems(1, LOCAL_IMAGES)
   );
+  
   const [isLoading, setIsLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
+  const [hasMore, setHasMore] = useState(false); // Disabled infinite scroll to prevent repetition
+  
   // Modal states
   const [reelsOpen, setReelsOpen] = useState(false);
   const [reelsIndex, setReelsIndex] = useState(0);
@@ -229,20 +280,15 @@ const FeedPage = () => {
   const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
 
   const loadMore = useCallback(() => {
+    // Infinite scroll logic disabled to prevent repeating the fixed set of images.
+    // If you add a backend later, re-enable this.
     if (isLoading || !hasMore) return;
-
     setIsLoading(true);
-
     setTimeout(() => {
-      const newItems = generateMockItems(items.length + 1, 12);
-      setItems((prev) => [...prev, ...newItems]);
       setIsLoading(false);
-
-      if (items.length >= 80) {
-        setHasMore(false);
-      }
+      setHasMore(false); 
     }, 1000);
-  }, [items.length, isLoading, hasMore]);
+  }, [isLoading, hasMore]);
 
   const loadMoreRef = useInfiniteScroll(loadMore);
 
@@ -730,24 +776,22 @@ const FeedPage = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2, duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
-        className="pt-4"
+        className="pt-6 px-2 lg:px-4"
       >
         <div className="w-full">
-          <div
-            className="
-              gap-1 grid
-              grid-cols-2
-              sm:grid-cols-3
-              md:grid-cols-4
-              lg:grid-cols-5
-              xl:grid-cols-6
-              2xl:grid-cols-7
-              "
-          >
+          {/* UPDATED GRID LAYOUT:
+            Using CSS Columns (masonry) instead of Grid.
+            - columns-2 on mobile
+            - columns-3 on tablet
+            - columns-4 on desktop
+            - columns-5 on large screens
+            This allows items of varying heights to stack naturally without gaps.
+          */}
+          <div className="columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-4 space-y-4 mx-auto w-full">
             {sortedItems.map((item) => (
               <div
                 key={item.id}
-                className="flex flex-col min-w-0 break-inside-avoid"
+                className="break-inside-avoid mb-4"
               >
                 <MasonryCard
                   item={item}
@@ -766,7 +810,7 @@ const FeedPage = () => {
         {/* Infinite scroll trigger */}
         <div
           ref={loadMoreRef}
-          className="py-6 flex justify-center items-center min-h-12"
+          className="py-12 flex justify-center items-center min-h-12"
         >
           {isLoading && (
             <div className="flex items-center gap-2 text-muted-foreground animate-pulse">
@@ -775,8 +819,8 @@ const FeedPage = () => {
             </div>
           )}
           {!hasMore && (
-            <p className="text-muted-foreground text-xs font-medium px-2 text-center">
-              You've seen it all! 🎉
+            <p className="text-muted-foreground text-sm font-medium px-4 py-2 bg-secondary/30 rounded-full border border-border/50">
+              You've reached the end
             </p>
           )}
         </div>

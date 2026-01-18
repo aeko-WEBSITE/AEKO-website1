@@ -33,12 +33,26 @@ const ReelsViewer = ({
   const [isMuted, setIsMuted] = useState(false);
   const [showLikeAnimation, setShowLikeAnimation] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  
+  // Reference for the video element to control playback
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const currentItem = items[currentIndex];
 
   useEffect(() => {
     setCurrentIndex(initialIndex);
   }, [initialIndex]);
+
+  // Effect to handle play/pause when state or index changes
+  useEffect(() => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.play().catch(e => console.log("Autoplay prevented:", e));
+      } else {
+        videoRef.current.pause();
+      }
+    }
+  }, [currentIndex, isPlaying, isOpen]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -111,16 +125,29 @@ const ReelsViewer = ({
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -50 }}
-            className="relative h-full w-full max-w-lg mx-auto"
+            className="relative h-full w-full max-w-lg mx-auto bg-black"
           >
-            {/* Video/Image Background */}
-            <div className="absolute inset-0">
-              <img
-                src={currentItem.mediaUrl}
-                alt={currentItem.prompt}
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-transparent to-background/80" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              {currentItem.type === 'video' ? (
+                <video
+                  ref={videoRef}
+                  src={currentItem.mediaUrl}
+                  className="w-full h-full object-cover"
+                  loop
+                  muted={isMuted}
+                  playsInline
+                  // We control playback via ref in useEffect
+                />
+              ) : (
+                <img
+                  src={currentItem.mediaUrl}
+                  alt={currentItem.prompt}
+                  className="w-full h-full object-cover"
+                />
+              )}
+              
+              {/* Overlay gradient */}
+              <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/60 pointer-events-none" />
             </div>
 
             {/* Play/Pause Overlay */}
@@ -134,9 +161,9 @@ const ReelsViewer = ({
                     initial={{ scale: 0, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0, opacity: 0 }}
-                    className="w-20 h-20 rounded-full bg-background/50 backdrop-blur-sm flex items-center justify-center"
+                    className="w-20 h-20 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center"
                   >
-                    <Play className="w-10 h-10 text-foreground ml-1" />
+                    <Play className="w-10 h-10 text-white ml-1" />
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -157,70 +184,73 @@ const ReelsViewer = ({
             </div>
 
             {/* Right Side Actions */}
-            <div className="absolute right-2 sm:right-4 bottom-24 sm:bottom-32 flex flex-col items-center gap-4 sm:gap-6">
+            <div className="absolute right-2 sm:right-4 bottom-24 sm:bottom-32 flex flex-col items-center gap-4 sm:gap-6 z-20">
               <button 
                 onClick={() => onLike(currentItem.id)}
-                className="flex flex-col items-center gap-1"
+                className="flex flex-col items-center gap-1 group"
               >
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-background/30 backdrop-blur-sm flex items-center justify-center">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center group-hover:bg-black/60 transition-colors">
                   <Heart 
                     className={`w-5 h-5 sm:w-7 sm:h-7 ${
-                      currentItem.isLiked ? 'text-red-500 fill-red-500' : 'text-foreground'
+                      currentItem.isLiked ? 'text-red-500 fill-red-500' : 'text-white'
                     }`} 
                   />
                 </div>
-                <span className="text-[10px] sm:text-xs font-medium text-foreground">{formatNumber(currentItem.likes)}</span>
+                <span className="text-[10px] sm:text-xs font-medium text-white shadow-black drop-shadow-md">{formatNumber(currentItem.likes)}</span>
               </button>
 
               <button 
                 onClick={() => onOpenComments(currentItem.id)}
-                className="flex flex-col items-center gap-1"
+                className="flex flex-col items-center gap-1 group"
               >
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-background/30 backdrop-blur-sm flex items-center justify-center">
-                  <MessageCircle className="w-5 h-5 sm:w-7 sm:h-7 text-foreground" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center group-hover:bg-black/60 transition-colors">
+                  <MessageCircle className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
                 </div>
-                <span className="text-[10px] sm:text-xs font-medium text-foreground">{formatNumber(currentItem.comments)}</span>
+                <span className="text-[10px] sm:text-xs font-medium text-white shadow-black drop-shadow-md">{formatNumber(currentItem.comments)}</span>
               </button>
 
               <button 
                 onClick={() => onShare(currentItem.id)}
-                className="flex flex-col items-center gap-1"
+                className="flex flex-col items-center gap-1 group"
               >
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-background/30 backdrop-blur-sm flex items-center justify-center">
-                  <Send className="w-5 h-5 sm:w-7 sm:h-7 text-foreground" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center group-hover:bg-black/60 transition-colors">
+                  <Send className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
                 </div>
-                <span className="text-[10px] sm:text-xs font-medium text-foreground">Share</span>
+                <span className="text-[10px] sm:text-xs font-medium text-white shadow-black drop-shadow-md">Share</span>
               </button>
 
               <button 
                 onClick={() => onSave(currentItem.id)}
-                className="flex flex-col items-center gap-1"
+                className="flex flex-col items-center gap-1 group"
               >
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-background/30 backdrop-blur-sm flex items-center justify-center">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center group-hover:bg-black/60 transition-colors">
                   <Bookmark 
                     className={`w-5 h-5 sm:w-7 sm:h-7 ${
-                      currentItem.isSaved ? 'text-foreground fill-foreground' : 'text-foreground'
+                      currentItem.isSaved ? 'text-white fill-white' : 'text-white'
                     }`} 
                   />
                 </div>
-                <span className="text-[10px] sm:text-xs font-medium text-foreground">Save</span>
+                <span className="text-[10px] sm:text-xs font-medium text-white shadow-black drop-shadow-md">Save</span>
               </button>
 
-              <button 
-                onClick={() => setIsMuted(!isMuted)}
-                className="flex flex-col items-center gap-1"
-              >
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-background/30 backdrop-blur-sm flex items-center justify-center">
-                  {isMuted ? (
-                    <VolumeX className="w-5 h-5 sm:w-7 sm:h-7 text-foreground" />
-                  ) : (
-                    <Volume2 className="w-5 h-5 sm:w-7 sm:h-7 text-foreground" />
-                  )}
-                </div>
-              </button>
+              {/* Show volume control only for videos */}
+              {currentItem.type === 'video' && (
+                <button 
+                  onClick={() => setIsMuted(!isMuted)}
+                  className="flex flex-col items-center gap-1 group"
+                >
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center group-hover:bg-black/60 transition-colors">
+                    {isMuted ? (
+                      <VolumeX className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
+                    ) : (
+                      <Volume2 className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
+                    )}
+                  </div>
+                </button>
+              )}
 
               {/* Model Avatar */}
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg border-2 border-foreground overflow-hidden animate-[spin_3s_linear_infinite]">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg border-2 border-white/50 overflow-hidden animate-[spin_4s_linear_infinite]">
                 <img 
                   src={currentItem.author.avatar} 
                   alt={currentItem.model}
@@ -230,54 +260,54 @@ const ReelsViewer = ({
             </div>
 
             {/* Bottom Info */}
-            <div className="absolute left-3 sm:left-4 right-16 sm:right-20 bottom-6 sm:bottom-8">
+            <div className="absolute left-3 sm:left-4 right-16 sm:right-20 bottom-6 sm:bottom-8 z-20 text-white">
               <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
                 <img 
                   src={currentItem.author.avatar} 
                   alt={currentItem.author.username}
-                  className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover ring-2 ring-foreground/50"
+                  className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover ring-2 ring-white/50"
                 />
-                <span className="font-semibold text-sm sm:text-base text-foreground">@{currentItem.author.username}</span>
-                <button className="px-2 sm:px-3 py-1 text-[10px] sm:text-xs font-medium border border-foreground/50 text-foreground rounded-lg hover:bg-foreground/10 transition-colors">
+                <span className="font-semibold text-sm sm:text-base shadow-black drop-shadow-md">@{currentItem.author.username}</span>
+                <button className="px-2 sm:px-3 py-1 text-[10px] sm:text-xs font-medium border border-white/50 rounded-lg hover:bg-white/10 transition-colors backdrop-blur-sm">
                   Follow
                 </button>
               </div>
-              <p className="text-xs sm:text-sm text-foreground/90 line-clamp-2 sm:line-clamp-3 mb-1 sm:mb-2">
+              <p className="text-xs sm:text-sm text-white/90 line-clamp-2 sm:line-clamp-3 mb-1 sm:mb-2 shadow-black drop-shadow-sm">
                 {currentItem.prompt}
               </p>
-              <div className="flex items-center gap-2 text-[10px] sm:text-xs text-foreground/70">
+              <div className="flex items-center gap-2 text-[10px] sm:text-xs text-white/70">
                 <Music2 className="w-3 h-3 sm:w-4 sm:h-4" />
                 <span className="truncate">AI Generated • {currentItem.model}</span>
               </div>
             </div>
 
             {/* Navigation Arrows - Hidden on mobile, shown on desktop */}
-            <div className="hidden sm:flex absolute right-4 top-1/2 -translate-y-1/2 flex-col gap-2">
+            <div className="hidden sm:flex absolute right-4 top-1/2 -translate-y-1/2 flex-col gap-2 z-20">
               <button
                 onClick={() => handleScroll('up')}
                 disabled={currentIndex === 0}
-                className="p-2 rounded-full bg-background/30 backdrop-blur-sm disabled:opacity-30 hover:bg-background/50 transition-colors"
+                className="p-2 rounded-full bg-black/20 backdrop-blur-sm disabled:opacity-30 hover:bg-black/40 transition-colors text-white"
               >
-                <ChevronUp className="w-6 h-6 text-foreground" />
+                <ChevronUp className="w-6 h-6" />
               </button>
               <button
                 onClick={() => handleScroll('down')}
                 disabled={currentIndex === items.length - 1}
-                className="p-2 rounded-full bg-background/30 backdrop-blur-sm disabled:opacity-30 hover:bg-background/50 transition-colors"
+                className="p-2 rounded-full bg-black/20 backdrop-blur-sm disabled:opacity-30 hover:bg-black/40 transition-colors text-white"
               >
-                <ChevronDown className="w-6 h-6 text-foreground" />
+                <ChevronDown className="w-6 h-6" />
               </button>
             </div>
 
             {/* Progress Indicator */}
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 flex gap-1">
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 flex gap-1 z-20">
               {items.slice(Math.max(0, currentIndex - 2), Math.min(items.length, currentIndex + 3)).map((_, idx) => {
                 const actualIndex = Math.max(0, currentIndex - 2) + idx;
                 return (
                   <div
                     key={actualIndex}
                     className={`h-1 rounded-full transition-all ${
-                      actualIndex === currentIndex ? 'w-6 bg-foreground' : 'w-2 bg-foreground/30'
+                      actualIndex === currentIndex ? 'w-6 bg-white' : 'w-2 bg-white/30'
                     }`}
                   />
                 );

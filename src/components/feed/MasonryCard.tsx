@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Heart, Play, Download, Copy, Bookmark
@@ -27,6 +27,7 @@ const MasonryCard = ({
 }: MasonryCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
   const [showLikeAnimation, setShowLikeAnimation] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const handleDoubleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -49,10 +50,32 @@ const MasonryCard = ({
   };
 
   const handleClick = () => {
+    // If it's a video, trigger the Reels viewer
     if (item.type === "video") {
-      onOpenReels?.(item.id);
+      if (onOpenReels) {
+        onOpenReels(item.id);
+      } else {
+        // Fallback if no specific reels handler
+        onClick(item.id);
+      }
     } else {
+      // If it's an image, trigger the Image Detail Modal
       onClick(item.id);
+    }
+  };
+
+  // Play/Pause video on hover
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+    if (videoRef.current) {
+      videoRef.current.play().catch(() => {});
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    if (videoRef.current) {
+      videoRef.current.pause();
     }
   };
 
@@ -74,21 +97,34 @@ const MasonryCard = ({
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       className="relative rounded-lg overflow-hidden cursor-pointer group transition-all duration-300 bg-background"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       onClick={handleClick}
       onDoubleClick={handleDoubleClick}
     >
       <div className={`relative ${aspectRatio} overflow-hidden bg-secondary/50`}>
-        <img
-          src={item.thumbnailUrl || item.mediaUrl}
-          alt={item.prompt}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-          loading="lazy"
-        />
+        
+        {/* --- Video / Image Logic --- */}
+        {item.type === "video" ? (
+          <video
+            ref={videoRef}
+            src={item.mediaUrl}
+            className="w-full h-full object-cover"
+            muted
+            loop
+            playsInline
+          />
+        ) : (
+          <img
+            src={item.thumbnailUrl || item.mediaUrl}
+            alt={item.prompt}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            loading="lazy"
+          />
+        )}
 
-        {/* Video indicator */}
-        {item.type === "video" && (
+        {/* Video indicator (Only shows when NOT hovering, so user knows it's playable) */}
+        {item.type === "video" && !isHovered && (
           <div className="absolute top-2 right-2 z-10">
             <div className="w-7 h-7 rounded-full bg-background/90 backdrop-blur-md border border-border/50 flex items-center justify-center shadow-lg">
               <Play className="w-3.5 h-3.5 text-foreground ml-0.5" />
@@ -183,5 +219,6 @@ const MasonryCard = ({
     </motion.div>
   );
 };
+
 
 export default MasonryCard;
