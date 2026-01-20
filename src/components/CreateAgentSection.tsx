@@ -344,12 +344,6 @@ const CreateAgentSection = () => {
             <span className="gradient-text">Multi-Flow Intelligence</span>{" "}
             for Any Use Case
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-2">
-            All-in-one AI platform for chat, images, and videos — powered by the world's best models.
-          </p>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Build intelligent agents tailored to your specific needs
-          </p>
         </motion.div>
 
         {/* Main Card - Modern Design */}
@@ -514,6 +508,31 @@ const CreateAgentSection = () => {
             </div>
           </div>
           </div>
+        </motion.div>
+
+        {/* Description Text Below Agent Form */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="text-center mt-8"
+        >
+          <p className="text-lg text-white max-w-2xl mx-auto font-medium">
+            All-in-one AI platform for{' '}
+            <span className="bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent font-bold">
+              chat
+            </span>
+            ,{' '}
+            <span className="bg-gradient-to-r from-green-400 via-yellow-500 to-orange-500 bg-clip-text text-transparent font-bold">
+              images
+            </span>
+            , and{' '}
+            <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent font-bold">
+              videos
+            </span>
+            {' '}— powered by the world's best models.
+          </p>
         </motion.div>
 
         {/* Automate 80%+ Section - New Design */}

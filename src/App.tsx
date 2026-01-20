@@ -28,9 +28,9 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth/sign-in" element={<AuthSignIn />} />
+          <Route path="/dashboard/feed" element={<FeedPage />} />
           <Route path="/dashboard" element={<DashboardLayout />}>
             <Route index element={<DashboardHome />} />
-            <Route path="feed" element={<FeedPage />} />
             <Route path="tools" element={<ToolsLayout />}>
               <Route path="agent" element={<AgentLLMPage />} />
               <Route path="image" element={<ImageToolsPage />} />

@@ -1,7 +1,19 @@
 // Narrow the type of import.meta so TypeScript knows about the `env` property.
-const API_BASE_URL =
-  (import.meta as unknown as { env: { VITE_API_URL?: string } }).env
-    .VITE_API_URL || 'http://localhost:5000';
+// In development, use relative URLs (empty string) to leverage Vite proxy
+// In production, use VITE_API_URL if set, otherwise default to localhost:5000
+const getApiBaseUrl = (): string => {
+  const env = import.meta.env;
+  if (env.VITE_API_URL) {
+    return env.VITE_API_URL;
+  }
+  // In development mode, use empty string to leverage Vite proxy
+  if (env.MODE === 'development' || env.DEV) {
+    return '';
+  }
+  return 'http://localhost:5000';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 // Get auth token from localStorage
 const getAuthToken = (): string | null => {
@@ -124,3 +136,23 @@ export const llmAPI = {
   },
 };
 
+// Crawl API
+export const crawlAPI = {
+  crawlWebsite: async (url: string) => {
+    try {
+      const response = await apiRequest('/api/crawl/website', {
+        method: 'POST',
+        body: JSON.stringify({ url }),
+      });      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Server error: ${response.status}`);
+      }      return response.json();
+    } catch (error: any) {
+      // Handle network errors (backend not running, CORS, etc.)
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        throw new Error('Cannot connect to backend. Make sure the backend server is running on port 5000.');
+      }
+      throw error;
+    }
+  },
+};

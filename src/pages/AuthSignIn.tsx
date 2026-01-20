@@ -1,11 +1,46 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import { Mail, Apple, Chrome } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Mail, Apple, Chrome, Bot, User, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import logoDark from "@/assets/ChatGPT Image Dec 25, 2025, 03_45_44 PM.png";
+
+interface ChatMessage {
+  id: number;
+  role: "user" | "agent";
+  content: string;
+  timestamp: Date;
+}
+
+// Demo chat messages
+const demoMessages: ChatMessage[] = [
+  {
+    id: 1,
+    role: "user",
+    content: "Build an AI marketing agent that can search",
+    timestamp: new Date(),
+  },
+  {
+    id: 2,
+    role: "agent",
+    content: "I'll help you create a marketing agent with search capabilities. What specific features would you like it to have?",
+    timestamp: new Date(),
+  },
+  {
+    id: 3,
+    role: "user",
+    content: "It should be able to research competitors and analyze trends",
+    timestamp: new Date(),
+  },
+  {
+    id: 4,
+    role: "agent",
+    content: "Perfect! I'll configure it with web search, competitor analysis, and trend monitoring capabilities.",
+    timestamp: new Date(),
+  },
+];
 
 const AuthSignIn = () => {
   const navigate = useNavigate();
@@ -14,6 +49,26 @@ const AuthSignIn = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [showEmailForm, setShowEmailForm] = useState(false);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([demoMessages[0]]);
+  const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
+
+  // Auto-advance chat messages
+  useEffect(() => {
+    if (currentMessageIndex < demoMessages.length - 1) {
+      const timer = setTimeout(() => {
+        setChatMessages(demoMessages.slice(0, currentMessageIndex + 2));
+        setCurrentMessageIndex(currentMessageIndex + 1);
+      }, 3000);
+      return () => clearTimeout(timer);
+    } else {
+      // Reset after showing all messages
+      const resetTimer = setTimeout(() => {
+        setChatMessages([demoMessages[0]]);
+        setCurrentMessageIndex(0);
+      }, 5000);
+      return () => clearTimeout(resetTimer);
+    }
+  }, [currentMessageIndex]);
 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -144,30 +199,40 @@ const AuthSignIn = () => {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="space-y-3 flex-1"
         >
-          {/* Canva */}
+          {/* Google */}
           <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
             <Button
               type="button"
               variant="outline"
-              className="w-full h-14 bg-gradient-to-r from-teal-500/20 via-cyan-500/20 to-teal-500/20 border-2 border-teal-500/50 hover:border-teal-400 hover:from-teal-500/30 hover:via-cyan-500/30 hover:to-teal-500/30 text-white justify-start gap-3 rounded-xl shadow-lg shadow-teal-500/20 hover:shadow-teal-500/40 transition-all duration-300 relative overflow-hidden group"
+              className="w-full h-14 bg-[#1F2937] hover:bg-[#374151] border border-white/10 text-white justify-start gap-3 rounded-xl transition-all duration-300"
+              onClick={handleGoogleSignIn}
+            >
+              <div className="relative z-10 w-7 h-7 rounded-full bg-white flex items-center justify-center">
+                <svg className="w-5 h-5" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+              </div>
+              <span className="font-semibold text-base relative z-10">Google</span>
+            </Button>
+          </motion.div>
+
+          {/* GitHub */}
+          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full h-14 bg-[#0D1117] hover:bg-[#161B22] border border-white/10 text-white justify-start gap-3 rounded-xl transition-all duration-300"
               onClick={() => navigate("/dashboard/tools/agent")}
             >
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-teal-500/0 via-cyan-500/20 to-teal-500/0"
-                animate={{
-                  x: ['-100%', '100%'],
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  repeatDelay: 1,
-                  ease: "linear",
-                }}
-              />
-              <div className="relative z-10 w-7 h-7 rounded-full bg-gradient-to-br from-teal-400 to-cyan-500 flex items-center justify-center shadow-lg shadow-teal-500/50">
-                <span className="text-white font-bold text-sm">C</span>
+              <div className="relative z-10 w-7 h-7 rounded-full flex items-center justify-center">
+                <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd"/>
+                </svg>
               </div>
-              <span className="font-semibold text-base relative z-10">Canva</span>
+              <span className="font-semibold text-base relative z-10">GitHub</span>
             </Button>
           </motion.div>
 
@@ -176,52 +241,13 @@ const AuthSignIn = () => {
             <Button
               type="button"
               variant="outline"
-              className="w-full h-14 bg-gradient-to-r from-gray-800/40 via-gray-900/40 to-gray-800/40 border-2 border-gray-600/50 hover:border-gray-500 hover:from-gray-700/50 hover:via-gray-800/50 hover:to-gray-700/50 text-white justify-start gap-3 rounded-xl shadow-lg shadow-gray-900/30 hover:shadow-gray-800/50 transition-all duration-300 relative overflow-hidden group"
+              className="w-full h-14 bg-[#000000] hover:bg-[#1C1C1C] text-white justify-start gap-3 rounded-xl transition-all duration-300 border-0"
               onClick={() => navigate("/dashboard/tools/agent")}
             >
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0"
-                animate={{
-                  x: ['-100%', '100%'],
-                }}
-                transition={{
-                  duration: 2.5,
-                  repeat: Infinity,
-                  repeatDelay: 1.5,
-                  ease: "linear",
-                }}
-              />
-              <div className="relative z-10 w-7 h-7 rounded-full bg-gradient-to-br from-gray-100 to-white flex items-center justify-center shadow-lg">
-                <Apple className="w-5 h-5 text-gray-900" />
+              <div className="relative z-10 w-7 h-7 rounded-full bg-white/10 flex items-center justify-center">
+                <Apple className="w-5 h-5 text-white" />
               </div>
               <span className="font-semibold text-base relative z-10">Apple</span>
-            </Button>
-          </motion.div>
-
-          {/* Google */}
-          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full h-14 bg-gradient-to-r from-blue-500/20 via-red-500/20 via-yellow-500/20 via-green-500/20 to-blue-500/20 border-2 border-blue-400/50 hover:border-blue-300 hover:from-blue-500/30 hover:via-red-500/30 hover:via-yellow-500/30 hover:via-green-500/30 hover:to-blue-500/30 text-white justify-start gap-3 rounded-xl shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 transition-all duration-300 relative overflow-hidden group"
-              onClick={handleGoogleSignIn}
-            >
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-red-500/10 via-yellow-500/10 via-green-500/10 to-blue-500/0"
-                animate={{
-                  x: ['-100%', '100%'],
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  repeatDelay: 1,
-                  ease: "linear",
-                }}
-              />
-              <div className="relative z-10 w-7 h-7 rounded-full bg-white flex items-center justify-center shadow-lg">
-                <span className="text-[12px] font-bold bg-gradient-to-r from-blue-500 via-red-500 via-yellow-500 via-green-500 to-blue-500 bg-clip-text text-transparent">G</span>
-              </div>
-              <span className="font-semibold text-base relative z-10">Google</span>
             </Button>
           </motion.div>
 
@@ -230,49 +256,30 @@ const AuthSignIn = () => {
             <Button
               type="button"
               variant="outline"
-              className="w-full h-14 bg-gradient-to-r from-blue-500/20 via-blue-600/20 to-blue-500/20 border-2 border-blue-500/50 hover:border-blue-400 hover:from-blue-500/30 hover:via-blue-600/30 hover:to-blue-500/30 text-white justify-start gap-3 rounded-xl shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 transition-all duration-300 relative overflow-hidden group"
+              className="w-full h-14 bg-[#2F2F2F] hover:bg-[#3A3A3A] border border-white/10 text-white justify-start gap-3 rounded-xl transition-all duration-300"
               onClick={() => navigate("/dashboard/tools/agent")}
             >
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-blue-400/20 to-blue-500/0"
-                animate={{
-                  x: ['-100%', '100%'],
-                }}
-                transition={{
-                  duration: 2.5,
-                  repeat: Infinity,
-                  repeatDelay: 1.2,
-                  ease: "linear",
-                }}
-              />
-              <div className="relative z-10 w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/50">
-                <div className="w-4 h-4 bg-white rounded-sm"></div>
+              <div className="relative z-10 w-7 h-7 rounded-lg bg-white flex items-center justify-center">
+                <div className="w-4 h-4 bg-[#2F2F2F] rounded-sm grid grid-cols-2 gap-0.5">
+                  <div className="bg-[#F25022]"></div>
+                  <div className="bg-[#7FBA00]"></div>
+                  <div className="bg-[#00A4EF]"></div>
+                  <div className="bg-[#FFB900]"></div>
+                </div>
               </div>
               <span className="font-semibold text-base relative z-10">Microsoft</span>
             </Button>
           </motion.div>
 
-          {/* Continue with Email */}
+          {/* Continue with Email - Main CTA */}
           <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
             <Button
               type="button"
               variant="outline"
-              className="w-full h-14 bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-purple-500/20 border-2 border-purple-500/50 hover:border-purple-400 hover:from-purple-500/30 hover:via-pink-500/30 hover:to-purple-500/30 text-white justify-start gap-3 rounded-xl shadow-lg shadow-purple-500/20 hover:shadow-purple-500/40 transition-all duration-300 relative overflow-hidden group"
+              className="w-full h-14 bg-gradient-to-r from-[#3B82F6] to-[#8B5CF6] hover:from-[#2563EB] hover:to-[#7C3AED] text-white justify-start gap-3 rounded-xl shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 transition-all duration-300 border-0"
               onClick={() => setShowEmailForm(!showEmailForm)}
             >
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-purple-500/0 via-pink-500/20 to-purple-500/0"
-                animate={{
-                  x: ['-100%', '100%'],
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  repeatDelay: 1,
-                  ease: "linear",
-                }}
-              />
-              <div className="relative z-10 w-7 h-7 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-500/50">
+              <div className="relative z-10 w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
                 <Mail className="w-4 h-4 text-white" />
               </div>
               <span className="font-semibold text-base relative z-10">Continue with Email</span>
@@ -382,7 +389,7 @@ const AuthSignIn = () => {
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex-1">
               <Button
                 variant="outline"
-                className="w-full h-12 bg-gradient-to-r from-gray-800/40 to-gray-900/40 border-2 border-gray-600/50 hover:border-gray-500 hover:from-gray-700/50 hover:to-gray-800/50 text-white rounded-xl shadow-lg shadow-gray-900/30 hover:shadow-gray-800/50 transition-all duration-300"
+                className="w-full h-12 bg-gradient-to-r from-purple-600/30 via-violet-500/30 to-purple-600/30 border-2 border-purple-500/60 hover:border-purple-400 hover:from-purple-600/40 hover:via-violet-500/40 hover:to-purple-600/40 text-white rounded-xl shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-all duration-300"
                 onClick={() => toast.info("App Store link coming soon")}
               >
                 <Apple className="w-5 h-5 mr-2" />
@@ -392,7 +399,7 @@ const AuthSignIn = () => {
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex-1">
               <Button
                 variant="outline"
-                className="w-full h-12 bg-gradient-to-r from-green-500/20 to-emerald-500/20 border-2 border-green-500/50 hover:border-green-400 hover:from-green-500/30 hover:to-emerald-500/30 text-white rounded-xl shadow-lg shadow-green-500/20 hover:shadow-green-500/40 transition-all duration-300"
+                className="w-full h-12 bg-gradient-to-r from-purple-600/30 via-pink-500/30 to-purple-600/30 border-2 border-purple-500/60 hover:border-purple-400 hover:from-purple-600/40 hover:via-pink-500/40 hover:to-purple-600/40 text-white rounded-xl shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-all duration-300"
                 onClick={() => toast.info("Google Play link coming soon")}
               >
                 <Chrome className="w-5 h-5 mr-2" />
@@ -404,33 +411,127 @@ const AuthSignIn = () => {
         </div>
       </div>
 
-      {/* Right Panel - Background Image */}
+      {/* Right Panel - Sky Video Background with Chat */}
       <div className="hidden lg:flex flex-1 relative overflow-hidden">
-        {/* Futuristic Background Image */}
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: `url('https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=1920&q=80')`,
-          }}
-        />
-        {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#12162A]/80 via-[#12162A]/60 to-transparent" />
-        {/* Animated Glow Effects */}
-        <motion.div
-          className="absolute inset-0"
-          animate={{
-            background: [
-              "radial-gradient(circle at 20% 30%, rgba(168, 85, 247, 0.3) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(34, 211, 238, 0.25) 0%, transparent 50%)",
-              "radial-gradient(circle at 60% 20%, rgba(34, 211, 238, 0.3) 0%, transparent 50%), radial-gradient(circle at 30% 80%, rgba(168, 85, 247, 0.25) 0%, transparent 50%)",
-              "radial-gradient(circle at 20% 30%, rgba(168, 85, 247, 0.3) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(34, 211, 238, 0.25) 0%, transparent 50%)",
-            ],
-          }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
+        {/* Sky Video Background */}
+        <div className="absolute inset-0">
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-full object-cover"
+            style={{ filter: 'brightness(0.7) contrast(1.1)' }}
+          >
+            <source src="https://videos.pexels.com/video-files/2491284/2491284-uhd_2560_1440_25fps.mp4" type="video/mp4" />
+            {/* Fallback gradient if video doesn't load */}
+            <div className="absolute inset-0 bg-gradient-to-b from-sky-400 via-orange-300 to-pink-300" />
+          </video>
+          {/* Overlay for better text readability */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/30" />
+        </div>
+
+        {/* Chat Interface - Centered */}
+        <div className="relative z-10 flex items-center justify-center w-full h-full p-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="w-full max-w-md relative"
+          >
+            {/* Modern Animated Gradient Border */}
+            <motion.div
+              className="absolute -inset-0.5 rounded-3xl blur-sm"
+              style={{
+                background: 'linear-gradient(135deg, #7C3AED, #3B82F6, #22D3EE, #EC4899, #7C3AED)',
+                backgroundSize: '300% 300%',
+              }}
+              animate={{
+                backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+              }}
+              transition={{
+                duration: 5,
+                repeat: Infinity,
+                ease: 'linear',
+              }}
+            />
+            
+            {/* Main Chat Container */}
+            <div className="relative bg-gray-900/95 backdrop-blur-2xl rounded-3xl shadow-2xl overflow-hidden border border-white/20">
+              {/* Inner Glow Effect */}
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-pink-500/10 pointer-events-none" />
+              
+              {/* Chat Header */}
+              <div className="px-6 py-4 border-b border-white/10 bg-gradient-to-r from-purple-600/20 via-pink-500/20 to-purple-600/20 backdrop-blur-sm">
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-500/50">
+                      <Bot className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-400 rounded-full border-2 border-gray-900"></div>
+                  </div>
+                  <div>
+                    <h3 className="text-white font-semibold text-sm">AI Agent</h3>
+                    <p className="text-gray-400 text-xs flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>
+                      Online
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Chat Messages */}
+              <div className="px-6 py-4 space-y-4 max-h-96 overflow-y-auto bg-gradient-to-b from-gray-900/50 to-gray-900/80">
+                <AnimatePresence>
+                  {chatMessages.map((message, index) => (
+                    <motion.div
+                      key={message.id}
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.3, delay: index * 0.1 }}
+                      className={`flex gap-3 ${message.role === "user" ? "justify-end" : "justify-start"}`}
+                    >
+                      {message.role === "agent" && (
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0 shadow-lg shadow-purple-500/50">
+                          <Bot className="w-4 h-4 text-white" />
+                        </div>
+                      )}
+                      <div
+                        className={`max-w-[75%] rounded-2xl px-4 py-2.5 shadow-lg ${
+                          message.role === "user"
+                            ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white border border-purple-400/30"
+                            : "bg-gray-800/90 text-gray-100 border border-white/10 backdrop-blur-sm"
+                        }`}
+                      >
+                        <p className="text-sm leading-relaxed">{message.content}</p>
+                      </div>
+                      {message.role === "user" && (
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-500/50">
+                          <User className="w-4 h-4 text-white" />
+                        </div>
+                      )}
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </div>
+
+              {/* Chat Input */}
+              <div className="px-6 py-4 border-t border-white/10 bg-gradient-to-r from-gray-800/60 via-gray-800/40 to-gray-800/60 backdrop-blur-sm">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    placeholder="Type a message..."
+                    className="flex-1 bg-gray-900/80 border border-white/20 rounded-xl px-4 py-3 text-white placeholder:text-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all backdrop-blur-sm"
+                  />
+                  <button className="w-11 h-11 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 flex items-center justify-center transition-all shadow-lg shadow-purple-500/50 hover:shadow-purple-500/70 hover:scale-105">
+                    <Send className="w-4 h-4 text-white" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
       </div>
     </div>
   );
