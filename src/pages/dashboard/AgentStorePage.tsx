@@ -37,6 +37,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { crawlAPI } from "@/lib/api";
 
 interface Agent {
   id: string;
@@ -152,17 +153,7 @@ const AgentStorePage = () => {
     setCrawledData(null);
 
     try {
-      const API_BASE_URL = (import.meta as unknown as { env: { VITE_API_URL?: string } }).env.VITE_API_URL || 'http://localhost:5000';
-      
-      const response = await fetch(`${API_BASE_URL}/api/crawl/website`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ url: websiteUrl }),
-      });
-
-      const data = await response.json();
+      const data = await crawlAPI.crawlWebsite(websiteUrl);
 
       if (data.success && data.data) {
         setCrawledData(data.data);
