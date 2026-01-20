@@ -60,8 +60,7 @@ const AgentLLMPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [iconClickAnimation, setIconClickAnimation] = useState(false);
   const [selectedContentType, setSelectedContentType] = useState("design");
-  const [showAITools, setShowAITools] = useState(false);
-  const [selectedAITool, setSelectedAITool] = useState<string | null>(null);
+  const [selectedAITool, setSelectedAITool] = useState<string>("image");
   const [showCustomAgentMenu, setShowCustomAgentMenu] = useState(false);
   const [showAgentList, setShowAgentList] = useState(false);
   const [showAgentMode, setShowAgentMode] = useState(false);
@@ -279,7 +278,7 @@ const AgentLLMPage = () => {
       
       {/* Content */}
       <div className="relative z-20 flex flex-col items-center justify-center flex-1 min-h-0" style={{ paddingTop: '10vh', paddingBottom: '10vh' }}>
-        <div className="w-full max-w-4xl mx-auto px-4 space-y-8 relative z-20">
+        <div className="w-full max-w-6xl mx-auto px-4 space-y-8 relative z-20">
           {/* Title */}
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
@@ -290,62 +289,58 @@ const AgentLLMPage = () => {
             Let's Create
           </motion.h1>
 
-          {/* Input Field - Modern Design */}
+          {/* Input Field - Dark Modern Design */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
             className="relative w-full"
           >
-            {/* Main Input Container with Subtle Modern Border */}
+            {/* Main Input Container - Dark Theme */}
             <div className="relative">
-              {/* Subtle Gradient Border */}
-              <div className="absolute -inset-0.5 rounded-3xl bg-gradient-to-r from-purple-500/30 via-blue-500/30 to-purple-500/30 opacity-60" />
-              
-              {/* Inner Container */}
-              <div className="relative bg-white/95 backdrop-blur-xl rounded-3xl p-5 shadow-xl border-2 border-gray-300">
+              {/* Inner Container - Transparent with Blur */}
+              <div className="relative bg-gray-900/30 backdrop-blur-xl rounded-3xl p-5 shadow-2xl border border-gray-700/30">
                 {/* Input Area */}
-                <div className="relative flex items-start gap-3 pr-24">
-                  {/* Textarea */}
-                  <textarea
-                    ref={inputRef}
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    placeholder="Describe your idea, and I'll bring it to life"
+                <div className="relative">
+                  {/* Textarea - Transparent with Blur */}
+              <textarea
+                ref={inputRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Type a prompt..."
                     rows={3}
-                    className="flex-1 bg-transparent text-gray-900 placeholder:text-gray-400 focus:outline-none resize-none overflow-hidden text-base leading-relaxed pt-1 border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                    style={{
+                    className="w-full bg-gray-800/20 backdrop-blur-md text-white placeholder:text-gray-400 focus:outline-none resize-none overflow-hidden text-base leading-relaxed pt-2 pl-4 pr-14 py-3 rounded-xl border border-gray-700/30 focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20"
+                style={{
                       minHeight: "90px",
                       maxHeight: "200px",
-                    }}
-                  />
+                }}
+              />
 
-                  {/* Right Side Buttons */}
+                  {/* Send Button Inside Textbox - Right Side */}
                   <div className="absolute right-4 top-2">
-                    {/* Send Button */}
-                    <button
-                      onClick={handleSend}
-                      disabled={!input.trim() || isLoading}
-                      className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all ${
+              <button
+                onClick={handleSend}
+                disabled={!input.trim() || isLoading}
+                      className={`w-10 h-10 flex items-center justify-center rounded-full transition-all ${
                         input.trim() && !isLoading
-                          ? 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-lg hover:scale-110'
-                          : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                          ? 'bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700 text-white shadow-lg hover:scale-110'
+                          : 'bg-gray-800/30 cursor-not-allowed'
                       }`}
-                      title="Send"
-                    >
-                      <Send className="w-4 h-4" />
-                    </button>
-                  </div>
+                title="Send"
+              >
+                      <Send className={`w-4 h-4 ${input.trim() && !isLoading ? 'text-white' : 'text-gray-600'}`} />
+              </button>
+            </div>
                 </div>
 
                 {/* Bottom Controls Row */}
-                <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-200/50">
+                <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-800/50">
                   {/* Bottom Left Controls */}
                   <div className="flex items-center gap-2">
                   {/* Upload Icon */}
                   <button
-                    className="w-9 h-9 flex items-center justify-center rounded-xl bg-gray-100/80 hover:bg-gray-200/80 transition-all text-gray-600 hover:scale-110"
+                    className="w-9 h-9 flex items-center justify-center rounded-xl bg-blue-900/40 hover:bg-blue-900/60 transition-all text-white border border-blue-700/30 hover:scale-110"
                     onClick={() => toast.info("Upload file coming soon!")}
                   >
                     <Upload className="w-4 h-4" />
@@ -354,7 +349,7 @@ const AgentLLMPage = () => {
                   {/* Plus Icon - Custom Agent Creator */}
                   <div className="relative">
                     <button
-                      className="w-9 h-9 flex items-center justify-center rounded-xl bg-gray-100/80 hover:bg-gray-200/80 transition-all text-gray-600 hover:scale-110"
+                      className="w-9 h-9 flex items-center justify-center rounded-xl bg-blue-900/40 hover:bg-blue-900/60 transition-all text-white border border-blue-700/30 hover:scale-110"
                       onClick={() => setShowCustomAgentMenu(!showCustomAgentMenu)}
                     >
                       <Plus className="w-4 h-4" />
@@ -363,19 +358,19 @@ const AgentLLMPage = () => {
                     {/* Custom Agent Creation Menu */}
                     <AnimatePresence>
                       {showCustomAgentMenu && (
-                        <motion.div
+          <motion.div
                           initial={{ opacity: 0, y: -10, scale: 0.95 }}
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                          className="absolute bottom-full left-0 mb-2 w-80 bg-white rounded-xl shadow-2xl border border-gray-200/50 overflow-hidden z-50"
+                          className="absolute bottom-full left-0 mb-2 w-80 bg-gray-900 rounded-xl shadow-2xl border border-gray-800/50 overflow-hidden z-50"
                         >
                           <div className="p-4 space-y-4">
                             {/* Header */}
                             <div className="flex items-center justify-between">
-                              <h3 className="text-sm font-semibold text-gray-900">Create Custom Agent</h3>
+                              <h3 className="text-sm font-semibold text-white">Create Custom Agent</h3>
                               <button
                                 onClick={() => setShowCustomAgentMenu(false)}
-                                className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600"
+                                className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-gray-800 text-gray-400 hover:text-gray-300"
                               >
                                 <X className="w-4 h-4" />
                               </button>
@@ -388,20 +383,20 @@ const AgentLLMPage = () => {
                                 onChange={(e) => setAgentPrompt(e.target.value)}
                                 placeholder="Write prompt or paste URL"
                                 rows={3}
-                                className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 text-sm text-gray-900 placeholder:text-gray-400 resize-none"
+                                className="w-full px-3 py-2 rounded-lg border border-gray-700 bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 text-sm text-white placeholder:text-gray-500 resize-none"
                               />
                             </div>
 
                             {/* Agent Type Dropdown */}
                             <div>
-                              <label className="block text-xs font-medium text-gray-700 mb-2">Type of Agent Flow</label>
+                              <label className="block text-xs font-medium text-gray-400 mb-2">Type of Agent Flow</label>
                               <select
                                 value={agentType}
                                 onChange={(e) => setAgentType(e.target.value)}
-                                className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 text-sm text-gray-900 bg-white"
+                                className="w-full px-3 py-2 rounded-lg border border-gray-700 bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 text-sm text-white"
                               >
                                 {agentTypes.map((type) => (
-                                  <option key={type.id} value={type.id}>
+                                  <option key={type.id} value={type.id} className="bg-gray-800">
                                     {type.label}
                                   </option>
                                 ))}
@@ -415,7 +410,7 @@ const AgentLLMPage = () => {
                                   setShowCustomAgentMenu(false);
                                   setAgentPrompt("");
                                 }}
-                                className="flex-1 px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                                className="flex-1 px-4 py-2 rounded-lg border border-gray-700 text-sm font-medium text-gray-300 hover:bg-gray-800 transition-colors"
                               >
                                 Cancel
                               </button>
@@ -429,7 +424,7 @@ const AgentLLMPage = () => {
                                     toast.error("Please enter a prompt or URL");
                                   }
                                 }}
-                                className="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white text-sm font-medium shadow-md transition-all"
+                                className="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700 text-white text-sm font-medium shadow-md transition-all"
                               >
                                 Create
                               </button>
@@ -440,63 +435,58 @@ const AgentLLMPage = () => {
                     </AnimatePresence>
                   </div>
 
-                  {/* AI Tools Dropdown */}
-                  <div className="relative">
-                    <button
-                      onClick={() => setShowAITools(!showAITools)}
-                      className="flex items-center gap-2 px-3 h-9 rounded-xl bg-gray-100/80 hover:bg-gray-200/80 transition-all text-gray-700 border border-gray-200/50"
-                    >
-                      <Wand2 className="w-4 h-4 text-gray-600" />
-                      <span className="text-sm font-medium">AI Tools</span>
-                      <ChevronDown className={`w-3 h-3 text-gray-600 transition-transform ${showAITools ? 'rotate-180' : ''}`} />
-                    </button>
-
-                    {/* AI Tools Dropdown Menu */}
-                    <AnimatePresence>
-                      {showAITools && (
-                        <motion.div
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -10 }}
-                          className="absolute bottom-full left-0 mb-2 w-48 bg-white rounded-xl shadow-2xl border border-gray-200/50 overflow-hidden z-50"
-                        >
-                          {aiTools.map((tool) => {
-                            const Icon = tool.icon;
-                            return (
-                              <button
-                                key={tool.id}
-                                onClick={() => {
-                                  setSelectedAITool(tool.id);
-                                  setShowAITools(false);
-                                  if (tool.id === "image") {
-                                    navigate("/dashboard/tools/image");
-                                  } else if (tool.id === "video") {
-                                    navigate("/dashboard/tools/video");
-                                  }
-                                }}
-                                className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left"
-                              >
-                                <Icon className="w-4 h-4 text-gray-600" />
-                                <span className="text-sm font-medium text-gray-700">{tool.label}</span>
-                              </button>
-                            );
-                          })}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                  {/* AI Tools Selection - Image/Video Buttons (Merged) */}
+                  <div className="flex items-center">
+                    {aiTools.map((tool, index) => {
+              const Icon = tool.icon;
+                      const isSelected = selectedAITool === tool.id;
+                      const isFirst = index === 0;
+                      const isLast = index === aiTools.length - 1;
+                      
+              return (
+                        <>
+                          <button
+                  key={tool.id}
+                            onClick={() => {
+                              setSelectedAITool(tool.id);
+                              if (tool.id === "image") {
+                                navigate("/dashboard/tools/image");
+                              } else if (tool.id === "video") {
+                                navigate("/dashboard/tools/video");
+                              }
+                            }}
+                            className={`flex items-center gap-2 px-4 h-9 transition-all ${
+                              isFirst ? 'rounded-l-xl' : 'rounded-none'
+                            } ${isLast ? 'rounded-r-xl' : ''} ${
+                              tool.id === "image"
+                                ? 'bg-gray-800 text-white border border-gray-700/50'
+                                : isSelected
+                                ? 'bg-black text-white border border-gray-700/50'
+                                : 'bg-black border border-gray-700/50 text-white'
+                            } ${!isFirst ? 'border-l-0' : ''}`}
+                          >
+                            <Icon className="w-4 h-4 text-white" />
+                            <span className="text-sm font-medium">{tool.label}</span>
+                          </button>
+                          {!isLast && (
+                            <span className="text-white/60 text-sm font-medium px-1">/</span>
+                          )}
+                        </>
+                      );
+                    })}
                   </div>
 
                   {/* Agent Mode Dropdown */}
                   <div className="relative">
                     <button
                       onClick={() => setShowAgentMode(!showAgentMode)}
-                      className="flex items-center gap-2 px-3 h-9 rounded-xl bg-gray-100/80 hover:bg-gray-200/80 transition-all text-gray-700 border border-gray-200/50"
+                      className="flex items-center gap-2 px-3 h-9 rounded-xl bg-black hover:bg-black/80 transition-all text-white border border-gray-700/50"
                     >
-                      <Bot className="w-4 h-4 text-gray-600" />
+                      <Bot className="w-4 h-4 text-white" />
                       <span className="text-sm font-medium">
                         {selectedAgent ? availableAgents.find(a => a.id === selectedAgent)?.name : "Agent Mode"}
                       </span>
-                      <ChevronDown className={`w-3 h-3 text-gray-600 transition-transform ${showAgentMode ? 'rotate-180' : ''}`} />
+                      <ChevronDown className={`w-3 h-3 text-white transition-transform ${showAgentMode ? 'rotate-180' : ''}`} />
                     </button>
 
                     {/* Agent Mode Dropdown Menu */}
@@ -506,10 +496,10 @@ const AgentLLMPage = () => {
                           initial={{ opacity: 0, y: -10 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: -10 }}
-                          className="absolute bottom-full left-0 mb-2 w-72 bg-white rounded-xl shadow-2xl border border-gray-200/50 overflow-hidden z-50 max-h-96 overflow-y-auto"
+                          className="absolute bottom-full left-0 mb-2 w-72 bg-gray-900 rounded-xl shadow-2xl border border-gray-800/50 overflow-hidden z-50 max-h-96 overflow-y-auto"
                         >
                           <div className="p-2">
-                            <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-100">
+                            <div className="px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wide border-b border-gray-800">
                               Select Custom Agent
                             </div>
                             {availableAgents.map((agent) => (
@@ -521,24 +511,24 @@ const AgentLLMPage = () => {
                                   toast.success(`Agent "${agent.name}" selected!`);
                                   // You can add logic here to integrate the selected agent
                                 }}
-                                className={`w-full flex items-start gap-3 px-3 py-2.5 hover:bg-gray-50 transition-colors text-left rounded-lg ${
-                                  selectedAgent === agent.id ? 'bg-blue-50 border border-blue-200' : ''
+                                className={`w-full flex items-start gap-3 px-3 py-2.5 hover:bg-gray-800 transition-colors text-left rounded-lg ${
+                                  selectedAgent === agent.id ? 'bg-purple-500/20 border border-purple-500/30' : ''
                                 }`}
                               >
                                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                  <Bot className="w-4 h-4 text-purple-600" />
+                                  <Bot className="w-4 h-4 text-purple-400" />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <div className="text-sm font-medium text-gray-900">{agent.name}</div>
+                                  <div className="text-sm font-medium text-gray-200">{agent.name}</div>
                                   <div className="text-xs text-gray-500 mt-0.5 line-clamp-1">{agent.description}</div>
                                 </div>
                                 {selectedAgent === agent.id && (
-                                  <div className="w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
+                                  <div className="w-5 h-5 rounded-full bg-purple-500 flex items-center justify-center flex-shrink-0">
                                     <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                     </svg>
-                                  </div>
-                                )}
+                      </div>
+                    )}
                               </button>
                             ))}
                           </div>
@@ -563,14 +553,14 @@ const AgentLLMPage = () => {
                         toast.success("Prompt improved!");
                       }, 1500);
                     }}
-                    className="w-9 h-9 flex items-center justify-center rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:scale-110 transition-all"
+                    className="w-9 h-9 flex items-center justify-center rounded-xl bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700 text-white shadow-lg hover:scale-110 transition-all"
                     title="Improve prompt with AI"
                   >
                     <Sparkles className="w-4 h-4" />
                   </button>
                 </div>
-              </div>
-            </div>
+                  </div>
+                  </div>
 
             {/* Content Type Selection Buttons */}
             <motion.div
@@ -598,9 +588,9 @@ const AgentLLMPage = () => {
                       <Crown className="w-3 h-3 text-yellow-400" />
                     )}
                   </button>
-                );
-              })}
-            </motion.div>
+              );
+            })}
+          </motion.div>
           </motion.div>
 
 
