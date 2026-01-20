@@ -178,26 +178,26 @@ const AgentLLMPage = () => {
 
   return (
     <div className="fixed inset-0 flex flex-col overflow-hidden" style={{ minHeight: '100vh' }}>
-      {/* Ocean Background */}
+      {/* Tropical Coastal Landscape Background */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: `url('https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=1920&q=80')`,
-          opacity: 0.5,
+          backgroundImage: `url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80')`,
+          opacity: 1,
         }}
       />
       
-      {/* Sky Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-slate-900/50 via-slate-800/40 to-slate-900/60" />
+      {/* Sky Gradient Overlay - Light overlay to maintain text readability */}
+      <div className="absolute inset-0 bg-gradient-to-b from-slate-900/20 via-slate-800/10 to-slate-900/30" />
       
-      {/* Animated Gradient Orbs - Background Highlights */}
+      {/* Animated Gradient Orbs - Background Highlights - Reduced opacity */}
       <motion.div
         className="absolute inset-0"
         animate={{
           background: [
-            "radial-gradient(circle at 20% 30%, rgba(168, 85, 247, 0.4) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(34, 211, 238, 0.3) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.25) 0%, transparent 50%)",
-            "radial-gradient(circle at 60% 20%, rgba(34, 211, 238, 0.4) 0%, transparent 50%), radial-gradient(circle at 30% 80%, rgba(168, 85, 247, 0.3) 0%, transparent 50%), radial-gradient(circle at 70% 60%, rgba(236, 72, 153, 0.25) 0%, transparent 50%)",
-            "radial-gradient(circle at 20% 30%, rgba(168, 85, 247, 0.4) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(34, 211, 238, 0.3) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.25) 0%, transparent 50%)",
+            "radial-gradient(circle at 20% 30%, rgba(168, 85, 247, 0.15) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(34, 211, 238, 0.1) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.1) 0%, transparent 50%)",
+            "radial-gradient(circle at 60% 20%, rgba(34, 211, 238, 0.15) 0%, transparent 50%), radial-gradient(circle at 30% 80%, rgba(168, 85, 247, 0.1) 0%, transparent 50%), radial-gradient(circle at 70% 60%, rgba(236, 72, 153, 0.1) 0%, transparent 50%)",
+            "radial-gradient(circle at 20% 30%, rgba(168, 85, 247, 0.15) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(34, 211, 238, 0.1) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.1) 0%, transparent 50%)",
           ],
         }}
         transition={{
@@ -207,11 +207,11 @@ const AgentLLMPage = () => {
         }}
       />
       
-      {/* Animated Floating Particles */}
+      {/* Animated Floating Particles - Reduced opacity */}
       {[...Array(6)].map((_, i) => (
         <motion.div
           key={i}
-          className="absolute rounded-full bg-white/20 blur-xl"
+          className="absolute rounded-full bg-white/10 blur-xl"
           style={{
             width: `${100 + i * 50}px`,
             height: `${100 + i * 50}px`,
@@ -222,7 +222,7 @@ const AgentLLMPage = () => {
             y: [0, -30, 0],
             x: [0, 20, 0],
             scale: [1, 1.2, 1],
-            opacity: [0.2, 0.4, 0.2],
+            opacity: [0.1, 0.2, 0.1],
           }}
           transition={{
             duration: 5 + i * 0.5,
@@ -233,11 +233,11 @@ const AgentLLMPage = () => {
         />
       ))}
       
-      {/* Animated Light Beams */}
+      {/* Animated Light Beams - Reduced opacity */}
       <motion.div
         className="absolute inset-0"
         style={{
-          background: 'linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%)',
+          background: 'linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.05) 50%, transparent 70%)',
           backgroundSize: '200% 200%',
         }}
         animate={{
@@ -250,11 +250,11 @@ const AgentLLMPage = () => {
         }}
       />
       
-      {/* Animated Highlight Rings */}
+      {/* Animated Highlight Rings - Reduced opacity */}
       {[...Array(3)].map((_, i) => (
         <motion.div
           key={`ring-${i}`}
-          className="absolute rounded-full border-2 border-white/20"
+          className="absolute rounded-full border-2 border-white/10"
           style={{
             width: `${300 + i * 200}px`,
             height: `${300 + i * 200}px`,
@@ -264,7 +264,7 @@ const AgentLLMPage = () => {
           }}
           animate={{
             scale: [1, 1.5, 1],
-            opacity: [0.1, 0.3, 0.1],
+            opacity: [0.05, 0.15, 0.05],
             rotate: [0, 360],
           }}
           transition={{
