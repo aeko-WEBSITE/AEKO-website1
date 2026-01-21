@@ -83,6 +83,21 @@ const LOCAL_IMAGES = [
   "/feeds/video1.mp4",
   "/feeds/video2.mp4",
   "/feeds/video3.mp4",
+  "/feeds/video4.mp4",
+  "/feeds/video5.mp4",
+  "/feeds/video6.mp4",
+  "/feeds/video7.mp4",
+  "/feeds/video8.mp4",
+  "/feeds/video9.mp4",
+  "/feeds/video10.mp4",
+  "/feeds/video11.mp4",
+  "/feeds/video12.mp4",
+  "/feeds/video13.mp4",
+  "/feeds/video14.mp4",
+  "/feeds/video15.mp4",
+  "/feeds/video16.mp4",
+  "/feeds/video17.mp4",
+  "/feeds/video18.mp4",
 ];
 
 const generateMockItems = (startId: number, useImages: string[]): FeedItem[] => {

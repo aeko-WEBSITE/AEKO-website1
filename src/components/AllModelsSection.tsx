@@ -147,7 +147,7 @@ const AllModelsSection = () => {
               </motion.div>
               <h3 className="text-2xl md:text-3xl font-black text-foreground dark:text-white">
                 <span className="bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 dark:from-purple-400 dark:via-pink-400 dark:to-purple-400 bg-clip-text text-transparent">
-                  Platform Gallery
+                  Community Feeds
                 </span>
               </h3>
             </div>
