@@ -23,7 +23,7 @@ import {
   ChevronDown,
   Wand2,
 } from "lucide-react";
-import { llmAPI } from "@/lib/api";
+import { moduleAPI } from "@/lib/api";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
@@ -131,13 +131,32 @@ const AgentLLMPage = () => {
 
     try {
       const startTime = Date.now();
-      const response = await llmAPI.chat(currentInput);
+      const response = await moduleAPI.chatCompletions({
+        prompt: currentInput,
+        model: "ModelsLab/Llama-3.1-8b-Uncensored-Dare",
+        stream: false,
+      });
       const responseTime = ((Date.now() - startTime) / 1000).toFixed(1);
+
+      // Extract response content from API response
+      let content = "I'm sorry, I couldn't generate a response.";
+      if (response.choices && Array.isArray(response.choices) && response.choices[0]) {
+        content = response.choices[0].message?.content || 
+                  response.choices[0].text || 
+                  response.choices[0].content || 
+                  content;
+      } else if (response.message) {
+        content = response.message;
+      } else if (response.response) {
+        content = response.response;
+      } else if (typeof response === 'string') {
+        content = response;
+      }
 
       const assistantMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: response.message || response.response || "I'm sorry, I couldn't generate a response.",
+        content: content,
         timestamp: new Date(),
         responseTime: `${responseTime}s`,
       };

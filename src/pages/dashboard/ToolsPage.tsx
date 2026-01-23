@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { llmAPI } from "@/lib/api";
+import { moduleAPI } from "@/lib/api";
 
 const tools = [
   { id: "chat", label: "Chat Agent", icon: MessageSquare, color: "from-blue-500 to-cyan-500" },
@@ -83,59 +83,58 @@ const ToolsPage = () => {
     setIsLoading(true);
 
     try {
-      const response = await llmAPI.chat(prompt.trim(), {
-        max_tokens: maxTokens,
-        temperature: temperature,
+      const response = await moduleAPI.chatCompletions({
+        prompt: prompt.trim(),
+        model: "ModelsLab/Llama-3.1-8b-Uncensored-Dare",
+        stream: false,
       });
 
-      if (response.success && response.data) {
-        // Extract the assistant's message from the ModelsLab response
-        // ModelsLab API response structure handling
-        let assistantContent = "";
-        
-        // Try different possible response structures
-        if (response.data.choices && Array.isArray(response.data.choices) && response.data.choices[0]) {
-          // OpenAI-style format
-          assistantContent = response.data.choices[0].message?.content || 
-                            response.data.choices[0].text || 
-                            response.data.choices[0].content || "";
-        } else if (response.data.message) {
-          // Direct message field
-          assistantContent = typeof response.data.message === 'string' 
-            ? response.data.message 
-            : response.data.message.content || "";
-        } else if (response.data.content) {
-          // Direct content field
-          assistantContent = response.data.content;
-        } else if (response.data.text) {
-          // Text field
-          assistantContent = response.data.text;
-        } else if (response.data.response) {
-          // Response field
-          assistantContent = response.data.response;
-        } else if (typeof response.data === "string") {
-          // String response
-          assistantContent = response.data;
-        } else {
-          // Fallback: stringify the whole response for debugging
-          assistantContent = `Response received. Check console for details.\n\n${JSON.stringify(response.data, null, 2)}`;
-          console.log("Full ModelsLab response:", response.data);
-        }
-        
-        // If still empty, show error
-        if (!assistantContent.trim()) {
-          throw new Error("Received empty response from AI");
-        }
+      // Extract the assistant's message from the API response
+      let assistantContent = "";
+      
+      // Try different possible response structures
+      if (response.choices && Array.isArray(response.choices) && response.choices[0]) {
+        // OpenAI-style format
+        assistantContent = response.choices[0].message?.content || 
+                          response.choices[0].text || 
+                          response.choices[0].content || "";
+      } else if (response.message) {
+        // Direct message field
+        assistantContent = typeof response.message === 'string' 
+          ? response.message 
+          : response.message.content || "";
+      } else if (response.content) {
+        // Direct content field
+        assistantContent = response.content;
+      } else if (response.text) {
+        // Text field
+        assistantContent = response.text;
+      } else if (response.response) {
+        // Response field
+        assistantContent = response.response;
+      } else if (typeof response === "string") {
+        // String response
+        assistantContent = response;
+      } else {
+        // Fallback: stringify the whole response for debugging
+        assistantContent = `Response received. Check console for details.\n\n${JSON.stringify(response, null, 2)}`;
+        console.log("Full API response:", response);
+      }
+      
+      // If still empty, show error
+      if (!assistantContent.trim()) {
+        throw new Error("Received empty response from AI");
+      }
 
-        const assistantMessage: ChatMessage = {
-          id: (Date.now() + 1).toString(),
-          role: "assistant",
-          content: assistantContent,
-          timestamp: new Date(),
-        };
+      const assistantMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content: assistantContent,
+        timestamp: new Date(),
+      };
 
-        setChatMessages((prev) => [...prev, assistantMessage]);
-        toast.success("Response received!");
+      setChatMessages((prev) => [...prev, assistantMessage]);
+      toast.success("Response received!");
       } else {
         throw new Error(response.message || "Failed to get response");
       }
