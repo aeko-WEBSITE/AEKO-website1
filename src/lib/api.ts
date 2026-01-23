@@ -25,6 +25,7 @@ const apiRequest = async (
   
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
+    'Accept': '*/*',
     ...options.headers,
   };
 
@@ -35,6 +36,8 @@ const apiRequest = async (
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     ...options,
     headers,
+    mode: 'cors',
+    credentials: 'omit',
   });
 
   return response;
@@ -176,17 +179,182 @@ export const moduleAPI = {
         body: JSON.stringify({
           prompt: data.prompt,
           model: data.model,
-          stream: data.stream ?? false, // Always false as per requirements
+          stream: data.stream ?? false,
         }),
       });
 
-      if (!response.ok) {
+      // Accept both 200 and 201 status codes
+      if (!response.ok && response.status !== 201) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.message || errorData.error || `Server error: ${response.status}`);
       }
 
-      return response.json();
+      // Check content type - API returns text/plain, not JSON
+      const contentType = response.headers.get('content-type') || '';
+      
+      if (contentType.includes('application/json')) {
+        return response.json();
+      } else {
+        // Plain text response - return as string
+        const text = await response.text();
+        return text;
+      }
     } catch (error: any) {
+      // Handle CORS errors specifically
+      if (error.name === 'TypeError' && (error.message.includes('fetch') || error.message.includes('CORS'))) {
+        throw new Error('CORS error: Cannot connect to API. The API server may not allow cross-origin requests from this domain.');
+      }
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        throw new Error('Cannot connect to backend. Make sure the backend server is running.');
+      }
+      throw error;
+    }
+  },
+
+  /**
+   * Chat Completions (streaming)
+   * POST /apimodule/v1/chat/completions
+   * @param data - Request payload with prompt, model
+   * @param onChunk - Callback function called for each chunk of data
+   * @returns Promise that resolves when stream completes
+   */
+  chatCompletionsStream: async (
+    data: {
+      prompt: string;
+      model: string;
+    },
+    onChunk: (chunk: string) => void
+  ) => {
+    try {
+      const token = getAuthToken();
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+        'Accept': '*/*',
+      };
+
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const response = await fetch(`${API_BASE_URL}/apimodule/v1/chat/completions`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          prompt: data.prompt,
+          model: data.model,
+          stream: true,
+        }),
+        mode: 'cors',
+        credentials: 'omit',
+      });
+
+      // Accept both 200 and 201 status codes
+      if (!response.ok && response.status !== 201) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || errorData.error || `Server error: ${response.status}`);
+      }
+
+      if (!response.body) {
+        throw new Error('Response body is null');
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      // Check content type to determine response format
+      const contentType = response.headers.get('content-type') || '';
+      const isPlainText = contentType.includes('text/plain');
+
+      while (true) {
+        const { done, value } = await reader.read();
+        
+        if (done) {
+          break;
+        }
+
+        const chunk = decoder.decode(value, { stream: true });
+        
+        // For plain text streaming, send chunks directly as they arrive
+        if (isPlainText) {
+          if (chunk) {
+            onChunk(chunk);
+          }
+        } else {
+          // Handle SSE or JSON streaming format
+          buffer += chunk;
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+
+          for (const line of lines) {
+            if (line.trim() === '') continue;
+            
+            // Handle SSE format: data: {...}
+            if (line.startsWith('data: ')) {
+              const dataStr = line.slice(6);
+              if (dataStr === '[DONE]') {
+                continue;
+              }
+              
+              try {
+                const json = JSON.parse(dataStr);
+                let content = '';
+                if (json.choices && Array.isArray(json.choices) && json.choices[0]) {
+                  content = json.choices[0].delta?.content || 
+                            json.choices[0].message?.content || 
+                            json.choices[0].text || 
+                            json.choices[0].content || '';
+                } else if (json.delta?.content) {
+                  content = json.delta.content;
+                } else if (json.content) {
+                  content = json.content;
+                } else if (json.text) {
+                  content = json.text;
+                } else if (typeof json === 'string') {
+                  content = json;
+                }
+                
+                if (content) {
+                  onChunk(content);
+                }
+              } catch (e) {
+                if (dataStr.trim()) {
+                  onChunk(dataStr);
+                }
+              }
+            } else if (line.trim()) {
+              onChunk(line);
+            }
+          }
+        }
+      }
+
+      // Process any remaining buffer (only for non-plain-text)
+      if (!isPlainText && buffer.trim()) {
+        try {
+          const json = JSON.parse(buffer);
+          let content = '';
+          if (json.choices && Array.isArray(json.choices) && json.choices[0]) {
+            content = json.choices[0].delta?.content || 
+                      json.choices[0].message?.content || 
+                      json.choices[0].text || 
+                      json.choices[0].content || '';
+          } else if (json.content) {
+            content = json.content;
+          }
+          if (content) {
+            onChunk(content);
+          }
+        } catch (e) {
+          if (buffer.trim()) {
+            onChunk(buffer);
+          }
+        }
+      }
+    } catch (error: any) {
+      if (error.name === 'TypeError' && (error.message.includes('fetch') || error.message.includes('CORS'))) {
+        throw new Error('CORS error: Cannot connect to API. The API server may not allow cross-origin requests from this domain.');
+      }
       if (error.name === 'TypeError' && error.message.includes('fetch')) {
         throw new Error('Cannot connect to backend. Make sure the backend server is running.');
       }

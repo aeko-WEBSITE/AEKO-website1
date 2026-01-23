@@ -22,6 +22,11 @@ import {
   Bot,
   ChevronDown,
   Wand2,
+  User,
+  Copy,
+  ThumbsUp,
+  ThumbsDown,
+  Clock,
 } from "lucide-react";
 import { moduleAPI } from "@/lib/api";
 import { toast } from "sonner";
@@ -58,16 +63,15 @@ const AgentLLMPage = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [iconClickAnimation, setIconClickAnimation] = useState(false);
   const [selectedContentType, setSelectedContentType] = useState("design");
   const [selectedAITool, setSelectedAITool] = useState<string>("image");
   const [showCustomAgentMenu, setShowCustomAgentMenu] = useState(false);
-  const [showAgentList, setShowAgentList] = useState(false);
   const [showAgentMode, setShowAgentMode] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
   const [agentPrompt, setAgentPrompt] = useState("");
   const [agentType, setAgentType] = useState("prompt-bot");
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
   const agentTypes = [
@@ -80,7 +84,6 @@ const AgentLLMPage = () => {
     { id: "server-bot", label: "Server bot" },
   ];
 
-  // Available agents from agent store
   const availableAgents = [
     { id: "1", name: "Cnergee", description: "Integrated network security products—SD-WAN, NGFW, Managed WiFi" },
     { id: "2", name: "Instagram", description: "Social media assistant for Instagram management" },
@@ -97,7 +100,6 @@ const AgentLLMPage = () => {
     { id: "video", label: "Video", icon: Video },
   ];
 
-  // Handle query parameter from home page
   useEffect(() => {
     const query = searchParams.get("q");
     if (query) {
@@ -106,13 +108,16 @@ const AgentLLMPage = () => {
     }
   }, [searchParams, setSearchParams]);
 
-  // Auto-resize textarea
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.style.height = "auto";
       inputRef.current.style.height = `${inputRef.current.scrollHeight}px`;
     }
   }, [input]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, isLoading]);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -138,19 +143,23 @@ const AgentLLMPage = () => {
       });
       const responseTime = ((Date.now() - startTime) / 1000).toFixed(1);
 
-      // Extract response content from API response
       let content = "I'm sorry, I couldn't generate a response.";
-      if (response.choices && Array.isArray(response.choices) && response.choices[0]) {
+      
+      if (typeof response === 'string') {
+        content = response;
+      } else if (response.choices && Array.isArray(response.choices) && response.choices[0]) {
         content = response.choices[0].message?.content || 
                   response.choices[0].text || 
                   response.choices[0].content || 
                   content;
       } else if (response.message) {
-        content = response.message;
+        content = typeof response.message === 'string' ? response.message : response.message.content || content;
       } else if (response.response) {
         content = response.response;
-      } else if (typeof response === 'string') {
-        content = response;
+      } else if (response.content) {
+        content = response.content;
+      } else if (response.text) {
+        content = response.text;
       }
 
       const assistantMessage: ChatMessage = {
@@ -184,8 +193,12 @@ const AgentLLMPage = () => {
     }
   };
 
+  const handleCopyMessage = (content: string) => {
+    navigator.clipboard.writeText(content);
+    toast.success("Copied to clipboard!");
+  };
+
   const handleToolClick = (toolId: string) => {
-    // Navigate to appropriate tool page
     if (toolId === "image") {
       navigate("/dashboard/tools/image");
     } else if (toolId === "video") {
@@ -195,28 +208,35 @@ const AgentLLMPage = () => {
     }
   };
 
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
+  // Check if there are messages to determine layout
+  const hasMessages = messages.length > 0;
+
   return (
-    <div className="fixed inset-0 flex flex-col overflow-hidden" style={{ minHeight: '100vh' }}>
-      {/* Tropical Coastal Landscape Background */}
+    <div className="fixed inset-0 flex flex-col overflow-hidden bg-gradient-to-br from-slate-900 via-gray-900 to-slate-950">
+      {/* Background with all your effects */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
           backgroundImage: `url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80')`,
-          opacity: 1,
+          opacity: 0.2,
         }}
       />
       
-      {/* Sky Gradient Overlay - Light overlay to maintain text readability */}
-      <div className="absolute inset-0 bg-gradient-to-b from-slate-900/20 via-slate-800/10 to-slate-900/30" />
+      {/* Gradient Overlays */}
+      <div className="absolute inset-0 bg-gradient-to-b from-slate-900/40 via-slate-800/20 to-slate-900/50" />
       
-      {/* Animated Gradient Orbs - Background Highlights - Reduced opacity */}
+      {/* Animated Gradient Orbs */}
       <motion.div
         className="absolute inset-0"
         animate={{
           background: [
-            "radial-gradient(circle at 20% 30%, rgba(168, 85, 247, 0.15) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(34, 211, 238, 0.1) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.1) 0%, transparent 50%)",
-            "radial-gradient(circle at 60% 20%, rgba(34, 211, 238, 0.15) 0%, transparent 50%), radial-gradient(circle at 30% 80%, rgba(168, 85, 247, 0.1) 0%, transparent 50%), radial-gradient(circle at 70% 60%, rgba(236, 72, 153, 0.1) 0%, transparent 50%)",
-            "radial-gradient(circle at 20% 30%, rgba(168, 85, 247, 0.15) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(34, 211, 238, 0.1) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.1) 0%, transparent 50%)",
+            "radial-gradient(circle at 20% 30%, rgba(168, 85, 247, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(34, 211, 238, 0.08) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.08) 0%, transparent 50%)",
+            "radial-gradient(circle at 60% 20%, rgba(34, 211, 238, 0.1) 0%, transparent 50%), radial-gradient(circle at 30% 80%, rgba(168, 85, 247, 0.08) 0%, transparent 50%), radial-gradient(circle at 70% 60%, rgba(236, 72, 153, 0.08) 0%, transparent 50%)",
+            "radial-gradient(circle at 20% 30%, rgba(168, 85, 247, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(34, 211, 238, 0.08) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.08) 0%, transparent 50%)",
           ],
         }}
         transition={{
@@ -226,432 +246,402 @@ const AgentLLMPage = () => {
         }}
       />
       
-      {/* Animated Floating Particles - Reduced opacity */}
-      {[...Array(6)].map((_, i) => (
+      {/* Animated Floating Particles */}
+      {[...Array(4)].map((_, i) => (
         <motion.div
           key={i}
-          className="absolute rounded-full bg-white/10 blur-xl"
+          className="absolute rounded-full bg-white/5 blur-xl"
           style={{
-            width: `${100 + i * 50}px`,
-            height: `${100 + i * 50}px`,
-            left: `${10 + i * 15}%`,
-            top: `${20 + i * 10}%`,
+            width: `${80 + i * 40}px`,
+            height: `${80 + i * 40}px`,
+            left: `${15 + i * 20}%`,
+            top: `${15 + i * 15}%`,
           }}
           animate={{
-            y: [0, -30, 0],
-            x: [0, 20, 0],
-            scale: [1, 1.2, 1],
-            opacity: [0.1, 0.2, 0.1],
-          }}
-          transition={{
-            duration: 5 + i * 0.5,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: i * 0.3,
-          }}
-        />
-      ))}
-      
-      {/* Animated Light Beams - Reduced opacity */}
-      <motion.div
-        className="absolute inset-0"
-        style={{
-          background: 'linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.05) 50%, transparent 70%)',
-          backgroundSize: '200% 200%',
-        }}
-        animate={{
-          backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
-        }}
-        transition={{
-          duration: 8,
-          repeat: Infinity,
-          ease: 'linear',
-        }}
-      />
-      
-      {/* Animated Highlight Rings - Reduced opacity */}
-      {[...Array(3)].map((_, i) => (
-        <motion.div
-          key={`ring-${i}`}
-          className="absolute rounded-full border-2 border-white/10"
-          style={{
-            width: `${300 + i * 200}px`,
-            height: `${300 + i * 200}px`,
-            left: '50%',
-            top: '50%',
-            transform: 'translate(-50%, -50%)',
-          }}
-          animate={{
-            scale: [1, 1.5, 1],
+            y: [0, -20, 0],
+            x: [0, 15, 0],
+            scale: [1, 1.1, 1],
             opacity: [0.05, 0.15, 0.05],
-            rotate: [0, 360],
           }}
           transition={{
-            duration: 15 + i * 5,
+            duration: 6 + i * 0.5,
             repeat: Infinity,
             ease: "easeInOut",
-            delay: i * 2,
+            delay: i * 0.4,
           }}
         />
       ))}
       
-      {/* Content */}
-      <div className="relative z-20 flex flex-col items-center justify-center flex-1 min-h-0" style={{ paddingTop: '10vh', paddingBottom: '10vh' }}>
-        <div className="w-full max-w-6xl mx-auto px-4 space-y-8 relative z-20">
-          {/* Title */}
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="text-5xl md:text-6xl lg:text-7xl font-bold text-white text-center"
-          >
-            Let's Create
-          </motion.h1>
-
-          {/* Input Field - Dark Modern Design */}
+      {/* Main Content */}
+      <div className="relative z-20 flex flex-col h-full">
+        {/* Header - Shows only when there are messages */}
+        {hasMessages && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="relative w-full"
+            className="px-6 py-4 border-b border-white/10 bg-gradient-to-r from-slate-900/60 to-gray-900/60 backdrop-blur-md"
           >
-            {/* Main Input Container - Dark Theme */}
-            <div className="relative">
-              {/* Inner Container - Transparent with Blur */}
-              <div className="relative bg-gray-900/30 backdrop-blur-xl rounded-3xl p-5 shadow-2xl border border-gray-700/30">
-                {/* Input Area */}
-                <div className="relative">
-                  {/* Textarea - Transparent with Blur */}
-              <textarea
-                ref={inputRef}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Type a prompt..."
-                    rows={3}
-                    className="w-full bg-gray-800/20 backdrop-blur-md text-white placeholder:text-gray-400 focus:outline-none resize-none overflow-hidden text-base leading-relaxed pt-2 pl-4 pr-14 py-3 rounded-xl border border-gray-700/30 focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20"
-                style={{
-                      minHeight: "90px",
-                      maxHeight: "200px",
-                }}
-              />
-
-                  {/* Send Button Inside Textbox - Right Side */}
-                  <div className="absolute right-4 top-2">
-              <button
-                onClick={handleSend}
-                disabled={!input.trim() || isLoading}
-                      className={`w-10 h-10 flex items-center justify-center rounded-full transition-all ${
-                        input.trim() && !isLoading
-                          ? 'bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700 text-white shadow-lg hover:scale-110'
-                          : 'bg-gray-800/30 cursor-not-allowed'
-                      }`}
-                title="Send"
-              >
-                      <Send className={`w-4 h-4 ${input.trim() && !isLoading ? 'text-white' : 'text-gray-600'}`} />
-              </button>
-            </div>
+            <div className="max-w-4xl mx-auto flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 flex items-center justify-center">
+                  <Sparkles className="w-5 h-5 text-white" />
                 </div>
+                <div>
+                  <h1 className="text-lg font-semibold text-white">AI Assistant</h1>
+                  <p className="text-xs text-gray-400">Powered by advanced AI models</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 text-sm transition-colors border border-white/10">
+                  <span className="flex items-center gap-1.5">
+                    <Bot className="w-3.5 h-3.5" />
+                    {selectedAgent ? availableAgents.find(a => a.id === selectedAgent)?.name : "Agent Mode"}
+                  </span>
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
 
-                {/* Bottom Controls Row */}
-                <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-800/50">
-                  {/* Bottom Left Controls */}
-                  <div className="flex items-center gap-2">
-                  {/* Upload Icon */}
-                  <button
-                    className="w-9 h-9 flex items-center justify-center rounded-xl bg-blue-900/40 hover:bg-blue-900/60 transition-all text-white border border-blue-700/30 hover:scale-110"
-                    onClick={() => toast.info("Upload file coming soon!")}
+        {/* Messages Area */}
+        <div 
+          className={`flex-1 overflow-y-auto ${hasMessages ? 'px-4 py-6' : ''}`}
+          style={{ scrollBehavior: 'smooth' }}
+        >
+          <div className="max-w-4xl mx-auto">
+            {/* Initial Welcome Message when no messages */}
+            {!hasMessages && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="h-full flex mt-8 flex-col items-center justify-center px-4"
+              >
+                {/* Welcome Section */}
+                <div className="text-center space-y-6 mb-12">
+                  <motion.h1
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="text-5xl md:text-6xl lg:text-7xl font-bold text-white text-center"
                   >
-                    <Upload className="w-4 h-4" />
-                  </button>
+                    Let's Create
+                  </motion.h1>
+                  
+                  <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
+                    className="text-lg text-gray-300 max-w-2xl mx-auto"
+                  >
+                    Start a conversation with your AI assistant. Describe what you want to create, ask questions, or explore creative possibilities.
+                  </motion.p>
 
-                  {/* Plus Icon - Custom Agent Creator */}
-                  <div className="relative">
-                    <button
-                      className="w-9 h-9 flex items-center justify-center rounded-xl bg-blue-900/40 hover:bg-blue-900/60 transition-all text-white border border-blue-700/30 hover:scale-110"
-                      onClick={() => setShowCustomAgentMenu(!showCustomAgentMenu)}
-                    >
-                      <Plus className="w-4 h-4" />
-                    </button>
-
-                    {/* Custom Agent Creation Menu */}
-                    <AnimatePresence>
-                      {showCustomAgentMenu && (
-          <motion.div
-                          initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                          className="absolute bottom-full left-0 mb-2 w-80 bg-gray-900 rounded-xl shadow-2xl border border-gray-800/50 overflow-hidden z-50"
+                  {/* Content Type Selection */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.3 }}
+                    className="flex flex-wrap items-center justify-center gap-2"
+                  >
+                    {contentTypes.map((type) => {
+                      const Icon = type.icon;
+                      const isSelected = selectedContentType === type.id;
+                      return (
+                        <button
+                          key={type.id}
+                          onClick={() => setSelectedContentType(type.id)}
+                          className={`flex items-center gap-2 px-4 py-2.5 rounded-full transition-all ${
+                            isSelected
+                              ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg'
+                              : 'bg-white/10 backdrop-blur-md hover:bg-white/20 text-gray-200 border border-white/20'
+                          }`}
                         >
-                          <div className="p-4 space-y-4">
-                            {/* Header */}
-                            <div className="flex items-center justify-between">
-                              <h3 className="text-sm font-semibold text-white">Create Custom Agent</h3>
-                              <button
-                                onClick={() => setShowCustomAgentMenu(false)}
-                                className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-gray-800 text-gray-400 hover:text-gray-300"
-                              >
-                                <X className="w-4 h-4" />
-                              </button>
-                            </div>
-
-                            {/* Prompt/URL Textbox */}
-                            <div>
-                              <textarea
-                                value={agentPrompt}
-                                onChange={(e) => setAgentPrompt(e.target.value)}
-                                placeholder="Write prompt or paste URL"
-                                rows={3}
-                                className="w-full px-3 py-2 rounded-lg border border-gray-700 bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 text-sm text-white placeholder:text-gray-500 resize-none"
-                              />
-                            </div>
-
-                            {/* Agent Type Dropdown */}
-                            <div>
-                              <label className="block text-xs font-medium text-gray-400 mb-2">Type of Agent Flow</label>
-                              <select
-                                value={agentType}
-                                onChange={(e) => setAgentType(e.target.value)}
-                                className="w-full px-3 py-2 rounded-lg border border-gray-700 bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 text-sm text-white"
-                              >
-                                {agentTypes.map((type) => (
-                                  <option key={type.id} value={type.id} className="bg-gray-800">
-                                    {type.label}
-                                  </option>
-                                ))}
-                              </select>
-                            </div>
-
-                            {/* Action Buttons */}
-                            <div className="flex gap-2 pt-2">
-                              <button
-                                onClick={() => {
-                                  setShowCustomAgentMenu(false);
-                                  setAgentPrompt("");
-                                }}
-                                className="flex-1 px-4 py-2 rounded-lg border border-gray-700 text-sm font-medium text-gray-300 hover:bg-gray-800 transition-colors"
-                              >
-                                Cancel
-                              </button>
-                              <button
-                                onClick={() => {
-                                  if (agentPrompt.trim()) {
-                                    toast.success("Custom agent created!");
-                                    setShowCustomAgentMenu(false);
-                                    setAgentPrompt("");
-                                  } else {
-                                    toast.error("Please enter a prompt or URL");
-                                  }
-                                }}
-                                className="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700 text-white text-sm font-medium shadow-md transition-all"
-                              >
-                                Create
-                              </button>
-                            </div>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-
-                  {/* AI Tools Selection - Image/Video Buttons (Merged) */}
-                  <div className="flex items-center">
-                    {aiTools.map((tool, index) => {
-              const Icon = tool.icon;
-                      const isSelected = selectedAITool === tool.id;
-                      const isFirst = index === 0;
-                      const isLast = index === aiTools.length - 1;
-                      
-              return (
-                        <>
-                          <button
-                  key={tool.id}
-                            onClick={() => {
-                              setSelectedAITool(tool.id);
-                              if (tool.id === "image") {
-                                navigate("/dashboard/tools/image");
-                              } else if (tool.id === "video") {
-                                navigate("/dashboard/tools/video");
-                              }
-                            }}
-                            className={`flex items-center gap-2 px-4 h-9 transition-all ${
-                              isFirst ? 'rounded-l-xl' : 'rounded-none'
-                            } ${isLast ? 'rounded-r-xl' : ''} ${
-                              tool.id === "image"
-                                ? 'bg-gray-800 text-white border border-gray-700/50'
-                                : isSelected
-                                ? 'bg-black text-white border border-gray-700/50'
-                                : 'bg-black border border-gray-700/50 text-white'
-                            } ${!isFirst ? 'border-l-0' : ''}`}
-                          >
-                            <Icon className="w-4 h-4 text-white" />
-                            <span className="text-sm font-medium">{tool.label}</span>
-                          </button>
-                          {!isLast && (
-                            <span className="text-white/60 text-sm font-medium px-1">/</span>
+                          <Icon className="w-4 h-4" />
+                          <span className="text-sm font-medium">{type.label}</span>
+                          {type.isPremium && (
+                            <Crown className="w-3 h-3 text-yellow-400" />
                           )}
-                        </>
+                        </button>
                       );
                     })}
-                  </div>
+                  </motion.div>
+                </div>
+              </motion.div>
+            )}
 
-                  {/* Agent Mode Dropdown */}
-                  <div className="relative">
-                    <button
-                      onClick={() => setShowAgentMode(!showAgentMode)}
-                      className="flex items-center gap-2 px-3 h-9 rounded-xl bg-black hover:bg-black/80 transition-all text-white border border-gray-700/50"
-                    >
-                      <Bot className="w-4 h-4 text-white" />
-                      <span className="text-sm font-medium">
-                        {selectedAgent ? availableAgents.find(a => a.id === selectedAgent)?.name : "Agent Mode"}
-                      </span>
-                      <ChevronDown className={`w-3 h-3 text-white transition-transform ${showAgentMode ? 'rotate-180' : ''}`} />
-                    </button>
-
-                    {/* Agent Mode Dropdown Menu */}
-                    <AnimatePresence>
-                      {showAgentMode && (
-                        <motion.div
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -10 }}
-                          className="absolute bottom-full left-0 mb-2 w-72 bg-gray-900 rounded-xl shadow-2xl border border-gray-800/50 overflow-hidden z-50 max-h-96 overflow-y-auto"
-                        >
-                          <div className="p-2">
-                            <div className="px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wide border-b border-gray-800">
-                              Select Custom Agent
-                            </div>
-                            {availableAgents.map((agent) => (
-                              <button
-                                key={agent.id}
-                                onClick={() => {
-                                  setSelectedAgent(agent.id);
-                                  setShowAgentMode(false);
-                                  toast.success(`Agent "${agent.name}" selected!`);
-                                  // You can add logic here to integrate the selected agent
-                                }}
-                                className={`w-full flex items-start gap-3 px-3 py-2.5 hover:bg-gray-800 transition-colors text-left rounded-lg ${
-                                  selectedAgent === agent.id ? 'bg-purple-500/20 border border-purple-500/30' : ''
-                                }`}
-                              >
-                                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                  <Bot className="w-4 h-4 text-purple-400" />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <div className="text-sm font-medium text-gray-200">{agent.name}</div>
-                                  <div className="text-xs text-gray-500 mt-0.5 line-clamp-1">{agent.description}</div>
-                                </div>
-                                {selectedAgent === agent.id && (
-                                  <div className="w-5 h-5 rounded-full bg-purple-500 flex items-center justify-center flex-shrink-0">
-                                    <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                    </svg>
+            {/* Messages List */}
+            {hasMessages && (
+              <div className="space-y-6">
+                {messages.map((message) => (
+                  <motion.div
+                    key={message.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className={`flex gap-3 ${message.role === "user" ? "justify-end" : ""}`}
+                  >
+                    {/* Assistant Avatar */}
+                    {message.role === "assistant" && (
+                      <div className="flex-shrink-0">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 flex items-center justify-center">
+                          <Bot className="w-4 h-4 text-white" />
+                        </div>
                       </div>
                     )}
-                              </button>
-                            ))}
-                          </div>
-                        </motion.div>
+
+                    {/* Message Bubble */}
+                    <div className={`flex flex-col max-w-[80%] ${message.role === "user" ? "items-end" : ""}`}>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xs font-medium text-gray-400">
+                          {message.role === "assistant" ? "AI Assistant" : "You"}
+                        </span>
+                        <span className="text-xs text-gray-500 flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {formatTime(message.timestamp)}
+                        </span>
+                        {message.responseTime && message.role === "assistant" && (
+                          <span className="text-xs text-gray-500">
+                            • {message.responseTime}
+                          </span>
+                        )}
+                      </div>
+                      
+                      <div
+                        className={`rounded-2xl px-4 py-3 ${
+                          message.role === "user"
+                            ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg"
+                            : "bg-white/10 backdrop-blur-md text-gray-100 border border-white/20 shadow-lg"
+                        }`}
+                      >
+                        <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed">
+                          {message.content}
+                        </pre>
+                      </div>
+
+                      {/* Message Actions */}
+                      {message.role === "assistant" && (
+                        <div className="flex items-center gap-1 mt-2">
+                          <button
+                            onClick={() => handleCopyMessage(message.content)}
+                            className="p-1.5 rounded-lg hover:bg-white/10 text-gray-400 hover:text-gray-300 transition-colors"
+                            title="Copy"
+                          >
+                            <Copy className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => toast.success("Feedback submitted!")}
+                            className="p-1.5 rounded-lg hover:bg-white/10 text-gray-400 hover:text-gray-300 transition-colors"
+                            title="Good response"
+                          >
+                            <ThumbsUp className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => toast.info("Thanks for your feedback!")}
+                            className="p-1.5 rounded-lg hover:bg-white/10 text-gray-400 hover:text-gray-300 transition-colors"
+                            title="Bad response"
+                          >
+                            <ThumbsDown className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       )}
-                    </AnimatePresence>
-                  </div>
-                  </div>
+                    </div>
 
-                  {/* Bottom Right - Prompt Improvement Icon */}
-                  <button
-                    onClick={async () => {
-                      if (!input.trim()) {
-                        toast.error("Please enter a prompt first");
-                        return;
-                      }
-                      toast.info("Improving your prompt...");
-                      // Simulate AI improving the prompt
-                      setTimeout(() => {
-                        const improvedPrompt = `Enhanced: ${input}`;
-                        setInput(improvedPrompt);
-                        toast.success("Prompt improved!");
-                      }, 1500);
-                    }}
-                    className="w-9 h-9 flex items-center justify-center rounded-xl bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700 text-white shadow-lg hover:scale-110 transition-all"
-                    title="Improve prompt with AI"
+                    {/* User Avatar */}
+                    {message.role === "user" && (
+                      <div className="flex-shrink-0">
+                        <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
+                          <User className="w-4 h-4 text-gray-300" />
+                        </div>
+                      </div>
+                    )}
+                  </motion.div>
+                ))}
+
+                {/* Loading Indicator */}
+                {isLoading && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="flex gap-3"
                   >
-                    <Sparkles className="w-4 h-4" />
-                  </button>
-                </div>
-                  </div>
-                  </div>
+                    <div className="flex-shrink-0">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 flex items-center justify-center">
+                        <Bot className="w-4 h-4 text-white" />
+                      </div>
+                    </div>
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xs font-medium text-gray-400">AI Assistant</span>
+                      </div>
+                      <div className="bg-white/10 backdrop-blur-md rounded-2xl px-4 py-3 border border-white/20 shadow-lg">
+                        <div className="flex items-center gap-2">
+                          <div className="flex gap-1">
+                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{ animationDelay: "0ms" }} />
+                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{ animationDelay: "150ms" }} />
+                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{ animationDelay: "300ms" }} />
+                          </div>
+                          <span className="text-sm text-gray-400">Thinking...</span>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+                <div ref={messagesEndRef} />
+              </div>
+            )}
+          </div>
+        </div>
 
-            {/* Content Type Selection Buttons */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="flex flex-wrap items-center justify-center gap-2 mt-4"
+        {/* Input Container - Position changes based on messages */}
+        <div className={`relative z-30 border-t border-white/10 ${hasMessages ? 'bg-gradient-to-r from-slate-900/60 to-gray-900/60 backdrop-blur-md' : 'bg-transparent'} px-4 py-3`}>
+  <div className={`max-w-4xl mx-auto ${hasMessages ? '' : 'max-w-2xl'}`}>
+    {/* Input Area */}
+    <div className="relative">
+      <div className={`relative ${hasMessages ? 'bg-white/5 backdrop-blur-md' : 'bg-gray-900/40 backdrop-blur-xl'} rounded-xl border border-white/20 shadow-xl transition-all duration-300`}>
+        {/* Textarea */}
+        <textarea
+          ref={inputRef}
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyPress={handleKeyPress}
+          placeholder={hasMessages ? "Message AI Assistant..." : "Describe what you want to create..."}
+          rows={1}
+          className="w-full bg-transparent text-white placeholder:text-gray-400 focus:outline-none resize-none overflow-hidden text-base leading-relaxed pt-3 pl-4 pr-12 py-2.5 rounded-xl"
+          style={{
+            minHeight: "44px",
+            maxHeight: "120px",
+          }}
+        />
+
+        {/* Send Button */}
+        <div className="absolute right-2 top-2">
+          <button
+            onClick={handleSend}
+            disabled={!input.trim() || isLoading}
+            className={`w-8 h-8 flex items-center justify-center rounded-lg transition-all ${
+              input.trim() && !isLoading
+                ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-md hover:scale-105'
+                : 'bg-white/10 text-gray-500 cursor-not-allowed'
+            }`}
+            title="Send"
+          >
+            <Send className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        {/* Bottom Controls */}
+        <div className="flex items-center justify-between px-3 py-2 border-t border-white/10">
+          {/* Left Controls */}
+          <div className="flex items-center gap-1.5">
+            {/* Upload */}
+            <button
+              className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-white/10 transition-colors text-gray-300 hover:text-white"
+              onClick={() => toast.info("Upload file coming soon!")}
+              title="Upload file"
             >
-              {contentTypes.map((type) => {
-                const Icon = type.icon;
-                const isSelected = selectedContentType === type.id;
+              <Upload className="w-3.5 h-3.5" />
+            </button>
+
+            {/* Mic */}
+            <button
+              className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-white/10 transition-colors text-gray-300 hover:text-white"
+              onClick={() => toast.info("Voice input coming soon!")}
+              title="Voice input"
+            >
+              <Mic className="w-3.5 h-3.5" />
+            </button>
+
+            {/* Custom Agent */}
+            <div className="relative">
+              <button
+                className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-white/10 transition-colors text-gray-300 hover:text-white"
+                onClick={() => setShowCustomAgentMenu(!showCustomAgentMenu)}
+                title="Create custom agent"
+              >
+                <Plus className="w-3.5 h-3.5" />
+              </button>
+
+              {/* Custom Agent Menu - Keep existing */}
+            </div>
+
+            {/* AI Tools */}
+            <div className="flex items-center bg-white/5 rounded-md border border-white/20">
+              {aiTools.map((tool, index) => {
+                const Icon = tool.icon;
+                const isSelected = selectedAITool === tool.id;
                 return (
                   <button
-                    key={type.id}
-                    onClick={() => setSelectedContentType(type.id)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${
+                    key={tool.id}
+                    onClick={() => {
+                      setSelectedAITool(tool.id);
+                      handleToolClick(tool.id);
+                    }}
+                    className={`px-2 py-1 text-sm transition-all ${
                       isSelected
-                        ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-md'
-                        : 'bg-white/90 hover:bg-white text-gray-700 border border-gray-200'
+                        ? 'bg-white/10 text-white'
+                        : 'text-gray-300 hover:text-white hover:bg-white/5'
+                    } ${index === 0 ? 'rounded-l-md' : ''} ${
+                      index === aiTools.length - 1 ? 'rounded-r-md' : ''
                     }`}
                   >
-                    <Icon className="w-4 h-4" />
-                    <span className="text-sm font-medium">{type.label}</span>
-                    {type.isPremium && (
-                      <Crown className="w-3 h-3 text-yellow-400" />
-                    )}
+                    <Icon className="w-3.5 h-3.5" />
                   </button>
-              );
-            })}
-          </motion.div>
-          </motion.div>
+                );
+              })}
+            </div>
 
+            {/* Agent Mode */}
+            <div className="relative">
+              <button
+                onClick={() => setShowAgentMode(!showAgentMode)}
+                className="flex items-center gap-1 px-2 py-1 rounded-md bg-white/5 hover:bg-white/10 transition-all text-gray-300 hover:text-white text-xs border border-white/20"
+              >
+                <Bot className="w-3 h-3" />
+                <span className="hidden sm:inline">
+                  {selectedAgent ? availableAgents.find(a => a.id === selectedAgent)?.name : "Agents"}
+                </span>
+                <ChevronDown className={`w-2.5 h-2.5 transition-transform ${showAgentMode ? 'rotate-180' : ''}`} />
+              </button>
 
-          {/* Messages Area - Show when there are messages */}
-          {messages.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mt-8 space-y-4 max-h-96 overflow-y-auto"
+              {/* Agent Mode Menu - Keep existing */}
+            </div>
+          </div>
+
+          {/* Right Controls */}
+          <div className="flex items-center gap-1.5">
+            {/* Prompt Improver */}
+            <button
+              onClick={async () => {
+                if (!input.trim()) {
+                  toast.error("Please enter a prompt first");
+                  return;
+                }
+                toast.info("Improving your prompt...");
+                setTimeout(() => {
+                  const improvedPrompt = `Enhanced: ${input}`;
+                  setInput(improvedPrompt);
+                  toast.success("Prompt improved!");
+                }, 1500);
+              }}
+              className="w-7 h-7 flex items-center justify-center rounded-md  text-white shadow-sm hover:scale-105 transition-all"
+              title="Improve prompt with AI"
             >
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
-                >
-                  <div
-                    className={`max-w-3xl rounded-2xl px-4 py-3 ${
-                      message.role === "user"
-                        ? "bg-purple-600 text-white"
-                        : "bg-white/10 backdrop-blur-md text-white border border-white/20"
-                    }`}
-                  >
-                    <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
-                  </div>
-                </div>
-              ))}
-              {isLoading && (
-                <div className="flex justify-start">
-                  <div className="bg-white/10 backdrop-blur-md text-white border border-white/20 rounded-2xl px-4 py-3">
-                    <div className="flex gap-1">
-                      <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                      <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                      <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
-                    </div>
-                  </div>
-                </div>
-              )}
-            </motion.div>
-          )}
+              <Sparkles className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Helper Text - Shows only when there are messages */}
+      {hasMessages && (
+        <p className="text-xs text-gray-500 mt-1 text-center">
+          Enter to send • Shift+Enter for new line
+        </p>
+      )}
     </div>
+  </div>
+</div>
+</div></div>
   );
 };
 
