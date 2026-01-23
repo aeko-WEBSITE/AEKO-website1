@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useState, useRef } from "react";
+import { ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
 
 const imageModels = [
   {
@@ -47,113 +47,282 @@ const imageModels = [
   },
 ];
 
-const ImageToolsFeaturesSection = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const scrollRef = useRef<HTMLDivElement>(null);
+const accentGradient =
+  "from-[#9333ea]/90 via-[#c026d3]/80 to-[#facc15]/80";
 
-  const visibleCards = 4;
-  const maxIndex = Math.max(0, imageModels.length - visibleCards);
+const glassBg =
+  "bg-gradient-to-br from-white/10 via-slate-900/50 to-black/60 shadow-2xl backdrop-blur-xl";
+
+const ImageToolsFeaturesSection = () => {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+  const [isPaused, setIsPaused] = useState(false);
+  const autoScrollRef = useRef<number | null>(null);
+  const isPausedRef = useRef(false);
+
+  const checkScrollability = () => {
+    if (scrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+    }
+  };
+
+  useEffect(() => {
+    checkScrollability();
+    const scrollElement = scrollRef.current;
+    if (scrollElement) {
+      scrollElement.addEventListener("scroll", checkScrollability);
+      window.addEventListener("resize", checkScrollability);
+      return () => {
+        scrollElement.removeEventListener("scroll", checkScrollability);
+        window.removeEventListener("resize", checkScrollability);
+      };
+    }
+  }, []);
+
+  // Sync ref with state
+  useEffect(() => {
+    isPausedRef.current = isPaused;
+  }, [isPaused]);
+
+  // Auto-scroll functionality
+  useEffect(() => {
+    // Clear any existing interval
+    if (autoScrollRef.current) {
+      clearInterval(autoScrollRef.current);
+      autoScrollRef.current = null;
+    }
+
+    if (!scrollRef.current || isPaused) return;
+
+    const scrollElement = scrollRef.current;
+    
+    const startAutoScroll = () => {
+      if (!scrollElement || isPausedRef.current) return;
+
+      const autoScroll = () => {
+        if (!scrollElement || isPausedRef.current) return;
+        
+        const { scrollLeft, scrollWidth, clientWidth } = scrollElement;
+        const maxScroll = scrollWidth - clientWidth;
+        
+        if (maxScroll <= 0) return; // No scroll needed
+        
+        if (scrollLeft >= maxScroll - 5) {
+          // Reset to start when reaching the end
+          scrollElement.scrollTo({ left: 0, behavior: "auto" });
+        } else {
+          // Continue scrolling smoothly - faster speed
+          scrollElement.scrollBy({ left: 1.5, behavior: "auto" });
+        }
+      };
+
+      autoScrollRef.current = window.setInterval(autoScroll, 16); // ~60fps for smoothness
+    };
+
+    // Small delay to ensure DOM is ready
+    const timeoutId = setTimeout(startAutoScroll, 100);
+
+    return () => {
+      clearTimeout(timeoutId);
+      if (autoScrollRef.current) {
+        clearInterval(autoScrollRef.current);
+        autoScrollRef.current = null;
+      }
+    };
+  }, [isPaused]);
 
   const handlePrev = () => {
-    setCurrentIndex((prev) => Math.max(0, prev - 1));
+    if (scrollRef.current) {
+      const cardWidth = scrollRef.current.scrollWidth / imageModels.length;
+      scrollRef.current.scrollBy({
+        left: -cardWidth * 4,
+        behavior: "smooth",
+      });
+    }
   };
 
   const handleNext = () => {
-    setCurrentIndex((prev) => Math.min(maxIndex, prev + 1));
+    if (scrollRef.current) {
+      const cardWidth = scrollRef.current.scrollWidth / imageModels.length;
+      scrollRef.current.scrollBy({
+        left: cardWidth * 4,
+        behavior: "smooth",
+      });
+    }
   };
 
-  const displayedModels = imageModels.slice(currentIndex, currentIndex + visibleCards);
-
   return (
-    <section className="py-24 lg:py-32 relative overflow-hidden w-full">
-      <div className="container mx-auto px-4 lg:px-8 relative z-10">
-        {/* Header with Navigation */}
-        <div className="flex items-center justify-between mb-12">
-        <motion.div
-            initial={{ opacity: 0, x: -20 }}
+    <section className="relative py-28 md:py-36 w-full overflow-x-clip bg-white dark:bg-black">
+      {/* Animated mesh and sparkles */}
+      <motion.div
+        className="pointer-events-none absolute inset-0 z-0"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0.16 }}
+        transition={{ duration: 1 }}
+        style={{
+          background: `
+            radial-gradient(900px 500px at 20% 30%, rgba(168,85,247,0.26) 0px, transparent 60%),
+            radial-gradient(1200px 800px at 80% 90%, rgba(236,72,153,0.22) 0px, transparent 80%),
+            radial-gradient(750px 550px at 65% 20%, rgba(250,204,21,0.12) 0px, transparent 70%)
+          `,
+        }}
+      />
+      <div className="container mx-auto px-4 lg:px-10 relative z-10">
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-3">
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-        >
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-2 tracking-tight">
-              Image Tool{" "}
-              <span className="bg-gradient-to-r from-pink-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                Feature
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <h2 className="text-[2.8rem] md:text-5xl lg:text-7xl font-black tracking-tighter leading-tight text-black dark:text-white drop-shadow-lg mb-2 relative">
+              <span className="inline-flex items-center gap-1">
+                <Sparkles className="inline-block w-8 h-8 text-yellow-400 animate-pulse drop-shadow-[0_0_12px_#face19]" />
+                Image Tool{" "}
+                <span
+                  className={`bg-gradient-to-r ${accentGradient} bg-clip-text text-transparent`}>
+                  Showcase
+                </span>
               </span>
-          </h2>
-        </motion.div>
-
-          {/* Navigation Arrows */}
-        <motion.div
+            </h2>
+            <div className="hidden md:block">
+              <p className="mt-2 ml-1 text-lg font-light text-black/70 dark:text-white/70 max-w-3xl">
+                Discover how cutting-edge AI transforms your creative workflow.
+              </p>
+            </div>
+          </motion.div>
+          <motion.div
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
+            viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="flex items-center gap-3"
-        >
-          <button
+            className="flex items-center gap-3 self-start md:self-center"
+          >
+            <button
               onClick={handlePrev}
-              disabled={currentIndex === 0}
-              className={`w-12 h-12 rounded-full border-2 border-white/30 bg-black/40 backdrop-blur-md flex items-center justify-center transition-all ${
-                currentIndex === 0
-                  ? "opacity-50 cursor-not-allowed"
-                  : "hover:bg-white/10 hover:border-white/50 cursor-pointer"
-            }`}
-          >
-              <ChevronLeft className="w-6 h-6 text-white" />
-          </button>
-          <button
+              disabled={!canScrollLeft}
+              className={`w-12 h-12 rounded-full border-2 border-purple-400/50 ${glassBg} transition-all duration-150 flex items-center justify-center ring-2 ring-transparent focus:ring-purple-400/30 shadow-lg group
+                ${!canScrollLeft
+                  ? "opacity-45 cursor-not-allowed"
+                  : "hover:border-yellow-400/70 hover:scale-110 cursor-pointer"}
+              `}
+            >
+              <ChevronLeft className="w-7 h-7 text-white drop-shadow-[0_2px_10px_#7c3aed]" />
+            </button>
+            <button
               onClick={handleNext}
-              disabled={currentIndex >= maxIndex}
-              className={`w-12 h-12 rounded-full border-2 border-white/30 bg-black/40 backdrop-blur-md flex items-center justify-center transition-all ${
-                currentIndex >= maxIndex
-                  ? "opacity-50 cursor-not-allowed"
-                  : "hover:bg-white/10 hover:border-white/50 cursor-pointer"
-            }`}
-          >
-              <ChevronRight className="w-6 h-6 text-white" />
-          </button>
-        </motion.div>
+              disabled={!canScrollRight}
+              className={`w-12 h-12 rounded-full border-2 border-purple-400/50 ${glassBg} transition-all duration-150 flex items-center justify-center ring-2 ring-transparent focus:ring-purple-400/30 shadow-lg group
+                ${!canScrollRight
+                  ? "opacity-45 cursor-not-allowed"
+                  : "hover:border-yellow-400/70 hover:scale-110 cursor-pointer"}
+              `}
+            >
+              <ChevronRight className="w-7 h-7 text-white drop-shadow-[0_2px_10px_#7c3aed]" />
+            </button>
+          </motion.div>
         </div>
 
-        {/* Cards Grid */}
-        <div ref={scrollRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {displayedModels.map((model, index) => (
-            <motion.div
-              key={model.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="group cursor-pointer"
-            >
-              {/* Card Container */}
-              <div className="relative bg-gradient-to-br from-[#0a0a0a]/90 to-[#1a1a1a]/90 backdrop-blur-md border-4 border-white overflow-hidden shadow-xl">
-                {/* Image */}
-                <div className="relative w-full h-64 overflow-hidden">
-                  <img
-                    src={model.image}
-                    alt={model.title}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                  {/* Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-              </div>
-
-                {/* Content */}
-                <div className="p-6 bg-gradient-to-b from-[#0a0a0a]/95 to-[#1a1a1a]/95">
-                  <h3 className="text-xl font-bold text-white mb-3 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-pink-400 group-hover:to-purple-400 group-hover:bg-clip-text transition-all">
-                    {model.title}
-                </h3>
-                  <p className="text-sm text-white/70 leading-relaxed">
-                    {model.description}
-                </p>
+        {/* Cards - Horizontal Scrollable */}
+        <div className="relative">
+          <div
+            ref={scrollRef}
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+            className="flex gap-8 overflow-x-auto scrollbar-hide scroll-smooth pb-4"
+            style={{
+              scrollBehavior: "smooth",
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
+            }}
+          >
+            {imageModels.map((model, index) => (
+              <motion.div
+                key={model.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.54, delay: index * 0.14 }}
+                className="group relative rounded-3xl overflow-hidden shadow-2xl bg-white dark:bg-gradient-to-br dark:from-[#201873]/70 dark:via-[#161135]/70 dark:to-[#120c3f]/80 backdrop-blur-lg transition-transform duration-300 hover:scale-[1.035] hover:-translate-y-1 cursor-pointer flex-shrink-0 w-[320px] md:w-[360px] border border-gray-200 dark:border-transparent"
+                style={{ zIndex: 1 }}
+              >
+                {/* Animated Colorful Gradient Border */}
+                <motion.div
+                  className="absolute inset-0 pointer-events-none rounded-3xl z-20"
+                  style={{
+                    padding: "3px",
+                    background: "conic-gradient(from 110deg, #7C3AED, #F472B6, #FACC15, #22D3EE, #A21CAF, #F472B6, #7C3AED)",
+                    WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+                    WebkitMaskComposite: "xor",
+                    maskComposite: "exclude",
+                    boxShadow: "0 2px 16px 0 rgba(156, 39, 176, 0.15)",
+                    zIndex: 2,
+                  }}
+                  initial={{ opacity: 0.7, rotate: 0 }}
+                  animate={{ rotate: 360 }}
+                  transition={{
+                    repeat: Infinity,
+                    duration: 9 + index * 0.5,
+                    ease: "linear"
+                  }}
+                />
+                <div className="relative z-20 flex flex-col h-full">
+                  <div className="relative w-full h-60 overflow-hidden flex-0">
+                    <img
+                      src={model.image}
+                      alt={model.title}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 rounded-lg"
+                      draggable={false}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent rounded-lg" />
+                    <div className="absolute top-5 right-5">
+                      <span className="inline-block rounded-full bg-gradient-to-br from-yellow-400 via-pink-400 to-purple-500 p-[2.5px] animate-pulse shadow-lg">
+                        <Sparkles className="w-4 h-4 text-white" />
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex-1 flex flex-col justify-end p-6 pb-7 bg-white/50 dark:bg-gradient-to-b dark:from-white/5 dark:via-[#241e48]/80 dark:to-[#15132dad]/90 rounded-b-3xl backdrop-blur-[1.5px]">
+                    <h3
+                      className="text-2xl font-semibold mb-2 text-black dark:text-white tracking-tight group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-yellow-400 group-hover:via-pink-400 group-hover:to-purple-500 group-hover:bg-clip-text transition-all duration-300"
+                    >
+                      {model.title}
+                    </h3>
+                    <p className="text-base text-black/80 dark:text-white/85 leading-relaxed mb-1 group-hover:text-black/90 dark:group-hover:text-white/95">
+                      {model.description}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            </motion.div>
-          ))}
+                {/* Extra animated border highlight for cool effect */}
+                <motion.div
+                  className="absolute inset-0 z-30 pointer-events-none rounded-3xl"
+                  style={{
+                    background: "linear-gradient(95deg,rgba(124,58,237,.04) 20%,rgba(236,72,153,.08) 70%,rgba(250,204,21,.05) 100%)",
+                    mixBlendMode: "screen",
+                    filter: "blur(4.5px)",
+                  }}
+                  initial={{ opacity: 0.8 }}
+                  animate={{ opacity: [0.8, 0.6, 0.9, 0.8] }}
+                  transition={{
+                    repeat: Infinity,
+                    repeatType: "reverse",
+                    duration: 3.5 + index * 0.22,
+                    delay: index * 0.24
+                  }}
+                />
+              </motion.div>
+            ))}
+          </div>
         </div>
       </div>
+      {/* Styles */}
+      <style>{`
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
     </section>
   );
 };

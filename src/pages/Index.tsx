@@ -28,8 +28,8 @@ const Index = () => {
         <Navbar />
         <CreateAgentSection />
         <AllModelsSection />
-        {/* <ImageToolsFeaturesSection />
-        <VideoToolsFeaturesSection /> */}
+        <ImageToolsFeaturesSection />
+        <VideoToolsFeaturesSection />
         <ShowcaseSection />
         <PricingSection />
         <DevelopersSection />
