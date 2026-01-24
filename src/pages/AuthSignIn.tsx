@@ -459,7 +459,7 @@ const AuthSignIn = () => {
           playsInline
           className="absolute inset-0 w-full h-full object-cover z-0 opacity-90"
         >
-          <source src="/public/feeds/AEKO_video.mp4" type="video/mp4" />
+          <source src="/feeds/AEKO_video.mp4" type="video/mp4" />
         </video>
 
         <div className="absolute inset-0 pointer-events-none z-20 shadow-[inset_0_0_100px_rgba(0,0,0,0.5)] border border-white/10 rounded-[28px]" />
