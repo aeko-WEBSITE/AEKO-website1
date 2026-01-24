@@ -9,6 +9,7 @@ import DashboardLayout from "./components/dashboard/DashboardLayout";
 import DashboardHome from "./pages/dashboard/DashboardHome";
 import FeedPage from "./pages/dashboard/FeedPage";
 import AccountPage from "./pages/dashboard/AccountPage";
+import CreationHistoryPage from "./pages/dashboard/CreationHistoryPage";
 import SupportPage from "./pages/dashboard/SupportPage";
 import AuthSignIn from "./pages/AuthSignIn";
 import ToolsLayout from "./components/dashboard/ToolsLayout";
@@ -37,6 +38,7 @@ const App = () => (
               <Route path="video" element={<VideoToolsPage />} />
             </Route>
             <Route path="account" element={<AccountPage />} />
+            <Route path="creation-history" element={<CreationHistoryPage />} />
             <Route path="support" element={<SupportPage />} />
             <Route path="agent-store" element={<AgentStorePage />} />
           </Route>

@@ -104,9 +104,12 @@ const VideoToolsFeaturesSection = () => {
         
         if (maxScroll <= 0) return; // No scroll needed
         
-        if (scrollLeft >= maxScroll - 5) {
-          // Reset to start when reaching the end
-          scrollElement.scrollTo({ left: 0, behavior: "auto" });
+        // Calculate the width of one set of models
+        const singleSetWidth = scrollWidth / 2;
+        
+        if (scrollLeft >= singleSetWidth - 5) {
+          // Seamlessly loop back to start (invisible jump)
+          scrollElement.scrollTo({ left: scrollLeft - singleSetWidth, behavior: "auto" });
         } else {
           // Continue scrolling smoothly - faster speed
           scrollElement.scrollBy({ left: 1.5, behavior: "auto" });
@@ -160,7 +163,7 @@ const VideoToolsFeaturesSection = () => {
           }}
         />
       </div>
-      <div className="container mx-auto px-4 lg:px-8 relative z-10">
+      <div className="container mx-auto relative z-10">
         {/* Header + Navigation */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
           <motion.div
@@ -235,15 +238,16 @@ const VideoToolsFeaturesSection = () => {
               msOverflowStyle: "none",
             }}
           >
-            {videoModels.map((model, index) => (
+            {/* Duplicate models for infinite scroll */}
+            {[...videoModels, ...videoModels].map((model, index) => (
               <motion.div
-                key={model.id}
+                key={`${model.id}-${index}`}
                 initial={{ opacity: 0, y: 40, scale: 0.95 }}
                 whileInView={{ opacity: 1, y: 0, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{
                   duration: 0.5,
-                  delay: index * 0.08,
+                  delay: (index % videoModels.length) * 0.08,
                   ease: [0.4, 0.3, 0, 1],
                 }}
                 className="group relative cursor-pointer flex-shrink-0 w-[320px] md:w-[360px]"

@@ -27,6 +27,8 @@ import {
   ThumbsUp,
   ThumbsDown,
   Clock,
+  ArrowRight,
+  Menu,
 } from "lucide-react";
 import { moduleAPI } from "@/lib/api";
 import { toast } from "sonner";
@@ -70,9 +72,25 @@ const AgentLLMPage = () => {
   const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
   const [agentPrompt, setAgentPrompt] = useState("");
   const [agentType, setAgentType] = useState("prompt-bot");
+  const [agentMood, setAgentMood] = useState("Professional");
+  const [selectedPromptingOption, setSelectedPromptingOption] = useState<string | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+
+  const agentMoods = [
+    { id: "professional", label: "Professional" },
+    { id: "friendly", label: "Friendly" },
+    { id: "sales", label: "Sales" },
+    { id: "support", label: "Support" },
+  ];
+
+  const promptingOptions = [
+    { id: "manager", label: "Manager" },
+    { id: "ticket-raising", label: "Ticket Raising" },
+    { id: "booking", label: "Booking" },
+    { id: "upsell", label: "Upsell" },
+  ];
 
   const agentTypes = [
     { id: "prompt-bot", label: "Prompt bot" },
@@ -273,7 +291,7 @@ const AgentLLMPage = () => {
       ))}
       
       {/* Main Content */}
-      <div className="relative z-20 flex flex-col h-full">
+      <div className="relative z-20 flex flex-col h-full" style={{ minHeight: '100vh' }}>
         {/* Header - Shows only when there are messages */}
         {hasMessages && (
           <motion.div
@@ -318,15 +336,15 @@ const AgentLLMPage = () => {
               >
                 {/* Welcome Section */}
                 <div className="text-center space-y-6 mb-12">
-                  <motion.h1
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="text-5xl md:text-6xl lg:text-7xl font-bold text-white text-center"
-                  >
-                    Let's Create
-                  </motion.h1>
-                  
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="text-5xl md:text-6xl lg:text-7xl font-bold text-white text-center"
+          >
+            Let's Create
+          </motion.h1>
+
                   <motion.p
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -492,51 +510,124 @@ const AgentLLMPage = () => {
           </div>
         </div>
 
-        {/* Input Container - Position changes based on messages */}
-        <div className={`relative z-30 border-t border-white/10 ${hasMessages ? 'bg-gradient-to-r from-slate-900/60 to-gray-900/60 backdrop-blur-md' : 'bg-transparent'} px-4 py-3`}>
-  <div className={`max-w-4xl mx-auto ${hasMessages ? '' : 'max-w-2xl'}`}>
-    {/* Input Area */}
-    <div className="relative">
-      <div className={`relative ${hasMessages ? 'bg-white/5 backdrop-blur-md' : 'bg-gray-900/40 backdrop-blur-xl'} rounded-xl border border-white/20 shadow-xl transition-all duration-300`}>
+        {/* Input Container - Smoothly transitions from center to bottom */}
+        <motion.div
+          className={`z-30 ${hasMessages ? 'relative' : 'absolute inset-x-0'}`}
+          initial={false}
+          animate={{
+            y: hasMessages ? 0 : '-50%',
+          }}
+          transition={{
+            duration: 0.6,
+            ease: [0.4, 0, 0.2, 1],
+          }}
+          style={{
+            position: hasMessages ? 'relative' : 'absolute',
+            top: hasMessages ? 'auto' : '50%',
+          }}
+        >
+          <motion.div
+            className={`w-full ${hasMessages ? 'border-t border-white/10 bg-gradient-to-r from-slate-900/60 to-gray-900/60 backdrop-blur-md' : ''}`}
+            animate={{
+              paddingTop: hasMessages ? '0.75rem' : '2rem',
+              paddingBottom: hasMessages ? '0.75rem' : '2rem',
+            }}
+            transition={{
+              duration: 0.6,
+              ease: [0.4, 0, 0.2, 1],
+            }}
+          >
+          <motion.div
+            className={`w-full mx-auto ${hasMessages ? 'max-w-4xl' : 'max-w-2xl'}`}
+            animate={{
+              maxWidth: hasMessages ? '896px' : '672px',
+            }}
+            transition={{
+              duration: 0.6,
+              ease: [0.4, 0, 0.2, 1],
+            }}
+          >
+                {/* Input Area */}
+            <motion.div
+              className="relative"
+              animate={{
+                scale: hasMessages ? 1 : 1.05,
+              }}
+              transition={{
+                duration: 0.5,
+                ease: [0.4, 0, 0.2, 1],
+              }}
+            >
+              <motion.div
+                className={`relative rounded-xl border border-white/20 shadow-xl ${
+                  hasMessages ? 'bg-white/5 backdrop-blur-md' : 'bg-gray-900/40 backdrop-blur-xl'
+                }`}
+                animate={{
+                  backgroundColor: hasMessages 
+                    ? 'rgba(255, 255, 255, 0.05)' 
+                    : 'rgba(17, 24, 39, 0.4)',
+                  backdropFilter: hasMessages ? 'blur(12px)' : 'blur(24px)',
+                }}
+                transition={{
+                  duration: 0.5,
+                  ease: [0.4, 0, 0.2, 1],
+                }}
+              >
         {/* Textarea */}
-        <textarea
-          ref={inputRef}
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyPress={handleKeyPress}
+              <textarea
+                ref={inputRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyPress={handleKeyPress}
           placeholder={hasMessages ? "Message AI Assistant..." : "Describe what you want to create..."}
           rows={1}
-          className="w-full bg-transparent text-white placeholder:text-gray-400 focus:outline-none resize-none overflow-hidden text-base leading-relaxed pt-3 pl-4 pr-12 py-2.5 rounded-xl"
-          style={{
+          className="w-full bg-transparent text-white placeholder:text-gray-400 focus:outline-none resize-none overflow-hidden text-base leading-relaxed pt-3 pl-4 pr-32 py-2.5 rounded-xl"
+                style={{
             minHeight: "44px",
             maxHeight: "120px",
           }}
         />
 
-        {/* Send Button */}
+        {/* Agent Mood Selector - Right side */}
+        <div className="absolute right-12 top-2 flex items-center gap-2">
+          <select
+            value={agentMood}
+            onChange={(e) => setAgentMood(e.target.value)}
+            className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 hover:bg-white/15 transition-colors cursor-pointer"
+            title="Agent Mood"
+          >
+            {agentMoods.map((mood) => (
+              <option key={mood.id} value={mood.label} className="bg-gray-900 text-white">
+                {mood.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Send Button - Right Arrow Icon */}
         <div className="absolute right-2 top-2">
-          <button
-            onClick={handleSend}
-            disabled={!input.trim() || isLoading}
+              <button
+                onClick={handleSend}
+                disabled={!input.trim() || isLoading}
             className={`w-8 h-8 flex items-center justify-center rounded-lg transition-all ${
-              input.trim() && !isLoading
+                        input.trim() && !isLoading
                 ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-md hover:scale-105'
                 : 'bg-white/10 text-gray-500 cursor-not-allowed'
-            }`}
-            title="Send"
-          >
-            <Send className="w-3.5 h-3.5" />
-          </button>
-        </div>
+                      }`}
+                title="Send"
+              >
+            <ArrowRight className="w-4 h-4" />
+              </button>
+                </div>
 
         {/* Bottom Controls */}
         <div className="flex items-center justify-between px-3 py-2 border-t border-white/10">
           {/* Left Controls */}
           <div className="flex items-center gap-1.5">
             {/* Upload */}
-            <button
+                  <button
               className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-white/10 transition-colors text-gray-300 hover:text-white"
-              onClick={() => toast.info("Upload file coming soon!")}
+                    onClick={() => toast.info("Upload file coming soon!")}
               title="Upload file"
             >
               <Upload className="w-3.5 h-3.5" />
@@ -549,31 +640,140 @@ const AgentLLMPage = () => {
               title="Voice input"
             >
               <Mic className="w-3.5 h-3.5" />
-            </button>
+                  </button>
 
-            {/* Custom Agent */}
-            <div className="relative">
-              <button
-                className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-white/10 transition-colors text-gray-300 hover:text-white"
-                onClick={() => setShowCustomAgentMenu(!showCustomAgentMenu)}
+            {/* Custom Agent - Highlighted + Icon */}
+                  <div className="relative">
+                    <button
+                className="w-8 h-8 flex items-center justify-center rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg hover:scale-110 transition-all"
+                      onClick={() => setShowCustomAgentMenu(!showCustomAgentMenu)}
                 title="Create custom agent"
-              >
-                <Plus className="w-3.5 h-3.5" />
-              </button>
+                    >
+                      <Plus className="w-4 h-4" />
+                    </button>
 
-              {/* Custom Agent Menu - Keep existing */}
-            </div>
+              {/* Custom Agent Menu */}
+                    <AnimatePresence>
+                      {showCustomAgentMenu && (
+          <motion.div
+                          initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                    className="absolute bottom-full left-0 mb-2 w-96 bg-gray-900 rounded-xl shadow-2xl border border-gray-800/50 overflow-hidden z-50"
+                        >
+                          <div className="p-4 space-y-4">
+                            {/* Header */}
+                            <div className="flex items-center justify-between">
+                              <h3 className="text-sm font-semibold text-white">Create Custom Agent</h3>
+                              <button
+                                onClick={() => setShowCustomAgentMenu(false)}
+                                className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-gray-800 text-gray-400 hover:text-gray-300"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            </div>
+
+                            {/* Prompt/URL Textbox */}
+                            <div>
+                              <textarea
+                                value={agentPrompt}
+                                onChange={(e) => setAgentPrompt(e.target.value)}
+                                placeholder="Write prompt or paste URL"
+                                rows={3}
+                                className="w-full px-3 py-2 rounded-lg border border-gray-700 bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 text-sm text-white placeholder:text-gray-500 resize-none"
+                              />
+                            </div>
+
+                      {/* Extra Prompting Options */}
+                      <div>
+                        <label className="block text-xs font-medium text-gray-400 mb-2">Extra Prompting Options</label>
+                        <div className="grid grid-cols-2 gap-2">
+                          {promptingOptions.map((option) => (
+                            <button
+                              key={option.id}
+                              onClick={() => setSelectedPromptingOption(option.id === selectedPromptingOption ? null : option.id)}
+                              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                                selectedPromptingOption === option.id
+                                  ? 'bg-purple-600 text-white border border-purple-500'
+                                  : 'bg-gray-800/50 text-gray-300 border border-gray-700 hover:bg-gray-800 hover:border-gray-600'
+                              }`}
+                            >
+                              {option.label}
+                            </button>
+                          ))}
+                        </div>
+                            </div>
+
+                            {/* Agent Type Dropdown */}
+                            <div>
+                              <label className="block text-xs font-medium text-gray-400 mb-2">Type of Agent Flow</label>
+                              <select
+                                value={agentType}
+                                onChange={(e) => setAgentType(e.target.value)}
+                                className="w-full px-3 py-2 rounded-lg border border-gray-700 bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 text-sm text-white"
+                              >
+                                {agentTypes.map((type) => (
+                                  <option key={type.id} value={type.id} className="bg-gray-800">
+                                    {type.label}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div className="flex gap-2 pt-2">
+                              <button
+                                onClick={() => {
+                                  setShowCustomAgentMenu(false);
+                                  setAgentPrompt("");
+                            setSelectedPromptingOption(null);
+                                }}
+                                className="flex-1 px-4 py-2 rounded-lg border border-gray-700 text-sm font-medium text-gray-300 hover:bg-gray-800 transition-colors"
+                              >
+                                Cancel
+                              </button>
+                              <button
+                                onClick={() => {
+                                  if (agentPrompt.trim()) {
+                                    toast.success("Custom agent created!");
+                                    setShowCustomAgentMenu(false);
+                                    setAgentPrompt("");
+                              setSelectedPromptingOption(null);
+                                  } else {
+                                    toast.error("Please enter a prompt or URL");
+                                  }
+                                }}
+                                className="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700 text-white text-sm font-medium shadow-md transition-all"
+                              >
+                                Create
+                              </button>
+                        <button
+                          onClick={() => {
+                            navigate("/dashboard/agent-store");
+                            setShowCustomAgentMenu(false);
+                          }}
+                          className="flex-1 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm font-medium border border-white/20 transition-all flex items-center justify-center gap-2"
+                        >
+                          Next
+                          <ArrowRight className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
 
             {/* AI Tools */}
             <div className="flex items-center bg-white/5 rounded-md border border-white/20">
-              {aiTools.map((tool, index) => {
-                const Icon = tool.icon;
-                const isSelected = selectedAITool === tool.id;
-                return (
-                  <button
-                    key={tool.id}
-                    onClick={() => {
-                      setSelectedAITool(tool.id);
+                    {aiTools.map((tool, index) => {
+              const Icon = tool.icon;
+                      const isSelected = selectedAITool === tool.id;
+              return (
+                          <button
+                  key={tool.id}
+                            onClick={() => {
+                              setSelectedAITool(tool.id);
                       handleToolClick(tool.id);
                     }}
                     className={`px-2 py-1 text-sm transition-all ${
@@ -585,63 +785,69 @@ const AgentLLMPage = () => {
                     }`}
                   >
                     <Icon className="w-3.5 h-3.5" />
-                  </button>
-                );
-              })}
-            </div>
+                          </button>
+                      );
+                    })}
+                  </div>
 
             {/* Agent Mode */}
-            <div className="relative">
-              <button
-                onClick={() => setShowAgentMode(!showAgentMode)}
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowAgentMode(!showAgentMode)}
                 className="flex items-center gap-1 px-2 py-1 rounded-md bg-white/5 hover:bg-white/10 transition-all text-gray-300 hover:text-white text-xs border border-white/20"
               >
                 <Bot className="w-3 h-3" />
                 <span className="hidden sm:inline">
                   {selectedAgent ? availableAgents.find(a => a.id === selectedAgent)?.name : "Agents"}
-                </span>
+                      </span>
                 <ChevronDown className={`w-2.5 h-2.5 transition-transform ${showAgentMode ? 'rotate-180' : ''}`} />
-              </button>
+                    </button>
 
               {/* Agent Mode Menu - Keep existing */}
-            </div>
-          </div>
+                  </div>
+                  </div>
 
           {/* Right Controls */}
           <div className="flex items-center gap-1.5">
             {/* Prompt Improver */}
-            <button
-              onClick={async () => {
-                if (!input.trim()) {
-                  toast.error("Please enter a prompt first");
-                  return;
-                }
-                toast.info("Improving your prompt...");
-                setTimeout(() => {
-                  const improvedPrompt = `Enhanced: ${input}`;
-                  setInput(improvedPrompt);
-                  toast.success("Prompt improved!");
-                }, 1500);
-              }}
+                  <button
+                    onClick={async () => {
+                      if (!input.trim()) {
+                        toast.error("Please enter a prompt first");
+                        return;
+                      }
+                      toast.info("Improving your prompt...");
+                      setTimeout(() => {
+                        const improvedPrompt = `Enhanced: ${input}`;
+                        setInput(improvedPrompt);
+                        toast.success("Prompt improved!");
+                      }, 1500);
+                    }}
               className="w-7 h-7 flex items-center justify-center rounded-md  text-white shadow-sm hover:scale-105 transition-all"
-              title="Improve prompt with AI"
-            >
+                    title="Improve prompt with AI"
+                  >
               <Sparkles className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        </div>
-      </div>
+                  </button>
+                  </div>
+                  </div>
 
-      {/* Helper Text - Shows only when there are messages */}
-      {hasMessages && (
-        <p className="text-xs text-gray-500 mt-1 text-center">
-          Enter to send • Shift+Enter for new line
-        </p>
-      )}
+        {/* Helper Text - Shows only when there are messages */}
+        {hasMessages && (
+          <motion.p
+            initial={{ opacity: 0, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+            className="text-xs text-gray-500 mt-1 text-center"
+          >
+            Enter to send • Shift+Enter for new line
+          </motion.p>
+        )}
+              </motion.div>
+            </motion.div>
+          </motion.div>
+          </motion.div>
+            </motion.div>
+      </div>
     </div>
-  </div>
-</div>
-</div></div>
   );
 };
 
