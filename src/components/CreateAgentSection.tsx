@@ -560,202 +560,68 @@ const CreateAgentSection = () => {
                 >
                   Contact Sales
                 </Button>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="border-2 border-foreground/20 hover:bg-secondary/50 font-semibold px-8 py-6 text-base rounded-xl bg-background"
-                >
-                  <Play className="w-5 h-5 mr-2" fill="currentColor" />
-                  Watch video
-                </Button>
+                
               </div>
             </div>
 
             {/* Right Side - Mobile Interface Demo */}
             <div className="relative">
-              {/* Large Light Green Background Container with Flowing Smooth Color Border */}
-              <div className="relative rounded-3xl p-1 overflow-hidden shadow-2xl" style={{ borderRadius: '24px' }}>
-                {/* Flowing Smooth Rainbow Gradient Border - Outer */}
-                <motion.div
-                  className="absolute inset-0 rounded-3xl pointer-events-none"
-                  style={{
-                    padding: '3px',
-                    background: 'linear-gradient(135deg, #22C55E, #10B981, #34D399, #3B82F6, #7C3AED, #EC4899, #F59E0B, #22C55E)',
-                    backgroundSize: '300% 300%',
-                    WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                    WebkitMaskComposite: 'xor',
-                    maskComposite: 'exclude',
-                  }}
-                  animate={{
-                    backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
-                  }}
-                  transition={{
-                    duration: 5,
-                    repeat: Infinity,
-                    ease: 'linear',
-                  }}
-                />
-                {/* Secondary Flowing Border Layer for Extra Smoothness */}
-                <motion.div
-                  className="absolute inset-0 rounded-3xl pointer-events-none"
-                  style={{
-                    padding: '2px',
-                    background: 'linear-gradient(225deg, #EC4899, #7C3AED, #3B82F6, #22D3EE, #10B981, #22C55E, #F59E0B, #EC4899)',
-                    backgroundSize: '300% 300%',
-                    WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                    WebkitMaskComposite: 'xor',
-                    maskComposite: 'exclude',
-                    opacity: 0.7,
-                  }}
-                  animate={{
-                    backgroundPosition: ['100% 100%', '0% 0%', '100% 100%'],
-                  }}
-                  transition={{
-                    duration: 6,
-                    repeat: Infinity,
-                    ease: 'linear',
-                  }}
-                />
-                {/* Inner Background - Theme Aware */}
-                <div className="absolute inset-[3px] rounded-3xl bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-100 dark:to-emerald-100" style={{ borderRadius: '21px' }} />
-                {/* Mobile Chat Interface with Flowing Smooth Color Border */}
-                <div className="relative rounded-2xl p-6 overflow-hidden shadow-xl" style={{ borderRadius: '16px' }}>
-                  {/* Flowing Smooth Rainbow Gradient Border - Inner */}
-                  <motion.div
-                    className="absolute inset-0 rounded-2xl pointer-events-none"
-                    style={{
-                      padding: '3px',
-                      background: 'linear-gradient(135deg, #7C3AED, #3B82F6, #22D3EE, #10B981, #F59E0B, #EC4899, #7C3AED)',
-                      backgroundSize: '300% 300%',
-                      WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                      WebkitMaskComposite: 'xor',
-                      maskComposite: 'exclude',
-                    }}
-                    animate={{
-                      backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
-                    }}
-                    transition={{
-                      duration: 4,
-                      repeat: Infinity,
-                      ease: 'linear',
-                    }}
-                  />
-                  {/* Secondary Flowing Border Layer for Extra Smoothness */}
-                  <motion.div
-                    className="absolute inset-0 rounded-2xl pointer-events-none"
-                    style={{
-                      padding: '2px',
-                      background: 'linear-gradient(225deg, #EC4899, #F59E0B, #10B981, #22D3EE, #3B82F6, #7C3AED, #EC4899)',
-                      backgroundSize: '300% 300%',
-                      WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                      WebkitMaskComposite: 'xor',
-                      maskComposite: 'exclude',
-                      opacity: 0.6,
-                    }}
-                    animate={{
-                      backgroundPosition: ['100% 100%', '0% 0%', '100% 100%'],
-                    }}
-                    transition={{
-                      duration: 5,
-                      repeat: Infinity,
-                      ease: 'linear',
-                    }}
-                  />
-                  {/* Inner Background - Theme Aware */}
-                  <div className="absolute inset-[3px] rounded-xl bg-gray-900 dark:bg-gray-800" style={{ borderRadius: '13px' }} />
-                  <div className="relative z-10">
-                  {/* AI Agent Header */}
-                  <div className="flex items-center justify-between mb-4 pb-3 ">
-                    <div className="flex items-center gap-2">
-                      <Brain className="w-5 h-5 text-gray-200" />
-                      <span className="font-semibold text-gray-100">AI agent</span>
-                    </div>
-                  </div>
+  {/* Large Light Green Background Container with Rich Animated Border */}
+  <div className="relative rounded-3xl p-4 sm:p-2 overflow-hidden shadow-2xl" style={{ borderRadius: '24px' }}>
+    
+    {/* Rich Animated Gradient Border (Outer) */}
+    <motion.div
+      className="absolute inset-0 rounded-3xl pointer-events-none"
+      style={{
+        padding: '2px',
+        background: 'linear-gradient(135deg, #22C55E, #10B981, #34D399, #6EE7B7, #22C55E)',
+        backgroundSize: '200% 200%',
+        WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+        WebkitMaskComposite: 'xor',
+        maskComposite: 'exclude',
+      }}
+      animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
+      transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
+    />
 
-                  {/* Chain of Thought Overlay - Top Right */}
-                  <div className="absolute top-12 right-4 bg-white rounded-xl p-4  shadow-2xl z-20 max-w-[280px]">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Brain className="w-4 h-4 text-gray-700" />
-                      <span className="text-sm font-bold text-gray-900">AI agent chain of thought</span>
-                    </div>
-                    <div className="space-y-2">
-                      {[
-                        "Search knowledge",
-                        "Retrieve order details",
-                        "Verify order is eligible for return",
-                        "Verify item selection for return",
-                      ].map((step, index) => (
-                        <div key={index} className="flex items-center gap-2 text-xs text-gray-700">
-                          <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
-                          <span>{step}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+    {/* Inner Mint Background Fill */}
+    <div className="absolute inset-[2px] rounded-3xl bg-gradient-to-br from-green-100 to-emerald-100" style={{ borderRadius: '22px' }} />
 
-                  {/* Chat Messages */}
-                  <div className="space-y-4 mt-8 relative z-10">
-                    {/* AI Agent Message */}
-                    <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center flex-shrink-0 border-2 border-gray-500">
-                        <Bot className="w-4 h-4 text-gray-100" />
-                      </div>
-                      <div className="flex-1 bg-gray-700/90 rounded-lg p-3 border border-gray-600">
-                        <p className="text-sm text-gray-100 font-medium">I'd like to help you with your return. Which items would you like to return?</p>
-                      </div>
-                    </div>
+    {/* Video Container with Inner Animated Border */}
+    <div className="relative rounded-2xl overflow-hidden shadow-xl aspect-[21/9] sm:aspect-[1.5/1] flex flex-col bg-gray-900" style={{ borderRadius: '16px' }}>
+      
+      {/* THE VIDEO: Set to 100% clarity and covers the entire area */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover z-0 opacity-100"
+      >
+        <source src="../../public/feeds/AEKO_video.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
 
-                    {/* User Message */}
-                    <div className="flex items-start gap-3 justify-end">
-                      <div className="flex-1 bg-gray-600/90 rounded-lg p-3 border border-gray-500 max-w-[80%]">
-                        <p className="text-sm text-gray-100 font-medium">Hey Angela, which items would you like to return?</p>
-                      </div>
-                      <div className="w-8 h-8 rounded-full bg-gray-500 flex items-center justify-center flex-shrink-0 text-gray-100 text-xs font-semibold border-2 border-gray-400">
-                        A
-                      </div>
-                    </div>
-
-                    {/* Product Selection Cards */}
-                    <div className="grid grid-cols-3 gap-2 mt-4">
-                      {[
-                        { name: "Snail Mucin Serum" },
-                        { name: "Saddle Tan Wallet" },
-                        { name: "French Soap Set" },
-                      ].map((product, index) => (
-                        <div
-                          key={index}
-                          className="bg-gray-700/90 rounded-lg p-2 border-2 border-gray-600 hover:border-gray-500 transition-all cursor-pointer shadow-sm"
-                        >
-                          <div className="w-full h-16 bg-gray-600 rounded mb-2 flex items-center justify-center border border-gray-500">
-                            <span className="text-xs text-gray-300">Image</span>
-                          </div>
-                          <p className="text-xs text-gray-100 font-medium mb-1 truncate">{product.name}</p>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="w-full text-xs h-6 border-gray-500 text-gray-100 hover:bg-gray-600 bg-gray-800"
-                          >
-                            Select
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Large Play Button Overlay - Centered with Clear Background */}
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/10 rounded-2xl z-30 pointer-events-none">
-                    <motion.div
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="w-20 h-20 rounded-full bg-black/90 backdrop-blur-sm border-2 border-gray-300 flex items-center justify-center cursor-pointer shadow-2xl pointer-events-auto"
-                    >
-                      <Play className="w-10 h-10 text-white ml-1" fill="currentColor" />
-                    </motion.div>
-                  </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+      {/* Inner Animated Border (Slate/Grey) for the "Phone" look */}
+      <motion.div
+        className="absolute inset-0 rounded-2xl pointer-events-none z-10"
+        style={{
+          padding: '2px',
+          background: 'linear-gradient(135deg, #4B5563, #6B7280, #9CA3AF, #6B7280, #4B5563)',
+          backgroundSize: '200% 200%',
+          WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+          WebkitMaskComposite: 'xor',
+          maskComposite: 'exclude',
+        }}
+        animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
+        transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
+      />
+      
+      {/* Optional: A very subtle vignette to keep the edges clean */}
+      <div className="absolute inset-0 pointer-events-none z-20 shadow-[inset_0_0_100px_rgba(0,0,0,0.2)]" />
+    </div>
+  </div>
+</div>
           </div>
         </motion.div>
 
