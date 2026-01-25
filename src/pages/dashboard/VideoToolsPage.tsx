@@ -68,7 +68,7 @@ const VideoToolsPage = () => {
   return (
     <div className="flex flex-col h-full w-full overflow-hidden bg-background">
       {/* Mode Switcher - Top */}
-      <div className="flex-shrink-0 border-b-2 border-purple-500/30 bg-secondary/20 px-3 sm:px-4 py-2 sm:py-3">
+      <div className="flex-shrink-0 border-b-2 border-border bg-secondary/20 px-3 sm:px-4 py-2 sm:py-3">
         <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
           {videoModes.map((mode) => {
             const Icon = mode.icon;
@@ -96,10 +96,10 @@ const VideoToolsPage = () => {
       {/* Full Frame Layout */}
       <div className="flex flex-1 h-full w-full min-w-0 gap-1 sm:gap-2 overflow-hidden">
         {/* LEFT: Input Section */}
-        <div className="flex flex-col w-full lg:w-[52%] min-w-0 border-r-2 border-purple-500/30 bg-secondary/10 overflow-y-auto scrollbar-hide">
-          <div className="p-3 sm:p-4 space-y-3 sm:space-y-4 min-h-full border-2 border-purple-500/20 rounded-lg m-2 sm:m-3">
+        <div className="flex flex-col w-full lg:w-[52%] min-w-0 border-r-2 border-border bg-secondary/10 overflow-y-auto scrollbar-hide">
+          <div className="p-3 sm:p-4 space-y-3 sm:space-y-4 min-h-full border-2 border-border rounded-lg m-2 sm:m-3">
             {/* Title and Model Selector */}
-            <div className="flex items-center justify-between pb-2 border-b border-purple-500/20">
+            <div className="flex items-center justify-between pb-2 border-b border-border">
               <h2 className="text-xl sm:text-2xl font-bold text-foreground">Input</h2>
               
               {/* Model Dropdown */}
@@ -135,7 +135,7 @@ const VideoToolsPage = () => {
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      className="relative flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-gradient-to-r from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30 border-2 border-purple-500/50 hover:border-purple-400 text-foreground text-xs sm:text-sm font-medium transition-all shadow-lg"
+                      className="relative flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-primary/20 hover:bg-primary/30 border-2 border-primary/50 hover:border-primary text-foreground text-xs sm:text-sm font-medium transition-all shadow-lg"
                     >
                       {(() => {
                         const ModelIcon = selectedModel.icon;
@@ -268,7 +268,7 @@ const VideoToolsPage = () => {
             <Button
               onClick={handleGenerate}
               disabled={isLoading || !prompt.trim()}
-              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold py-3 sm:py-4 text-sm sm:text-base"
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 sm:py-4 text-sm sm:text-base"
             >
               {isLoading ? (
                 <>
@@ -286,10 +286,10 @@ const VideoToolsPage = () => {
         </div>
 
         {/* RIGHT: Output Section */}
-        <div className="flex flex-col w-full lg:w-[48%] min-w-0 border-l-2 border-purple-500/30 bg-secondary/5 overflow-y-auto scrollbar-hide">
-          <div className="p-3 sm:p-4 space-y-3 sm:space-y-4 h-full flex flex-col min-h-0 border-2 border-purple-500/20 rounded-lg m-2 sm:m-3">
+        <div className="flex flex-col w-full lg:w-[48%] min-w-0 border-l-2 border-border bg-secondary/5 overflow-y-auto scrollbar-hide">
+          <div className="p-3 sm:p-4 space-y-3 sm:space-y-4 h-full flex flex-col min-h-0 border-2 border-border rounded-lg m-2 sm:m-3">
             {/* Title and View Options */}
-            <div className="flex items-center justify-between pb-2 border-b border-purple-500/20">
+            <div className="flex items-center justify-between pb-2 border-b border-border">
               <h2 className="text-xl sm:text-2xl font-bold text-foreground">Output</h2>
               <div className="flex gap-2">
                 {/* Download Icon */}

@@ -43,12 +43,12 @@ interface ChatMessage {
 }
 
 const tools = [
-  { id: "image", label: "Image", icon: ImageIcon, color: "from-purple-500 to-purple-600" },
+  { id: "image", label: "Image", icon: ImageIcon, color: "from-primary to-primary/80" },
   { id: "video", label: "Video", icon: Video, color: "from-blue-500 to-blue-600" },
   { id: "blueprints", label: "Blueprints", icon: LayoutGrid, color: "from-green-500 to-green-600", isNew: true },
   { id: "flow-state", label: "Flow State", icon: InfinityIcon, color: "from-orange-500 to-orange-600" },
   { id: "upscaler", label: "Upscaler", icon: Maximize2, color: "from-pink-500 to-pink-600" },
-  { id: "canvas", label: "Canvas", icon: Square, color: "from-purple-500 to-purple-600" },
+  { id: "canvas", label: "Canvas", icon: Square, color: "from-primary to-primary/80" },
   { id: "draw", label: "Draw", icon: PenTool, color: "from-orange-500 to-orange-600" },
 ];
 
@@ -301,7 +301,7 @@ const AgentLLMPage = () => {
           >
             <div className="max-w-4xl mx-auto flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
                   <Sparkles className="w-5 h-5 text-white" />
                 </div>
                 <div>
@@ -370,7 +370,7 @@ const AgentLLMPage = () => {
                           onClick={() => setSelectedContentType(type.id)}
                           className={`flex items-center gap-2 px-4 py-2.5 rounded-full transition-all ${
                             isSelected
-                              ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg'
+                              ? 'bg-primary text-primary-foreground shadow-lg'
                               : 'bg-white/10 backdrop-blur-md hover:bg-white/20 text-gray-200 border border-white/20'
                           }`}
                         >
@@ -401,7 +401,7 @@ const AgentLLMPage = () => {
                     {/* Assistant Avatar */}
                     {message.role === "assistant" && (
                       <div className="flex-shrink-0">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
                           <Bot className="w-4 h-4 text-white" />
                         </div>
                       </div>
@@ -427,7 +427,7 @@ const AgentLLMPage = () => {
                       <div
                         className={`rounded-2xl px-4 py-3 ${
                           message.role === "user"
-                            ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg"
+                            ? "bg-primary text-primary-foreground shadow-lg"
                             : "bg-white/10 backdrop-blur-md text-gray-100 border border-white/20 shadow-lg"
                         }`}
                       >
@@ -483,7 +483,7 @@ const AgentLLMPage = () => {
                     className="flex gap-3"
                   >
                     <div className="flex-shrink-0">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
                         <Bot className="w-4 h-4 text-white" />
                       </div>
                     </div>
@@ -589,7 +589,7 @@ const AgentLLMPage = () => {
         />
 
         {/* Agent Mood Selector - Right side */}
-        <div className="absolute right-12 top-2 flex items-center gap-2">
+        {/* <div className="absolute right-12 top-2 flex items-center gap-2">
           <select
             value={agentMood}
             onChange={(e) => setAgentMood(e.target.value)}
@@ -602,7 +602,7 @@ const AgentLLMPage = () => {
               </option>
             ))}
           </select>
-        </div>
+        </div> */}
 
         {/* Send Button - Right Arrow Icon */}
         <div className="absolute right-2 top-2">
@@ -611,7 +611,7 @@ const AgentLLMPage = () => {
                 disabled={!input.trim() || isLoading}
             className={`w-8 h-8 flex items-center justify-center rounded-lg transition-all ${
                         input.trim() && !isLoading
-                ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-md hover:scale-105'
+                ? 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:scale-105'
                 : 'bg-white/10 text-gray-500 cursor-not-allowed'
                       }`}
                 title="Send"
@@ -645,7 +645,7 @@ const AgentLLMPage = () => {
             {/* Custom Agent - Highlighted + Icon */}
                   <div className="relative">
                     <button
-                className="w-8 h-8 flex items-center justify-center rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg hover:scale-110 transition-all"
+                className="w-8 h-8 flex items-center justify-center rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:scale-110 transition-all"
                       onClick={() => setShowCustomAgentMenu(!showCustomAgentMenu)}
                 title="Create custom agent"
                     >
@@ -680,7 +680,7 @@ const AgentLLMPage = () => {
                                 onChange={(e) => setAgentPrompt(e.target.value)}
                                 placeholder="Write prompt or paste URL"
                                 rows={3}
-                                className="w-full px-3 py-2 rounded-lg border border-gray-700 bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 text-sm text-white placeholder:text-gray-500 resize-none"
+                                className="w-full px-3 py-2 rounded-lg border border-border bg-card/50 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary text-sm text-foreground placeholder:text-muted-foreground resize-none"
                               />
                             </div>
 
@@ -694,7 +694,7 @@ const AgentLLMPage = () => {
                               onClick={() => setSelectedPromptingOption(option.id === selectedPromptingOption ? null : option.id)}
                               className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
                                 selectedPromptingOption === option.id
-                                  ? 'bg-purple-600 text-white border border-purple-500'
+                                  ? 'bg-primary text-primary-foreground border border-primary'
                                   : 'bg-gray-800/50 text-gray-300 border border-gray-700 hover:bg-gray-800 hover:border-gray-600'
                               }`}
                             >
@@ -710,7 +710,7 @@ const AgentLLMPage = () => {
                               <select
                                 value={agentType}
                                 onChange={(e) => setAgentType(e.target.value)}
-                                className="w-full px-3 py-2 rounded-lg border border-gray-700 bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 text-sm text-white"
+                                className="w-full px-3 py-2 rounded-lg border border-border bg-card/50 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary text-sm text-foreground"
                               >
                                 {agentTypes.map((type) => (
                                   <option key={type.id} value={type.id} className="bg-gray-800">
@@ -743,7 +743,7 @@ const AgentLLMPage = () => {
                                     toast.error("Please enter a prompt or URL");
                                   }
                                 }}
-                                className="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700 text-white text-sm font-medium shadow-md transition-all"
+                                className="flex-1 px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-medium shadow-md transition-all"
                               >
                                 Create
                               </button>

@@ -82,13 +82,13 @@ const AuthSignIn = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-[#0a0a1a]">
+    <div className="min-h-screen flex bg-background">
       {/* Left Panel - Login/Signup UI */}
-      <div className="w-full lg:w-[480px] bg-gradient-to-br from-[#12162A] via-[#1a1f3a] to-[#12162A] flex flex-col p-8 lg:p-8 relative z-10 overflow-hidden">
+      <div className="w-full lg:w-[480px] bg-card flex flex-col p-8 lg:p-8 relative z-10 overflow-hidden">
         {/* Animated Background Glow Effects */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <motion.div
-            className="absolute -top-20 -left-20 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"
+            className="absolute -top-20 -left-20 w-96 h-96 bg-primary/10 rounded-full blur-3xl"
             animate={{
               x: [0, 50, 0],
               y: [0, 30, 0],
@@ -101,7 +101,7 @@ const AuthSignIn = () => {
             }}
           />
           <motion.div
-            className="absolute -bottom-20 -right-20 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl"
+            className="absolute -bottom-20 -right-20 w-96 h-96 bg-primary/10 rounded-full blur-3xl"
             animate={{
               x: [0, -50, 0],
               y: [0, -30, 0],
@@ -293,7 +293,7 @@ const AuthSignIn = () => {
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               onSubmit={handleSubmit}
-              className="mt-4 space-y-4 p-6 bg-gradient-to-br from-[#1a1f3a]/90 via-[#252a4a]/90 to-[#1a1f3a]/90 rounded-xl border-2 border-purple-500/30 shadow-xl shadow-purple-500/10 backdrop-blur-sm"
+              className="mt-4 space-y-4 p-6 bg-card/90 rounded-xl border-2 border-border shadow-xl backdrop-blur-sm"
             >
               <div>
                 <Input
@@ -301,7 +301,7 @@ const AuthSignIn = () => {
                   placeholder="Email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="h-12 bg-[#0f1320]/80 border-2 border-purple-500/30 focus:border-purple-500/60 text-white placeholder:text-gray-400 rounded-lg transition-all duration-300 focus:ring-2 focus:ring-purple-500/20"
+                  className="h-12 bg-card/80 border-2 border-border focus:border-primary text-foreground placeholder:text-muted-foreground rounded-lg transition-all duration-300 focus:ring-2 focus:ring-primary/20"
                 />
               </div>
               <div>
@@ -310,7 +310,7 @@ const AuthSignIn = () => {
                   placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="h-12 bg-[#0f1320]/80 border-2 border-purple-500/30 focus:border-purple-500/60 text-white placeholder:text-gray-400 rounded-lg transition-all duration-300 focus:ring-2 focus:ring-purple-500/20"
+                  className="h-12 bg-card/80 border-2 border-border focus:border-primary text-foreground placeholder:text-muted-foreground rounded-lg transition-all duration-300 focus:ring-2 focus:ring-primary/20"
                 />
               </div>
               <div className="flex gap-2">
@@ -318,10 +318,10 @@ const AuthSignIn = () => {
                   type="button"
                   variant="outline"
                   onClick={() => setIsSignUp(false)}
-                  className={`flex-1 h-11 border-2 text-white font-semibold rounded-lg transition-all duration-300 ${
+                  className={`flex-1 h-11 border-2 text-foreground font-semibold rounded-lg transition-all duration-300 ${
                     !isSignUp 
-                      ? "bg-gradient-to-r from-purple-500/30 to-pink-500/30 border-purple-500/60 shadow-lg shadow-purple-500/20" 
-                      : "bg-[#0f1320]/60 border-purple-500/20 hover:border-purple-500/40"
+                      ? "bg-primary/30 border-primary shadow-lg shadow-primary/20" 
+                      : "bg-card/60 border-border hover:border-primary/40"
                   }`}
                 >
                   Sign In
@@ -330,10 +330,10 @@ const AuthSignIn = () => {
                   type="button"
                   variant="outline"
                   onClick={() => setIsSignUp(true)}
-                  className={`flex-1 h-11 border-2 text-white font-semibold rounded-lg transition-all duration-300 ${
+                  className={`flex-1 h-11 border-2 text-foreground font-semibold rounded-lg transition-all duration-300 ${
                     isSignUp 
-                      ? "bg-gradient-to-r from-purple-500/30 to-pink-500/30 border-purple-500/60 shadow-lg shadow-purple-500/20" 
-                      : "bg-[#0f1320]/60 border-purple-500/20 hover:border-purple-500/40"
+                      ? "bg-primary/30 border-primary shadow-lg shadow-primary/20" 
+                      : "bg-card/60 border-border hover:border-primary/40"
                   }`}
                 >
                   Sign Up
@@ -342,7 +342,7 @@ const AuthSignIn = () => {
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Button
                   type="submit"
-                  className="w-full h-12 bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 hover:from-purple-600 hover:via-pink-600 hover:to-purple-600 text-white font-bold text-base rounded-lg shadow-lg shadow-purple-500/40 hover:shadow-purple-500/60 transition-all duration-300 relative overflow-hidden group"
+                  className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-base rounded-lg shadow-lg shadow-primary/40 hover:shadow-primary/60 transition-all duration-300 relative overflow-hidden group"
                 >
                   <motion.div
                     className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
@@ -364,12 +364,12 @@ const AuthSignIn = () => {
 
           {/* Need help link */}
           <div className="pt-4">
-            <Link to="#" className="text-sm font-medium bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent hover:from-purple-300 hover:to-pink-300 transition-all duration-300 inline-flex items-center gap-1 group">
+            <Link to="#" className="text-sm font-medium text-primary hover:text-primary/80 transition-all duration-300 inline-flex items-center gap-1 group">
               Need help?
               <motion.span
                 animate={{ x: [0, 4, 0] }}
                 transition={{ duration: 1.5, repeat: Infinity }}
-                className="text-purple-400"
+                className="text-primary"
               >
                 →
               </motion.span>
@@ -384,12 +384,12 @@ const AuthSignIn = () => {
           transition={{ duration: 0.5, delay: 0.4 }}
           className="mt-auto pt-8"
         >
-          <p className="text-white text-sm mb-4 font-medium">Available now on iOS and Android</p>
+          <p className="text-foreground text-sm mb-4 font-medium">Available now on iOS and Android</p>
           <div className="flex gap-3">
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex-1">
               <Button
                 variant="outline"
-                className="w-full h-12 bg-gradient-to-r from-purple-600/30 via-violet-500/30 to-purple-600/30 border-2 border-purple-500/60 hover:border-purple-400 hover:from-purple-600/40 hover:via-violet-500/40 hover:to-purple-600/40 text-white rounded-xl shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-all duration-300"
+                className="w-full h-12 bg-primary/30 border-2 border-primary/60 hover:border-primary hover:bg-primary/40 text-primary-foreground rounded-xl shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300"
                 onClick={() => toast.info("App Store link coming soon")}
               >
                 <Apple className="w-5 h-5 mr-2" />
@@ -399,7 +399,7 @@ const AuthSignIn = () => {
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex-1">
               <Button
                 variant="outline"
-                className="w-full h-12 bg-gradient-to-r from-purple-600/30 via-pink-500/30 to-purple-600/30 border-2 border-purple-500/60 hover:border-purple-400 hover:from-purple-600/40 hover:via-pink-500/40 hover:to-purple-600/40 text-white rounded-xl shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-all duration-300"
+                className="w-full h-12 bg-primary/30 border-2 border-primary/60 hover:border-primary hover:bg-primary/40 text-primary-foreground rounded-xl shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300"
                 onClick={() => toast.info("Google Play link coming soon")}
               >
                 <Chrome className="w-5 h-5 mr-2" />
@@ -412,10 +412,10 @@ const AuthSignIn = () => {
       </div>
 
      {/* Right Panel - Sky Video Background with Chat */}
-<div className="hidden lg:flex flex-1 items-center justify-center bg-[#0a0a1a] p-6 pt-2 relative overflow-hidden">
+<div className="hidden lg:flex flex-1 items-center justify-center bg-background p-6 pt-2 relative overflow-hidden">
   
   {/* Adjusted background glow - moved higher (top-1/3) to follow the video */}
-  <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[600px] bg-purple-600/10 rounded-full blur-[140px] pointer-events-none" />
+  <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[600px] bg-primary/10 rounded-full blur-[140px] pointer-events-none" />
 
   <motion.div 
     className="relative w-full max-w-5xl -mt-20" // Negative margin pulls the video up

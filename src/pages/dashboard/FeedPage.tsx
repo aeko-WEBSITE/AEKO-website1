@@ -428,7 +428,7 @@ const FeedPage = () => {
   const videoItems = items.filter((item) => item.type === "video");
 
   return (
-    <div className="min-h-screen bg-background dark:bg-gradient-to-br dark:from-[#0a0a0f] dark:via-[#0f0f1a] dark:to-[#050508]">
+    <div className="min-h-screen bg-background">
       {/* Professional Header */}
       <header className="sticky top-0 z-30 backdrop-blur-2xl bg-white/80 dark:bg-black/40 border-b border-border dark:border-white/10 -mx-2 lg:-mx-4 px-4 lg:px-6 py-3 shadow-lg">
         <div className="flex items-center justify-between gap-4">
@@ -436,9 +436,9 @@ const FeedPage = () => {
           <div className="flex items-center gap-4">
             <motion.div
               whileHover={{ scale: 1.1, rotate: 15 }}
-              className="p-2 rounded-lg bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30"
+              className="p-2 rounded-lg bg-primary/20 border border-primary/30"
             >
-              <Compass className="w-5 h-5 text-purple-400" />
+              <Compass className="w-5 h-5 text-primary" />
             </motion.div>
             
             {/* Sort Options - Professional Consistent Styling */}
@@ -476,7 +476,7 @@ const FeedPage = () => {
                   onClick={() => setActiveFilter(filter.id)}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                       activeFilter === filter.id
-                        ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md shadow-purple-500/20"
+                        ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
                         : "text-muted-foreground hover:text-foreground hover:bg-accent/50 dark:text-white/60 dark:hover:text-white dark:hover:bg-white/5 border border-transparent"
                     }`}
                   whileHover={{ scale: 1.05 }}
@@ -506,10 +506,10 @@ const FeedPage = () => {
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-4">
                 <motion.div
-                  className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 border-2 border-purple-500/30 flex items-center justify-center shadow-lg"
+                  className="w-14 h-14 rounded-2xl bg-primary/20 border-2 border-primary/30 flex items-center justify-center shadow-lg"
                   whileHover={{ scale: 1.1, rotate: 5 }}
                 >
-                  <Bot className="w-7 h-7 text-purple-400" />
+                  <Bot className="w-7 h-7 text-primary" />
                 </motion.div>
                 <div>
                   <h2 className="text-lg md:text-xl font-bold text-foreground mb-0.5">Explore Agents</h2>
@@ -518,7 +518,7 @@ const FeedPage = () => {
               </div>
               <motion.button
                 onClick={() => navigate("/dashboard/agent-store")}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-medium hover:from-purple-600 hover:to-pink-600 transition-all shadow-md shadow-purple-500/20"
+                className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-all shadow-md shadow-primary/20"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -540,20 +540,20 @@ const FeedPage = () => {
                   onClick={() => navigate("/dashboard/agent-store")}
                 >
                   {/* Card with Glass Morphism */}
-                  <div className="relative rounded-2xl p-4 backdrop-blur-xl bg-card dark:bg-white/5 border-2 border-border dark:border-white/10 hover:border-purple-500/50 transition-all duration-300 shadow-lg hover:shadow-2xl hover:shadow-purple-500/20 overflow-hidden">
+                  <div className="relative rounded-2xl p-4 backdrop-blur-xl bg-card border-2 border-border hover:border-primary/50 transition-all duration-300 shadow-lg hover:shadow-2xl hover:shadow-primary/20 overflow-hidden">
                     {/* Gradient Overlay on Hover */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     
                     {/* Agent Icon */}
                     <div className="relative mb-3">
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500/30 to-pink-500/30 border-2 border-purple-500/40 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                        <Bot className="w-6 h-6 text-purple-300" />
+                      <div className="w-12 h-12 rounded-xl bg-primary/30 border-2 border-primary/40 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                        <Bot className="w-6 h-6 text-primary" />
                       </div>
                     </div>
                     
                     {/* Agent Info */}
                     <div className="relative z-10">
-                      <h3 className="text-sm font-bold text-foreground dark:text-white mb-2 line-clamp-1 group-hover:text-purple-600 dark:group-hover:text-purple-300 transition-colors">
+                      <h3 className="text-sm font-bold text-foreground mb-2 line-clamp-1 group-hover:text-primary transition-colors">
                         {agent.name}
                       </h3>
                       <p className="text-xs text-muted-foreground dark:text-white/60 line-clamp-2 mb-3 leading-relaxed">
@@ -613,7 +613,7 @@ const FeedPage = () => {
               const Icon = category.icon;
               const colors = [
                 { from: "from-blue-500", to: "to-cyan-500" },
-                { from: "from-purple-500", to: "to-pink-500" },
+                { from: "from-primary", to: "to-primary/80" },
                 { from: "from-green-500", to: "to-emerald-500" },
                 { from: "from-orange-500", to: "to-red-500" },
               ];

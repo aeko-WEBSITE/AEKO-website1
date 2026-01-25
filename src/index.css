@@ -95,91 +95,91 @@
   }
 
   .dark {
-    /* 🌙 BASE DARK THEME COLORS */
-    /* Primary Background: #020617 */
-    --background: 220 85% 5%;
+    /* 🌙 BASE DARK THEME COLORS - Pure Black */
+    /* Primary Background: Pure Black */
+    --background: 0 0% 0%;
     /* Primary Text: #F8FAFC */
     --foreground: 210 20% 98%;
 
-    /* Secondary Background: #0F172A */
-    --card: 222 47% 11%;
+    /* Secondary Background: Very Dark Gray (slightly lighter than black for cards) */
+    --card: 0 0% 8%;
     --card-foreground: 210 20% 98%;
 
-    /* Elevated / Hover Surface: #111827 */
-    --popover: 222 30% 9%;
+    /* Elevated / Hover Surface: Dark Gray */
+    --popover: 0 0% 12%;
     --popover-foreground: 210 20% 98%;
 
     /* Primary Button: Uses gradient (defined below) */
-    --primary: 240 100% 74%; /* Indigo #7C7CFF as base */
-    --primary-foreground: 220 85% 5%; /* Dark text on gradient button */
+    --primary: 239 84% 67%; /* Indigo #6366F1 as base - same as light mode */
+    --primary-foreground: 0 0% 100%; /* White text on primary button */
 
-    /* Secondary Button: #020617 */
-    --secondary: 220 85% 5%;
+    /* Secondary Button: Dark Gray */
+    --secondary: 0 0% 12%;
     --secondary-foreground: 210 20% 98%;
 
     /* Muted / Placeholder Text: #64748B */
     --muted: 215 16% 47%;
     --muted-foreground: 215 16% 47%;
 
-    /* Disabled Text: #475569 */
-    --accent: 215 20% 35%;
+    /* Disabled Text: Dark Gray */
+    --accent: 0 0% 20%;
     --accent-foreground: 210 20% 98%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Border / Divider: #1E293B */
-    --border: 215 28% 17%;
-    --input: 215 28% 17%;
-    /* Focus Ring: Sky Blue from gradient */
-    --ring: 199 89% 66%;
+    /* Border / Divider: Dark Gray */
+    --border: 0 0% 15%;
+    --input: 0 0% 15%;
+    /* Focus Ring: Primary color */
+    --ring: 239 84% 67%;
 
-    /* 🎨 GRADIENT COLOR STOPS */
+    /* 🎨 GRADIENT COLOR STOPS - Same as light mode for consistency */
     /* Hero Headline Highlight & Primary CTA Gradient */
-    /* Indigo #7C7CFF (0%) → Sky Blue #38BDF8 (20%) → Mint Green #34D399 (40%) → Soft Yellow #FDE047 (60%) → Warm Orange #FB923C (80%) → Pink #F472B6 (100%) */
+    /* Indigo #6366F1 (0%) → Sky Blue #0EA5E9 (20%) → Mint Green #22C55E (40%) → Soft Yellow #FACC15 (60%) → Warm Orange #FB923C (80%) → Pink #EC4899 (100%) */
     --gradient-primary: linear-gradient(135deg, 
-      #7C7CFF 0%, 
-      #38BDF8 20%, 
-      #34D399 40%, 
-      #FDE047 60%, 
+      #6366F1 0%, 
+      #0EA5E9 20%, 
+      #22C55E 40%, 
+      #FACC15 60%, 
       #FB923C 80%, 
-      #F472B6 100%
+      #EC4899 100%
     );
     /* AI "Thinking" / Processing Indicator Glow */
     --gradient-glow: linear-gradient(135deg, 
-      hsl(240 100% 74% / 0.3) 0%, 
-      hsl(199 89% 66% / 0.3) 20%, 
-      hsl(160 84% 39% / 0.3) 40%, 
+      hsl(239 84% 67% / 0.3) 0%, 
+      hsl(199 95% 48% / 0.3) 20%, 
+      hsl(142 76% 36% / 0.3) 40%, 
       hsl(54 96% 53% / 0.3) 60%, 
       hsl(25 95% 53% / 0.3) 80%, 
-      hsl(330 73% 70% / 0.3) 100%
+      hsl(330 73% 60% / 0.3) 100%
     );
-    /* Card Background Gradient */
+    /* Card Background Gradient - Black based */
     --gradient-card: linear-gradient(135deg, 
-      hsl(222 47% 11% / 0.95) 0%, 
-      hsl(220 85% 5% / 0.98) 100%
+      hsl(0 0% 8% / 0.95) 0%, 
+      hsl(0 0% 0% / 0.98) 100%
     );
-    /* Hero Background Gradients */
-    --gradient-hero: radial-gradient(ellipse at 50% 0%, hsl(240 100% 74% / 0.1) 0%, transparent 50%),
-                     radial-gradient(ellipse at 80% 50%, hsl(199 89% 66% / 0.08) 0%, transparent 40%),
-                     radial-gradient(ellipse at 20% 80%, hsl(160 84% 39% / 0.06) 0%, transparent 40%);
+    /* Hero Background Gradients - Subtle on black */
+    --gradient-hero: radial-gradient(ellipse at 50% 0%, hsl(239 84% 67% / 0.08) 0%, transparent 50%),
+                     radial-gradient(ellipse at 80% 50%, hsl(199 95% 48% / 0.06) 0%, transparent 40%),
+                     radial-gradient(ellipse at 20% 80%, hsl(142 76% 36% / 0.05) 0%, transparent 40%);
 
-    /* Glow Effects */
-    --shadow-glow: 0 0 24px hsl(240 100% 74% / 0.35), 0 0 40px hsl(199 89% 66% / 0.25);
-    --shadow-glow-accent: 0 0 30px hsl(199 89% 66% / 0.45), 0 0 50px hsl(240 100% 74% / 0.3);
-    --shadow-card: 0 4px 24px hsl(0 0% 0% / 0.4);
+    /* Glow Effects - Softer on black */
+    --shadow-glow: 0 0 24px hsl(239 84% 67% / 0.25), 0 0 40px hsl(199 95% 48% / 0.15);
+    --shadow-glow-accent: 0 0 30px hsl(199 95% 48% / 0.3), 0 0 50px hsl(239 84% 67% / 0.2);
+    --shadow-card: 0 4px 24px hsl(0 0% 0% / 0.6);
 
-    /* Sidebar for dark theme */
-    --sidebar-background: 220 85% 5%;
+    /* Sidebar for dark theme - Black */
+    --sidebar-background: 0 0% 0%;
     --sidebar-foreground: 210 20% 98%;
-    /* Active Navigation Indicator: Full Hero Gradient */
-    --sidebar-primary: 240 100% 74%; /* Base color, gradient applied via class */
+    /* Active Navigation Indicator: Primary color */
+    --sidebar-primary: 239 84% 67%; /* Base color, gradient applied via class */
     --sidebar-primary-foreground: 210 20% 98%;
-    --sidebar-accent: 215 28% 17%;
+    --sidebar-accent: 0 0% 12%;
     --sidebar-accent-foreground: 210 20% 98%;
-    --sidebar-border: 215 28% 17%;
-    /* Focus Ring: Sky Blue from gradient */
-    --sidebar-ring: 199 89% 66%;
+    --sidebar-border: 0 0% 15%;
+    /* Focus Ring: Primary color */
+    --sidebar-ring: 239 84% 67%;
   }
 }
 
@@ -230,28 +230,28 @@
     animation: gradient-shift 8s ease infinite;
   }
   
-  /* Primary CTA Button Gradient - Subtle Professional */
+  /* Primary CTA Button Gradient - Uses CSS Variables */
   .gradient-button {
-    background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
-    color: white;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.85) 100%);
+    color: hsl(var(--primary-foreground));
+    box-shadow: 0 4px 12px hsl(var(--primary) / 0.25);
   }
   
   .gradient-button:hover {
-    background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
-    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
+    background: linear-gradient(135deg, hsl(var(--primary) / 0.9) 0%, hsl(var(--primary) / 0.75) 100%);
+    box-shadow: 0 6px 20px hsl(var(--primary) / 0.35);
     transform: translateY(-1px);
   }
   
   /* Dark mode gradient button */
   .dark .gradient-button {
-    background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.85) 100%);
+    box-shadow: 0 4px 12px hsl(var(--primary) / 0.3);
   }
   
   .dark .gradient-button:hover {
-    background: linear-gradient(135deg, #818CF8 0%, #A78BFA 100%);
-    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+    background: linear-gradient(135deg, hsl(var(--primary) / 1.1) 0%, hsl(var(--primary) / 0.95) 100%);
+    box-shadow: 0 6px 20px hsl(var(--primary) / 0.4);
   }
   
   /* Active Navigation Indicator Gradient */

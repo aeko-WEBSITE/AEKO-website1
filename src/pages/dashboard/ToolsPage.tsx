@@ -23,7 +23,7 @@ import { moduleAPI } from "@/lib/api";
 
 const tools = [
   { id: "chat", label: "Chat Agent", icon: MessageSquare, color: "from-blue-500 to-cyan-500" },
-  { id: "text-to-image", label: "Text to Image", icon: Image, color: "from-purple-500 to-pink-500" },
+  { id: "text-to-image", label: "Text to Image", icon: Image, color: "from-primary to-primary/80" },
   { id: "image-to-image", label: "Image to Image", icon: ArrowLeftRight, color: "from-green-500 to-emerald-500" },
   { id: "text-to-video", label: "Text to Video", icon: Video, color: "from-orange-500 to-red-500" },
   { id: "video-to-video", label: "Video to Video", icon: Wand2, color: "from-yellow-500 to-orange-500" },

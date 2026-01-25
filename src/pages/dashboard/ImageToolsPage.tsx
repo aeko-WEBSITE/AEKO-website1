@@ -14,6 +14,9 @@ import {
   Edit2,
   X,
   Type,
+  Settings2,
+  ChevronDown,
+  Info,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,10 +27,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { moduleAPI } from "@/lib/api";
 import { toast } from "sonner";
-import { useTheme } from "@/hooks/use-theme";
-import { useEffect } from "react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 // Tool modes
 type ToolMode = "text2image" | "image2image" | "image-editing" | "bg-removal";
@@ -48,18 +55,6 @@ const imageModels = [
   { id: "dalle-3", name: "DALL-E 3", description: "OpenAI's latest model" },
 ];
 
-// Styles
-const styles = [
-  "Photorealistic",
-  "Digital Art",
-  "Anime",
-  "3D Render",
-  "Oil Painting",
-  "Watercolor",
-  "Sketch",
-  "Abstract",
-];
-
 // Aspect ratios
 const aspectRatios = [
   { value: "16:9", label: "16:9", width: 1024, height: 576 },
@@ -69,71 +64,20 @@ const aspectRatios = [
   { value: "3:4", label: "3:4", width: 768, height: 1024 },
 ];
 
-// Number of images
-const imageCounts = ["1", "2", "3", "4"];
-
 const ImageToolsPage = () => {
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
-  
   const [toolMode, setToolMode] = useState<ToolMode>("text2image");
   const [selectedModel, setSelectedModel] = useState("flux-2-dev");
   const [prompt, setPrompt] = useState("");
   const [negativePrompt, setNegativePrompt] = useState("");
-  const [style, setStyle] = useState("Photorealistic");
   const [aspectRatio, setAspectRatio] = useState("16:9");
-  const [numberOfImages, setNumberOfImages] = useState("1");
   const [isLoading, setIsLoading] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [uploadedImageFile, setUploadedImageFile] = useState<File | null>(null);
+  const [referenceImageUrl, setReferenceImageUrl] = useState("");
+  const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
+  const [strength, setStrength] = useState(0.7);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Add smooth scrolling styles
-  useEffect(() => {
-    const style = document.createElement("style");
-    style.textContent = `
-      .scroll-smooth {
-        -webkit-overflow-scrolling: touch;
-        scroll-behavior: smooth;
-      }
-      .scroll-smooth::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-      }
-      .scroll-smooth::-webkit-scrollbar-track {
-        background: transparent;
-      }
-      .scroll-smooth::-webkit-scrollbar-thumb {
-        background: ${isDark ? "rgba(111,108,255,0.3)" : "rgba(0,0,0,0.2)"};
-        border-radius: 4px;
-      }
-      .scroll-smooth::-webkit-scrollbar-thumb:hover {
-        background: ${isDark ? "rgba(111,108,255,0.5)" : "rgba(0,0,0,0.3)"};
-      }
-    `;
-    document.head.appendChild(style);
-    return () => {
-      document.head.removeChild(style);
-    };
-  }, [isDark]);
-
-  // Theme-aware colors - using black for light mode
-  const colors = {
-    bg: isDark ? "#000000" : "#FFFFFF",
-    bgSecondary: isDark ? "#000000" : "#FFFFFF",
-    bgCard: isDark ? "#000000" : "#000000",
-    bgCardHover: isDark ? "#181818" : "#1A1A1A", // darker hover for dark mode
-    border: isDark ? "rgba(111,108,255,0.18)" : "rgba(0,0,0,0.2)",
-    borderStrong: isDark ? "#222222" : "#000000",
-    text: isDark ? "#D7DBFF" : "#FFFFFF", // White text on black cards in light mode
-    textMuted: isDark ? "#A5ACD9" : "#CCCCCC", // Light gray on black
-    textSecondary: isDark ? "#7C83B8" : "#999999", // Medium gray on black
-    textOnLight: isDark ? "#D7DBFF" : "#000000", // For text on light backgrounds
-    primary: isDark ? "#6D5BFF" : "#FFFFFF", // White/light for light mode
-    primaryHover: isDark ? "#7B6CFF" : "#E0E0E0",
-    overlay: isDark ? "rgba(0,0,0,0.92)" : "rgba(0,0,0,0.8)",
-  };
 
   // Get dimensions from aspect ratio
   const getDimensions = () => {
@@ -158,35 +102,39 @@ const ImageToolsPage = () => {
     }
   };
 
-  // Convert base64 to File for API
-  const base64ToFile = (base64: string, filename: string): File => {
-    const arr = base64.split(",");
-    const mime = arr[0].match(/:(.*?);/)?.[1] || "image/png";
-    const bstr = atob(arr[1]);
-    let n = bstr.length;
-    const u8arr = new Uint8Array(n);
-    while (n--) {
-      u8arr[n] = bstr.charCodeAt(n);
+  // Handle URL input for reference image
+  const handleUrlImageLoad = async () => {
+    if (!referenceImageUrl.trim()) return;
+    
+    try {
+      const response = await fetch(referenceImageUrl);
+      if (!response.ok) throw new Error("Failed to load image");
+      const blob = await response.blob();
+      const file = new File([blob], "reference-image.jpg", { type: blob.type });
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setUploadedImage(reader.result as string);
+        setUploadedImageFile(file);
+      };
+      reader.readAsDataURL(file);
+      toast.success("Image loaded from URL");
+    } catch (error) {
+      toast.error("Failed to load image from URL");
     }
-    return new File([u8arr], filename, { type: mime });
   };
 
   // Helper function to extract image from response
   const extractImageFromResponse = (response: any): string | null => {
-    // Try different possible response formats based on API documentation
-    // Format 1: Direct image_base64 field (most common)
     if (response.image_base64) {
       return response.image_base64.startsWith("data:") 
         ? response.image_base64 
         : `data:image/${response.mime?.split('/')[1] || 'png'};base64,${response.image_base64}`;
     }
-    // Format 2: Direct base64 field
     if (response.base64) {
       return response.base64.startsWith("data:") 
         ? response.base64 
         : `data:image/png;base64,${response.base64}`;
     }
-    // Format 3: Nested in data object
     if (response.data) {
       if (typeof response.data === 'string') {
         return response.data.startsWith("data:") 
@@ -209,7 +157,6 @@ const ImageToolsPage = () => {
           : `data:image/png;base64,${response.data.image}`;
       }
     }
-    // Format 4: Direct image field
     if (response.image) {
       return response.image.startsWith("data:") 
         ? response.image 
@@ -222,7 +169,6 @@ const ImageToolsPage = () => {
   const handleGenerate = async () => {
     if (!prompt.trim() || isLoading) return;
 
-    // For image2image, image-editing, and bg-removal, require uploaded image
     if (
       (toolMode === "image2image" || toolMode === "image-editing" || toolMode === "bg-removal") &&
       !uploadedImage && !uploadedImageFile
@@ -238,8 +184,6 @@ const ImageToolsPage = () => {
       const dimensions = getDimensions();
 
       if (toolMode === "text2image") {
-        // Text to Image - POST /apimodule/v1/image-gen
-        // No file upload, just prompt, model_id, width, height
         const response = await moduleAPI.imageGen({
           prompt: prompt.trim(),
           model_id: selectedModel,
@@ -247,14 +191,12 @@ const ImageToolsPage = () => {
           height: dimensions.height,
         });
 
-        // API returns 201 with base64 image (no polling)
         const imageUrl = extractImageFromResponse(response);
         if (imageUrl) {
           setGeneratedImage(imageUrl);
           toast.success("Image generated successfully!");
         } else if (response.id) {
-          // If response has ID, fetch the result
-          const result = await moduleAPI.fetchResult(response.id);
+          const result = await moduleAPI.fetchImageResult(response.id);
           const fetchedImageUrl = extractImageFromResponse(result);
           if (fetchedImageUrl) {
             setGeneratedImage(fetchedImageUrl);
@@ -266,19 +208,12 @@ const ImageToolsPage = () => {
           throw new Error("Invalid response format from API");
         }
       } else if (toolMode === "image2image" || toolMode === "image-editing") {
-        // Image to Image - POST /apimodule/v1/image-to-image
-        // Requires: prompt, file OR init_image (base64), optional: model_id, strength
-        // API accepts either file or init_image (base64), but not both
-        
-        // Prepare file or base64 image - prefer file if available
         let fileToSend: File | undefined;
         let initImageBase64: string | undefined;
 
         if (uploadedImageFile) {
-          // Prefer file upload if available
           fileToSend = uploadedImageFile;
         } else if (uploadedImage) {
-          // Fallback to base64 string (extract base64 part from Data URL)
           const base64String = uploadedImage.includes(',')
             ? uploadedImage.split(',')[1]
             : uploadedImage;
@@ -292,12 +227,11 @@ const ImageToolsPage = () => {
         const response = await moduleAPI.imageToImage({
           prompt: prompt.trim(),
           model_id: selectedModel,
-          file: fileToSend, // Prefer file if available
-          init_image: fileToSend ? undefined : initImageBase64, // Only send base64 if no file
-          strength: toolMode === "image-editing" ? 0.5 : 0.7, // Lower strength for editing
+          file: fileToSend,
+          init_image: fileToSend ? undefined : initImageBase64,
+          strength: toolMode === "image-editing" ? 0.5 : strength,
         });
 
-        // API returns 201 with base64 image
         const imageUrl = extractImageFromResponse(response);
         if (imageUrl) {
           setGeneratedImage(imageUrl);
@@ -305,8 +239,7 @@ const ImageToolsPage = () => {
             ? "Image edited successfully!" 
             : "Image transformed successfully!");
         } else if (response.id) {
-          // If response has ID, fetch the result
-          const result = await moduleAPI.fetchResult(response.id);
+          const result = await moduleAPI.fetchImageResult(response.id);
           const fetchedImageUrl = extractImageFromResponse(result);
           if (fetchedImageUrl) {
             setGeneratedImage(fetchedImageUrl);
@@ -320,17 +253,12 @@ const ImageToolsPage = () => {
           throw new Error("Invalid response format from API");
         }
       } else if (toolMode === "bg-removal") {
-        // Background Removal - POST /apimodule/v1/background-removal
-        // Requires: file OR init_image (base64)
-        
-        // Prepare file or base64 for background removal - prefer file if available
         let fileToSend: File | undefined;
         let initImageBase64: string | undefined;
 
         if (uploadedImageFile) {
           fileToSend = uploadedImageFile;
         } else if (uploadedImage) {
-          // Extract base64 part from Data URL
           const base64String = uploadedImage.includes(',')
             ? uploadedImage.split(',')[1]
             : uploadedImage;
@@ -342,8 +270,8 @@ const ImageToolsPage = () => {
         }
 
         const response = await moduleAPI.backgroundRemoval({
-          file: fileToSend, // Prefer file if available
-          init_image: fileToSend ? undefined : initImageBase64, // Only send base64 if no file
+          file: fileToSend,
+          init_image: fileToSend ? undefined : initImageBase64,
         });
 
         const imageUrl = extractImageFromResponse(response);
@@ -351,7 +279,7 @@ const ImageToolsPage = () => {
           setGeneratedImage(imageUrl);
           toast.success("Background removed successfully!");
         } else if (response.id) {
-          const result = await moduleAPI.fetchResult(response.id);
+          const result = await moduleAPI.fetchImageResult(response.id);
           const fetchedImageUrl = extractImageFromResponse(result);
           if (fetchedImageUrl) {
             setGeneratedImage(fetchedImageUrl);
@@ -424,31 +352,301 @@ const ImageToolsPage = () => {
   const handleRemoveImage = () => {
     setUploadedImage(null);
     setUploadedImageFile(null);
+    setReferenceImageUrl("");
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
   };
 
   return (
-    <div
-      className="flex h-screen w-full transition-colors duration-300"
-      style={{ backgroundColor: colors.bg, overflow: "hidden" }}
+    <div className="flex h-screen w-full bg-background overflow-hidden">
+      {/* LEFT PANEL - Input Section */}
+      <div className="w-full lg:w-[45%] xl:w-[40%] flex flex-col border-r border-border bg-card/50 overflow-hidden">
+        {/* Header */}
+        <div className="flex-shrink-0 p-4 sm:p-6 border-b border-border">
+          <div className="flex items-center gap-2 mb-2">
+            <Settings2 className="w-5 h-5 text-muted-foreground" />
+            <h2 className="text-lg font-semibold text-foreground">Input</h2>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Configure your parameters and generate AI-powered images
+          </p>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+          {/* Reference Image Upload - for image2image, image-editing, bg-removal */}
+          {(toolMode === "image2image" || toolMode === "image-editing" || toolMode === "bg-removal") && (
+            <div className="space-y-3">
+              <label className="text-sm font-medium text-foreground flex items-center gap-2">
+                Reference Image
+                {(toolMode === "image2image" || toolMode === "image-editing") && (
+                  <span className="text-xs text-muted-foreground">(Required)</span>
+                )}
+              </label>
+              
+              {/* URL Input */}
+              <div className="flex gap-2">
+                <Input
+                  value={referenceImageUrl}
+                  onChange={(e) => setReferenceImageUrl(e.target.value)}
+                  placeholder="Enter image URL or upload file"
+                  className="flex-1 bg-background border-border text-foreground"
+                />
+                <Button
+                  onClick={handleUrlImageLoad}
+                  disabled={!referenceImageUrl.trim()}
+                  variant="outline"
+                  size="sm"
+                  className="shrink-0"
+                >
+                  <Upload className="w-4 h-4" />
+                </Button>
+              </div>
+
+              {/* Image Preview */}
+              {uploadedImage ? (
+                <div className="relative group rounded-lg overflow-hidden border border-border bg-background">
+                  <img
+                    src={uploadedImage}
+                    alt="Reference"
+                    className="w-full h-auto max-h-[300px] object-contain"
+                  />
+                  <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button
+                      onClick={() => fileInputRef.current?.click()}
+                      size="sm"
+                      variant="secondary"
+                      className="h-8 w-8 p-0"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      onClick={handleRemoveImage}
+                      size="sm"
+                      variant="destructive"
+                      className="h-8 w-8 p-0"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                  />
+                </div>
+              ) : (
+                <motion.label
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
+                  className="flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-8 cursor-pointer transition-colors border-border bg-secondary/30 hover:border-primary hover:bg-secondary/50"
+                >
+                  <Upload className="w-10 h-10 mb-3 text-muted-foreground" />
+                  <span className="text-sm text-foreground mb-1">Click to upload or paste URL</span>
+                  <span className="text-xs text-muted-foreground">PNG, JPG, WEBP up to 10MB</span>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                  />
+                </motion.label>
+              )}
+            </div>
+          )}
+
+          {/* Model Selection */}
+          <div className="space-y-1">
+  <label className="text-xs font-medium text-muted-foreground">
+    Model
+  </label>
+
+  <Select value={selectedModel} onValueChange={setSelectedModel}>
+    <SelectTrigger
+      className="
+        h-10 w-full
+        bg-background
+        border border-border
+        rounded-md
+        px-3
+        text-sm
+        shadow-none
+        hover:bg-accent/40
+        focus:ring-1 focus:ring-primary/30
+      "
     >
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0" style={{ overflow: "hidden" }}>
-        {/* Top Section - Image Display */}
-        <div
-          className="w-full flex-shrink-0"
-          style={{
-            height: "60%",
-            minHeight: "400px",
-            backgroundColor: colors.bgSecondary,
-            overflowY: "auto",
-            overflowX: "hidden",
-            WebkitOverflowScrolling: "touch",
-          }}
+      <span className="truncate">
+        {imageModels.find(m => m.id === selectedModel)?.name ?? "Select model"}
+      </span>
+    </SelectTrigger>
+
+    <SelectContent
+      className="
+        bg-popover
+        border border-border
+        rounded-md
+        shadow-md
+      "
+    >
+      {imageModels.map((model) => (
+        <SelectItem
+          key={model.id}
+          value={model.id}
+          className="
+            px-3 py-2
+            text-sm
+            focus:bg-accent
+          "
         >
-          <div className="w-full p-4 sm:p-6 flex items-center justify-center" style={{ minHeight: "100%" }}>
+          {model.name}
+        </SelectItem>
+      ))}
+    </SelectContent>
+  </Select>
+</div>
+
+
+          {/* Prompt */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">Prompt</label>
+            <Textarea
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder="A futuristic city on floating waterfalls, cinematic lighting, 4k"
+              className="min-h-[120px] bg-background border-border text-foreground resize-none"
+            />
+          </div>
+
+          {/* Advanced Settings */}
+          <Collapsible open={isAdvancedOpen} onOpenChange={setIsAdvancedOpen}>
+            <CollapsibleTrigger className="flex items-center justify-between w-full p-3 rounded-lg border border-border bg-background hover:bg-secondary/50 transition-colors">
+              <div className="flex items-center gap-2">
+                <Settings2 className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm font-medium text-foreground">Advanced Settings</span>
+              </div>
+              <ChevronDown
+                className={`w-4 h-4 text-muted-foreground transition-transform ${
+                  isAdvancedOpen ? "rotate-180" : ""
+                }`}
+              />
+            </CollapsibleTrigger>
+            <CollapsibleContent className="space-y-4 mt-3">
+              {/* Negative Prompt */}
+              {(toolMode === "text2image" || toolMode === "image2image") && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">Negative Prompt (Optional)</label>
+                  <Textarea
+                    value={negativePrompt}
+                    onChange={(e) => setNegativePrompt(e.target.value)}
+                    placeholder="blurry, low quality, distorted..."
+                    className="min-h-[80px] bg-background border-border text-foreground resize-none"
+                  />
+                </div>
+              )}
+
+              {/* Aspect Ratio - only for text2image */}
+              {toolMode === "text2image" && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">Aspect Ratio</label>
+                  <Select value={aspectRatio} onValueChange={setAspectRatio}>
+                    <SelectTrigger className="w-full bg-background border-border text-foreground">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card border-border">
+                      {aspectRatios.map((ratio) => (
+                        <SelectItem
+                          key={ratio.value}
+                          value={ratio.value}
+                          className="text-foreground"
+                        >
+                          {ratio.label} ({ratio.width}x{ratio.height})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              {/* Strength - for image2image and image-editing */}
+              {(toolMode === "image2image" || toolMode === "image-editing") && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">
+                    Strength: {strength.toFixed(1)}
+                  </label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.1"
+                    value={strength}
+                    onChange={(e) => setStrength(parseFloat(e.target.value))}
+                    className="w-full h-2 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Higher values create more dramatic transformations
+                  </p>
+                </div>
+              )}
+            </CollapsibleContent>
+          </Collapsible>
+
+          {/* Generate Button */}
+          <Button
+            onClick={handleGenerate}
+            disabled={isLoading || !prompt.trim()}
+            className="w-full h-12 font-semibold bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+            size="lg"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                Generating...
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-5 h-5 mr-2" />
+                Generate
+              </>
+            )}
+          </Button>
+        </div>
+      </div>
+
+      {/* RIGHT PANEL - Output Section */}
+      <div className="flex-1 flex flex-col bg-background overflow-hidden">
+        {/* Header */}
+        <div className="flex-shrink-0 p-4 sm:p-6 border-b border-border">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Settings2 className="w-5 h-5 text-muted-foreground" />
+              <h2 className="text-lg font-semibold text-foreground">Output</h2>
+            </div>
+            {isLoading && (
+              <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
+                <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                <span className="text-xs font-medium text-primary">Generating...</span>
+              </div>
+            )}
+            {!isLoading && generatedImage && (
+              <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20">
+                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                <span className="text-xs font-medium text-green-500">Ready</span>
+              </div>
+            )}
+            {!isLoading && !generatedImage && (
+              <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-muted border border-border">
+                <span className="text-xs font-medium text-muted-foreground">Idle</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Output Content */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
             <AnimatePresence mode="wait">
               {isLoading ? (
                 <motion.div
@@ -456,13 +654,18 @@ const ImageToolsPage = () => {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="flex flex-col items-center justify-center gap-4"
-                >
-                  <Loader2
-                    className="w-12 h-12 animate-spin"
-                    style={{ color: colors.primary }}
+                className="flex flex-col items-center justify-center h-full min-h-[400px]"
+              >
+                <div className="relative">
+                  <Loader2 className="w-16 h-16 animate-spin text-primary" />
+                  <motion.div
+                    className="absolute inset-0 rounded-full border-4 border-primary/20"
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                   />
-                  <p style={{ color: isDark ? colors.textMuted : "#000000" }}>Generating your image...</p>
+                </div>
+                <p className="mt-6 text-lg font-medium text-foreground">Generating your image...</p>
+                <p className="mt-2 text-sm text-muted-foreground">This may take a few moments</p>
                 </motion.div>
               ) : generatedImage ? (
                 <motion.div
@@ -470,63 +673,44 @@ const ImageToolsPage = () => {
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
-                  className="relative w-full max-w-7xl mx-auto rounded-lg shadow-lg"
-                  style={{
-                    backgroundColor: colors.bgCard,
-                    border: `1px solid ${colors.border}`,
-                    maxHeight: "none",
-                  }}
+                className="relative w-full h-full flex items-center justify-center"
                 >
+                <div className="relative max-w-full max-h-full rounded-lg overflow-hidden border border-border bg-card shadow-lg">
                   <img
                     src={generatedImage}
                     alt="Generated"
-                    className="w-full h-auto object-contain"
-                    style={{ maxHeight: "none" }}
+                    className="max-w-full max-h-[calc(100vh-200px)] object-contain"
                   />
-                  {/* Image Actions Overlay */}
+                  {/* Action Buttons */}
                   <div className="absolute top-4 right-4 flex gap-2">
                     <motion.button
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                       onClick={handleDownload}
-                      className="p-2.5 rounded-lg backdrop-blur-sm transition-all"
-                      style={{
-                        backgroundColor: colors.overlay,
-                        border: `1px solid ${colors.border}`,
-                        color: colors.text,
-                      }}
+                      className="p-2.5 rounded-lg backdrop-blur-md bg-card/90 border border-border text-foreground hover:bg-card transition-colors shadow-lg"
                       title="Download"
                     >
-                      <Download className="w-4 h-4" />
+                      <Download className="w-5 h-5" />
                     </motion.button>
                     <motion.button
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                       onClick={handleShare}
-                      className="p-2.5 rounded-lg backdrop-blur-sm transition-all"
-                      style={{
-                        backgroundColor: colors.overlay,
-                        border: `1px solid ${colors.border}`,
-                        color: colors.text,
-                      }}
+                      className="p-2.5 rounded-lg backdrop-blur-md bg-card/90 border border-border text-foreground hover:bg-card transition-colors shadow-lg"
                       title="Share"
                     >
-                      <Share2 className="w-4 h-4" />
+                      <Share2 className="w-5 h-5" />
                     </motion.button>
                     <motion.button
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                       onClick={handleCopy}
-                      className="p-2.5 rounded-lg backdrop-blur-sm transition-all"
-                      style={{
-                        backgroundColor: colors.overlay,
-                        border: `1px solid ${colors.border}`,
-                        color: colors.text,
-                      }}
+                      className="p-2.5 rounded-lg backdrop-blur-md bg-card/90 border border-border text-foreground hover:bg-card transition-colors shadow-lg"
                       title="Copy"
                     >
-                      <Copy className="w-4 h-4" />
+                      <Copy className="w-5 h-5" />
                     </motion.button>
+                  </div>
                   </div>
                 </motion.div>
               ) : (
@@ -535,46 +719,29 @@ const ImageToolsPage = () => {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="flex flex-col items-center justify-center text-center w-full max-w-md px-4"
+                className="flex flex-col items-center justify-center h-full min-h-[400px] text-center"
                 >
-                  <div
-                    className="w-24 h-24 mx-auto mb-4 rounded-lg flex items-center justify-center"
-                    style={{
-                      backgroundColor: colors.bgCard,
-                      border: `1px solid ${colors.borderStrong}`,
-                    }}
-                  >
+                <div className="w-32 h-32 mx-auto mb-6 rounded-lg flex items-center justify-center bg-card border-2 border-dashed border-border">
                     <motion.div
-                      className="w-16 h-16 rounded-lg flex items-center justify-center"
-                      style={{
-                        background: isDark
-                          ? "linear-gradient(135deg, #6D5BFF, #4FD1FF)"
-                          : "linear-gradient(135deg, #000000, #333333)",
-                      }}
+                    className="w-20 h-20 rounded-lg flex items-center justify-center bg-gradient-to-br from-primary/20 to-primary/10"
                       animate={{
-                        scale: [1, 1.1, 1],
-                        rotate: [0, 5, -5, 0],
+                      scale: [1, 1.05, 1],
+                      opacity: [0.7, 1, 0.7],
                       }}
                       transition={{
-                        duration: 3,
+                      duration: 2,
                         repeat: Infinity,
                         ease: "easeInOut",
                       }}
                     >
-                      <Sparkles className="w-8 h-8" style={{ color: "#FFFFFF" }} />
+                    <Sparkles className="w-10 h-10 text-primary" />
                     </motion.div>
                   </div>
-                  <h3 className="text-lg font-semibold mb-2" style={{ color: isDark ? colors.text : "#000000" }}>
-                    Ready to generate
+                <h3 className="text-xl font-semibold mb-2 text-foreground">
+                  Ready to Generate
                   </h3>
-                  <p className="text-sm" style={{ color: isDark ? colors.textMuted : "#666666" }}>
-                    {toolMode === "text2image"
-                      ? "Enter a prompt below to start generating images"
-                      : toolMode === "image2image"
-                      ? "Upload an image and enter a prompt to transform it"
-                      : toolMode === "image-editing"
-                      ? "Upload an image and describe the edits you want"
-                      : "Upload an image to remove its background"}
+                <p className="text-sm text-muted-foreground max-w-md">
+                  Configure your parameters on the left and click "Generate" to see your AI-powered results here.
                   </p>
                 </motion.div>
               )}
@@ -582,451 +749,71 @@ const ImageToolsPage = () => {
           </div>
         </div>
 
-        {/* Bottom Section - Control Panel */}
-        <div
-          className="flex-shrink-0 w-full border-t"
-          style={{
-            height: "40%",
-            minHeight: "350px",
-            backgroundColor: colors.bgSecondary,
-            borderColor: colors.border,
-            overflowY: "auto",
-            overflowX: "hidden",
-            WebkitOverflowScrolling: "touch",
-          }}
-        >
-          <div className="flex flex-col sm:flex-row gap-4 p-4" style={{ minHeight: "100%", paddingBottom: "80px" }}>
-            {/* Left Side - Image Upload/Preview (only show for modes that require it) */}
-            {(toolMode === "image2image" || toolMode === "image-editing" || toolMode === "bg-removal") && (
-              <div className="w-full sm:w-64 flex-shrink-0">
-                <div
-                  className="rounded-lg p-4 flex flex-col"
-                  style={{
-                    backgroundColor: colors.bgCard,
-                    border: `1px solid ${colors.border}`,
-                    minHeight: "100%",
-                  }}
-                >
-                  <label
-                    className="text-xs font-medium mb-2 block"
-                    style={{ color: colors.text }}
-                  >
-                    Upload Image {toolMode === "image2image" || toolMode === "image-editing" ? "(Required)" : ""}
-                  </label>
-                <div className="relative min-h-[120px] flex-1" style={{ maxHeight: "250px" }}>
-                  {uploadedImage ? (
-                    <div className="relative w-full h-full rounded-lg overflow-hidden group" style={{ minHeight: "120px" }}>
-                      <img
-                        src={uploadedImage}
-                        alt="Uploaded"
-                        className="w-full h-full object-cover"
-                        style={{ maxHeight: "250px" }}
-                      />
-                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={() => fileInputRef.current?.click()}
-                          className="p-2 rounded backdrop-blur-sm"
-                          style={{
-                            backgroundColor: "rgba(255,255,255,0.2)",
-                            color: "#FFFFFF",
-                          }}
-                          title="Edit"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </motion.button>
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={handleRemoveImage}
-                          className="p-2 rounded backdrop-blur-sm"
-                          style={{
-                            backgroundColor: "rgba(255,255,255,0.2)",
-                            color: "#FFFFFF",
-                          }}
-                          title="Remove"
-                        >
-                          <X className="w-4 h-4" />
-                        </motion.button>
-                      </div>
-                    </div>
-                  ) : (
-                    <motion.label
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="w-full h-full flex flex-col items-center justify-center border-2 border-dashed rounded-lg cursor-pointer transition-colors"
-                      style={{
-                        borderColor: colors.borderStrong,
-                        backgroundColor: colors.bgSecondary,
-                        color: colors.textSecondary,
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.borderColor = colors.primary;
-                        e.currentTarget.style.backgroundColor = colors.bgCardHover;
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.borderColor = colors.borderStrong;
-                        e.currentTarget.style.backgroundColor = colors.bgSecondary;
-                      }}
-                    >
-                      <Upload className="w-8 h-8 mb-2" style={{ color: colors.text }} />
-                      <span className="text-xs" style={{ color: colors.text }}>Click to upload</span>
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                        className="hidden"
-                      />
-                    </motion.label>
-                  )}
-                </div>
-              </div>
-            </div>
-            )}
-
-            {/* Right Section - Prompt and Controls */}
-            <div 
-              className="flex-1 flex flex-col gap-4 min-w-0"
-              style={{
-                overflowY: "auto",
-                overflowX: "hidden",
-                WebkitOverflowScrolling: "touch",
-              }}
-            >
-              {/* Model Selection and Prompt Row */}
-              <div className="flex flex-col sm:flex-row gap-4">
-                <div className="w-full sm:w-48 flex-shrink-0">
-                  <label
-                    className="text-xs font-medium mb-2 block"
-                    style={{ color: isDark ? colors.textMuted : "#000000" }}
-                  >
-                    Model
-                  </label>
-                  <Select value={selectedModel} onValueChange={setSelectedModel}>
-                    <SelectTrigger
-                      className="w-full transition-colors"
-                      style={{
-                        backgroundColor: colors.bgCard,
-                        borderColor: colors.borderStrong,
-                        color: colors.text,
-                      }}
-                    >
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent
-                      style={{
-                        backgroundColor: colors.bgCard,
-                        borderColor: colors.borderStrong,
-                      }}
-                    >
-                      {imageModels.map((model) => (
-                        <SelectItem
-                          key={model.id}
-                          value={model.id}
-                          style={{ color: colors.text }}
-                        >
-                          {model.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Prompt Input */}
-                <div className="flex-1 min-w-0">
-                  <label
-                    className="text-xs font-medium mb-2 block"
-                    style={{ color: isDark ? colors.textMuted : "#000000" }}
-                  >
-                    Prompt:
-                  </label>
-                  <Input
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
-                    placeholder="A futuristic city on floating waterfalls"
-                    className="w-full transition-colors"
-                    style={{
-                      backgroundColor: colors.bgCard,
-                      borderColor: colors.borderStrong,
-                      color: colors.text,
-                    }}
-                    onFocus={(e) => {
-                      e.target.style.borderColor = colors.primary;
-                    }}
-                    onBlur={(e) => {
-                      e.target.style.borderColor = colors.borderStrong;
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* Negative Prompt - only for text2image and image2image */}
-              {(toolMode === "text2image" || toolMode === "image2image") && (
-                <div>
-                  <label
-                    className="text-xs font-medium mb-2 block"
-                    style={{ color: isDark ? colors.textMuted : "#000000" }}
-                  >
-                    Negative Prompt: Optional...
-                  </label>
-                  <Input
-                    value={negativePrompt}
-                    onChange={(e) => setNegativePrompt(e.target.value)}
-                    placeholder="Enter negative prompt..."
-                    className="w-full transition-colors"
-                    style={{
-                      backgroundColor: colors.bgCard,
-                      borderColor: colors.borderStrong,
-                      color: colors.text,
-                    }}
-                    onFocus={(e) => {
-                      e.target.style.borderColor = colors.primary;
-                    }}
-                    onBlur={(e) => {
-                      e.target.style.borderColor = colors.borderStrong;
-                    }}
-                  />
-                </div>
-              )}
-
-              {/* Settings and Generate Button Row */}
-              <div className="flex flex-wrap items-end gap-3 sm:gap-4">
-                {/* Style dropdown - only for text2image and image2image */}
-                {(toolMode === "text2image" || toolMode === "image2image") && (
-                  <div className="w-full sm:w-48 flex-shrink-0">
-                    <label
-                      className="text-xs font-medium mb-2 block"
-                      style={{ color: isDark ? colors.textMuted : "#000000" }}
-                    >
-                      Style:
-                    </label>
-                    <Select value={style} onValueChange={setStyle}>
-                      <SelectTrigger
-                        className="w-full transition-colors"
-                        style={{
-                          backgroundColor: colors.bgCard,
-                          borderColor: colors.borderStrong,
-                          color: colors.text,
-                        }}
-                      >
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent
-                        style={{
-                          backgroundColor: colors.bgCard,
-                          borderColor: colors.borderStrong,
-                        }}
-                      >
-                        {styles.map((s) => (
-                          <SelectItem key={s} value={s} style={{ color: colors.text }}>
-                            {s}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
-
-                {/* Aspect Ratio - only for text2image */}
-                {toolMode === "text2image" && (
-                  <>
-                    <div className="w-full sm:w-32 flex-shrink-0">
-                      <label
-                        className="text-xs font-medium mb-2 block"
-                        style={{ color: isDark ? colors.textMuted : "#000000" }}
-                      >
-                        Aspect Ratio:
-                      </label>
-                      <Select value={aspectRatio} onValueChange={setAspectRatio}>
-                        <SelectTrigger
-                          className="w-full transition-colors"
-                          style={{
-                            backgroundColor: colors.bgCard,
-                            borderColor: colors.borderStrong,
-                            color: colors.text,
-                          }}
-                        >
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent
-                          style={{
-                            backgroundColor: colors.bgCard,
-                            borderColor: colors.borderStrong,
-                          }}
-                        >
-                          {aspectRatios.map((ratio) => (
-                            <SelectItem
-                              key={ratio.value}
-                              value={ratio.value}
-                              style={{ color: colors.text }}
-                            >
-                              {ratio.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="w-full sm:w-32 flex-shrink-0">
-                      <label
-                        className="text-xs font-medium mb-2 block"
-                        style={{ color: isDark ? colors.textMuted : "#000000" }}
-                      >
-                        Number of Images:
-                      </label>
-                      <Select value={numberOfImages} onValueChange={setNumberOfImages}>
-                        <SelectTrigger
-                          className="w-full transition-colors"
-                          style={{
-                            backgroundColor: colors.bgCard,
-                            borderColor: colors.borderStrong,
-                            color: colors.text,
-                          }}
-                        >
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent
-                          style={{
-                            backgroundColor: colors.bgCard,
-                            borderColor: colors.borderStrong,
-                          }}
-                        >
-                          {imageCounts.map((count) => (
-                            <SelectItem key={count} value={count} style={{ color: colors.text }}>
-                              {count}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </>
-                )}
-
-                <Button
-                  onClick={handleGenerate}
-                  disabled={isLoading || !prompt.trim()}
-                  className="w-full sm:w-auto sm:flex-initial sm:max-w-[200px] font-semibold transition-all"
-                  style={{
-                    background:
-                      isLoading || !prompt.trim()
-                        ? isDark
-                          ? "linear-gradient(135deg, #2A337A, #121A3F)"
-                          : "linear-gradient(135deg, #CCCCCC, #999999)"
-                        : isDark
-                        ? "linear-gradient(90deg, #6D5BFF, #4FD1FF)"
-                        : "linear-gradient(90deg, #000000, #1A1A1A)",
-                    color: "#FFFFFF",
-                    boxShadow:
-                      isLoading || !prompt.trim()
-                        ? "none"
-                        : isDark
-                        ? "0 0 20px rgba(79,209,255,0.55)"
-                        : "0 0 20px rgba(0,0,0,0.5)",
-                  }}
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Generating...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="w-4 h-4 mr-2" />
-                      Generate
-                    </>
-                  )}
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Right Sidebar - Tool Mode Switcher */}
-      <div
-        className="hidden md:flex w-16 flex-shrink-0 flex-col items-center py-4 gap-2 border-l transition-colors"
-        style={{
-          backgroundColor: colors.bgSecondary,
-          borderColor: colors.border,
-          overflowY: "auto",
-          overflowX: "hidden",
-          WebkitOverflowScrolling: "touch",
-        }}
-      >
+      {/* Mobile Tool Mode Switcher - Bottom */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 flex items-center justify-around py-2 px-2 border-t bg-card border-border shadow-lg z-50">
         {toolModes.map((mode) => {
           const Icon = mode.icon;
           const isActive = toolMode === mode.id;
           return (
-            <button
+            <motion.button
               key={mode.id}
               onClick={() => setToolMode(mode.id)}
-              className="relative group"
-              title={mode.label}
+              className={`flex flex-col items-center gap-1 px-2 py-2 rounded-lg transition-all duration-200 min-w-0 flex-1 relative ${
+                isActive
+                  ? "bg-primary/10 text-primary"
+                  : "bg-transparent text-muted-foreground"
+              }`}
+              whileTap={{ scale: 0.95 }}
             >
-              <div
-                className="w-12 h-12 rounded-lg flex items-center justify-center transition-all"
-                style={{
-                  backgroundColor: isActive ? colors.bgCardHover : "transparent",
-                  border: isActive
-                    ? `1px solid ${colors.primary}`
-                    : "1px solid transparent",
-                  color: isActive ? colors.primary : (isDark ? colors.textSecondary : "#000000"),
-                }}
-                onMouseEnter={(e) => {
-                  if (!isActive) {
-                    e.currentTarget.style.backgroundColor = colors.bgCard;
-                    e.currentTarget.style.borderColor = colors.border;
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isActive) {
-                    e.currentTarget.style.backgroundColor = "transparent";
-                    e.currentTarget.style.borderColor = "transparent";
-                  }
-                }}
-              >
-                <Icon className="w-5 h-5" />
-              </div>
               {isActive && (
                 <motion.div
-                  layoutId="activeIndicator"
-                  className="absolute -right-1 top-1/2 -translate-y-1/2 w-1 h-8 rounded-l-full"
-                  style={{ backgroundColor: colors.primary }}
+                  layoutId="mobileActiveIndicator"
+                  className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full bg-primary"
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.2 }}
                 />
               )}
-            </button>
+              <Icon className={`w-5 h-5 flex-shrink-0 transition-transform ${isActive ? "scale-110" : ""}`} />
+              <span className="text-[10px] font-medium truncate w-full text-center">{mode.label}</span>
+            </motion.button>
           );
         })}
       </div>
 
-      {/* Mobile Tool Mode Switcher - Bottom */}
-      <div
-        className="md:hidden fixed bottom-0 left-0 right-0 flex items-center justify-around py-2 px-2 border-t transition-colors z-50"
-        style={{
-          backgroundColor: colors.bgCard,
-          borderColor: colors.border,
-          boxShadow: isDark ? "0 -2px 10px rgba(0,0,0,0.3)" : "0 -2px 10px rgba(0,0,0,0.2)",
-          paddingBottom: "env(safe-area-inset-bottom, 8px)",
-        }}
-      >
+      {/* Desktop Tool Mode Switcher - Left Side */}
+      <div className="hidden lg:flex w-16 flex-shrink-0 flex-col items-center py-4 gap-2 border-r bg-background border-border">
         {toolModes.map((mode) => {
           const Icon = mode.icon;
           const isActive = toolMode === mode.id;
           return (
-              <button
+            <motion.button
               key={mode.id}
               onClick={() => setToolMode(mode.id)}
-              className="flex flex-col items-center gap-1 px-2 py-2 rounded-lg transition-all min-w-0 flex-1"
-              style={{
-                backgroundColor: isActive ? colors.bgCardHover : "transparent",
-                color: isActive ? colors.primary : colors.textSecondary,
-              }}
+              className="relative group w-full flex justify-center"
+              title={mode.label}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
-              <Icon className="w-5 h-5 flex-shrink-0" />
-              <span className="text-[10px] font-medium truncate w-full text-center">{mode.label}</span>
-            </button>
+              <div
+                className={`w-12 h-12 rounded-lg flex items-center justify-center transition-all duration-200 ${
+                isActive
+                    ? "bg-primary/10 border-2 border-primary text-primary shadow-sm"
+                    : "bg-transparent border-2 border-transparent text-muted-foreground hover:bg-secondary/50 hover:border-border/50 hover:text-foreground"
+                }`}
+              >
+                <Icon className={`w-5 h-5 transition-transform ${isActive ? "scale-110" : ""}`} />
+              </div>
+              {isActive && (
+                <motion.div
+                  layoutId="activeIndicator"
+                  className="absolute -right-0.5 top-1/2 -translate-y-1/2 w-1 h-10 rounded-l-full bg-primary shadow-sm"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.2 }}
+                />
+              )}
+            </motion.button>
           );
         })}
       </div>
