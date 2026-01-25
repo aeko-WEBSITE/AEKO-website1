@@ -31,11 +31,11 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-32 md:pt-40 z-20 w-full bg-background dark:bg-[#0a0a0f]">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-32 md:pt-40 z-20 w-full bg-background">
       {/* Professional Background with Mesh Gradient */}
       <div className="absolute inset-0 z-0 w-full">
         {/* Base gradient - Theme Aware */}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 dark:from-[#0a0a0f] dark:via-[#0f0f1a] dark:to-[#050508]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 dark:from-black dark:via-black dark:to-black" />
         
         {/* Animated mesh gradient overlay */}
         <motion.div
@@ -270,7 +270,7 @@ const HeroSection = () => {
           >
             <span className="relative flex h-3 w-3">
               <motion.span
-                className="absolute inline-flex h-full w-full rounded-full bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 opacity-80"
+                className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-80"
                 animate={{
                   scale: [1, 1.6, 1],
                   opacity: [0.8, 0, 0.8],
@@ -281,7 +281,7 @@ const HeroSection = () => {
                   ease: "easeOut",
                 }}
               />
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-gradient-to-r from-purple-500 to-pink-500 shadow-[0_0_8px_rgba(124,58,237,0.6)]"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-primary shadow-[0_0_8px_hsl(var(--primary)/0.6)]"></span>
             </span>
             <span className="text-sm font-semibold text-foreground dark:text-white/95 tracking-wide">
               Powered by GPT-4, FLUX & Stable Diffusion
@@ -384,7 +384,7 @@ const HeroSection = () => {
                 <motion.button
                   onClick={handleSubmit}
                   disabled={!input.trim()}
-                  className="w-12 h-12 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0 hover:from-purple-600 hover:to-pink-600 transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-lg"
+                  className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center flex-shrink-0 hover:bg-primary/90 transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-lg"
                   title="Submit"
                   whileHover={{ scale: 1.1, rotate: 5 }}
                   whileTap={{ scale: 0.95 }}

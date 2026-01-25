@@ -493,6 +493,32 @@ export const moduleAPI = {
   },
 
   /**
+   * Fetch Image Result by ID
+   * GET /apimodule/v1/fetch-image-result/{id}
+   * @param id - Result ID to fetch
+   * @returns Promise with base64 image data
+   */
+  fetchImageResult: async (id: string) => {
+    try {
+      const response = await apiRequest(`/apimodule/v1/fetch-image-result/${id}`, {
+        method: 'GET',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || errorData.error || `Server error: ${response.status}`);
+      }
+
+      return response.json();
+    } catch (error: any) {
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        throw new Error('Cannot connect to backend. Make sure the backend server is running.');
+      }
+      throw error;
+    }
+  },
+
+  /**
    * Background Removal
    * POST /apimodule/v1/background-removal
    * @param data - Request payload with file or init_image (base64)

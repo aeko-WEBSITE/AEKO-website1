@@ -47,11 +47,7 @@ const imageModels = [
   },
 ];
 
-const accentGradient =
-  "from-[#9333ea]/90 via-[#c026d3]/80 to-[#facc15]/80";
-
-const glassBg =
-  "bg-gradient-to-br from-white/10 via-slate-900/50 to-black/60 shadow-2xl backdrop-blur-xl";
+// Removed hardcoded gradients - using CSS variables instead
 
 const ImageToolsFeaturesSection = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -158,7 +154,7 @@ const ImageToolsFeaturesSection = () => {
   };
 
   return (
-    <section className="relative py-28 md:py-36 w-full overflow-x-clip bg-white dark:bg-black">
+    <section className="relative py-28 md:py-36 w-full overflow-x-clip bg-background">
       {/* Animated mesh and sparkles */}
       <motion.div
         className="pointer-events-none absolute inset-0 z-0"
@@ -181,17 +177,16 @@ const ImageToolsFeaturesSection = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="text-[2.8rem] md:text-5xl lg:text-7xl font-black tracking-tighter leading-tight text-black dark:text-white drop-shadow-lg mb-2 relative">
+            <h2 className="text-[2.8rem] md:text-5xl lg:text-7xl font-black tracking-tighter leading-tight text-foreground drop-shadow-lg mb-2 relative">
               <span>
                 Image Tool{" "}
-                <span
-                  className={`bg-gradient-to-r ${accentGradient} bg-clip-text text-transparent`}>
+                <span className="gradient-text">
                   Showcase
                 </span>
               </span>
             </h2>
             <div className="hidden md:block">
-              <p className="mt-2 ml-1 text-lg font-light text-black/70 dark:text-white/70 max-w-3xl">
+              <p className="mt-2 ml-1 text-lg font-light text-muted-foreground max-w-3xl">
                 Discover how cutting-edge AI transforms your creative workflow.
               </p>
             </div>
@@ -206,24 +201,24 @@ const ImageToolsFeaturesSection = () => {
             <button
               onClick={handlePrev}
               disabled={!canScrollLeft}
-              className={`w-12 h-12 rounded-full border-2 border-purple-400/50 ${glassBg} transition-all duration-150 flex items-center justify-center ring-2 ring-transparent focus:ring-purple-400/30 shadow-lg group
+              className={`w-12 h-12 rounded-full border-2 border-primary/50 bg-card/50 backdrop-blur-xl transition-all duration-150 flex items-center justify-center ring-2 ring-transparent focus:ring-primary/30 shadow-lg group
                 ${!canScrollLeft
                   ? "opacity-45 cursor-not-allowed"
-                  : "hover:border-yellow-400/70 hover:scale-110 cursor-pointer"}
+                  : "hover:border-primary hover:scale-110 cursor-pointer"}
               `}
             >
-              <ChevronLeft className="w-7 h-7 text-white drop-shadow-[0_2px_10px_#7c3aed]" />
+              <ChevronLeft className="w-7 h-7 text-foreground" />
             </button>
             <button
               onClick={handleNext}
               disabled={!canScrollRight}
-              className={`w-12 h-12 rounded-full border-2 border-purple-400/50 ${glassBg} transition-all duration-150 flex items-center justify-center ring-2 ring-transparent focus:ring-purple-400/30 shadow-lg group
+              className={`w-12 h-12 rounded-full border-2 border-primary/50 bg-card/50 backdrop-blur-xl transition-all duration-150 flex items-center justify-center ring-2 ring-transparent focus:ring-primary/30 shadow-lg group
                 ${!canScrollRight
                   ? "opacity-45 cursor-not-allowed"
-                  : "hover:border-yellow-400/70 hover:scale-110 cursor-pointer"}
+                  : "hover:border-primary hover:scale-110 cursor-pointer"}
               `}
             >
-              <ChevronRight className="w-7 h-7 text-white drop-shadow-[0_2px_10px_#7c3aed]" />
+              <ChevronRight className="w-7 h-7 text-foreground" />
             </button>
           </motion.div>
         </div>
@@ -249,7 +244,7 @@ const ImageToolsFeaturesSection = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.54, delay: (index % imageModels.length) * 0.14 }}
-                className="group relative rounded-2xl overflow-hidden shadow-2xl bg-white dark:bg-gradient-to-br dark:from-[#13131A] dark:via-[#191924] dark:to-[#13141a] backdrop-blur-md border border-gray-200 dark:border-transparent transition-transform duration-300 hover:scale-[1.035] hover:-translate-y-1 cursor-pointer flex-shrink-0 w-[320px] md:w-[360px]"
+                className="group relative rounded-2xl overflow-hidden shadow-2xl bg-card backdrop-blur-md border border-border transition-transform duration-300 hover:scale-[1.035] hover:-translate-y-1 cursor-pointer flex-shrink-0 w-[320px] md:w-[360px]"
                 style={{ zIndex: 1 }}
               >
                 {/* Animated colorful rotating border - same as Video Tools */}

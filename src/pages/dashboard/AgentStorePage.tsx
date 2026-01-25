@@ -20,6 +20,21 @@ import {
   Database,
   Settings,
   ArrowRight,
+  Sparkles,
+  Zap,
+  Shield,
+  Star,
+  Filter,
+  Grid,
+  List,
+  ChevronRight,
+  Users,
+  Clock,
+  Upload,
+  Link,
+  FileUp,
+  BrainCircuit,
+  PlayCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,6 +42,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import {
   Dialog,
@@ -36,17 +52,26 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Switch } from "@/components/ui/switch";
+import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import { crawlAPI } from "@/lib/api";
+import { cn } from "@/lib/utils";
 
 interface Agent {
   id: string;
   name: string;
   description: string;
-  status: "UNPUBLISHED" | "PUBLISHED";
-  pricing: "FREE" | "PAID";
+  status: "UNPUBLISHED" | "PUBLISHED" | "DRAFT";
+  pricing: "FREE" | "PAID" | "PREMIUM";
   icon?: string;
   createdAt: Date;
+  tags: string[];
+  interactions: number;
+  lastActive: Date;
 }
 
 const AgentStorePage = () => {
@@ -69,76 +94,108 @@ const AgentStorePage = () => {
   const [currentStep, setCurrentStep] = useState<"create" | "knowledge">("create");
   const [selectedUrls, setSelectedUrls] = useState<string[]>([]);
   const [knowledgeTab, setKnowledgeTab] = useState<"website" | "files" | "integrations">("website");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [selectedFilter, setSelectedFilter] = useState<string>("all");
+  
   const [agents, setAgents] = useState<Agent[]>([
     {
       id: "1",
       name: "Cnergee",
       description: "Cnergee Technologies provides integrated network security products—SD-WAN, NGFW, Managed WiFi, and Endpoint Security—built in...",
-      status: "UNPUBLISHED",
-      pricing: "FREE",
+      status: "PUBLISHED",
+      pricing: "PREMIUM",
       createdAt: new Date(),
+      tags: ["Security", "Enterprise", "AI"],
+      interactions: 1245,
+      lastActive: new Date(Date.now() - 3600000),
     },
     {
       id: "2",
       name: "Instagram",
-      description: "No description available",
-      status: "UNPUBLISHED",
-      pricing: "FREE",
+      description: "Social media assistant for content creation, scheduling, and analytics across multiple platforms with AI-powered insights.",
+      status: "PUBLISHED",
+      pricing: "PAID",
       createdAt: new Date(),
+      tags: ["Social", "Marketing", "Analytics"],
+      interactions: 8920,
+      lastActive: new Date(Date.now() - 1800000),
     },
     {
       id: "3",
       name: "Yamaha Motor India",
       description: "Presenting the new & best in the class - ✓ Mileage Scooters ✓ Performance Motorcycles ✓ Superbikes from Yamaha....",
-      status: "UNPUBLISHED",
+      status: "PUBLISHED",
       pricing: "FREE",
       createdAt: new Date(),
+      tags: ["Automotive", "Sales", "Support"],
+      interactions: 567,
+      lastActive: new Date(Date.now() - 7200000),
     },
     {
       id: "4",
       name: "Hi Focus",
       description: "Explore advanced CCTV solutions from the most reliable and trusted CCTV camera brand in India, Hi Focus. Shop for HD CCTV Cameras, IP, PTZ...",
-      status: "UNPUBLISHED",
-      pricing: "FREE",
+      status: "DRAFT",
+      pricing: "PAID",
       createdAt: new Date(),
+      tags: ["Security", "Hardware", "IoT"],
+      interactions: 234,
+      lastActive: new Date(Date.now() - 86400000),
     },
     {
       id: "5",
       name: "Aavas Financiers Ltd",
       description: "Aavas Financiers Limited - a leading housing loan finance company in India offering various types of home loans at attractive interest rates...",
-      status: "UNPUBLISHED",
-      pricing: "FREE",
+      status: "PUBLISHED",
+      pricing: "PREMIUM",
       createdAt: new Date(),
+      tags: ["Finance", "Loans", "Banking"],
+      interactions: 1876,
+      lastActive: new Date(Date.now() - 3600000),
     },
     {
       id: "6",
-      name: "Cloud",
-      description: "This agent helps the user to raise support requests on the Scogo Cloud Platform",
-      status: "UNPUBLISHED",
+      name: "Scogo Cloud",
+      description: "This agent helps the user to raise support requests on the Scogo Cloud Platform with automated troubleshooting and solution suggestions.",
+      status: "PUBLISHED",
       pricing: "FREE",
       createdAt: new Date(),
+      tags: ["Cloud", "Support", "DevOps"],
+      interactions: 3452,
+      lastActive: new Date(Date.now() - 900000),
     },
     {
       id: "7",
       name: "Globalnet",
       description: "As a market leader in Myanmar, our suite of ICT Solutions is backed up by an extensive data network and infrastructure that spans key...",
-      status: "UNPUBLISHED",
-      pricing: "FREE",
+      status: "PUBLISHED",
+      pricing: "PAID",
       createdAt: new Date(),
+      tags: ["Telecom", "Infrastructure", "Enterprise"],
+      interactions: 678,
+      lastActive: new Date(Date.now() - 14400000),
     },
     {
       id: "8",
       name: "IIT Roorkee",
       description: "IIT Roorkee primarily functions as a leading technical research university, offering undergraduate, postgraduate, and doctoral...",
-      status: "UNPUBLISHED",
+      status: "DRAFT",
       pricing: "FREE",
       createdAt: new Date(),
+      tags: ["Education", "Research", "AI"],
+      interactions: 123,
+      lastActive: new Date(Date.now() - 172800000),
     },
   ]);
 
   const filteredAgents = agents.filter((agent) =>
     agent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    agent.description.toLowerCase().includes(searchQuery.toLowerCase())
+    agent.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    agent.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+  ).filter(agent => 
+    selectedFilter === "all" || 
+    agent.status.toLowerCase() === selectedFilter.toLowerCase() ||
+    agent.pricing.toLowerCase() === selectedFilter.toLowerCase()
   );
 
   // Crawl website function
@@ -162,14 +219,21 @@ const AgentStorePage = () => {
         setAgentDescription(data.data.description || "");
         setLogoUrl(data.data.logo || "");
         setFaviconUrl(data.data.favicon || "");
-        toast.success("Website crawled successfully!");
+        toast.success("Website crawled successfully!", {
+          description: "Agent details have been auto-filled.",
+          icon: "🌐",
+        });
       } else {
-        toast.error(data.message || "Failed to crawl website");
+        toast.error("Failed to crawl website", {
+          description: data.message || "Please check the URL and try again.",
+        });
         setCrawlSuccess(false);
       }
     } catch (error: any) {
       console.error("Crawl error:", error);
-      toast.error(error.message || "Failed to crawl website. Make sure the backend is running.");
+      toast.error("Failed to crawl website", {
+        description: error.message || "Make sure the backend is running.",
+      });
       setCrawlSuccess(false);
     } finally {
       setIsCrawling(false);
@@ -181,10 +245,9 @@ const AgentStorePage = () => {
     if (websiteUrl.trim() && !isCrawling) {
       const urlPattern = /^https?:\/\/.+/;
       if (urlPattern.test(websiteUrl)) {
-        // Auto-crawl when valid URL is entered
         const timeoutId = setTimeout(() => {
           handleCrawlWebsite();
-        }, 1500); // Wait 1.5 seconds after user stops typing
+        }, 1500);
 
         return () => clearTimeout(timeoutId);
       }
@@ -227,132 +290,346 @@ const AgentStorePage = () => {
     }
   };
 
+  const getStatusColor = (status: Agent["status"]) => {
+    switch (status) {
+      case "PUBLISHED": return "bg-green-500/20 text-green-500 border-green-500/30";
+      case "DRAFT": return "bg-yellow-500/20 text-yellow-500 border-yellow-500/30";
+      default: return "bg-gray-500/20 text-gray-500 border-gray-500/30";
+    }
+  };
+
+  const getPricingColor = (pricing: Agent["pricing"]) => {
+    switch (pricing) {
+      case "PREMIUM": return "bg-purple-500/20 text-purple-500 border-purple-500/30";
+      case "PAID": return "bg-blue-500/20 text-blue-500 border-blue-500/30";
+      default: return "bg-green-500/20 text-green-500 border-green-500/30";
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-background mt-7">
+    <div className="min-h-screen bg-gradient-to-b from-background to-background/95 via-muted/5 p-4 md:p-6">
+      {/* Animated Background Effects */}
+      <div className="fixed inset-0 -z-10 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/5 rounded-full blur-3xl" />
+      </div>
+
       {/* Header */}
-      <div className="mb-3 px-1">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <FileText className="w-5 h-5 text-primary" />
-            <h1 className="text-2xl font-bold text-foreground">Agent Store</h1>
+      <div className="mb-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-primary to-purple-500 rounded-lg blur opacity-50" />
+              <div className="relative bg-gradient-to-br from-background to-muted border border-border/50 rounded-lg p-2 shadow-lg">
+                <BrainCircuit className="w-6 h-6 text-primary" />
+              </div>
+            </div>
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">
+                Agent Store
+              </h1>
+              <p className="text-sm text-muted-foreground mt-1">
+                Discover and manage your AI agents
+              </p>
+            </div>
           </div>
-          <Button
-            variant="hero"
-            size="default"
-            className="gap-2"
-            onClick={() => setIsCreateDialogOpen(true)}
-          >
-            <Plus className="w-4 h-4" />
-            Create Agent
-          </Button>
-        </div>
-
-        {/* Search Bar */}
-        <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search Agents..."
-            className="w-full pl-9 pr-4 py-2 rounded-lg bg-card border border-border/50 text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all text-sm"
-          />
-        </div>
-      </div>
-
-      {/* Agent Grid - Full Width */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 px-1">
-        {filteredAgents.map((agent, index) => (
-          <motion.div
-            key={agent.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: index * 0.05 }}
-            className="bg-card border border-border/50 rounded-xl p-4 hover:border-primary/50 hover:shadow-lg transition-all group"
-          >
-            {/* Card Header */}
-            <div className="flex items-start justify-between mb-3">
-              <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
-                  <Bot className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-sm text-foreground group-hover:text-primary transition-colors">
-                    {agent.name}
-                  </h3>
-                  <div className="flex items-center gap-1.5 mt-0.5">
-                    <span className="text-xs px-1.5 py-0.5 rounded-full bg-secondary/50 text-muted-foreground">
-                      {agent.status}
-                    </span>
-                    <span className="text-xs text-muted-foreground">|</span>
-                    <span className="text-xs px-1.5 py-0.5 rounded-full bg-green-500/10 text-green-500">
-                      {agent.pricing}
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="p-1.5 hover:bg-secondary/50 rounded-lg transition-colors text-muted-foreground hover:text-foreground">
-                    <MoreVertical className="w-4 h-4" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => toast.info("Edit agent")}>
-                    Edit
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => toast.info("Delete agent")}>
-                    Delete
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => toast.info("Duplicate agent")}>
-                    Duplicate
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-
-            {/* Description */}
-            <p className="text-xs text-muted-foreground mb-3 line-clamp-3 leading-relaxed">
-              {agent.description}
-            </p>
-
-            {/* Actions */}
-            <div className="flex items-center justify-between pt-3 border-t border-border/50">
-              <div className="flex items-center gap-2">
-                <button
-                  className="p-2 hover:bg-secondary/50 rounded-lg transition-colors text-muted-foreground hover:text-foreground"
-                  title="Share"
-                  onClick={() => toast.info("Share agent")}
-                >
-                  <ExternalLink className="w-4 h-4" />
-                </button>
-                <button
-                  className="p-2 hover:bg-secondary/50 rounded-lg transition-colors text-muted-foreground hover:text-foreground"
-                  title="View Code"
-                  onClick={() => toast.info("View code")}
-                >
-                  <Code className="w-4 h-4" />
-                </button>
-              </div>
-              <Button
-                variant="default"
-                size="sm"
-                onClick={() => {
-                  toast.info(`Interacting with ${agent.name}`);
-                }}
+          
+          <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => toast.info("Coming soon!")}
+              className="gap-2 border-border/50 hover:border-primary/50"
+            >
+              <Filter className="w-4 h-4" />
+              Filter
+            </Button>
+            
+            <div className="flex items-center border border-border/50 rounded-lg p-1 bg-card/50">
+              <button
+                onClick={() => setViewMode("grid")}
+                className={cn(
+                  "p-1.5 rounded-md transition-all",
+                  viewMode === "grid" 
+                    ? "bg-primary text-primary-foreground shadow-sm" 
+                    : "hover:bg-muted text-muted-foreground"
+                )}
               >
-                Interact
-              </Button>
+                <Grid className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setViewMode("list")}
+                className={cn(
+                  "p-1.5 rounded-md transition-all",
+                  viewMode === "list" 
+                    ? "bg-primary text-primary-foreground shadow-sm" 
+                    : "hover:bg-muted text-muted-foreground"
+                )}
+              >
+                <List className="w-4 h-4" />
+              </button>
             </div>
-          </motion.div>
-        ))}
+
+            <Button
+              onClick={() => setIsCreateDialogOpen(true)}
+              className="gap-2 bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 shadow-lg shadow-primary/25"
+            >
+              <Sparkles className="w-4 h-4" />
+              Create Agent
+            </Button>
+          </div>
+        </div>
+
+        {/* Search and Stats */}
+        <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+          <div className="relative w-full md:max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search agents, tags, or descriptions..."
+              className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-card/50 backdrop-blur-sm border border-border/50 text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all text-sm shadow-sm"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                ×
+              </button>
+            )}
+          </div>
+
+          <div className="flex items-center gap-4 text-sm">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+              <span className="text-muted-foreground">{agents.filter(a => a.status === "PUBLISHED").length} Active</span>
+            </div>
+            <div className="hidden md:block text-muted-foreground">•</div>
+            <div className="flex items-center gap-2">
+              <Users className="w-4 h-4 text-muted-foreground" />
+              <span className="text-muted-foreground">{agents.reduce((acc, a) => acc + a.interactions, 0).toLocaleString()} Interactions</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Filters */}
+        <div className="flex flex-wrap gap-2 mt-4">
+          <Badge
+            variant={selectedFilter === "all" ? "default" : "outline"}
+            className="cursor-pointer transition-all hover:scale-105"
+            onClick={() => setSelectedFilter("all")}
+          >
+            All Agents
+          </Badge>
+          <Badge
+            variant={selectedFilter === "published" ? "default" : "outline"}
+            className="cursor-pointer transition-all hover:scale-105"
+            onClick={() => setSelectedFilter("published")}
+          >
+            <div className="w-2 h-2 rounded-full bg-green-500 mr-1.5" />
+            Published
+          </Badge>
+          <Badge
+            variant={selectedFilter === "premium" ? "default" : "outline"}
+            className="cursor-pointer transition-all hover:scale-105"
+            onClick={() => setSelectedFilter("premium")}
+          >
+            <Star className="w-3 h-3 mr-1" />
+            Premium
+          </Badge>
+          <Badge
+            variant={selectedFilter === "free" ? "default" : "outline"}
+            className="cursor-pointer transition-all hover:scale-105"
+            onClick={() => setSelectedFilter("free")}
+          >
+            Free
+          </Badge>
+        </div>
       </div>
+
+      {/* Agent Grid/List */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={viewMode}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.2 }}
+          className={cn(
+            viewMode === "grid" 
+              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+              : "space-y-3"
+          )}
+        >
+          {filteredAgents.map((agent, index) => (
+            <motion.div
+              key={agent.id}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, delay: index * 0.05 }}
+              whileHover={{ y: -4, transition: { duration: 0.2 } }}
+              className={cn(
+                viewMode === "grid" 
+                  ? "h-full"
+                  : "flex items-center p-4"
+              )}
+            >
+              <Card className={cn(
+                "group relative overflow-hidden border-border/50 bg-card/50 backdrop-blur-sm h-full transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 hover:border-primary/30",
+                viewMode === "grid" 
+                  ? "hover:scale-[1.02]" 
+                  : "flex-1"
+              )}>
+                {/* Gradient Border Effect */}
+                <div className="absolute inset-0 bg-gradient-to-br from-transparent via-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="relative">
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary to-purple-500 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity" />
+                        <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-primary/10 to-purple-500/10 border border-primary/20 flex items-center justify-center">
+                          <Bot className="w-6 h-6 text-primary" />
+                        </div>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <CardTitle className="text-base font-semibold truncate group-hover:text-primary transition-colors">
+                            {agent.name}
+                          </CardTitle>
+                          <Badge variant="outline" className={getStatusColor(agent.status)}>
+                            {agent.status}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant="outline" className={getPricingColor(agent.pricing)}>
+                            {agent.pricing}
+                          </Badge>
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <Clock className="w-3 h-3" />
+                            {Math.floor((Date.now() - agent.lastActive.getTime()) / 3600000)}h ago
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <MoreVertical className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuItem>
+                          <Pencil className="w-4 h-4 mr-2" />
+                          Edit Agent
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <ExternalLink className="w-4 h-4 mr-2" />
+                          Share Agent
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <Code className="w-4 h-4 mr-2" />
+                          View Code
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem className="text-destructive">
+                          Delete Agent
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                  
+                  {/* Tags */}
+                  <div className="flex flex-wrap gap-1.5 mt-3">
+                    {agent.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-secondary/50 text-muted-foreground border border-border/50"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </CardHeader>
+
+                <CardContent className={viewMode === "list" ? "flex-1" : ""}>
+                  <CardDescription className="text-sm line-clamp-2">
+                    {agent.description}
+                  </CardDescription>
+                  
+                  {/* Stats */}
+                  <div className="flex items-center justify-between mt-4 pt-4 border-t border-border/50">
+                    <div className="flex items-center gap-4 text-sm">
+                      <div className="flex items-center gap-1.5">
+                        <Users className="w-4 h-4 text-muted-foreground" />
+                        <span className="font-medium">{agent.interactions.toLocaleString()}</span>
+                        <span className="text-muted-foreground">interactions</span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 hover:bg-primary/10"
+                        onClick={() => toast.info(`Sharing ${agent.name}`)}
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        className="gap-2 bg-gradient-to-r from-primary/90 to-primary hover:from-primary hover:to-primary/90"
+                        onClick={() => {
+                          toast.success(`Starting interaction with ${agent.name}`, {
+                            icon: "🤖",
+                          });
+                        }}
+                      >
+                        <PlayCircle className="w-4 h-4" />
+                        Interact
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+
+                {viewMode === "grid" && (
+                  <CardFooter className="pt-0">
+                    <Progress value={Math.min(agent.interactions / 100, 100)} className="h-1" />
+                  </CardFooter>
+                )}
+              </Card>
+            </motion.div>
+          ))}
+        </motion.div>
+      </AnimatePresence>
 
       {filteredAgents.length === 0 && (
-        <div className="text-center py-8">
-          <Bot className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
-          <p className="text-sm text-muted-foreground">No agents found</p>
-        </div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="flex flex-col items-center justify-center py-16 text-center"
+        >
+          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary/10 to-purple-500/10 flex items-center justify-center mb-6">
+            <Bot className="w-12 h-12 text-muted-foreground/50" />
+          </div>
+          <h3 className="text-xl font-semibold text-foreground mb-2">No agents found</h3>
+          <p className="text-muted-foreground mb-6 max-w-md">
+            Try adjusting your search or filters to find what you're looking for.
+          </p>
+          <Button
+            variant="outline"
+            onClick={() => {
+              setSearchQuery("");
+              setSelectedFilter("all");
+            }}
+            className="gap-2"
+          >
+            Clear filters
+          </Button>
+        </motion.div>
       )}
 
       {/* Create Agent Dialog */}
@@ -361,9 +638,12 @@ const AgentStorePage = () => {
         if (!open) {
           setCurrentStep("create");
           setSelectedUrls([]);
+          setKnowledgeTab("website");
         }
       }}>
-        <DialogContent className="max-w-5xl w-full h-[85vh] p-0 gap-0 bg-[#0a0a1a] border-4 border-white overflow-hidden">
+        <DialogContent className="max-w-6xl w-full h-[90vh] p-0 gap-0 overflow-hidden bg-gradient-to-br from-background via-background to-muted/5 border-0 shadow-2xl">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-purple-500/5" />
+          
           <AnimatePresence mode="wait">
             {currentStep === "create" ? (
               <motion.div
@@ -372,195 +652,240 @@ const AgentStorePage = () => {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 20 }}
                 transition={{ duration: 0.3 }}
-                className="flex h-full gap-0 w-full"
+                className="flex h-full relative z-10"
               >
-                {/* Left Side - Create New Agent Form */}
-                <div className="w-full lg:w-[400px] bg-gradient-to-br from-[#12162A] via-[#1a1f3a] to-[#12162A] p-6 overflow-y-auto flex flex-col">
-              <DialogHeader className="mb-4">
-                <DialogTitle className="text-xl font-bold text-white">Create New Agent</DialogTitle>
-              </DialogHeader>
-
-              <div className="space-y-4 flex-1">
-                {/* Website URL */}
-                <div>
-                  <label className="block text-sm font-medium text-white/90 mb-2">
-                    Website URL<span className="text-red-400">*</span>
-                  </label>
-                  <div className="relative">
-                    <Input
-                      type="url"
-                      value={websiteUrl}
-                      onChange={(e) => setWebsiteUrl(e.target.value)}
-                      placeholder="https://example.com"
-                      className="w-full bg-black/40 border-white/20 text-white placeholder:text-white/50 focus:border-white/50"
-                    />
-                    {isCrawling && (
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                        <Loader2 className="w-4 h-4 animate-spin text-white/70" />
-                      </div>
-                    )}
-                    {crawlSuccess && !isCrawling && (
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                        <CheckCircle2 className="w-4 h-4 text-green-400" />
-                      </div>
-                    )}
+                {/* Left Side - Form */}
+                <div className="w-full lg:w-2/5 p-6 md:p-8 overflow-y-auto border-r border-border/50 bg-background/80 backdrop-blur-sm">
+                  <div className="flex items-center gap-3 mb-6">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setIsCreateDialogOpen(false)}
+                      className="rounded-full"
+                    >
+                      <ArrowLeft className="w-5 h-5" />
+                    </Button>
+                    <div>
+                      <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent">
+                        Create New Agent
+                      </DialogTitle>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Build your AI assistant in minutes
+                      </p>
+                    </div>
                   </div>
-                  <p className="text-xs text-white/50 mt-1.5">
-                    Enter only the main domain, not specific pages
-                  </p>
-                </div>
 
-                {/* Agent Name */}
-                <div>
-                  <label className="block text-sm font-medium text-white/90 mb-2">
-                    Agent Name
-                  </label>
-                  <Input
-                    type="text"
-                    value={agentName}
-                    onChange={(e) => setAgentName(e.target.value)}
-                    placeholder="My AI Assistant"
-                    className="w-full bg-black/40 border-white/20 text-white placeholder:text-white/50 focus:border-white/50"
-                  />
-                </div>
-
-                {/* Agent Description */}
-                <div>
-                  <label className="block text-sm font-medium text-white/90 mb-2">
-                    Agent Description
-                  </label>
-                  <Textarea
-                    value={agentDescription}
-                    onChange={(e) => setAgentDescription(e.target.value)}
-                    placeholder="Brief description of what your agent does..."
-                    rows={4}
-                    className="w-full bg-black/40 border-white/20 text-white placeholder:text-white/50 focus:border-white/50 resize-none"
-                  />
-                </div>
-
-                {/* Logo */}
-                <div>
-                  <label className="block text-sm font-medium text-white/90 mb-2">
-                    Logo
-                  </label>
-                  <Input
-                    type="url"
-                    value={logoUrl}
-                    onChange={(e) => setLogoUrl(e.target.value)}
-                    placeholder="Paste image URL"
-                    className="w-full bg-black/40 border-white/20 text-white placeholder:text-white/50 focus:border-white/50"
-                  />
-                </div>
-
-                {/* Favicon */}
-                <div>
-                  <label className="block text-sm font-medium text-white/90 mb-2">
-                    Favicon
-                  </label>
-                  <Input
-                    type="url"
-                    value={faviconUrl}
-                    onChange={(e) => setFaviconUrl(e.target.value)}
-                    placeholder="Paste image URL"
-                    className="w-full bg-black/40 border-white/20 text-white placeholder:text-white/50 focus:border-white/50"
-                  />
-                </div>
-
-              </div>
-              
-              {/* Next Button - Fixed at Bottom */}
-              <div className="flex justify-end pt-4 mt-auto border-t border-white/10">
-                <Button
-                  onClick={handleNext}
-                  disabled={!websiteUrl.trim() || !isValidUrl(websiteUrl)}
-                  className={`px-8 py-2 rounded-lg font-medium transition-all ${
-                    websiteUrl.trim() && isValidUrl(websiteUrl)
-                      ? "bg-blue-600 hover:bg-blue-700 text-white cursor-pointer"
-                      : "bg-gray-700 text-gray-400 cursor-not-allowed"
-                  }`}
-                >
-                  Next
-                </Button>
-              </div>
-            </div>
-
-            {/* Right Side - Live Preview */}
-            <div className="hidden lg:flex w-[480px] bg-gradient-to-br from-[#1a1f3a] via-[#0f1629] to-[#1a1f3a] p-6 overflow-y-auto">
-              <div className="w-full mx-auto">
-                <DialogHeader className="mb-4">
-                  <DialogTitle className="text-xl font-bold text-white">Live Preview</DialogTitle>
-                </DialogHeader>
-
-                {/* Preview Chat Interface */}
-                <div className="bg-[#0f1629] rounded-2xl border border-white/10 overflow-hidden shadow-2xl">
-                  {/* Chat Header */}
-                  <div className="flex items-center justify-between p-4 border-b border-white/10 bg-[#12162A]">
-                    <div className="flex items-center gap-3">
-                      <ArrowLeft className="w-5 h-5 text-white/70 cursor-pointer hover:text-white" />
-                      <div className="flex items-center gap-2">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                          <span className="text-white font-bold text-sm">AI</span>
+                  <div className="space-y-6">
+                    {/* Website URL */}
+                    <div className="space-y-3">
+                      <label className="block text-sm font-medium text-foreground">
+                        <span className="flex items-center gap-2">
+                          <Globe className="w-4 h-4" />
+                          Website URL
+                          <span className="text-destructive">*</span>
+                        </span>
+                      </label>
+                      <div className="relative group">
+                        <Input
+                          type="url"
+                          value={websiteUrl}
+                          onChange={(e) => setWebsiteUrl(e.target.value)}
+                          placeholder="https://your-website.com"
+                          className="w-full h-12 pl-4 pr-12 rounded-xl bg-card border-2 border-border/50 focus:border-primary focus:ring-0 transition-all group-hover:border-primary/50"
+                        />
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                          {isCrawling && (
+                            <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                          )}
+                          {crawlSuccess && !isCrawling && (
+                            <CheckCircle2 className="w-5 h-5 text-green-500" />
+                          )}
                         </div>
-                        <div>
-                          <div className="text-white font-semibold text-sm">{agentName || "My AI Assistant"}</div>
-                          <div className="flex items-center gap-1.5">
-                            <div className="w-2 h-2 rounded-full bg-green-400"></div>
-                            <span className="text-xs text-white/60">Always Available</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground flex items-center gap-2">
+                        <Zap className="w-3 h-3" />
+                        Auto-crawls when valid URL is detected
+                      </p>
+                    </div>
+
+                    {/* Agent Details */}
+                    <div className="grid gap-6">
+                      <div className="space-y-3">
+                        <label className="block text-sm font-medium text-foreground">
+                          Agent Name
+                        </label>
+                        <Input
+                          value={agentName}
+                          onChange={(e) => setAgentName(e.target.value)}
+                          placeholder="e.g., Customer Support AI"
+                          className="h-12 rounded-xl bg-card border-2 border-border/50 focus:border-primary"
+                        />
+                      </div>
+
+                      <div className="space-y-3">
+                        <label className="block text-sm font-medium text-foreground">
+                          Description
+                        </label>
+                        <Textarea
+                          value={agentDescription}
+                          onChange={(e) => setAgentDescription(e.target.value)}
+                          placeholder="What does your agent do? What problems does it solve?"
+                          rows={3}
+                          className="rounded-xl bg-card border-2 border-border/50 focus:border-primary resize-none"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-3">
+                          <label className="block text-sm font-medium text-foreground">
+                            Logo URL
+                          </label>
+                          <Input
+                            value={logoUrl}
+                            onChange={(e) => setLogoUrl(e.target.value)}
+                            placeholder="https://..."
+                            className="h-12 rounded-xl bg-card border-2 border-border/50 focus:border-primary"
+                          />
+                        </div>
+                        <div className="space-y-3">
+                          <label className="block text-sm font-medium text-foreground">
+                            Favicon URL
+                          </label>
+                          <Input
+                            value={faviconUrl}
+                            onChange={(e) => setFaviconUrl(e.target.value)}
+                            placeholder="https://..."
+                            className="h-12 rounded-xl bg-card border-2 border-border/50 focus:border-primary"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Features Preview */}
+                    <div className="rounded-xl bg-gradient-to-br from-primary/5 to-purple-500/5 border border-primary/10 p-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Sparkles className="w-4 h-4 text-primary" />
+                        <h4 className="text-sm font-semibold">Included Features</h4>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 rounded-full bg-green-500" />
+                          <span className="text-muted-foreground">Web Crawling</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 rounded-full bg-green-500" />
+                          <span className="text-muted-foreground">File Uploads</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 rounded-full bg-green-500" />
+                          <span className="text-muted-foreground">API Integrations</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 rounded-full bg-green-500" />
+                          <span className="text-muted-foreground">Custom Branding</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-8 mt-8 border-t border-border/50">
+                    <Button
+                      variant="outline"
+                      onClick={() => setIsCreateDialogOpen(false)}
+                      className="rounded-xl"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handleNext}
+                      disabled={!websiteUrl.trim() || !isValidUrl(websiteUrl)}
+                      className={cn(
+                        "rounded-xl px-8 gap-2 transition-all",
+                        websiteUrl.trim() && isValidUrl(websiteUrl)
+                          ? "bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 shadow-lg shadow-primary/25"
+                          : "opacity-50 cursor-not-allowed"
+                      )}
+                    >
+                      Continue
+                      <ChevronRight className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Right Side - Preview */}
+                <div className="hidden lg:flex flex-1 flex-col p-6 md:p-8 bg-gradient-to-br from-muted/20 to-background/80">
+                  <div className="mb-6">
+                    <h3 className="text-lg font-semibold text-foreground">Live Preview</h3>
+                    <p className="text-sm text-muted-foreground">See how your agent will appear</p>
+                  </div>
+
+                  <div className="flex-1 rounded-2xl border-2 border-border/50 overflow-hidden bg-card shadow-2xl">
+                    {/* Preview Chat */}
+                    <div className="h-full flex flex-col">
+                      {/* Chat Header */}
+                      <div className="p-4 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="relative">
+                              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center">
+                                <span className="text-white font-bold">AI</span>
+                              </div>
+                              <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-green-500 border-2 border-card" />
+                            </div>
+                            <div>
+                              <h4 className="font-semibold">{agentName || "My Assistant"}</h4>
+                              <p className="text-xs text-muted-foreground">Always online • Ready to help</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Button variant="ghost" size="icon" className="rounded-lg">
+                              <Phone className="w-4 h-4" />
+                            </Button>
+                            <Button variant="ghost" size="icon" className="rounded-lg">
+                              <Download className="w-4 h-4" />
+                            </Button>
                           </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-                        <Phone className="w-4 h-4 text-white/70" />
-                      </button>
-                      <button className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-                        <Pencil className="w-4 h-4 text-white/70" />
-                      </button>
-                      <button className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-                        <Download className="w-4 h-4 text-white/70" />
-                      </button>
-                    </div>
-                  </div>
 
-                  {/* Chat Messages */}
-                  <div className="p-4 space-y-4 min-h-[300px]">
-                    <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
-                        <span className="text-white font-bold text-xs">AI</span>
-                      </div>
-                      <div className="flex-1">
-                        <div className="bg-gradient-to-br from-purple-600/80 to-pink-600/80 rounded-2xl rounded-tl-sm p-3 text-white text-sm">
-                          Hi, I'm {agentName || "My AI Assistant"}, your AI Support Agent, how can I help you?
+                      {/* Chat Messages */}
+                      <div className="flex-1 p-4 space-y-4">
+                        <div className="flex gap-3">
+                          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center flex-shrink-0">
+                            <span className="text-xs text-white">AI</span>
+                          </div>
+                          <div className="flex-1">
+                            <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-2xl rounded-tl-none p-4">
+                              <p className="text-sm">
+                                Hello! I'm {agentName || "your AI assistant"}. How can I help you today?
+                              </p>
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-1 ml-1">Just now</p>
+                          </div>
                         </div>
-                        <div className="text-xs text-white/40 mt-1 ml-1">01:05 PM</div>
+                      </div>
+
+                      {/* Chat Input */}
+                      <div className="p-4 border-t border-border/50">
+                        <div className="flex items-center gap-2">
+                          <button className="p-2 hover:bg-muted rounded-lg transition-colors">
+                            <Paperclip className="w-5 h-5 text-muted-foreground" />
+                          </button>
+                          <input
+                            type="text"
+                            placeholder="Type your message..."
+                            className="flex-1 h-12 px-4 rounded-xl bg-muted/50 border border-border/50 focus:outline-none focus:border-primary text-sm"
+                            disabled
+                          />
+                          <button className="p-2.5 rounded-xl bg-gradient-to-r from-primary to-purple-500 text-white hover:opacity-90 transition-opacity">
+                            <Send className="w-5 h-5" />
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-
-                  {/* Chat Input */}
-                  <div className="p-4 border-t border-white/10 bg-[#12162A]">
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="text"
-                        placeholder="Ask AI about anything..."
-                        className="flex-1 bg-black/40 border border-white/20 rounded-lg px-4 py-2.5 text-white placeholder:text-white/50 focus:outline-none focus:border-white/50 text-sm"
-                      />
-                      <button className="p-2.5 hover:bg-white/10 rounded-lg transition-colors">
-                        <Paperclip className="w-4 h-4 text-white/70" />
-                      </button>
-                      <button className="p-2.5 hover:bg-white/10 rounded-lg transition-colors">
-                        <Send className="w-4 h-4 text-white/70" />
-                      </button>
-                    </div>
-                    <p className="text-xs text-white/40 mt-2 text-center">
-                      Your AI-powered business companion is here.
-                    </p>
                   </div>
                 </div>
-              </div>
-            </div>
-            </motion.div>
+              </motion.div>
             ) : (
               <motion.div
                 key="knowledge"
@@ -568,169 +893,207 @@ const AgentStorePage = () => {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.3 }}
-                className="flex h-full gap-0 w-full"
+                className="h-full relative z-10"
               >
-                {/* Website Knowledge Step */}
-                <div className="w-full bg-gradient-to-br from-[#12162A] via-[#1a1f3a] to-[#12162A] p-6 overflow-hidden flex flex-col">
-                  <DialogHeader className="mb-6">
-                    <DialogTitle className="text-2xl font-bold text-white mb-2">Agent Superpowers</DialogTitle>
-                    <p className="text-sm text-white/70">Enhance your agent with additional capabilities</p>
-                  </DialogHeader>
+                <div className="flex flex-col h-full bg-background/80 backdrop-blur-sm">
+                  {/* Header */}
+                  <div className="p-6 border-b border-border/50">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent">
+                          Enhance Your Agent
+                        </DialogTitle>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Add knowledge and capabilities to make your agent smarter
+                        </p>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleBack}
+                        className="rounded-full"
+                      >
+                        <ArrowLeft className="w-5 h-5" />
+                      </Button>
+                    </div>
+                  </div>
 
                   {/* Tabs */}
-                  <div className="flex gap-2 mb-6 border-b border-white/10">
-                    <button 
-                      onClick={() => setKnowledgeTab("website")}
-                      className={`px-4 py-2 font-medium pb-2 flex items-center gap-2 transition-colors ${
-                        knowledgeTab === "website"
-                          ? "text-white border-b-2 border-blue-500"
-                          : "text-white/50 hover:text-white"
-                      }`}
-                    >
-                      <Globe className="w-4 h-4" />
-                      Website Knowledge
-                    </button>
-                    <button 
-                      onClick={() => setKnowledgeTab("files")}
-                      className={`px-4 py-2 font-medium pb-2 flex items-center gap-2 transition-colors ${
-                        knowledgeTab === "files"
-                          ? "text-white border-b-2 border-blue-500"
-                          : "text-white/50 hover:text-white"
-                      }`}
-                    >
-                      <Database className="w-4 h-4" />
-                      Knowledge Files
-                    </button>
-                    <button 
-                      onClick={() => setKnowledgeTab("integrations")}
-                      className={`px-4 py-2 font-medium pb-2 flex items-center gap-2 transition-colors ${
-                        knowledgeTab === "integrations"
-                          ? "text-white border-b-2 border-blue-500"
-                          : "text-white/50 hover:text-white"
-                      }`}
-                    >
-                      <Settings className="w-4 h-4" />
-                      Integrations
-                    </button>
-                  </div>
+                  <div className="px-6 pt-6">
+                    <Tabs value={knowledgeTab} onValueChange={(v: any) => setKnowledgeTab(v)} className="w-full">
+                      <TabsList className="grid grid-cols-3 mb-8">
+                        <TabsTrigger value="website" className="gap-2 py-3">
+                          <Globe className="w-4 h-4" />
+                          Website Knowledge
+                        </TabsTrigger>
+                        <TabsTrigger value="files" className="gap-2 py-3">
+                          <Database className="w-4 h-4" />
+                          Files & Documents
+                        </TabsTrigger>
+                        <TabsTrigger value="integrations" className="gap-2 py-3">
+                          <Settings className="w-4 h-4" />
+                          Integrations
+                        </TabsTrigger>
+                      </TabsList>
 
-                  {/* Tab Content */}
-                  <div className="flex-1 overflow-y-auto mb-4">
-                    {knowledgeTab === "website" && (
-                      <>
-                        {/* Search Bar */}
-                        <div className="relative mb-6">
-                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" />
-                          <Input
-                            type="text"
-                            placeholder="Search website pages..."
-                            className="w-full pl-10 bg-black/40 border-white/20 text-white placeholder:text-white/50 focus:border-white/50"
-                          />
+                      <TabsContent value="website" className="space-y-6">
+                        <div className="rounded-xl bg-gradient-to-br from-primary/5 to-purple-500/5 border border-primary/10 p-6">
+                          <div className="flex items-center justify-between mb-4">
+                            <div>
+                              <h4 className="font-semibold text-foreground">Website Pages</h4>
+                              <p className="text-sm text-muted-foreground">
+                                Select pages to crawl for knowledge
+                              </p>
+                            </div>
+                            <Badge variant="secondary">
+                              {selectedUrls.length} selected
+                            </Badge>
+                          </div>
+
+                          <div className="space-y-3">
+                            {websiteUrl && [
+                              { url: websiteUrl, title: "Homepage", description: "Main website content" },
+                              { url: `${websiteUrl}/about`, title: "About Us", description: "Company information" },
+                              { url: `${websiteUrl}/products`, title: "Products", description: "Product catalog" },
+                              { url: `${websiteUrl}/contact`, title: "Contact", description: "Contact information" },
+                            ].map((item, index) => (
+                              <div
+                                key={index}
+                                className={cn(
+                                  "flex items-center gap-4 p-4 rounded-xl border transition-all cursor-pointer hover:border-primary/50",
+                                  selectedUrls.includes(item.url)
+                                    ? "bg-primary/5 border-primary/30"
+                                    : "bg-card border-border/50"
+                                )}
+                                onClick={() => {
+                                  setSelectedUrls(prev =>
+                                    prev.includes(item.url)
+                                      ? prev.filter(u => u !== item.url)
+                                      : [...prev, item.url]
+                                  );
+                                }}
+                              >
+                                <div className={cn(
+                                  "w-5 h-5 rounded-lg border flex items-center justify-center transition-all",
+                                  selectedUrls.includes(item.url)
+                                    ? "bg-primary border-primary"
+                                    : "border-border"
+                                )}>
+                                  {selectedUrls.includes(item.url) && (
+                                    <CheckCircle2 className="w-3 h-3 text-white" />
+                                  )}
+                                </div>
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2">
+                                    <h5 className="font-medium">{item.title}</h5>
+                                    <ExternalLink className="w-3 h-3 text-muted-foreground" />
+                                  </div>
+                                  <p className="text-sm text-muted-foreground">{item.description}</p>
+                                  <p className="text-xs text-muted-foreground truncate">{item.url}</p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
                         </div>
 
-                        {/* Selected URLs Info */}
-                        <div className="flex items-center justify-between mb-4">
-                          <span className="text-sm text-white/70">
-                            Selected URLs To Scrape ({selectedUrls.length}/96)
-                          </span>
-                          <span className="text-xs text-white/50">Will save on deploy</span>
-                        </div>
-
-                        {/* URL List - Show only 4 pages */}
-                        <div className="space-y-2">
-                        {websiteUrl && [
-                          { url: websiteUrl, title: new URL(websiteUrl).hostname },
-                          { url: `${websiteUrl}/featured`, title: "Featured" },
-                          { url: `${websiteUrl}/sitemap`, title: "Sitemap" },
-                          { url: `${websiteUrl}/add-new`, title: "Add New" },
-                        ].slice(0, 4).map((item, index) => (
-                          <div
-                            key={index}
-                            className="flex items-center gap-3 p-3 bg-black/20 rounded-lg border border-white/10 hover:border-white/30 transition-colors"
-                          >
-                            <input
-                              type="checkbox"
-                              checked={selectedUrls.includes(item.url)}
-                              onChange={(e) => {
-                                if (e.target.checked) {
-                                  setSelectedUrls([...selectedUrls, item.url]);
-                                } else {
-                                  setSelectedUrls(selectedUrls.filter(u => u !== item.url));
-                                }
-                              }}
-                              className="w-4 h-4 rounded border-white/30 bg-transparent text-blue-500 focus:ring-blue-500"
-                            />
-                            <ExternalLink className="w-4 h-4 text-white/50" />
-                            <div className="flex-1">
-                              <p className="text-sm font-medium text-white">{item.title}</p>
-                              <p className="text-xs text-white/50">{item.url}</p>
+                        <div className="flex items-center justify-between p-4 rounded-xl bg-card border border-border/50">
+                          <div className="flex items-center gap-3">
+                            <Shield className="w-5 h-5 text-primary" />
+                            <div>
+                              <p className="font-medium">Advanced Crawling</p>
+                              <p className="text-sm text-muted-foreground">Crawl up to 100 pages automatically</p>
                             </div>
                           </div>
-                        ))}
+                          <Switch />
                         </div>
-                      </>
-                    )}
+                      </TabsContent>
 
-                    {/* Knowledge Files Tab */}
-                    {knowledgeTab === "files" && (
-                      <div className="flex items-center justify-center h-full">
-                        <div className="w-full max-w-md border-2 border-dashed border-white/20 rounded-xl p-12 text-center hover:border-white/30 transition-colors cursor-pointer">
+                      <TabsContent value="files" className="space-y-6">
+                        <div className="border-2 border-dashed border-border/50 rounded-2xl p-12 text-center hover:border-primary/50 transition-colors cursor-pointer">
                           <div className="flex flex-col items-center gap-4">
-                            <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center">
-                              <FileText className="w-8 h-8 text-white/50" />
+                            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/10 to-purple-500/10 flex items-center justify-center">
+                              <FileUp className="w-10 h-10 text-primary" />
                             </div>
                             <div>
-                              <p className="text-lg font-semibold text-white mb-2">Upload Knowledge Files</p>
-                              <p className="text-sm text-white/60 mb-1">Drag and drop files here, or click to browse</p>
-                              <p className="text-xs text-white/40">Supports PDF, DOC, DOCX, TXT, MD files</p>
+                              <h4 className="text-xl font-semibold mb-2">Upload Knowledge Files</h4>
+                              <p className="text-sm text-muted-foreground mb-3">
+                                Drag and drop files or click to browse
+                              </p>
+                              <Button variant="outline" className="gap-2">
+                                <Upload className="w-4 h-4" />
+                                Browse Files
+                              </Button>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    )}
+                      </TabsContent>
 
-                    {/* Integrations Tab */}
-                    {knowledgeTab === "integrations" && (
-                      <div className="flex items-center justify-center h-full">
-                        <div className="text-center">
-                          <Settings className="w-16 h-16 text-white/30 mx-auto mb-4" />
-                          <p className="text-lg font-semibold text-white mb-2">Integrations</p>
-                          <p className="text-sm text-white/60">Connect your favorite tools and services</p>
+                      <TabsContent value="integrations" className="space-y-6">
+                        <div className="grid grid-cols-2 gap-4">
+                          {["Slack", "Notion", "Google Drive", "Salesforce", "Zapier", "API"].map((integration) => (
+                            <div
+                              key={integration}
+                              className="p-4 rounded-xl border border-border/50 hover:border-primary/50 hover:bg-primary/5 transition-all cursor-pointer"
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/10 to-purple-500/10 flex items-center justify-center">
+                                  <Link className="w-5 h-5 text-primary" />
+                                </div>
+                                <div>
+                                  <p className="font-medium">{integration}</p>
+                                  <p className="text-xs text-muted-foreground">Connect to {integration}</p>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
                         </div>
-                      </div>
-                    )}
+                      </TabsContent>
+                    </Tabs>
                   </div>
 
-                  {/* Navigation Buttons - Fixed at Bottom */}
-                  <div className="flex items-center justify-between pt-4 border-t border-white/10 flex-shrink-0">
-                    <Button
-                      onClick={handleBack}
-                      variant="outline"
-                      className="flex items-center gap-2 px-6 py-2 border-white/20 text-white hover:bg-white/10"
-                    >
-                      <ArrowLeft className="w-4 h-4" />
-                      Back
-                    </Button>
-                    <div className="flex-1" />
-                    <Button
-                      onClick={() => {
-                        if (knowledgeTab === "website") {
-                          setKnowledgeTab("files");
-                        } else if (knowledgeTab === "files") {
-                          setKnowledgeTab("integrations");
-                        } else {
-                          toast.success("Agent created successfully!");
-                          setIsCreateDialogOpen(false);
-                          setCurrentStep("create");
-                          setSelectedUrls([]);
-                          setKnowledgeTab("website");
-                        }
-                      }}
-                      className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2 shadow-lg"
-                    >
-                      Next
-                      <ArrowRight className="w-4 h-4" />
-                    </Button>
+                  {/* Footer */}
+                  <div className="mt-auto p-6 border-t border-border/50">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                          <span className="text-sm text-muted-foreground">Ready to deploy</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            toast.success("Agent saved as draft!", {
+                              description: "You can continue editing later.",
+                            });
+                            setIsCreateDialogOpen(false);
+                          }}
+                          className="rounded-xl"
+                        >
+                          Save Draft
+                        </Button>
+                        <Button
+                          onClick={() => {
+                            if (knowledgeTab === "website") setKnowledgeTab("files");
+                            else if (knowledgeTab === "files") setKnowledgeTab("integrations");
+                            else {
+                              toast.success("Agent created successfully!", {
+                                description: "Your AI assistant is now ready to use.",
+                                icon: "🎉",
+                              });
+                              setIsCreateDialogOpen(false);
+                              setCurrentStep("create");
+                              setKnowledgeTab("website");
+                            }
+                          }}
+                          className="rounded-xl gap-2 bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 shadow-lg shadow-primary/25"
+                        >
+                          {knowledgeTab === "integrations" ? "Create Agent" : "Continue"}
+                          <ChevronRight className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </motion.div>
@@ -743,9 +1106,3 @@ const AgentStorePage = () => {
 };
 
 export default AgentStorePage;
-
-
-
-
-
-

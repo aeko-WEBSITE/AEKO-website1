@@ -85,7 +85,7 @@ const CreateAgentSection = () => {
       description: "Help customers find products, check availability, and process custom orders",
       example: "Customer: 'I'd like my initials K.T. on the sweater'\nAgent: 'Your custom order is placed.'",
       icon: ShoppingCart,
-      color: "from-purple-500 to-pink-500",
+      color: "from-primary to-primary/80",
     },
     {
       title: "Travel Booking Agent",
@@ -115,9 +115,9 @@ const CreateAgentSection = () => {
 
   return (
     <TooltipProvider>
-    <section className="py-24 lg:py-32 relative overflow-hidden w-full bg-background dark:bg-gradient-to-br dark:from-[#0a0a1a] dark:via-[#1a0b2e] dark:to-[#0f0517]">
+    <section className="py-24 lg:py-32 relative overflow-hidden w-full bg-background">
       {/* Theme-Aware Base Gradient Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-purple-50/30 to-blue-50/30 dark:from-[#0a0a1a] dark:via-[#1a0b2e] dark:to-[#0f0517] w-full" />
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-purple-50/30 to-blue-50/30 dark:from-black dark:via-black dark:to-black w-full" />
       
       {/* Animated Mesh Gradient Overlay - Theme Aware */}
       <motion.div
@@ -518,7 +518,7 @@ const CreateAgentSection = () => {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="text-center mt-8"
         >
-          <p className="text-lg text-white max-w-2xl mx-auto font-medium">
+          <p className="text-lg text-black dark:text-white max-w-2xl mx-auto font-medium">
             All-in-one AI platform for{' '}
             <span className="bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent font-bold">
               chat
@@ -528,7 +528,7 @@ const CreateAgentSection = () => {
               images
             </span>
             , and{' '}
-            <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent font-bold">
+            <span className="gradient-text font-bold">
               videos
             </span>
             {' '}— powered by the world's best models.
@@ -699,7 +699,7 @@ const CreateAgentSection = () => {
                             
                             {/* Content */}
                             <div className="flex-1 text-left">
-                              <h4 className="text-lg font-bold text-foreground dark:text-white mb-1 group-hover:text-primary dark:group-hover:text-purple-300 transition-colors">
+                              <h4 className="text-lg font-bold text-foreground mb-1 group-hover:text-primary transition-colors">
                                 {useCase.title}
                               </h4>
                               <p className="text-sm text-muted-foreground dark:text-white/70 line-clamp-1">
@@ -751,7 +751,7 @@ const CreateAgentSection = () => {
                                           ? 'bg-primary/10 dark:bg-primary/20 text-foreground dark:text-white border border-primary/20'
                                           : `bg-gradient-to-br ${useCase.color}/20 dark:${useCase.color}/30 text-foreground dark:text-white border border-border/30`
                                       }`}>
-                                        <span className="font-semibold text-primary dark:text-purple-300">
+                                        <span className="font-semibold text-primary">
                                           {isCustomer ? (line.includes('Customer:') ? 'Customer: ' : '') : 'Agent: '}
                                         </span>
                                         <span>{line.replace(/^(Customer:|Agent:)\s*/, '')}</span>
@@ -810,7 +810,7 @@ const CreateAgentSection = () => {
                     {/* Inner Background - Theme Aware */}
                     <div className="absolute inset-[2px] rounded-3xl bg-card/90 dark:bg-[#12162A]/90 backdrop-blur-2xl" style={{ borderRadius: '22px' }} />
                     {/* Decorative Gradient Overlay */}
-                    <div className="absolute inset-[2px] rounded-3xl bg-gradient-to-br from-purple-500/5 via-pink-500/5 to-blue-500/5 pointer-events-none" style={{ borderRadius: '22px' }} />
+                    <div className="absolute inset-[2px] rounded-3xl bg-primary/5 pointer-events-none" style={{ borderRadius: '22px' }} />
                     
                     {/* Content */}
                     <div className="relative z-10">
@@ -843,7 +843,7 @@ const CreateAgentSection = () => {
                             icon: ShoppingCart,
                             title: "Process orders and bookings automatically",
                             description: "Seamless order management and booking systems",
-                            color: "from-purple-500 to-pink-500",
+                            color: "from-primary to-primary/80",
                           },
                           {
                             icon: Zap,
@@ -861,7 +861,7 @@ const CreateAgentSection = () => {
                             icon: Sparkles,
                             title: "Learn from your business data",
                             description: "AI-powered insights from your data",
-                            color: "from-indigo-500 to-purple-500",
+                            color: "from-primary to-primary/80",
                           },
                           {
                             icon: Rocket,
@@ -885,7 +885,7 @@ const CreateAgentSection = () => {
                             icon: FileCheck,
                             title: "Docs convert tool",
                             description: "Transform documents effortlessly",
-                            color: "from-violet-500 to-purple-500",
+                            color: "from-primary to-primary/80",
                           },
                         ].map((feature, index) => {
                           const Icon = feature.icon;
@@ -900,7 +900,7 @@ const CreateAgentSection = () => {
                               className="group cursor-pointer"
                             >
                               {/* Modern Card with Hover Effects */}
-                              <div className="relative p-5 rounded-2xl bg-card/50 dark:bg-white/5 border border-border/30 dark:border-white/10 hover:border-primary/50 dark:hover:border-white/30 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 dark:hover:shadow-purple-500/20 h-full">
+                              <div className="relative p-5 rounded-2xl bg-card/50 border border-border/30 hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 h-full">
                                 {/* Gradient Background on Hover */}
                                 <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-10 dark:group-hover:opacity-20 transition-opacity duration-300`} />
                                 
@@ -932,7 +932,7 @@ const CreateAgentSection = () => {
                                   
                                   {/* Text Content */}
                                   <div className="space-y-1">
-                                    <h5 className="text-sm md:text-base font-bold text-foreground dark:text-white group-hover:text-primary dark:group-hover:text-purple-300 transition-colors duration-300 leading-tight">
+                                    <h5 className="text-sm md:text-base font-bold text-foreground group-hover:text-primary transition-colors duration-300 leading-tight">
                                       {feature.title}
                                     </h5>
                                     <p className="text-xs text-muted-foreground dark:text-white/60 line-clamp-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">

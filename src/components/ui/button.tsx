@@ -9,14 +9,14 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-[#6366F1] text-white hover:bg-[#4F46E5] hover:shadow-lg hover:shadow-[#6366F1]/30 transition-all duration-200",
+        default: "bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/30 transition-all duration-200",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline: "border border-border bg-transparent text-foreground hover:bg-secondary hover:border-primary/50",
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-secondary hover:text-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        // Hero button with subtle gradient (Primary CTA)
-        hero: "bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] text-white font-semibold hover:from-[#4F46E5] hover:to-[#7C3AED] hover:shadow-lg hover:shadow-[#6366F1]/40 transition-all duration-200",
+        // Hero button with subtle gradient (Primary CTA) - uses CSS variables
+        hero: "bg-gradient-to-r from-primary to-primary/85 text-primary-foreground font-semibold hover:from-primary/90 hover:to-primary/75 hover:shadow-lg hover:shadow-primary/40 transition-all duration-200",
         // Glass button for dark backgrounds
         glass: "bg-secondary/50 backdrop-blur-sm border border-border/50 text-foreground hover:bg-secondary/70 hover:border-primary/30",
       },
