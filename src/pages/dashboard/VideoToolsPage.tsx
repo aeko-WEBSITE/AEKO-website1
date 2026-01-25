@@ -20,9 +20,16 @@ import {
   Square,
   Film,
   ArrowLeftRight,
+  Maximize2,
+  Eye,
+  Palette,
+  Timer,
+  Clock,
+  CheckCircle2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -66,112 +73,159 @@ const VideoToolsPage = () => {
   };
 
   return (
-    <div className="flex flex-col h-full w-full overflow-hidden bg-background">
-      {/* Mode Switcher - Top */}
-      <div className="flex-shrink-0 border-b-2 border-border bg-secondary/20 px-3 sm:px-4 py-2 sm:py-3">
-        <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
-          {videoModes.map((mode) => {
-            const Icon = mode.icon;
-            const isActive = activeMode === mode.id;
-            return (
-              <motion.button
-                key={mode.id}
-                onClick={() => setActiveMode(mode.id)}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 border ${
-                  isActive
-                    ? `bg-gradient-to-r ${mode.color} text-white border-transparent shadow-lg`
-                    : "bg-secondary/40 text-muted-foreground border-border/50 hover:bg-secondary/60 hover:text-foreground"
-                }`}
-              >
-                <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span>{mode.label}</span>
-              </motion.button>
-            );
-          })}
+    <div className="flex flex-col h-full w-full overflow-hidden bg-background relative">
+      {/* Animated Background Gradient */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <motion.div
+          animate={{
+            x: [0, 100, 0],
+            y: [0, 50, 0],
+            opacity: [0.3, 0.5, 0.3],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: "linear",
+          }}
+          className="absolute top-0 left-0 w-[600px] h-[600px] bg-gradient-to-br from-primary/10 via-purple-500/10 to-pink-500/10 rounded-full blur-3xl"
+        />
+        <motion.div
+          animate={{
+            x: [0, -100, 0],
+            y: [0, -50, 0],
+            opacity: [0.2, 0.4, 0.2],
+          }}
+          transition={{
+            duration: 25,
+            repeat: Infinity,
+            ease: "linear",
+            delay: 0.5,
+          }}
+          className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-gradient-to-br from-cyan-500/10 via-blue-500/10 to-primary/10 rounded-full blur-3xl"
+        />
+      </div>
+
+      {/* Grid Pattern Overlay */}
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:60px_60px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_70%)] pointer-events-none" />
+
+      {/* Professional Header */}
+      <div className="relative z-10 flex-shrink-0 border-b border-border/50 bg-gradient-to-r from-card/80 via-card/60 to-card/80 backdrop-blur-xl px-4 sm:px-6 py-4">
+        <div className="flex items-center justify-between w-full">
+          <div className="flex items-center gap-4">
+            <motion.div
+              className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center shadow-lg"
+              animate={{
+                boxShadow: [
+                  "0 0 20px rgba(99, 102, 241, 0.3)",
+                  "0 0 30px rgba(168, 85, 247, 0.4)",
+                  "0 0 20px rgba(99, 102, 241, 0.3)",
+                ],
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            >
+              <Video className="w-6 h-6 text-white" />
+            </motion.div>
+            <div>
+              <h1 className="text-xl sm:text-2xl font-bold text-foreground">AI Video Playground</h1>
+              <p className="text-xs sm:text-sm text-muted-foreground">Create stunning videos with AI</p>
+            </div>
+          </div>
+          
+          {/* Mode Switcher - Modern Pills */}
+          <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+            {videoModes.map((mode) => {
+              const Icon = mode.icon;
+              const isActive = activeMode === mode.id;
+              return (
+                <motion.button
+                  key={mode.id}
+                  onClick={() => setActiveMode(mode.id)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all whitespace-nowrap flex-shrink-0 ${
+                    isActive
+                      ? `bg-gradient-to-r ${mode.color} text-white shadow-lg shadow-primary/30`
+                      : "bg-card/60 text-muted-foreground hover:bg-card/80 hover:text-foreground border border-border/50"
+                  }`}
+                >
+                  {isActive && (
+                    <motion.div
+                      className="absolute inset-0 rounded-xl bg-white/20"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: [0, 0.3, 0] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    />
+                  )}
+                  <Icon className="w-4 h-4" />
+                  <span className="hidden sm:inline">{mode.label}</span>
+                  <span className="sm:hidden">{mode.label.split(' ')[0]}</span>
+                </motion.button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
-      {/* Full Frame Layout */}
-      <div className="flex flex-1 h-full w-full min-w-0 gap-1 sm:gap-2 overflow-hidden">
-        {/* LEFT: Input Section */}
-        <div className="flex flex-col w-full lg:w-[52%] min-w-0 border-r-2 border-border bg-secondary/10 overflow-y-auto scrollbar-hide">
-          <div className="p-3 sm:p-4 space-y-3 sm:space-y-4 min-h-full border-2 border-border rounded-lg m-2 sm:m-3">
-            {/* Title and Model Selector */}
-            <div className="flex items-center justify-between pb-2 border-b border-border">
-              <h2 className="text-xl sm:text-2xl font-bold text-foreground">Input</h2>
+      {/* Main Playground Layout */}
+      <div className="relative z-10 flex flex-1 h-full w-full min-w-0 gap-4 sm:gap-6 overflow-hidden p-4 sm:p-6">
+        {/* LEFT: Input Section - Professional Card */}
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
+          className="flex flex-col w-full lg:w-[52%] min-w-0 overflow-y-auto scrollbar-hide"
+        >
+          <div className="rounded-2xl border border-border/50 bg-gradient-to-br from-card/80 via-card/60 to-card/40 backdrop-blur-xl shadow-2xl shadow-primary/5 p-5 sm:p-6 space-y-6 h-full">
+            {/* Header with Model Selector */}
+            <div className="flex items-center justify-between pb-4 border-b border-border/50">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center">
+                  <Wand2 className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <h2 className="text-lg sm:text-xl font-bold text-foreground">Creative Input</h2>
+                  <p className="text-xs text-muted-foreground">Describe your vision</p>
+                </div>
+              </div>
               
-              {/* Model Dropdown */}
+              {/* Model Selector - Enhanced */}
               <DropdownMenu open={isModelOpen} onOpenChange={setIsModelOpen}>
                 <DropdownMenuTrigger asChild>
-                  <motion.div
-                    className="relative"
-                    animate={{
-                      scale: [1, 1.05, 1],
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="relative flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-primary/10 to-purple-500/10 hover:from-primary/20 hover:to-purple-500/20 border-2 border-primary/30 hover:border-primary/50 text-foreground text-sm font-semibold transition-all shadow-lg backdrop-blur-sm"
                   >
-                    {/* Highlight Border Animation */}
-                    <motion.div
-                      className="absolute inset-0 rounded-lg"
-                      animate={{
-                        boxShadow: [
-                          "0 0 0px rgba(124, 58, 237, 0)",
-                          "0 0 15px rgba(124, 58, 237, 0.6)",
-                          "0 0 0px rgba(124, 58, 237, 0)",
-                        ],
-                      }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                      }}
-                    />
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="relative flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-primary/20 hover:bg-primary/30 border-2 border-primary/50 hover:border-primary text-foreground text-xs sm:text-sm font-medium transition-all shadow-lg"
-                    >
-                      {(() => {
-                        const ModelIcon = selectedModel.icon;
-                        return (
-                          <motion.div
-                            animate={{
-                              rotate: [0, 10, -10, 0],
-                            }}
-                            transition={{
-                              duration: 3,
-                              repeat: Infinity,
-                              ease: "easeInOut",
-                            }}
-                          >
-                            <ModelIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                          </motion.div>
-                        );
-                      })()}
-                      <span className="hidden sm:inline">{selectedModel.name}</span>
-                      <span className="sm:hidden">{selectedModel.name.split(' ')[0]}</span>
-                      <motion.div
-                        animate={{
-                          y: [0, 3, 0],
-                        }}
-                        transition={{
-                          duration: 1.5,
-                          repeat: Infinity,
-                          ease: "easeInOut",
-                        }}
-                      >
-                        <ChevronDown className={`w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground transition-transform ${isModelOpen ? 'rotate-180' : ''}`} />
-                      </motion.div>
-                    </motion.button>
-                  </motion.div>
+                    {(() => {
+                      const ModelIcon = selectedModel.icon;
+                      return (
+                        <motion.div
+                          animate={{
+                            rotate: [0, 5, -5, 0],
+                          }}
+                          transition={{
+                            duration: 3,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                          }}
+                        >
+                          <ModelIcon className="w-4 h-4 text-primary" />
+                        </motion.div>
+                      );
+                    })()}
+                    <span className="hidden sm:inline">{selectedModel.name}</span>
+                    <span className="sm:hidden">{selectedModel.name.split(' ')[0]}</span>
+                    <Badge variant="outline" className="ml-1 text-xs border-primary/30">
+                      {selectedModel.description}
+                    </Badge>
+                    <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${isModelOpen ? 'rotate-180' : ''}`} />
+                  </motion.button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-64 backdrop-blur-xl bg-secondary/95 border border-border/50">
+                <DropdownMenuContent align="end" className="w-72 backdrop-blur-xl bg-card/95 border border-border/50 shadow-xl">
                   {videoModels.map((model) => {
                     const ModelIcon = model.icon;
                     const isSelected = selectedModel.id === model.id;
@@ -182,14 +236,21 @@ const VideoToolsPage = () => {
                           setSelectedModel(model);
                           setIsModelOpen(false);
                         }}
-                        className={`cursor-pointer hover:bg-secondary/70 transition-colors ${
-                          isSelected ? "bg-secondary/50" : ""
+                        className={`cursor-pointer hover:bg-primary/5 transition-colors p-3 rounded-lg ${
+                          isSelected ? "bg-primary/10 border border-primary/30" : ""
                         }`}
                       >
-                        <ModelIcon className="w-4 h-4 mr-3 text-foreground" />
-                        <div className="flex flex-col flex-1">
-                          <span className="font-medium text-foreground text-sm">{model.name}</span>
-                          <span className="text-xs text-muted-foreground">{model.description}</span>
+                        <div className="flex items-center gap-3 w-full">
+                          <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${isSelected ? 'from-primary to-purple-500' : 'from-secondary to-secondary'} flex items-center justify-center`}>
+                            <ModelIcon className={`w-5 h-5 ${isSelected ? 'text-white' : 'text-foreground'}`} />
+                          </div>
+                          <div className="flex flex-col flex-1">
+                            <div className="flex items-center gap-2">
+                              <span className="font-semibold text-foreground text-sm">{model.name}</span>
+                              {isSelected && <CheckCircle2 className="w-4 h-4 text-primary" />}
+                            </div>
+                            <span className="text-xs text-muted-foreground">{model.description}</span>
+                          </div>
                         </div>
                       </DropdownMenuItem>
                     );
@@ -198,144 +259,254 @@ const VideoToolsPage = () => {
               </DropdownMenu>
             </div>
 
-            {/* Prompt Input */}
-            <div className="space-y-2">
-              <textarea
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                placeholder="Enter negative prompt"
-                disabled={activeMode === "video-to-video"}
-                className="w-full h-28 sm:h-36 bg-secondary/40 border border-border/50 rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-primary/50 text-xs sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-              />
+            {/* Enhanced Prompt Input */}
+            <div className="space-y-4">
+              <div className="relative">
+                <label className="block text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-primary" />
+                  Video Prompt
+                </label>
+                <textarea
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  placeholder="A futuristic cityscape at sunset, neon lights reflecting on wet streets, cyberpunk aesthetic, cinematic 4K, slow panning shot..."
+                  disabled={activeMode === "video-to-video"}
+                  className="w-full h-32 sm:h-40 bg-background/60 backdrop-blur-sm border-2 border-border/50 rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground/60 resize-none focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                />
+                <div className="absolute bottom-3 right-3 flex items-center gap-2">
+                  <Badge variant="outline" className="text-xs border-border/30">
+                    {prompt.length} chars
+                  </Badge>
+                </div>
+              </div>
               
               {/* Video Upload for Video-to-Video */}
               {activeMode === "video-to-video" && (
-                <div className="border-2 border-dashed border-border/50 rounded-lg p-4 text-center bg-secondary/20">
-                  <Video className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-                  <p className="text-xs sm:text-sm text-muted-foreground mb-2">
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="border-2 border-dashed border-primary/30 rounded-xl p-6 text-center bg-gradient-to-br from-primary/5 to-purple-500/5 hover:border-primary/50 transition-all cursor-pointer group"
+                >
+                  <motion.div
+                    animate={{ y: [0, -5, 0] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    <Video className="w-12 h-12 mx-auto mb-3 text-primary" />
+                  </motion.div>
+                  <p className="text-sm font-medium text-foreground mb-1">
                     Upload a video to transform
                   </p>
-                  <Button variant="outline" size="sm" className="text-xs">
+                  <p className="text-xs text-muted-foreground mb-4">
+                    Supports MP4, MOV, AVI up to 500MB
+                  </p>
+                  <Button variant="outline" size="sm" className="gap-2 border-primary/30 hover:border-primary/50">
+                    <Paperclip className="w-4 h-4" />
                     Choose Video
                   </Button>
-                </div>
+                </motion.div>
               )}
               
-              <div className="flex items-center justify-between">
+              {/* Action Buttons */}
+              <div className="flex items-center justify-between flex-wrap gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary/30 border border-border/30">
+                    <Switch
+                      checked={enhancePrompt}
+                      onCheckedChange={setEnhancePrompt}
+                    />
+                    <span className="text-sm font-medium text-foreground">Enhance Prompt</span>
+                  </div>
+                </div>
                 <div className="flex items-center gap-2">
-                  <Switch
-                    checked={enhancePrompt}
-                    onCheckedChange={setEnhancePrompt}
-                  />
-                  <span className="text-sm text-muted-foreground">Enhance your prompt</span>
-                </div>
-                <div className="flex items-center gap-4">
-                  <button className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
-                    <Star className="w-3 h-3" />
-                    <span>AI Translate</span>
-                  </button>
-                  <button
-                    onClick={() => setPrompt("")}
-                    className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary/30 hover:bg-secondary/50 border border-border/30 hover:border-primary/30 text-sm text-foreground transition-all"
                   >
-                    <Trash2 className="w-3 h-3" />
-                    <span>Clear</span>
-                  </button>
+                    <Star className="w-4 h-4 text-primary" />
+                    <span className="hidden sm:inline">AI Translate</span>
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setPrompt("")}
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary/30 hover:bg-destructive/10 border border-border/30 hover:border-destructive/30 text-sm text-foreground transition-all"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    <span className="hidden sm:inline">Clear</span>
+                  </motion.button>
                 </div>
               </div>
             </div>
 
-            {/* Number of Videos - Dropdown */}
-            <div className="space-y-1.5">
-              <label className="text-xs sm:text-sm font-medium text-foreground">Number of Videos</label>
-              <div className="relative">
-                <select
-                  value={numberOfVideos}
-                  onChange={(e) => setNumberOfVideos(e.target.value)}
-                  className="w-full px-3 sm:px-4 py-1.5 sm:py-2 bg-secondary/40 border border-border/50 rounded-lg text-foreground text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 appearance-none"
-                >
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                  <option value="4">4</option>
-                  <option value="8">8</option>
-                </select>
-                <ChevronDown className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground pointer-events-none" />
+            {/* Advanced Options */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-foreground flex items-center gap-2">
+                  <Timer className="w-4 h-4 text-primary" />
+                  Quantity
+                </label>
+                <div className="relative">
+                  <select
+                    value={numberOfVideos}
+                    onChange={(e) => setNumberOfVideos(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-background/60 backdrop-blur-sm border-2 border-border/50 rounded-xl text-foreground text-sm focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 appearance-none transition-all"
+                  >
+                    <option value="1">1 Video</option>
+                    <option value="2">2 Videos</option>
+                    <option value="4">4 Videos</option>
+                    <option value="8">8 Videos</option>
+                  </select>
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                </div>
+                <Badge variant="outline" className="text-xs border-primary/20 text-primary">
+                  <Star className="w-3 h-3 mr-1" />
+                  Pro Feature
+                </Badge>
               </div>
-              <p className="text-[10px] sm:text-xs text-muted-foreground">This feature is only available to paid users</p>
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-foreground flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-primary" />
+                  Duration
+                </label>
+                <div className="px-4 py-2.5 bg-background/60 backdrop-blur-sm border-2 border-border/50 rounded-xl flex items-center justify-between">
+                  <span className="text-sm font-medium text-foreground">5 seconds</span>
+                  <Badge variant="outline" className="text-xs">Default</Badge>
+                </div>
+              </div>
             </div>
 
-            {/* Generate Button */}
-            <Button
-              onClick={handleGenerate}
-              disabled={isLoading || !prompt.trim()}
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 sm:py-4 text-sm sm:text-base"
+            {/* Generate Button - Enhanced */}
+            <motion.div
+              whileHover={{ scale: isLoading || !prompt.trim() ? 1 : 1.02 }}
+              whileTap={{ scale: isLoading || !prompt.trim() ? 1 : 0.98 }}
             >
-              {isLoading ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-4 h-4 mr-2" />
-                  Generate
-                </>
-              )}
-            </Button>
+              <Button
+                onClick={handleGenerate}
+                disabled={isLoading || !prompt.trim()}
+                className="w-full h-12 bg-gradient-to-r from-primary via-purple-500 to-pink-500 hover:from-primary/90 hover:via-purple-500/90 hover:to-pink-500/90 text-white font-bold text-base shadow-lg shadow-primary/25 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    Generating Video...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-5 h-5 mr-2" />
+                    Generate Video
+                  </>
+                )}
+              </Button>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
 
-        {/* RIGHT: Output Section */}
-        <div className="flex flex-col w-full lg:w-[48%] min-w-0 border-l-2 border-border bg-secondary/5 overflow-y-auto scrollbar-hide">
-          <div className="p-3 sm:p-4 space-y-3 sm:space-y-4 h-full flex flex-col min-h-0 border-2 border-border rounded-lg m-2 sm:m-3">
-            {/* Title and View Options */}
-            <div className="flex items-center justify-between pb-2 border-b border-border">
-              <h2 className="text-xl sm:text-2xl font-bold text-foreground">Output</h2>
-              <div className="flex gap-2">
-                {/* Download Icon */}
+        {/* RIGHT: Output Section - Professional Preview */}
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="flex flex-col w-full lg:w-[48%] min-w-0 overflow-y-auto scrollbar-hide"
+        >
+          <div className="rounded-2xl border border-border/50 bg-gradient-to-br from-card/80 via-card/60 to-card/40 backdrop-blur-xl shadow-2xl shadow-primary/5 p-5 sm:p-6 space-y-6 h-full flex flex-col min-h-0">
+            {/* Header with Actions */}
+            <div className="flex items-center justify-between pb-4 border-b border-border/50">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-green-500/20 to-emerald-500/20 flex items-center justify-center">
+                  <Eye className="w-5 h-5 text-green-500" />
+                </div>
+                <div>
+                  <h2 className="text-lg sm:text-xl font-bold text-foreground">Live Preview</h2>
+                  <p className="text-xs text-muted-foreground">Real-time generation</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
-                  className="p-2 rounded-lg transition-all border bg-secondary/20 border-border/30 hover:bg-secondary/40 hover:border-primary/50"
-                  title="Download"
-                >
-                  <Download className="w-4 h-4 text-foreground" />
-                </motion.button>
-                <button
                   onClick={() => setViewMode("grid")}
-                  className={`p-2 rounded-lg transition-all border ${
+                  className={`p-2.5 rounded-xl transition-all border ${
                     viewMode === "grid"
-                      ? "bg-secondary/60 border-border/50"
-                      : "bg-secondary/20 border-border/30 hover:bg-secondary/40"
+                      ? "bg-primary/10 border-primary/50 text-primary"
+                      : "bg-secondary/30 border-border/30 hover:bg-secondary/50 text-foreground"
                   }`}
+                  title="Grid View"
                 >
-                  <Grid3x3 className="w-4 h-4 text-foreground" />
-                </button>
-                <button
+                  <Grid3x3 className="w-4 h-4" />
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
                   onClick={() => setViewMode("single")}
-                  className={`p-2 rounded-lg transition-all border ${
+                  className={`p-2.5 rounded-xl transition-all border ${
                     viewMode === "single"
-                      ? "bg-secondary/60 border-border/50"
-                      : "bg-secondary/20 border-border/30 hover:bg-secondary/40"
+                      ? "bg-primary/10 border-primary/50 text-primary"
+                      : "bg-secondary/30 border-border/30 hover:bg-secondary/50 text-foreground"
                   }`}
+                  title="Single View"
                 >
-                  <Square className="w-4 h-4 text-foreground" />
-                </button>
+                  <Square className="w-4 h-4" />
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  className="p-2.5 rounded-xl transition-all border bg-secondary/30 border-border/30 hover:bg-secondary/50 hover:border-primary/50"
+                  title="Fullscreen"
+                >
+                  <Maximize2 className="w-4 h-4 text-foreground" />
+                </motion.button>
               </div>
             </div>
 
-            {/* Video Preview Area */}
+            {/* Enhanced Video Preview Area */}
             <div className="flex-1 flex items-center justify-center min-h-0 overflow-hidden">
               <AnimatePresence mode="wait">
-                {generatedVideo ? (
+                {isLoading ? (
+                  <motion.div
+                    key="loading"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="flex flex-col items-center justify-center text-center w-full"
+                  >
+                    <div className="relative w-32 h-32 mb-6">
+                      <motion.div
+                        className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/20 via-purple-500/20 to-pink-500/20 blur-xl"
+                        animate={{
+                          scale: [1, 1.2, 1],
+                          opacity: [0.5, 0.8, 0.5],
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                        }}
+                      />
+                      <div className="relative w-full h-full rounded-2xl bg-gradient-to-br from-primary/10 to-purple-500/10 border-2 border-primary/30 flex items-center justify-center">
+                        <Loader2 className="w-12 h-12 text-primary animate-spin" />
+                      </div>
+                    </div>
+                    <h3 className="text-lg font-bold text-foreground mb-2">Generating Your Video</h3>
+                    <p className="text-sm text-muted-foreground mb-4">This may take a few moments...</p>
+                    <div className="w-64 h-2 bg-secondary/30 rounded-full overflow-hidden">
+                      <motion.div
+                        className="h-full bg-gradient-to-r from-primary via-purple-500 to-pink-500"
+                        initial={{ width: "0%" }}
+                        animate={{ width: "100%" }}
+                        transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                      />
+                    </div>
+                  </motion.div>
+                ) : generatedVideo ? (
                   <motion.div
                     key="video"
-                    initial={{ opacity: 0, scale: 0.9 }}
+                    initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    className="w-full h-full flex flex-col min-h-0"
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    className="w-full h-full flex flex-col min-h-0 space-y-4"
                   >
-                    <div className="relative rounded-lg overflow-hidden mb-4 flex-1 min-h-0 bg-secondary/30 border border-border/50 group">
+                    <div className="relative rounded-xl overflow-hidden flex-1 min-h-0 bg-gradient-to-br from-background to-muted/30 border-2 border-border/50 shadow-xl group">
                       <video
                         src={generatedVideo}
                         className="w-full h-full object-cover"
@@ -347,8 +518,10 @@ const VideoToolsPage = () => {
                           }
                         }}
                       />
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10 transition-colors">
-                        <button
+                      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                        <motion.button
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
                           onClick={(e) => {
                             const video = e.currentTarget.parentElement?.previousElementSibling as HTMLVideoElement;
                             if (video) {
@@ -359,26 +532,32 @@ const VideoToolsPage = () => {
                               }
                             }
                           }}
-                          className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 flex items-center justify-center transition-all"
+                          className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-md hover:bg-white/30 flex items-center justify-center transition-all border-2 border-white/30"
                         >
                           {isPlaying ? (
-                            <Pause className="w-8 h-8 text-white" />
+                            <Pause className="w-10 h-10 text-white" />
                           ) : (
-                            <Play className="w-8 h-8 text-white ml-1" />
+                            <Play className="w-10 h-10 text-white ml-1" />
                           )}
-                        </button>
+                        </motion.button>
+                      </div>
+                      <div className="absolute top-4 right-4">
+                        <Badge className="bg-black/50 backdrop-blur-md text-white border-0">
+                          <CheckCircle2 className="w-3 h-3 mr-1" />
+                          Generated
+                        </Badge>
                       </div>
                     </div>
-                    <div className="flex gap-2 flex-shrink-0">
-                      <Button variant="outline" size="sm" className="flex-1 gap-2">
+                    <div className="flex gap-3 flex-shrink-0">
+                      <Button variant="outline" size="lg" className="flex-1 gap-2 border-primary/30 hover:border-primary/50 hover:bg-primary/5">
                         <Download className="w-4 h-4" />
                         Download
                       </Button>
-                      <Button variant="outline" size="sm" className="flex-1 gap-2">
+                      <Button variant="outline" size="lg" className="flex-1 gap-2 border-primary/30 hover:border-primary/50 hover:bg-primary/5">
                         <Share2 className="w-4 h-4" />
                         Share
                       </Button>
-                      <Button variant="outline" size="sm" className="gap-2">
+                      <Button variant="outline" size="lg" className="gap-2 border-primary/30 hover:border-primary/50 hover:bg-primary/5">
                         <Copy className="w-4 h-4" />
                       </Button>
                     </div>
@@ -386,58 +565,52 @@ const VideoToolsPage = () => {
                 ) : (
                   <motion.div
                     key="placeholder"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0 }}
                     className="flex flex-col items-center justify-center text-center w-full max-w-md px-4"
                   >
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-4 rounded-lg bg-secondary/40 border border-border/50 flex items-center justify-center">
+                    <div className="relative w-32 h-32 mb-6">
                       <motion.div
-                        className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-primary/20 to-accent/20 rounded-lg flex items-center justify-center"
+                        className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/10 via-purple-500/10 to-pink-500/10 blur-2xl"
                         animate={{
-                          scale: [1, 1.1, 1],
-                          rotate: [0, 5, -5, 0],
+                          scale: [1, 1.2, 1],
+                          opacity: [0.3, 0.5, 0.3],
                         }}
                         transition={{
                           duration: 3,
                           repeat: Infinity,
                           ease: "easeInOut",
                         }}
-                      >
+                      />
+                      <div className="relative w-full h-full rounded-2xl bg-gradient-to-br from-card/50 to-card/30 border-2 border-border/50 flex items-center justify-center backdrop-blur-sm">
                         <motion.div
                           animate={{
-                            rotate: [0, 360],
-                            scale: [1, 1.2, 1],
+                            scale: [1, 1.1, 1],
+                            rotate: [0, 5, -5, 0],
                           }}
                           transition={{
-                            rotate: {
-                              duration: 4,
-                              repeat: Infinity,
-                              ease: "linear",
-                            },
-                            scale: {
-                              duration: 2,
-                              repeat: Infinity,
-                              ease: "easeInOut",
-                            },
+                            duration: 3,
+                            repeat: Infinity,
+                            ease: "easeInOut",
                           }}
                         >
-                          <Sparkles className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
+                          <Sparkles className="w-12 h-12 text-primary" />
                         </motion.div>
-                      </motion.div>
+                      </div>
                     </div>
-                    <h3 className="text-base sm:text-lg font-semibold text-foreground mb-2">
-                      Ready to generate
+                    <h3 className="text-xl font-bold text-foreground mb-2">
+                      Ready to Generate
                     </h3>
-                    <p className="text-xs sm:text-sm text-muted-foreground">
-                      Enter negative prompt to start generating videos
+                    <p className="text-sm text-muted-foreground max-w-sm">
+                      Enter your prompt above and click generate to create stunning AI-powered videos
                     </p>
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

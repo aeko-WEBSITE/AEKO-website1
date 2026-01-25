@@ -518,7 +518,7 @@ const CreateAgentSection = () => {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="text-center mt-8"
         >
-          <p className="text-lg text-white max-w-2xl mx-auto font-medium">
+          <p className="text-lg text-black dark:text-white max-w-2xl mx-auto font-medium">
             All-in-one AI platform for{' '}
             <span className="bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent font-bold">
               chat
