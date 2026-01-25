@@ -7,7 +7,7 @@ const imageModels = [
     id: 1,
     title: "Text2Image",
     description: "Generate stunning images from text prompts using advanced AI models.",
-    image: "https://images.unsplash.com/photo-1604076913837-52ab5f6a3b5e?w=800&q=80",
+    image: "/feeds/image2.jpg",
   },
   {
     id: 2,
@@ -234,7 +234,7 @@ const ImageToolsFeaturesSection = () => {
             ref={scrollRef}
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
-            className="flex gap-8 overflow-x-auto scrollbar-hide scroll-smooth pb-4"
+            className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4"
             style={{
               scrollBehavior: "smooth",
               scrollbarWidth: "none",

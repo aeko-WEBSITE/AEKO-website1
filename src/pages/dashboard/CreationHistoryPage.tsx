@@ -15,10 +15,11 @@ import {
   Heart,
   Bookmark,
   MoreVertical,
+  Play,
+  Share2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import MasonryCard from "@/components/feed/MasonryCard";
 import ImageDetailModal from "@/components/feed/ImageDetailModal";
 import { FeedItem } from "@/components/feed/FeedCard";
 
@@ -676,19 +677,60 @@ const CreationHistoryPage = () => {
                 </span>
               </div>
               {viewMode === "grid" ? (
-                <div className="columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-4 space-y-4">
+                // UPDATED: Use CSS Grid with gap-2 instead of Masonry for uniform size
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2">
                   {getCurrentItems().map((item) => (
-                    <div key={item.id} className="break-inside-avoid mb-4">
-                      <MasonryCard
-                        item={item}
-                        onLike={handleLike}
-                        onSave={handleSave}
-                        onShare={handleShare}
-                        onOpenComments={handleOpenComments}
-                        onOpenReels={handleOpenReels}
-                        onClick={handleOpenDetail}
-                      />
-                    </div>
+                    <motion.div
+                      key={item.id}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="group relative aspect-square rounded-xl overflow-hidden bg-secondary/20 cursor-pointer"
+                      onClick={() => handleOpenDetail(item.id)}
+                    >
+                      {/* Media Rendering */}
+                      {item.type === "video" ? (
+                        <video
+                          src={item.mediaUrl}
+                          className="w-full h-full object-cover"
+                          muted
+                          loop
+                          onMouseEnter={(e) => e.currentTarget.play()}
+                          onMouseLeave={(e) => e.currentTarget.pause()}
+                        />
+                      ) : (
+                        <img
+                          src={item.mediaUrl}
+                          alt={item.prompt}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      )}
+
+                      {/* Overlay (Visible on Hover) */}
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity p-3 flex flex-col justify-between">
+                        <div className="flex justify-end">
+                           <div className="bg-black/50 p-1.5 rounded-lg backdrop-blur-md">
+                              {item.type === 'video' ? <Video className="w-3 h-3 text-white" /> : <ImageIcon className="w-3 h-3 text-white" />}
+                           </div>
+                        </div>
+                        
+                        <div className="space-y-2">
+                            <p className="text-white text-xs line-clamp-2 font-medium drop-shadow-md">{item.prompt}</p>
+                            <div className="flex items-center justify-end gap-2">
+                               <div className="flex gap-1">
+                                 <Button variant="ghost" size="icon" className="h-7 w-7 text-white hover:text-white hover:bg-white/20" onClick={(e) => { e.stopPropagation(); handleLike(item.id); }}>
+                                    <Heart className={`w-4 h-4 ${item.isLiked ? 'fill-red-500 text-red-500' : ''}`} />
+                                 </Button>
+                                  <Button variant="ghost" size="icon" className="h-7 w-7 text-white hover:text-white hover:bg-white/20" onClick={(e) => { e.stopPropagation(); handleSave(item.id); }}>
+                                    <Bookmark className={`w-4 h-4 ${item.isSaved ? 'fill-white' : ''}`} />
+                                 </Button>
+                                  <Button variant="ghost" size="icon" className="h-7 w-7 text-white hover:text-white hover:bg-white/20" onClick={(e) => { e.stopPropagation(); handleShare(item.id); }}>
+                                    <Share2 className="w-4 h-4" />
+                                 </Button>
+                               </div>
+                            </div>
+                        </div>
+                      </div>
+                    </motion.div>
                   ))}
                 </div>
               ) : (
@@ -704,10 +746,10 @@ const CreationHistoryPage = () => {
                       <div className="w-24 h-24 rounded-lg overflow-hidden bg-secondary/50 flex-shrink-0">
                         {item.type === "video" ? (
                           <div className="relative w-full h-full">
-                            <img
-                              src={item.thumbnailUrl || item.mediaUrl}
-                              alt={item.prompt}
-                              className="w-full h-full object-cover"
+                            <video
+                               src={item.mediaUrl}
+                               className="w-full h-full object-cover"
+                               muted
                             />
                             <div className="absolute inset-0 flex items-center justify-center bg-background/20">
                               <Video className="w-6 h-6 text-foreground" />
@@ -769,4 +811,3 @@ const CreationHistoryPage = () => {
 };
 
 export default CreationHistoryPage;
-
