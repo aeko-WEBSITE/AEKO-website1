@@ -299,7 +299,8 @@ const DashboardHome = () => {
   };
 
   return (
-    <div className="space-y-8 max-w-6xl mx-auto px-3 md:px-6 py-6">
+    // UPDATED: Removed max-w-6xl and mx-auto, changed to w-full and h-full with adjusted padding
+    <div className="space-y-8 w-full h-full px-4 md:px-8 py-6">
       {/* Welcome Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -470,7 +471,7 @@ const DashboardHome = () => {
 
         {/* Content Display */}
         {activeTab === "agents" ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {staticAgents.map((agent) => (
               <motion.div
                 key={agent.id}
@@ -510,7 +511,7 @@ const DashboardHome = () => {
         ) : (
           <div>
             {viewMode === "grid" ? (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
                 {getCurrentItems().map((item) => (
                   <motion.div
                     key={item.id}

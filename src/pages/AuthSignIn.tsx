@@ -1,79 +1,48 @@
-import { useState, useEffect } from "react";
+import { useState, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mail, Apple, Chrome, Bot, User, Send } from "lucide-react";
+import { Mail, Apple, Chrome } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import logoDark from "@/assets/ChatGPT Image Dec 25, 2025, 03_45_44 PM.png";
 
-interface ChatMessage {
-  id: number;
-  role: "user" | "agent";
-  content: string;
-  timestamp: Date;
-}
-
-// Demo chat messages
-const demoMessages: ChatMessage[] = [
+// Video Configuration
+const VIDEO_PLAYLIST = [
   {
-    id: 1,
-    role: "user",
-    content: "Build an AI marketing agent that can search",
-    timestamp: new Date(),
+    src: "/feeds/video19.mp4",
+    title: "AI-Powered Intelligence",
+    description: "Experience the next generation of neural processing. Our agents analyze data in real-time."
   },
   {
-    id: 2,
-    role: "agent",
-    content: "I'll help you create a marketing agent with search capabilities. What specific features would you like it to have?",
-    timestamp: new Date(),
-  },
-  {
-    id: 3,
-    role: "user",
-    content: "It should be able to research competitors and analyze trends",
-    timestamp: new Date(),
-  },
-  {
-    id: 4,
-    role: "agent",
-    content: "Perfect! I'll configure it with web search, competitor analysis, and trend monitoring capabilities.",
-    timestamp: new Date(),
-  },
+    src: "/feeds/video20.mp4",
+    title: "Seamless Integration",
+    description: "Connect your entire workflow with a single click. Automate complex tasks with precision."
+  }
 ];
 
 const AuthSignIn = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [showEmailForm, setShowEmailForm] = useState(false);
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([demoMessages[0]]);
-  const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
+  
+  // Video State Management
+  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Auto-advance chat messages
-  useEffect(() => {
-    if (currentMessageIndex < demoMessages.length - 1) {
-      const timer = setTimeout(() => {
-        setChatMessages(demoMessages.slice(0, currentMessageIndex + 2));
-        setCurrentMessageIndex(currentMessageIndex + 1);
-      }, 3000);
-      return () => clearTimeout(timer);
-    } else {
-      // Reset after showing all messages
-      const resetTimer = setTimeout(() => {
-        setChatMessages([demoMessages[0]]);
-        setCurrentMessageIndex(0);
-      }, 5000);
-      return () => clearTimeout(resetTimer);
-    }
-  }, [currentMessageIndex]);
+  const handleVideoEnd = () => {
+    setCurrentVideoIndex((prevIndex) => (prevIndex + 1) % VIDEO_PLAYLIST.length);
+  };
 
+  // Function to slow down video
+  const setSlowMotion = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+    e.currentTarget.playbackRate = 0.5; // 50% speed
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // For now, navigate directly to Agent LLM page
     navigate("/dashboard/tools/agent");
   };
 
@@ -81,9 +50,11 @@ const AuthSignIn = () => {
     navigate("/dashboard/tools/agent");
   };
 
+  const currentVideo = VIDEO_PLAYLIST[currentVideoIndex];
+
   return (
     <div className="min-h-screen flex bg-background">
-      {/* Left Panel - Login/Signup UI */}
+      {/* Left Panel - Login/Signup UI (Unchanged) */}
       <div className="w-full lg:w-[480px] bg-card flex flex-col p-8 lg:p-8 relative z-10 overflow-hidden">
         {/* Animated Background Glow Effects */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -143,7 +114,7 @@ const AuthSignIn = () => {
                 ease: 'linear',
               }}
             />
-            {/* Logo Container - Simple as before */}
+            {/* Logo Container */}
             <div className="relative w-10 h-10 rounded-full overflow-hidden bg-transparent flex items-center justify-center">
               <img 
                 src={logoDark} 
@@ -411,62 +382,84 @@ const AuthSignIn = () => {
         </div>
       </div>
 
-     {/* Right Panel - Sky Video Background with Chat */}
-<div className="hidden lg:flex flex-1 items-center justify-center bg-background p-6 pt-2 relative overflow-hidden">
-  
-  {/* Adjusted background glow - moved higher (top-1/3) to follow the video */}
-  <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[600px] bg-primary/10 rounded-full blur-[140px] pointer-events-none" />
+      {/* Right Panel - Full Screen Video Background with Bottom-Only Shadow */}
+      <div className="hidden lg:block flex-1 relative overflow-hidden bg-black">
+        {/* Cinematic Video Player */}
+        <AnimatePresence mode="popLayout">
+          <motion.div 
+            key={currentVideoIndex}
+            className="absolute inset-0 w-full h-full"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1.2, ease: "easeInOut" }}
+          >
+            <video
+              ref={videoRef}
+              src={currentVideo.src}
+              className="absolute inset-0 w-full h-full object-cover"
+              autoPlay
+              muted
+              loop={false}
+              playsInline
+              onEnded={handleVideoEnd}
+              onLoadedMetadata={setSlowMotion}
+            />
+          </motion.div>
+        </AnimatePresence>
 
-  <motion.div 
-    className="relative w-full max-w-5xl -mt-20" // Negative margin pulls the video up
-    initial={{ opacity: 0, scale: 0.95 }}
-    animate={{ 
-      opacity: 1, 
-      scale: 1,
-      y: [0, 0, 0] 
-    }}
-    transition={{ 
-      duration: 1,
-      y: { duration: 4, repeat: Infinity, ease: "easeInOut" }
-    }}
-  >
-    {/* Outer Container - Reduced padding from p-1.5 to p-1 */}
-    <div className="relative rounded-[32px] p-1 overflow-hidden shadow-2xl bg-white/5 backdrop-blur-sm">
-      
-      {/* Primary Cinematic Border */}
-      <motion.div
-        className="absolute inset-0 rounded-[32px] pointer-events-none"
-        style={{
-          padding: '2px',
-          background: 'linear-gradient(135deg, #7C3AED, #3B82F6, #22D3EE, #EC4899, #7C3AED)',
-          backgroundSize: '200% 200%',
-          WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-          WebkitMaskComposite: 'xor',
-          maskComposite: 'exclude',
-        }}
-        animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
-        transition={{ duration: 6, repeat: Infinity, ease: 'linear' }}
-      />
+        {/* The "Black Shadow" Overlay - RESTRICTED TO BOTTOM 50% */}
+        <div className="absolute bottom-0 left-0 right-0 h-[50%] bg-gradient-to-t from-black via-black/70 to-transparent z-10 pointer-events-none" />
+        
+        {/* Content Description Area */}
+        <div className="absolute bottom-0 left-0 right-0 p-12 z-20">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentVideoIndex}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="max-w-2xl"
+            >
+              {/* Badge/Tag */}
+              <motion.div 
+                className="inline-flex items-center px-3 py-1 rounded-full bg-white/10 border border-white/20 backdrop-blur-md mb-4"
+                initial={{ width: 0, opacity: 0 }}
+                animate={{ width: "auto", opacity: 1 }}
+                transition={{ duration: 0.5 }}
+              >
+                <span className="w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse" />
+                <span className="text-xs font-medium text-white tracking-wide uppercase">Now Showing</span>
+              </motion.div>
 
-      {/* Video Container - Switched to aspect-[16/9] for a tighter vertical fit */}
-      <div 
-        className="relative rounded-[28px] overflow-hidden shadow-2xl bg-black aspect-[16/9] sm:aspect-[1.6/1]" 
-      >
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover z-0 opacity-90"
-        >
-          <source src="/feeds/video19.mp4" type="video/mp4" />
-        </video>
+              {/* Title */}
+              <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">
+                {currentVideo.title}
+              </h1>
 
-        <div className="absolute inset-0 pointer-events-none z-20 shadow-[inset_0_0_100px_rgba(0,0,0,0.5)] border border-white/10 rounded-[28px]" />
+              {/* Description */}
+              <p className="text-lg text-gray-300 leading-relaxed font-light">
+                {currentVideo.description}
+              </p>
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Progress Indicators */}
+          <div className="flex gap-2 mt-8">
+            {VIDEO_PLAYLIST.map((_, idx) => (
+              <motion.div
+                key={idx}
+                className={`h-1 rounded-full overflow-hidden ${
+                  idx === currentVideoIndex ? "w-16 bg-white" : "w-4 bg-white/20"
+                }`}
+                layout
+                transition={{ duration: 0.3 }}
+              />
+            ))}
+          </div>
+        </div>
       </div>
-    </div>
-  </motion.div>
-</div>
     </div>
   );
 };
