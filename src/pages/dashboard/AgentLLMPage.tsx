@@ -159,15 +159,15 @@ const AgentLLMPage = () => {
   const hasMessages = messages.length > 0;
 
   return (
-    <div className="fixed inset-0 flex flex-col overflow-hidden bg-[#050508]">
+    <div className="fixed inset-0 flex flex-col overflow-hidden bg-white dark:bg-[#050508] transition-colors duration-300">
       {/* PROFESSIONAL BACKGROUND SYSTEM */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0f1016] via-[#050508] to-[#000000]" />
+      <div className="absolute inset-0 bg-gradient-to-b from-gray-50 via-white to-gray-100 dark:from-[#0f1016] dark:via-[#050508] dark:to-[#000000] transition-colors duration-300" />
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-20%] left-[-10%] w-[60vw] h-[60vw] rounded-full bg-purple-900/10 blur-[120px]" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-blue-900/10 blur-[120px]" />
+        <div className="absolute top-[-20%] left-[-10%] w-[60vw] h-[60vw] rounded-full bg-purple-200/30 dark:bg-purple-900/10 blur-[120px] transition-colors duration-300" />
+        <div className="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-blue-200/30 dark:bg-blue-900/10 blur-[120px] transition-colors duration-300" />
       </div>
       <div 
-        className="absolute inset-0 opacity-[0.03] pointer-events-none"
+        className="absolute inset-0 opacity-[0.02] dark:opacity-[0.03] pointer-events-none transition-opacity duration-300"
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
         }}
@@ -180,7 +180,7 @@ const AgentLLMPage = () => {
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="px-6 py-4 border-b border-white/5 bg-[#0f1016]/80 backdrop-blur-xl"
+            className="px-6 py-4 border-b border-gray-200/50 dark:border-white/5 bg-white/80 dark:bg-[#0f1016]/80 backdrop-blur-xl transition-colors duration-300"
           >
             <div className="max-w-5xl mx-auto flex items-center justify-between">
               <div className="flex items-center gap-4">
@@ -190,15 +190,15 @@ const AgentLLMPage = () => {
                   </div>
                   <div>
                     <div className="flex items-baseline gap-1">
-                      <span className="text-lg font-bold text-white tracking-tight">AEKO</span>
-                      <span className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400">AI</span>
+                      <span className="text-lg font-bold text-gray-900 dark:text-white tracking-tight transition-colors duration-300">AEKO</span>
+                      <span className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400">AI</span>
                     </div>
                   </div>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <button className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 text-sm transition-colors border border-white/5 flex items-center gap-2">
-                  <Bot className="w-3.5 h-3.5 text-purple-400" />
+                <button className="px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 text-sm transition-colors border border-gray-200 dark:border-white/5 flex items-center gap-2">
+                  <Bot className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
                   <span className="font-medium">
                     {availableAgents.find(a => a.id === selectedAgent)?.name || "Agent"}
                   </span>
@@ -222,7 +222,7 @@ const AgentLLMPage = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
-                    className="text-5xl md:text-7xl font-bold text-white text-center tracking-tight"
+                    className="text-5xl md:text-7xl font-bold text-gray-900 dark:text-white text-center tracking-tight transition-colors duration-300"
                   >
                     Let's Create
                   </motion.h1>
@@ -231,7 +231,7 @@ const AgentLLMPage = () => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.5, delay: 0.2 }}
-                    className="text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed"
+                    className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed transition-colors duration-300"
                   >
                     Start a conversation with your AI assistant. Describe what you want to create, ask questions, or explore creative possibilities.
                   </motion.p>
@@ -251,20 +251,22 @@ const AgentLLMPage = () => {
                   >
                     {message.role === "assistant" && (
                       <div className="flex-shrink-0 mt-1">
-                        <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#1a1b26] to-[#242636] border border-white/10 flex items-center justify-center shadow-lg">
+                        <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-gray-100 to-gray-200 dark:from-[#1a1b26] dark:to-[#242636] border border-gray-300 dark:border-white/10 flex items-center justify-center shadow-lg transition-colors duration-300">
                           <img src={logoDark} alt="AI" className="w-5 h-5 object-contain" />
                         </div>
                       </div>
                     )}
                     <div className={`flex flex-col max-w-[85%] ${message.role === "user" ? "items-end" : "items-start"}`}>
                       <div className="flex items-center gap-2 mb-1.5 px-1">
-                        <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                        <span className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300">
                           {message.role === "assistant" ? "AEKO" : "You"}
                         </span>
-                        <span className="text-[10px] text-gray-600">{formatTime(message.timestamp)}</span>
+                        <span className="text-[10px] text-gray-500 dark:text-gray-600 transition-colors duration-300">{formatTime(message.timestamp)}</span>
                       </div>
-                      <div className={`rounded-2xl px-5 py-3.5 shadow-sm ${
-                        message.role === "user" ? "bg-[#252630] text-white border border-white/5" : "bg-transparent text-gray-200"
+                      <div className={`rounded-2xl px-5 py-3.5 shadow-sm transition-colors duration-300 ${
+                        message.role === "user" 
+                          ? "bg-gray-900 dark:bg-[#252630] text-white border border-gray-700 dark:border-white/5" 
+                          : "bg-transparent text-gray-800 dark:text-gray-200"
                       }`}>
                         <pre className="whitespace-pre-wrap font-sans text-[15px] leading-relaxed">{message.content}</pre>
                       </div>
@@ -273,13 +275,13 @@ const AgentLLMPage = () => {
                 ))}
                 {isLoading && (
                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-4">
-                     <div className="w-9 h-9 rounded-full bg-[#1a1b26] border border-white/10 flex items-center justify-center">
+                     <div className="w-9 h-9 rounded-full bg-gray-100 dark:bg-[#1a1b26] border border-gray-300 dark:border-white/10 flex items-center justify-center transition-colors duration-300">
                         <img src={logoDark} alt="AI" className="w-5 h-5 object-contain" />
                      </div>
                      <div className="flex items-center gap-1.5 px-1 h-9">
-                        <div className="w-1.5 h-1.5 bg-purple-500 rounded-full animate-bounce" />
-                        <div className="w-1.5 h-1.5 bg-purple-500 rounded-full animate-bounce delay-75" />
-                        <div className="w-1.5 h-1.5 bg-purple-500 rounded-full animate-bounce delay-150" />
+                        <div className="w-1.5 h-1.5 bg-purple-600 dark:bg-purple-500 rounded-full animate-bounce transition-colors duration-300" />
+                        <div className="w-1.5 h-1.5 bg-purple-600 dark:bg-purple-500 rounded-full animate-bounce delay-75 transition-colors duration-300" />
+                        <div className="w-1.5 h-1.5 bg-purple-600 dark:bg-purple-500 rounded-full animate-bounce delay-150 transition-colors duration-300" />
                      </div>
                   </motion.div>
                 )}
@@ -297,7 +299,7 @@ const AgentLLMPage = () => {
           style={{ position: hasMessages ? 'relative' : 'absolute', top: hasMessages ? 'auto' : '50%' }}
         >
           <motion.div
-            className={`w-full ${hasMessages ? 'border-t border-white/5 bg-[#0f1016]/95 backdrop-blur-xl pb-4' : ''}`}
+            className={`w-full ${hasMessages ? 'border-t border-gray-200 dark:border-white/5 bg-white/95 dark:bg-[#0f1016]/95 backdrop-blur-xl pb-4 transition-colors duration-300' : ''}`}
             animate={{ paddingTop: hasMessages ? '1rem' : '2rem', paddingBottom: hasMessages ? '1rem' : '2rem' }}
           >
             <motion.div className={`w-full mx-auto px-4 ${hasMessages ? 'max-w-5xl' : 'max-w-4xl'}`}>
@@ -311,8 +313,8 @@ const AgentLLMPage = () => {
                     onClick={() => setSelectedContentType(type.id)}
                     className={`flex items-center gap-2 px-5 py-2 rounded-full text-sm font-medium transition-all duration-200 whitespace-nowrap ${
                       selectedContentType === type.id
-                        ? "bg-[#8B5CF6] text-white shadow-lg shadow-purple-900/20"
-                        : "bg-[#1a1b26] text-gray-400 border border-white/5 hover:bg-[#242630] hover:text-gray-300"
+                        ? "bg-purple-600 dark:bg-[#8B5CF6] text-white shadow-lg shadow-purple-900/20 dark:shadow-purple-900/30"
+                        : "bg-gray-100 dark:bg-[#1a1b26] text-gray-700 dark:text-gray-400 border border-gray-200 dark:border-white/5 hover:bg-gray-200 dark:hover:bg-[#242630] hover:text-gray-900 dark:hover:text-gray-300"
                     }`}
                   >
                     <type.icon className={`w-4 h-4 ${selectedContentType === type.id ? "text-white" : ""}`} />
@@ -325,7 +327,7 @@ const AgentLLMPage = () => {
               {/* Input Wrapper */}
               <motion.div className="relative">
                 <motion.div
-                  className={`relative rounded-3xl border transition-all duration-300 bg-[#15161E] border-white/10 shadow-2xl overflow-hidden`}
+                  className={`relative rounded-3xl border transition-all duration-300 bg-white dark:bg-[#15161E] border-gray-200 dark:border-white/10 shadow-2xl overflow-hidden`}
                 >
                   {/* Top Section: Textarea + Right Actions */}
                   <div className="flex">
@@ -336,29 +338,31 @@ const AgentLLMPage = () => {
                       onKeyPress={handleKeyPress}
                       placeholder={hasMessages ? "Send a message..." : "Describe what you want to create..."}
                       rows={1}
-                      className="w-full bg-transparent text-white placeholder:text-gray-500 focus:outline-none resize-none overflow-hidden text-[16px] leading-relaxed pt-5 pl-6 pr-32 pb-4 min-h-[60px] max-h-[200px]"
+                      className="w-full bg-transparent text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none resize-none overflow-hidden text-[16px] leading-relaxed pt-5 pl-6 pr-32 pb-4 min-h-[60px] max-h-[200px] transition-colors duration-300"
                     />
                     
                     {/* Top Right: Mood Selector + Send Button */}
                     <div className="flex items-start gap-2 pt-3 pr-3">
-                      <div className="relative group">
+                      {/* <div className="relative group">
                          <select
                           value={agentMood}
                           onChange={(e) => setAgentMood(e.target.value)}
-                          className="appearance-none bg-[#242630] text-gray-300 text-xs font-medium px-4 py-2 pr-8 rounded-lg border border-white/5 focus:outline-none cursor-pointer hover:bg-[#2a2c38] transition-colors"
+                          className="appearance-none bg-gray-100 dark:bg-[#242630] text-gray-700 dark:text-gray-300 text-xs font-medium px-4 py-2 pr-8 rounded-lg border border-gray-200 dark:border-white/5 focus:outline-none cursor-pointer hover:bg-gray-200 dark:hover:bg-[#2a2c38] transition-colors duration-300"
                         >
                           {agentMoods.map((mood) => (
                             <option key={mood.id} value={mood.label}>{mood.label}</option>
                           ))}
                         </select>
-                        <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-500 pointer-events-none" />
-                      </div>
+                        <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-500 dark:text-gray-400 pointer-events-none transition-colors duration-300" />
+                      </div> */}
 
                       <button
                         onClick={handleSend}
                         disabled={!input.trim() || isLoading}
                         className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all duration-200 ${
-                          input.trim() && !isLoading ? 'bg-[#3b3e4a] text-white hover:bg-[#4a4d5a]' : 'bg-[#242630] text-gray-600 cursor-not-allowed'
+                          input.trim() && !isLoading 
+                            ? 'bg-purple-600 dark:bg-[#3b3e4a] text-white hover:bg-purple-700 dark:hover:bg-[#4a4d5a]' 
+                            : 'bg-gray-200 dark:bg-[#242630] text-gray-400 dark:text-gray-600 cursor-not-allowed'
                         }`}
                       >
                         <ArrowRight className="w-4 h-4" />
@@ -371,45 +375,45 @@ const AgentLLMPage = () => {
                     {/* Left Group */}
                     <div className="flex items-center gap-3">
                        {/* Upload */}
-                      <button className="text-gray-400 hover:text-white transition-colors" title="Upload">
+                      <button className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors duration-300" title="Upload">
                         <Upload className="w-5 h-5" />
                       </button>
                       
                       {/* Mic */}
-                      <button className="text-gray-400 hover:text-white transition-colors" title="Voice">
+                      <button className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors duration-300" title="Voice">
                         <Mic className="w-5 h-5" />
                       </button>
                       
                       {/* Purple Plus Button */}
-                      <button className="w-8 h-8 rounded-full bg-[#8B5CF6] hover:bg-[#7C3AED] flex items-center justify-center text-white transition-colors shadow-lg shadow-purple-900/30">
+                      <button className="w-8 h-8 rounded-full bg-purple-600 dark:bg-[#8B5CF6] hover:bg-purple-700 dark:hover:bg-[#7C3AED] flex items-center justify-center text-white transition-colors duration-300 shadow-lg shadow-purple-900/30 dark:shadow-purple-900/50">
                         <Plus className="w-5 h-5" />
                       </button>
 
                       {/* Image/Video Group */}
-                      <div className="flex items-center bg-[#242630] rounded-lg p-1 border border-white/5">
-                        <button className="p-1.5 rounded-md hover:bg-white/5 text-gray-400 hover:text-white transition-colors">
+                      <div className="flex items-center bg-gray-100 dark:bg-[#242630] rounded-lg p-1 border border-gray-200 dark:border-white/5 transition-colors duration-300">
+                        <button className="p-1.5 rounded-md hover:bg-gray-200 dark:hover:bg-white/5 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-300">
                           <ImageIcon className="w-4 h-4" />
                         </button>
-                        <div className="w-[1px] h-4 bg-white/10 mx-0.5" />
-                        <button className="p-1.5 rounded-md hover:bg-white/5 text-gray-400 hover:text-white transition-colors">
+                        <div className="w-[1px] h-4 bg-gray-300 dark:bg-white/10 mx-0.5 transition-colors duration-300" />
+                        <button className="p-1.5 rounded-md hover:bg-gray-200 dark:hover:bg-white/5 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-300">
                           <Video className="w-4 h-4" />
                         </button>
                       </div>
 
                        {/* Agents Button */}
                       <button 
-                         className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#242630] border border-white/5 text-xs font-medium text-gray-300 hover:text-white hover:bg-[#2a2c38] transition-all"
+                         className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-[#242630] border border-gray-200 dark:border-white/5 text-xs font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-[#2a2c38] transition-all duration-300"
                          onClick={() => toast.info("Agent selector")}
                       >
                         <Bot className="w-3.5 h-3.5" />
                         Agents
-                        <ChevronDown className="w-3 h-3 text-gray-500" />
+                        <ChevronDown className="w-3 h-3 text-gray-500 dark:text-gray-400 transition-colors duration-300" />
                       </button>
                     </div>
                     
                     {/* Right Group */}
                     <div>
-                      <button className="text-gray-400 hover:text-white transition-colors" title="Enhance">
+                      <button className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors duration-300" title="Enhance">
                          <Sparkles className="w-5 h-5" />
                       </button>
                     </div>

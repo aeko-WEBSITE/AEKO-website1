@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { useNavigate, useLocation } from "react-router-dom";
 import {
   User,
   Key,
@@ -12,7 +11,6 @@ import {
   Eye,
   EyeOff,
   Check,
-  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -22,8 +20,6 @@ const ACCOUNT_INPUT =
   "w-full px-4 py-2.5 rounded-lg sm:rounded-xl bg-secondary/30 border border-border/50 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 placeholder:text-muted-foreground text-sm sm:text-base";
 
 const AccountPage = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
   const [showApiKey, setShowApiKey] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -40,39 +36,13 @@ const AccountPage = () => {
     );
   };
 
-  const isAccountPage = location.pathname === "/dashboard/account";
-
   return (
     <div className="w-full space-y-6 max-w-[1280px] mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-6">
-      {/* Header with Tabs */}
+      {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <div className="flex items-center gap-2 mb-4 border-b border-border/50">
-          <button
-            onClick={() => navigate("/dashboard/account")}
-            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors border-b-2 ${
-              isAccountPage
-                ? "border-primary text-primary"
-                : "border-transparent text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <User className="w-4 h-4" />
-            Account Settings
-          </button>
-          <button
-            onClick={() => navigate("/dashboard/creation-history")}
-            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors border-b-2 ${
-              !isAccountPage
-                ? "border-primary text-primary"
-                : "border-transparent text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <Sparkles className="w-4 h-4" />
-            Creation History
-          </button>
-        </div>
         <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1">
           Account Settings
         </h1>
