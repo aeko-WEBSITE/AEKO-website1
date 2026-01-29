@@ -528,7 +528,7 @@ const FeedPage = () => {
             </div>
 
             {/* Agents Grid - Professional Cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
               {mockAgents.slice(0, 6).map((agent, index) => (
                 <motion.div
                   key={agent.id}
@@ -802,7 +802,7 @@ const FeedPage = () => {
             - columns-5 on large screens
             This allows items of varying heights to stack naturally without gaps.
           */}
-          <div className="columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-4 space-y-4 mx-auto w-full">
+          <div className="columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-2 space-y-2 mx-auto w-full">
             {sortedItems.map((item) => (
               <div
                 key={item.id}
