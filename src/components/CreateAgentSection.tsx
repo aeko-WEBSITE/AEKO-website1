@@ -103,232 +103,32 @@ const CreateAgentSection = () => {
     },
   ];
 
-  // Generate stars for background
-  const stars = Array.from({ length: 80 }).map((_, i) => ({
-    id: i,
-    x: Math.random() * 100,
-    y: Math.random() * 100,
-    size: Math.random() * 2 + 0.5,
-    delay: Math.random() * 3,
-    duration: 2 + Math.random() * 3,
-  }));
-
   return (
     <TooltipProvider>
-    <section className="py-24 lg:py-32 relative overflow-hidden w-full bg-background">
-      {/* Theme-Aware Base Gradient Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-purple-50/30 to-blue-50/30 dark:from-black dark:via-black dark:to-black w-full" />
+    <section className="py-24 lg:py-32 relative overflow-hidden w-full bg-gradient-to-b from-background to-muted/20 dark:bg-black">
+      {/* Deep Black Base - Only for Dark Mode */}
+      <div className="absolute inset-0 bg-black w-full hidden dark:block" />
       
-      {/* Animated Mesh Gradient Overlay - Theme Aware */}
-      <motion.div
-        className="absolute inset-0 opacity-30 dark:opacity-60"
-        style={{
-          background: `
-            radial-gradient(at 20% 30%, rgba(168, 85, 247, 0.2) 0px, transparent 50%),
-            radial-gradient(at 80% 70%, rgba(34, 211, 238, 0.15) 0px, transparent 50%),
-            radial-gradient(at 50% 50%, rgba(236, 72, 153, 0.15) 0px, transparent 50%),
-            radial-gradient(at 0% 100%, rgba(59, 130, 246, 0.1) 0px, transparent 50%),
-            radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.1) 0px, transparent 50%)
-          `,
-        }}
-        animate={{
-          opacity: [0.5, 0.7, 0.5],
-        }}
-        transition={{
-          duration: 8,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-      />
-      
-      {/* Large Floating Gradient Orbs - Theme Aware */}
-      <motion.div
-        className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl opacity-15 dark:opacity-30"
-        style={{
-          background: "radial-gradient(circle, rgba(168, 85, 247, 0.3) 0%, transparent 70%)",
-        }}
-        animate={{
-          x: [0, 60, 0],
-          y: [0, 40, 0],
-          scale: [1, 1.3, 1],
-          opacity: [0.1, 0.25, 0.1],
-        }}
-        transition={{
-          duration: 20,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-      />
-      <motion.div
-        className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full blur-3xl opacity-12 dark:opacity-25"
-        style={{
-          background: "radial-gradient(circle, rgba(34, 211, 238, 0.3) 0%, transparent 70%)",
-        }}
-        animate={{
-          x: [0, -60, 0],
-          y: [0, -40, 0],
-          scale: [1, 1.4, 1],
-          opacity: [0.08, 0.2, 0.08],
-        }}
-        transition={{
-          duration: 25,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: 0.5,
-        }}
-      />
-      <motion.div
-        className="absolute top-1/2 right-1/3 w-80 h-80 rounded-full blur-3xl opacity-10 dark:opacity-20"
-        style={{
-          background: "radial-gradient(circle, rgba(236, 72, 153, 0.3) 0%, transparent 70%)",
-        }}
-        animate={{
-          x: [0, 50, -50, 0],
-          y: [0, -50, 50, 0],
-          scale: [1, 1.2, 1.3, 1],
-          opacity: [0.05, 0.15, 0.1, 0.05],
-        }}
-        transition={{
-          duration: 18,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: 1,
-        }}
-      />
-      
-      {/* Star Field - Theme Aware */}
-      {stars.map((star) => (
-        <motion.div
-          key={star.id}
-          className="absolute rounded-full bg-foreground/20 dark:bg-white"
-          style={{
-            left: `${star.x}%`,
-            top: `${star.y}%`,
-            width: `${star.size}px`,
-            height: `${star.size}px`,
-          }}
-          animate={{
-            opacity: [0.1, 0.4, 0.1],
-            scale: [1, 1.3, 1],
-          }}
-          transition={{
-            duration: star.duration,
-            repeat: Infinity,
-            delay: star.delay,
-            ease: "easeInOut",
-          }}
-        />
-      ))}
-      
-      {/* Animated Grid Overlay - Theme Aware */}
-      <div className="absolute inset-0 opacity-[0.03] dark:opacity-10">
+      {/* Subtle Grid Pattern - Light Mode */}
+      <div className="absolute inset-0 opacity-[0.03] dark:hidden">
         <div className="absolute inset-0" style={{
           backgroundImage: `
-            linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px)
+            linear-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 0, 0, 0.1) 1px, transparent 1px)
           `,
-          backgroundSize: "60px 60px",
-        }}>
-          <motion.div
-            className="absolute inset-0"
-            animate={{
-              backgroundPosition: ["0 0", "60px 60px"],
-            }}
-            transition={{
-              duration: 20,
-              repeat: Infinity,
-              ease: "linear",
-            }}
-          />
-        </div>
+          backgroundSize: "50px 50px",
+        }} />
       </div>
-      
-      {/* Flowing Light Beams - Theme Aware */}
-      <motion.div
-        className="absolute inset-0 opacity-10 dark:opacity-20"
-        style={{
-          background: "linear-gradient(45deg, transparent 30%, rgba(168, 85, 247, 0.15) 50%, transparent 70%)",
-          backgroundSize: "300% 300%",
-        }}
-        animate={{
-          backgroundPosition: ["0% 0%", "100% 100%", "0% 0%"],
-        }}
-        transition={{
-          duration: 15,
-          repeat: Infinity,
-          ease: "linear",
-        }}
-      />
-      <motion.div
-        className="absolute inset-0 opacity-8 dark:opacity-15"
-        style={{
-          background: "linear-gradient(-45deg, transparent 30%, rgba(34, 211, 238, 0.15) 50%, transparent 70%)",
-          backgroundSize: "300% 300%",
-        }}
-        animate={{
-          backgroundPosition: ["100% 100%", "0% 0%", "100% 100%"],
-        }}
-        transition={{
-          duration: 18,
-          repeat: Infinity,
-          ease: "linear",
-        }}
-      />
-      
-      {/* Animated Highlight Rings - Theme Aware */}
-      {[...Array(4)].map((_, i) => (
-        <motion.div
-          key={`ring-${i}`}
-          className="absolute rounded-full border border-foreground/5 dark:border-white/10"
-          style={{
-            width: `${400 + i * 300}px`,
-            height: `${400 + i * 300}px`,
-            left: '50%',
-            top: '50%',
-            transform: 'translate(-50%, -50%)',
-          }}
-          animate={{
-            scale: [1, 1.4, 1],
-            opacity: [0.05, 0.15, 0.05],
-            rotate: [0, 360],
-          }}
-          transition={{
-            duration: 20 + i * 5,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: i * 1.5,
-          }}
-        />
-      ))}
-      
-      {/* Floating Particles - Theme Aware */}
-      {Array.from({ length: 15 }).map((_, i) => (
-        <motion.div
-          key={`particle-${i}`}
-          className="absolute rounded-full bg-foreground/5 dark:bg-white/10 blur-sm"
-          style={{
-            width: `${20 + Math.random() * 40}px`,
-            height: `${20 + Math.random() * 40}px`,
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-          }}
-          animate={{
-            y: [0, -100, 0],
-            x: [0, Math.random() * 100 - 50, 0],
-            scale: [1, 1.5, 1],
-            opacity: [0.05, 0.15, 0.05],
-          }}
-          transition={{
-            duration: 10 + Math.random() * 10,
-            repeat: Infinity,
-            delay: Math.random() * 5,
-            ease: "easeInOut",
-          }}
-        />
-      ))}
-      
-      {/* Gradient Overlay for Depth - Theme Aware */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-transparent to-background/60 dark:from-black/40 dark:via-transparent dark:to-black/50" />
+      {/* Subtle Grid Pattern - Dark Mode */}
+      <div className="absolute inset-0 opacity-8 hidden dark:block">
+        <div className="absolute inset-0" style={{
+          backgroundImage: `
+            linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px)
+          `,
+          backgroundSize: "50px 50px",
+        }} />
+      </div>
 
       <div className="container mx-auto px-4 lg:px-8 relative z-10">
         {/* Header */}
@@ -374,12 +174,12 @@ const CreateAgentSection = () => {
             />
             
             {/* Main card container - Clean Design with Rich Animated Border */}
-            <div className="relative rounded-3xl p-6 lg:p-8 overflow-hidden shadow-lg shadow-primary/5" style={{ borderRadius: '24px' }}>
-              {/* Rich Animated Gradient Border */}
+            <div className="relative rounded-3xl p-6 lg:p-8 dark:p-8 dark:lg:p-10 overflow-hidden shadow-lg shadow-primary/5 dark:shadow-primary/5 group/card transition-all duration-300 hover:shadow-2xl hover:shadow-primary/20" style={{ borderRadius: '24px' }}>
+              {/* Rich Animated Gradient Border - Only Dark Mode, Increased Width */}
               <motion.div
-                className="absolute inset-0 rounded-3xl pointer-events-none"
+                className="absolute inset-0 rounded-3xl pointer-events-none hidden dark:block"
                 style={{
-                  padding: '2px',
+                  padding: '4px',
                   background: 'linear-gradient(135deg, #7C3AED, #3B82F6, #22D3EE, #22C55E, #FACC15, #EC4899, #7C3AED)',
                   backgroundSize: '300% 300%',
                   WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
@@ -396,8 +196,11 @@ const CreateAgentSection = () => {
                 }}
               />
               
+              {/* Light Mode - Plain Professional Border */}
+              <div className="absolute inset-0 rounded-3xl pointer-events-none dark:hidden border-2 border-border/60 group-hover/card:border-primary/40 transition-colors duration-300" style={{ borderRadius: '24px' }} />
+              
               {/* Inner Background - Theme Aware */}
-              <div className="absolute inset-[2px] rounded-3xl bg-card/80 dark:bg-card/30 backdrop-blur-xl border border-border/50" style={{ borderRadius: '22px' }} />
+              <div className="absolute inset-0 dark:inset-[4px] rounded-3xl bg-card/95 dark:bg-card/30 backdrop-blur-xl border dark:border-none border-border/60 group-hover/card:border-primary/20 transition-all duration-300" style={{ borderRadius: '22px' }} />
               
               <div className="relative z-10">
             {/* Top Section - Textarea */}
@@ -407,7 +210,7 @@ const CreateAgentSection = () => {
                 onChange={(e) => setAgentDescription(e.target.value)}
                 placeholder="Describe agent or use URL"
                 rows={4}
-                className="w-full px-4 py-3 rounded-xl bg-background/80 backdrop-blur-sm border border-border/50 text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all resize-none relative z-10"
+                className="w-full px-4 py-3 rounded-xl bg-background/80 backdrop-blur-sm border border-border/50 text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-300 resize-none relative z-10 hover:border-primary/30 hover:shadow-md"
               />
             </div>
 
@@ -416,10 +219,10 @@ const CreateAgentSection = () => {
               {/* Mode Selector */}
               <DropdownMenu open={isModeOpen} onOpenChange={setIsModeOpen}>
                 <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary/50 hover:bg-secondary/70 border border-border/50 text-foreground text-sm transition-colors">
-                    <Bot className="w-4 h-4" />
+                  <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary/50 hover:bg-secondary/70 border border-border/50 text-foreground text-sm transition-all duration-300 hover:border-primary/30 hover:shadow-md hover:scale-105 active:scale-100 group">
+                    <Bot className="w-4 h-4 transition-transform duration-300 group-hover:rotate-12" />
                     <span>{selectedMode}</span>
-                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                    <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform duration-300 group-data-[state=open]:rotate-180" />
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start">
@@ -441,10 +244,10 @@ const CreateAgentSection = () => {
               {/* Model Selector */}
               <DropdownMenu open={isModelOpen} onOpenChange={setIsModelOpen}>
                 <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary/50 hover:bg-secondary/70 border border-border/50 text-foreground text-sm transition-colors">
-                    <Sparkles className="w-4 h-4" />
+                  <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary/50 hover:bg-secondary/70 border border-border/50 text-foreground text-sm transition-all duration-300 hover:border-primary/30 hover:shadow-md hover:scale-105 active:scale-100 group">
+                    <Sparkles className="w-4 h-4 transition-transform duration-300 group-hover:rotate-12" />
                     <span>{selectedModel}</span>
-                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                    <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform duration-300 group-data-[state=open]:rotate-180" />
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start">
@@ -469,19 +272,19 @@ const CreateAgentSection = () => {
               {/* Web Search Toggle - Icon Only */}
               <button
                 onClick={() => setWebSearchEnabled(!webSearchEnabled)}
-                className={`flex items-center justify-center w-10 h-10 rounded-lg border transition-colors ${
+                className={`flex items-center justify-center w-10 h-10 rounded-lg border transition-all duration-300 hover:shadow-md hover:scale-110 active:scale-100 group ${
                   webSearchEnabled
-                    ? "bg-primary/10 border-primary/50 text-primary"
-                    : "bg-secondary/50 border-border/50 text-foreground hover:bg-secondary/70"
+                    ? "bg-primary/10 border-primary/50 text-primary hover:bg-primary/20"
+                    : "bg-secondary/50 border-border/50 text-foreground hover:bg-secondary/70 hover:border-primary/30"
                 }`}
                 title="Web Search"
               >
-                <Globe className="w-4 h-4" />
+                <Globe className={`w-4 h-4 transition-transform duration-300 ${webSearchEnabled ? 'rotate-12' : 'group-hover:rotate-12'}`} />
               </button>
 
               {/* Upload File */}
-              <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary/50 hover:bg-secondary/70 border border-border/50 text-foreground text-sm transition-colors">
-                <FileText className="w-4 h-4" />
+              <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary/50 hover:bg-secondary/70 border border-border/50 text-foreground text-sm transition-all duration-300 hover:border-primary/30 hover:shadow-md hover:scale-105 active:scale-100 group">
+                <FileText className="w-4 h-4 transition-transform duration-300 group-hover:scale-110" />
                 <span>Upload File</span>
               </button>
 
@@ -491,17 +294,17 @@ const CreateAgentSection = () => {
                 value={agentName}
                 onChange={(e) => setAgentName(e.target.value)}
                 placeholder="Agent Name"
-                className="px-4 py-2 rounded-lg bg-secondary/50 border border-border/50 text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all text-sm min-w-[120px]"
+                className="px-4 py-2 rounded-lg bg-secondary/50 border border-border/50 text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-300 text-sm min-w-[120px] hover:border-primary/30 hover:shadow-md"
               />
               
               {/* Deploy Button - Right Side */}
               <Button
                 variant="hero"
                 size="lg"
-                className="ml-auto gap-2 px-6"
+                className="ml-auto gap-2 px-6 transition-all duration-300 hover:scale-105 active:scale-100 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 group"
                 disabled={!agentDescription.trim() || !agentName.trim()}
               >
-                <Rocket className="w-4 h-4" />
+                <Rocket className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
                 Deploy
               </Button>
             </div>
@@ -518,7 +321,7 @@ const CreateAgentSection = () => {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="text-center mt-8"
         >
-          <p className="text-lg text-black dark:text-white max-w-2xl mx-auto font-medium">
+          <p className="text-lg text-foreground max-w-2xl mx-auto font-medium">
             All-in-one AI platform for{' '}
             <span className="bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent font-bold">
               chat
@@ -656,123 +459,102 @@ const CreateAgentSection = () => {
 
           {/* Modern Accordion Container */}
           <div className="relative">
-            {/* Outer Glow */}
-            <motion.div
-              className="absolute -inset-1 rounded-2xl blur-xl opacity-30"
-              style={{
-                background: "linear-gradient(135deg, rgba(124, 58, 237, 0.3), rgba(59, 130, 246, 0.3), rgba(236, 72, 153, 0.3))",
-              }}
-              animate={{
-                opacity: [0.2, 0.4, 0.2],
-              }}
-              transition={{
-                duration: 4,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-            />
-            
-            <div className="relative rounded-2xl bg-card/60 dark:bg-card/40 backdrop-blur-xl border border-border/50 dark:border-white/10 p-1 shadow-xl">
-              <Accordion type="single" collapsible className="w-full space-y-2">
+            <div className="relative rounded-xl bg-card/80 dark:bg-card/50 backdrop-blur-xl border border-border/60 dark:border-white/10 p-4 shadow-lg">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 items-start">
                 {useCases.map((useCase, index) => {
                   const Icon = useCase.icon;
                   return (
-                    <AccordionItem
+                    <motion.div
                       key={useCase.title}
-                      value={`item-${index}`}
-                      className="border-none"
+                      initial={{ opacity: 0, y: 10 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.4, delay: 0.2 + index * 0.1 }}
+                      className="w-full"
                     >
-                      <motion.div
-                        initial={{ opacity: 0, x: -20 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
-                      >
-                        {/* Accordion Trigger with Rich Design */}
-                        <AccordionTrigger className="relative group hover:no-underline px-6 py-5 rounded-xl bg-gradient-to-r from-card/80 to-card/60 dark:from-white/5 dark:to-white/[0.02] border border-border/30 dark:border-white/10 hover:border-primary/50 dark:hover:border-white/30 transition-all duration-300">
-                          <div className="flex items-center gap-4 w-full">
-                            {/* Icon with Gradient Background */}
-                            <div className={`relative w-12 h-12 rounded-xl bg-gradient-to-br ${useCase.color} flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                              <Icon className="w-6 h-6 text-white" />
-                              <div className="absolute inset-0 rounded-xl bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                            </div>
-                            
-                            {/* Content */}
-                            <div className="flex-1 text-left">
-                              <h4 className="text-lg font-bold text-foreground mb-1 group-hover:text-primary transition-colors">
-                                {useCase.title}
-                              </h4>
-                              <p className="text-sm text-muted-foreground dark:text-white/70 line-clamp-1">
-                                {useCase.description}
-                              </p>
-                            </div>
-                            
-                            {/* Expand Indicator */}
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs font-semibold text-primary hidden sm:inline">Learn more</span>
-                            </div>
-                          </div>
-                        </AccordionTrigger>
-                        
-                        {/* Accordion Content */}
-                        <AccordionContent className="px-6 pb-5 pt-2">
-                          <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: "auto" }}
-                            exit={{ opacity: 0, height: 0 }}
-                            className="relative"
-                          >
-                            {/* Example Conversation Card */}
-                            <div className="mt-4 p-5 rounded-xl bg-muted/30 dark:bg-white/5 border border-border/30 dark:border-white/10 backdrop-blur-sm">
-                              <div className="flex items-center gap-2 mb-3">
-                                <MessageSquare className="w-4 h-4 text-primary" />
-                                <span className="text-xs font-semibold text-foreground dark:text-white uppercase tracking-wider">
-                                  Example Conversation
-                                </span>
+                      <Accordion type="single" collapsible className="w-full">
+                        <AccordionItem
+                          value={`item-${index}`}
+                          className="border-none"
+                        >
+                          {/* Professional AccordionTrigger */}
+                          <AccordionTrigger className="relative group hover:no-underline px-3.5 py-2.5 rounded-lg bg-background/50 dark:bg-white/5 border border-border/40 dark:border-white/10 hover:border-primary/40 dark:hover:border-primary/30 hover:bg-background/80 dark:hover:bg-white/10 transition-all duration-200 flex-shrink-0">
+                            <div className="flex items-center gap-2.5 w-full">
+                              {/* Minimal Icon */}
+                              <div className={`relative w-8 h-8 rounded-md bg-gradient-to-br ${useCase.color} flex items-center justify-center flex-shrink-0 shadow-sm`}>
+                                <Icon className="w-4 h-4 text-white" />
                               </div>
-                              <div className="space-y-3">
-                                {useCase.example.split('\n').map((line, lineIndex) => {
-                                  const isCustomer = line.startsWith('Customer:') || line.startsWith('AI Intelligence Dashboard');
-                                  return (
-                                    <motion.div
-                                      key={lineIndex}
-                                      initial={{ opacity: 0, x: isCustomer ? 10 : -10 }}
-                                      animate={{ opacity: 1, x: 0 }}
-                                      transition={{ delay: lineIndex * 0.1 }}
-                                      className={`flex gap-3 ${isCustomer ? 'justify-end' : 'justify-start'}`}
-                                    >
-                                      {!isCustomer && (
-                                        <div className={`w-6 h-6 rounded-full bg-gradient-to-br ${useCase.color} flex items-center justify-center flex-shrink-0`}>
-                                          <Bot className="w-3 h-3 text-white" />
-                                        </div>
-                                      )}
-                                      <div className={`max-w-[85%] rounded-lg px-4 py-2.5 text-sm ${
-                                        isCustomer
-                                          ? 'bg-primary/10 dark:bg-primary/20 text-foreground dark:text-white border border-primary/20'
-                                          : `bg-gradient-to-br ${useCase.color}/20 dark:${useCase.color}/30 text-foreground dark:text-white border border-border/30`
-                                      }`}>
-                                        <span className="font-semibold text-primary">
-                                          {isCustomer ? (line.includes('Customer:') ? 'Customer: ' : '') : 'Agent: '}
-                                        </span>
-                                        <span>{line.replace(/^(Customer:|Agent:)\s*/, '')}</span>
-                                      </div>
-                                      {isCustomer && (
-                                        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center flex-shrink-0">
-                                          <User className="w-3 h-3 text-white" />
-                                        </div>
-                                      )}
-                                    </motion.div>
-                                  );
-                                })}
+                              {/* Content */}
+                              <div className="flex-1 text-left min-w-0">
+                                <h4 className="text-sm font-semibold text-foreground mb-0.5 group-hover:text-primary transition-colors truncate leading-tight">
+                                  {useCase.title}
+                                </h4>
+                                <p className="text-xs text-muted-foreground/80 dark:text-white/60 line-clamp-1 leading-tight">
+                                  {useCase.description}
+                                </p>
                               </div>
                             </div>
-                          </motion.div>
-                        </AccordionContent>
-                      </motion.div>
-                    </AccordionItem>
+                          </AccordionTrigger>
+                          {/* Compact Accordion Content */}
+                          <AccordionContent className="px-3.5 pb-2.5 pt-1.5">
+                            <motion.div
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: "auto" }}
+                              exit={{ opacity: 0, height: 0 }}
+                              className="relative"
+                            >
+                              {/* Minimal Example Card */}
+                              <div className="mt-2 p-2.5 rounded-md bg-muted/40 dark:bg-white/5 border border-border/40 dark:border-white/10">
+                                <div className="flex items-center gap-1.5 mb-1.5">
+                                  <MessageSquare className="w-3 h-3 text-primary/80" />
+                                  <span className="text-[10px] font-medium text-muted-foreground dark:text-white/50 uppercase tracking-wide">
+                                    Example
+                                  </span>
+                                </div>
+                                <div className="space-y-1.5">
+                                  {useCase.example.split('\n').map((line, lineIndex) => {
+                                    const isCustomer = line.startsWith('Customer:') || line.startsWith('AI Intelligence Dashboard');
+                                    return (
+                                      <motion.div
+                                        key={lineIndex}
+                                        initial={{ opacity: 0, x: isCustomer ? 8 : -8 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: lineIndex * 0.08 }}
+                                        className={`flex gap-1.5 ${isCustomer ? 'justify-end' : 'justify-start'}`}
+                                      >
+                                        {!isCustomer && (
+                                          <div className={`w-4 h-4 rounded-full bg-gradient-to-br ${useCase.color} flex items-center justify-center flex-shrink-0 mt-0.5`}>
+                                            <Bot className="w-2 h-2 text-white" />
+                                          </div>
+                                        )}
+                                        <div className={`max-w-[88%] rounded-md px-2.5 py-1.5 text-[11px] leading-relaxed ${
+                                          isCustomer
+                                            ? 'bg-primary/8 dark:bg-primary/15 text-foreground dark:text-white/90 border border-primary/15'
+                                            : `bg-gradient-to-br ${useCase.color}/15 dark:${useCase.color}/20 text-foreground dark:text-white/90 border border-border/40`
+                                        }`}>
+                                          <span className="font-medium text-primary/90">
+                                            {isCustomer ? (line.includes('Customer:') ? 'Customer: ' : '') : 'Agent: '}
+                                          </span>
+                                          <span className="text-muted-foreground dark:text-white/80">{line.replace(/^(Customer:|Agent:)\s*/, '')}</span>
+                                        </div>
+                                        {isCustomer && (
+                                          <div className="w-4 h-4 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                            <User className="w-2 h-2 text-white" />
+                                          </div>
+                                        )}
+                                      </motion.div>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            </motion.div>
+                          </AccordionContent>
+                        </AccordionItem>
+                      </Accordion>
+                    </motion.div>
                   );
                 })}
-              </Accordion>
+              </div>
             </div>
           </div>
 
@@ -785,12 +567,12 @@ const CreateAgentSection = () => {
                   className="mt-12"
                 >
                   {/* Rich Container with Theme-Aware Border */}
-                  <div className="relative rounded-3xl p-8 lg:p-10 shadow-2xl overflow-hidden border-2 border-border dark:border-white" style={{ borderRadius: '24px' }}>
-                    {/* Animated Gradient Border */}
+                  <div className="relative rounded-3xl p-8 lg:p-10 dark:p-10 dark:lg:p-12 shadow-2xl overflow-hidden border-2 border-border/60 dark:border-white" style={{ borderRadius: '24px' }}>
+                    {/* Animated Gradient Border - Only Dark Mode, Increased Width */}
                     <motion.div
-                      className="absolute inset-0 rounded-3xl pointer-events-none"
+                      className="absolute inset-0 rounded-3xl pointer-events-none hidden dark:block"
                       style={{
-                        padding: '2px',
+                        padding: '4px',
                         background: 'linear-gradient(135deg, #7C3AED, #3B82F6, #22D3EE, #10B981, #F59E0B, #EC4899, #7C3AED)',
                         backgroundSize: '300% 300%',
                         WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
@@ -807,21 +589,27 @@ const CreateAgentSection = () => {
                       }}
                     />
                     
+                    {/* Light Mode - Plain Professional Border (already has border-2 on parent) */}
+                    
                     {/* Inner Background - Theme Aware */}
-                    <div className="absolute inset-[2px] rounded-3xl bg-card/90 dark:bg-[#12162A]/90 backdrop-blur-2xl" style={{ borderRadius: '22px' }} />
+                    <div className="absolute inset-0 dark:inset-[4px] rounded-3xl bg-card/95 dark:bg-[#22121] backdrop-blur-2xl" style={{ borderRadius: '22px' }} />
                     {/* Decorative Gradient Overlay */}
-                    <div className="absolute inset-[2px] rounded-3xl bg-primary/5 pointer-events-none" style={{ borderRadius: '22px' }} />
+                    <div className="absolute inset-0 dark:inset-[4px] rounded-3xl bg-primary/5 dark:bg-primary/5 pointer-events-none" style={{ borderRadius: '22px' }} />
                     
                     {/* Content */}
                     <div className="relative z-10">
                       {/* Enhanced Header */}
                       <motion.div 
-                        className="text-center mb-10"
+                        className="text-center mb-12"
                         initial={{ opacity: 0, y: 10 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.5 }}
                       >
+                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 dark:bg-primary/20 border border-primary/20 dark:border-primary/30 mb-4">
+                          <Sparkles className="w-4 h-4 text-primary" />
+                          <span className="text-xs font-semibold text-primary uppercase tracking-wider">Capabilities</span>
+                        </div>
                         <h4 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-foreground mb-4 tracking-tight leading-tight">
                           What Your Custom Agent Can Do
                         </h4>
@@ -831,7 +619,7 @@ const CreateAgentSection = () => {
                       </motion.div>
                       
                       {/* Modern Interactive Grid with Hover Cards */}
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 lg:gap-6">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 lg:gap-4">
                         {[
                           {
                             icon: MessageSquare,
@@ -892,63 +680,57 @@ const CreateAgentSection = () => {
                           return (
                             <motion.div
                               key={index}
-                              initial={{ opacity: 0, scale: 0.8, y: 20 }}
+                              initial={{ opacity: 0, scale: 0.9, y: 20 }}
                               whileInView={{ opacity: 1, scale: 1, y: 0 }}
                               viewport={{ once: true }}
-                              transition={{ duration: 0.4, delay: 0.8 + index * 0.05 }}
-                              whileHover={{ y: -8, scale: 1.05 }}
-                              className="group cursor-pointer"
+                              transition={{ duration: 0.5, delay: 0.8 + index * 0.05, type: "spring", stiffness: 100 }}
+                              className="group"
                             >
-                              {/* Modern Card with Hover Effects */}
-                              <div className="relative p-5 rounded-2xl bg-card/50 border border-border/30 hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 h-full">
-                                {/* Gradient Background on Hover */}
-                                <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-10 dark:group-hover:opacity-20 transition-opacity duration-300`} />
+                              {/* Professional Card with Modern Design */}
+                              <div className="relative h-full p-4 rounded-xl bg-gradient-to-br from-background/80 to-background/60 dark:from-white/5 dark:to-white/[0.02] border border-border/50 dark:border-white/10 hover:border-primary/40 dark:hover:border-primary/30 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1 cursor-pointer overflow-hidden">
+                                {/* Animated Gradient Background */}
+                                <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-[0.08] dark:group-hover:opacity-[0.12] transition-opacity duration-500`} />
                                 
-                                {/* Content */}
-                                <div className="relative z-10 flex flex-col items-center gap-4 text-center">
-                                  {/* Icon Container */}
-                                  <div className="relative">
-                                    {/* Outer Glow Effect */}
-                                    <motion.div
-                                      className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${feature.color} opacity-20 blur-xl group-hover:opacity-30 transition-opacity`}
-                                      animate={{
-                                        opacity: [0.15, 0.25, 0.15],
-                                      }}
-                                      transition={{
-                                        duration: 2,
-                                        repeat: Infinity,
-                                        ease: "easeInOut",
-                                      }}
-                                    />
-                                    
-                                    {/* Icon Container */}
-                                    <div className={`relative w-16 h-16 md:w-18 md:h-18 rounded-2xl bg-gradient-to-br ${feature.color} flex items-center justify-center shadow-xl border-2 border-white/30 dark:border-white/40 group-hover:border-white/50 dark:group-hover:border-white/60 transition-all duration-300 group-hover:shadow-2xl`}>
-                                      <Icon className="w-8 h-8 md:w-9 md:h-9 text-white drop-shadow-lg" />
-                                      
-                                      {/* Inner Glow on Hover */}
-                                      <div className="absolute inset-0 rounded-2xl bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                                    </div>
-                                  </div>
-                                  
-                                  {/* Text Content */}
-                                  <div className="space-y-1">
-                                    <h5 className="text-sm md:text-base font-bold text-foreground group-hover:text-primary transition-colors duration-300 leading-tight">
-                                      {feature.title}
-                                    </h5>
-                                    <p className="text-xs text-muted-foreground dark:text-white/60 line-clamp-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                      {feature.description}
-                                    </p>
-                                  </div>
-                                </div>
-                                
-                                {/* Shine Effect on Hover */}
-                                <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 overflow-hidden">
+                                {/* Subtle Shine Effect */}
+                                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 overflow-hidden pointer-events-none">
                                   <motion.div
                                     className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
                                     initial={{ x: "-100%" }}
                                     whileHover={{ x: "200%" }}
-                                    transition={{ duration: 1, ease: "easeInOut" }}
+                                    transition={{ duration: 0.6, ease: "easeInOut" }}
                                   />
+                                </div>
+                                
+                                {/* Content */}
+                                <div className="relative z-10 flex flex-col items-center gap-3 text-center h-full">
+                                  {/* Icon Container - Modern Design */}
+                                  <div className="relative">
+                                    {/* Subtle Glow */}
+                                    <motion.div
+                                      className={`absolute -inset-2 rounded-xl bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-20 blur-md transition-opacity duration-500`}
+                                    />
+                                    
+                                    {/* Icon Box */}
+                                    <div className={`relative w-14 h-14 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110 group-hover:rotate-3`}>
+                                      <Icon className="w-7 h-7 text-white drop-shadow-md transition-transform duration-300 group-hover:scale-110" />
+                                      
+                                      {/* Inner Highlight */}
+                                      <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                    </div>
+                                  </div>
+                                  
+                                  {/* Text Content */}
+                                  <div className="space-y-1 flex-1 flex flex-col justify-center">
+                                    <h5 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors duration-300 leading-snug line-clamp-2">
+                                      {feature.title}
+                                    </h5>
+                                    <p className="text-xs text-muted-foreground/80 dark:text-white/60 line-clamp-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 mt-1">
+                                      {feature.description}
+                                    </p>
+                                  </div>
+                                  
+                                  {/* Hover Indicator */}
+                                  <div className="w-8 h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 mt-auto" />
                                 </div>
                               </div>
                             </motion.div>

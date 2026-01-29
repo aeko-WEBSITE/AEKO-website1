@@ -83,7 +83,7 @@ const SupportPage = () => {
   const [feedbackMessage, setFeedbackMessage] = useState("");
 
   return (
-    <div className="w-full max-w-5xl mx-auto px-4 md:px-8 py-8 space-y-10">
+    <div className="w-full px-4 md:px-8 py-8 space-y-10">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 24 }}

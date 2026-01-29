@@ -629,46 +629,7 @@ const DashboardLayout = () => {
                 </TooltipContent>
               </Tooltip>
 
-              {/* Upgrade Button */}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <motion.div
-                    whileHover={{ scale: 1.15, rotate: 5 }}
-                    whileTap={{ scale: 0.85, rotate: -5 }}
-                    className="relative"
-                  >
-                    <Link
-                      to="/dashboard/account"
-                      className="flex items-center justify-center w-10 h-10 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary/30 transition-all"
-                    >
-                      <CreditCard className="w-5 h-5 stroke-2 text-white font-bold" style={{ filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.8))' }} />
-                      {/* Bright Click Animation Effect */}
-                      <motion.div
-                        className="absolute inset-0 rounded-full bg-white blur-xl"
-                        initial={{ scale: 0, opacity: 0 }}
-                        whileTap={{ 
-                          scale: [0, 2, 2.5, 0],
-                          opacity: [0, 1, 0.8, 0]
-                        }}
-                        transition={{ duration: 0.6, ease: "easeOut" }}
-                      />
-                      {/* Secondary Bright Ring on Click */}
-                      <motion.div
-                        className="absolute inset-0 rounded-full border-2 border-white"
-                        initial={{ scale: 1, opacity: 0 }}
-                        whileTap={{ 
-                          scale: [1, 2, 2.5],
-                          opacity: [0, 0.9, 0]
-                        }}
-                        transition={{ duration: 0.5, ease: "easeOut" }}
-                      />
-                    </Link>
-                  </motion.div>
-                </TooltipTrigger>
-                <TooltipContent side="right">
-                  <p>Upgrade</p>
-                </TooltipContent>
-              </Tooltip>
+            
 
               {/* Account Icon */}
               <Tooltip>
