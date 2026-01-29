@@ -361,7 +361,7 @@ const ImageToolsPage = () => {
   return (
     <div className="flex h-screen w-full bg-background overflow-hidden">
       {/* LEFT PANEL - Input Section */}
-      <div className="w-full lg:w-[45%] xl:w-[40%] flex flex-col border-r border-border bg-card/50 overflow-hidden">
+      <div className="w-full lg:w-[40%] xl:w-[30%] flex flex-col border-r border-border bg-card/50 overflow-hidden">
         {/* Header */}
         <div className="flex-shrink-0 p-4 sm:p-6 border-b border-border">
           <div className="flex items-center gap-2 mb-2">

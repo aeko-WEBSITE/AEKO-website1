@@ -35,6 +35,8 @@ import {
   FileUp,
   BrainCircuit,
   PlayCircle,
+  X,
+  MessageSquare,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -96,7 +98,11 @@ const AgentStorePage = () => {
   const [knowledgeTab, setKnowledgeTab] = useState<"website" | "files" | "integrations">("website");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [selectedFilter, setSelectedFilter] = useState<string>("all");
-  
+
+  // New State for Chat Drawer and Input
+  const [activeChatAgent, setActiveChatAgent] = useState<Agent | null>(null);
+  const [chatMessage, setChatMessage] = useState("");
+
   const [agents, setAgents] = useState<Agent[]>([
     {
       id: "1",
@@ -198,7 +204,6 @@ const AgentStorePage = () => {
     agent.pricing.toLowerCase() === selectedFilter.toLowerCase()
   );
 
-  // Crawl website function
   const handleCrawlWebsite = async () => {
     if (!websiteUrl.trim()) {
       toast.error("Please enter a website URL");
@@ -240,7 +245,6 @@ const AgentStorePage = () => {
     }
   };
 
-  // Handle URL input change and auto-crawl
   useEffect(() => {
     if (websiteUrl.trim() && !isCrawling) {
       const urlPattern = /^https?:\/\/.+/;
@@ -252,10 +256,8 @@ const AgentStorePage = () => {
         return () => clearTimeout(timeoutId);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [websiteUrl]);
 
-  // Reset form when dialog closes
   useEffect(() => {
     if (!isCreateDialogOpen) {
       setWebsiteUrl("");
@@ -307,8 +309,7 @@ const AgentStorePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-background/95 via-muted/5 p-4 md:p-6">
-      {/* Animated Background Effects */}
+    <div className="min-h-screen bg-gradient-to-b from-background to-background/95 via-muted/5 p-4 md:p-6 relative overflow-hidden">
       <div className="fixed inset-0 -z-10 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/5 rounded-full blur-3xl" />
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/5 rounded-full blur-3xl" />
@@ -335,6 +336,17 @@ const AgentStorePage = () => {
           </div>
           
           <div className="flex items-center gap-3">
+            {/* Added: Extra Create Agent Button */}
+            <Button
+              onClick={() => setIsCreateDialogOpen(true)}
+              variant="outline"
+              size="sm"
+              className="hidden sm:flex gap-2 border-primary/20 hover:bg-primary/5 text-primary"
+            >
+              <Plus className="w-4 h-4" />
+              New Agent
+            </Button>
+
             <Button
               variant="outline"
               size="sm"
@@ -482,7 +494,6 @@ const AgentStorePage = () => {
                   ? "hover:scale-[1.02]" 
                   : "flex-1"
               )}>
-                {/* Gradient Border Effect */}
                 <div className="absolute inset-0 bg-gradient-to-br from-transparent via-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 
                 <CardHeader className="pb-3">
@@ -542,7 +553,6 @@ const AgentStorePage = () => {
                     </DropdownMenu>
                   </div>
                   
-                  {/* Tags */}
                   <div className="flex flex-wrap gap-1.5 mt-3">
                     {agent.tags.map((tag) => (
                       <span
@@ -560,7 +570,6 @@ const AgentStorePage = () => {
                     {agent.description}
                   </CardDescription>
                   
-                  {/* Stats */}
                   <div className="flex items-center justify-between mt-4 pt-4 border-t border-border/50">
                     <div className="flex items-center gap-4 text-sm">
                       <div className="flex items-center gap-1.5">
@@ -579,14 +588,11 @@ const AgentStorePage = () => {
                       >
                         <ExternalLink className="w-4 h-4" />
                       </Button>
+                      {/* Integrated Interact Button */}
                       <Button
                         size="sm"
                         className="gap-2 bg-gradient-to-r from-primary/90 to-primary hover:from-primary hover:to-primary/90"
-                        onClick={() => {
-                          toast.success(`Starting interaction with ${agent.name}`, {
-                            icon: "🤖",
-                          });
-                        }}
+                        onClick={() => setActiveChatAgent(agent)}
                       >
                         <PlayCircle className="w-4 h-4" />
                         Interact
@@ -605,32 +611,6 @@ const AgentStorePage = () => {
           ))}
         </motion.div>
       </AnimatePresence>
-
-      {filteredAgents.length === 0 && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="flex flex-col items-center justify-center py-16 text-center"
-        >
-          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary/10 to-purple-500/10 flex items-center justify-center mb-6">
-            <Bot className="w-12 h-12 text-muted-foreground/50" />
-          </div>
-          <h3 className="text-xl font-semibold text-foreground mb-2">No agents found</h3>
-          <p className="text-muted-foreground mb-6 max-w-md">
-            Try adjusting your search or filters to find what you're looking for.
-          </p>
-          <Button
-            variant="outline"
-            onClick={() => {
-              setSearchQuery("");
-              setSelectedFilter("all");
-            }}
-            className="gap-2"
-          >
-            Clear filters
-          </Button>
-        </motion.div>
-      )}
 
       {/* Create Agent Dialog */}
       <Dialog open={isCreateDialogOpen} onOpenChange={(open) => {
@@ -654,7 +634,6 @@ const AgentStorePage = () => {
                 transition={{ duration: 0.3 }}
                 className="flex h-full relative z-10"
               >
-                {/* Left Side - Form */}
                 <div className="w-full lg:w-2/5 p-6 md:p-8 overflow-y-auto border-r border-border/50 bg-background/80 backdrop-blur-sm">
                   <div className="flex items-center gap-3 mb-6">
                     <Button
@@ -676,7 +655,6 @@ const AgentStorePage = () => {
                   </div>
 
                   <div className="space-y-6">
-                    {/* Website URL */}
                     <div className="space-y-3">
                       <label className="block text-sm font-medium text-foreground">
                         <span className="flex items-center gap-2">
@@ -708,7 +686,6 @@ const AgentStorePage = () => {
                       </p>
                     </div>
 
-                    {/* Agent Details */}
                     <div className="grid gap-6">
                       <div className="space-y-3">
                         <label className="block text-sm font-medium text-foreground">
@@ -733,57 +710,6 @@ const AgentStorePage = () => {
                           rows={3}
                           className="rounded-xl bg-card border-2 border-border/50 focus:border-primary resize-none"
                         />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-3">
-                          <label className="block text-sm font-medium text-foreground">
-                            Logo URL
-                          </label>
-                          <Input
-                            value={logoUrl}
-                            onChange={(e) => setLogoUrl(e.target.value)}
-                            placeholder="https://..."
-                            className="h-12 rounded-xl bg-card border-2 border-border/50 focus:border-primary"
-                          />
-                        </div>
-                        <div className="space-y-3">
-                          <label className="block text-sm font-medium text-foreground">
-                            Favicon URL
-                          </label>
-                          <Input
-                            value={faviconUrl}
-                            onChange={(e) => setFaviconUrl(e.target.value)}
-                            placeholder="https://..."
-                            className="h-12 rounded-xl bg-card border-2 border-border/50 focus:border-primary"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Features Preview */}
-                    <div className="rounded-xl bg-gradient-to-br from-primary/5 to-purple-500/5 border border-primary/10 p-4">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Sparkles className="w-4 h-4 text-primary" />
-                        <h4 className="text-sm font-semibold">Included Features</h4>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2 text-xs">
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 rounded-full bg-green-500" />
-                          <span className="text-muted-foreground">Web Crawling</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 rounded-full bg-green-500" />
-                          <span className="text-muted-foreground">File Uploads</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 rounded-full bg-green-500" />
-                          <span className="text-muted-foreground">API Integrations</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 rounded-full bg-green-500" />
-                          <span className="text-muted-foreground">Custom Branding</span>
-                        </div>
                       </div>
                     </div>
                   </div>
@@ -812,7 +738,6 @@ const AgentStorePage = () => {
                   </div>
                 </div>
 
-                {/* Right Side - Preview */}
                 <div className="hidden lg:flex flex-1 flex-col p-6 md:p-8 bg-gradient-to-br from-muted/20 to-background/80">
                   <div className="mb-6">
                     <h3 className="text-lg font-semibold text-foreground">Live Preview</h3>
@@ -820,9 +745,7 @@ const AgentStorePage = () => {
                   </div>
 
                   <div className="flex-1 rounded-2xl border-2 border-border/50 overflow-hidden bg-card shadow-2xl">
-                    {/* Preview Chat */}
                     <div className="h-full flex flex-col">
-                      {/* Chat Header */}
                       <div className="p-4 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
@@ -848,7 +771,6 @@ const AgentStorePage = () => {
                         </div>
                       </div>
 
-                      {/* Chat Messages */}
                       <div className="flex-1 p-4 space-y-4">
                         <div className="flex gap-3">
                           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center flex-shrink-0">
@@ -865,7 +787,6 @@ const AgentStorePage = () => {
                         </div>
                       </div>
 
-                      {/* Chat Input */}
                       <div className="p-4 border-t border-border/50">
                         <div className="flex items-center gap-2">
                           <button className="p-2 hover:bg-muted rounded-lg transition-colors">
@@ -896,7 +817,6 @@ const AgentStorePage = () => {
                 className="h-full relative z-10"
               >
                 <div className="flex flex-col h-full bg-background/80 backdrop-blur-sm">
-                  {/* Header */}
                   <div className="p-6 border-b border-border/50">
                     <div className="flex items-center justify-between">
                       <div>
@@ -918,7 +838,6 @@ const AgentStorePage = () => {
                     </div>
                   </div>
 
-                  {/* Tabs */}
                   <div className="px-6 pt-6">
                     <Tabs value={knowledgeTab} onValueChange={(v: any) => setKnowledgeTab(v)} className="w-full">
                       <TabsList className="grid grid-cols-3 mb-8">
@@ -1051,7 +970,6 @@ const AgentStorePage = () => {
                     </Tabs>
                   </div>
 
-                  {/* Footer */}
                   <div className="mt-auto p-6 border-t border-border/50">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
@@ -1101,6 +1019,85 @@ const AgentStorePage = () => {
           </AnimatePresence>
         </DialogContent>
       </Dialog>
+
+      {/* CHAT DRAWER */}
+      <AnimatePresence>
+        {activeChatAgent && (
+          <motion.div
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            className="fixed top-0 right-0 h-full w-full max-w-md bg-background border-l border-border shadow-2xl z-[60] flex flex-col"
+          >
+            {/* Chat Header */}
+            <div className="p-4 border-b flex items-center justify-between bg-card">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <Bot className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm">{activeChatAgent.name}</h3>
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-2 rounded-full bg-green-500" />
+                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Online</span>
+                  </div>
+                </div>
+              </div>
+              <Button variant="ghost" size="icon" onClick={() => setActiveChatAgent(null)} className="rounded-full">
+                <X className="w-5 h-5" />
+              </Button>
+            </div>
+
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-muted/5">
+              <div className="flex gap-3">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <Bot className="w-4 h-4 text-primary" />
+                </div>
+                <div className="bg-card border rounded-2xl rounded-tl-none p-3 shadow-sm max-w-[85%]">
+                  <p className="text-sm">Hi! I'm the assistant for **{activeChatAgent.name}**. How can I help you today?</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Input with added Chat Input Box */}
+            <div className="p-4 border-t bg-card">
+              <div className="flex items-center gap-2 bg-muted/50 rounded-2xl p-2 border border-border focus-within:border-primary transition-all">
+                <button className="p-2 text-muted-foreground hover:text-primary transition-colors">
+                  <Paperclip className="w-5 h-5" />
+                </button>
+                <input
+                  type="text"
+                  placeholder="Message agent..."
+                  className="bg-transparent flex-1 text-sm outline-none px-2"
+                  value={chatMessage}
+                  onChange={(e) => setChatMessage(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && chatMessage.trim()) {
+                      toast.success("Message sent!");
+                      setChatMessage("");
+                    }
+                  }}
+                />
+                <Button 
+                  size="icon" 
+                  className="rounded-xl h-10 w-10 bg-primary hover:bg-primary/90"
+                  onClick={() => {
+                    if (chatMessage.trim()) {
+                        toast.success("Message sent!");
+                        setChatMessage("");
+                    }
+                  }}
+                >
+                  <Send className="w-4 h-4" />
+                </Button>
+              </div>
+              <p className="text-[10px] text-center text-muted-foreground mt-3 uppercase tracking-tighter opacity-50">Powered by Gemini AI 3 Flash</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
