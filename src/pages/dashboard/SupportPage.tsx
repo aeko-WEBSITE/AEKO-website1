@@ -137,13 +137,13 @@ const SupportPage = () => {
         transition={{ delay: 0.18 }}
         className="glass-card rounded-2xl p-6 md:p-8"
       >
-        <div className="flex items-center gap-3 mb-6">
+        <div className="flex items-center gap-3 mb-6 ">
           <HelpCircle className="w-6 h-6 text-primary" />
           <h2 className="text-xl font-semibold text-foreground">
             Frequently Asked Questions
           </h2>
         </div>
-        <div className="space-y-3">
+        <div className="space-y-3 ">
           {faqs.map((faq, idx) => (
             <div
               key={idx}
@@ -173,7 +173,7 @@ const SupportPage = () => {
                 animate={openFaq === idx ? { height: "auto", opacity: 1 } : { height: 0, opacity: 0 }}
                 transition={{ duration: 0.25, ease: "easeInOut" }}
                 id={`faq-${idx}`}
-                className={`overflow-hidden px-4 pb-0 ${openFaq === idx ? "py-4" : ""}`}
+                className={`overflow-hidden px-4 pb-4`}
                 style={openFaq === idx ? {} : { height: 0, paddingTop: 0, paddingBottom: 0 }}
               >
                 {openFaq === idx && (
@@ -198,12 +198,12 @@ const SupportPage = () => {
         <p className="text-sm sm:text-base text-muted-foreground mb-4">
           Have a suggestion or found a bug? Share your thoughts with us!
         </p>
-        <form className="space-y-4 w-full max-w-xl mx-auto">
+        <form className="space-y-4 w-full mx-auto">
           <textarea
             value={feedbackMessage}
             onChange={(e) => setFeedbackMessage(e.target.value)}
             placeholder="Tell us what you think..."
-            className="w-full min-h-[6rem] max-h-40 px-4 py-3 rounded-xl bg-secondary/30 border border-border/50 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/70 resize-none transition"
+            className="w-full min-h-[10rem] max-h-40 px-4 py-3 rounded-xl bg-secondary/30 border border-border/50 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/70 resize-none transition"
           />
           <div className="flex justify-end">
             <Button
