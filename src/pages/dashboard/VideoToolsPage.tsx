@@ -73,7 +73,7 @@ const VideoToolsPage = () => {
   };
 
   return (
-    <div className="flex flex-col h-full w-full overflow-hidden bg-background relative">
+    <div className="flex flex-col h-screen w-full overflow-hidden bg-background relative">
       {/* Animated Background Gradient */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div
@@ -177,11 +177,11 @@ const VideoToolsPage = () => {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
-          className="flex flex-col w-full lg:w-[52%] min-w-0 overflow-y-auto scrollbar-hide"
+          className="flex flex-col w-full lg:w-[40%] min-h-0 h-full"
         >
-          <div className="rounded-2xl border border-border/50 bg-gradient-to-br from-card/80 via-card/60 to-card/40 backdrop-blur-xl shadow-2xl shadow-primary/5 p-5 sm:p-6 space-y-6 h-full">
+          <div className="flex flex-col rounded-2xl border border-border/50 bg-gradient-to-br from-card/80 via-card/60 to-card/40 backdrop-blur-xl shadow-2xl shadow-primary/5 p-5 sm:p-6 space-y-6 h-full overflow-hidden">
             {/* Header with Model Selector */}
-            <div className="flex items-center justify-between pb-4 border-b border-border/50">
+            <div className="flex items-center justify-between pb-4 border-b border-border/50 flex-shrink-0">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center">
                   <Wand2 className="w-5 h-5 text-primary" />
@@ -222,7 +222,7 @@ const VideoToolsPage = () => {
                     <Badge variant="outline" className="ml-1 text-xs border-primary/30">
                       {selectedModel.description}
                     </Badge>
-                    <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${isModelOpen ? 'rotate-180' : ''}`} />
+                    <ChevronDown className={`w-2 h-4 text-muted-foreground transition-transform ${isModelOpen ? 'rotate-180' : ''}`} />
                   </motion.button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-72 backdrop-blur-xl bg-card/95 border border-border/50 shadow-xl">
@@ -259,10 +259,10 @@ const VideoToolsPage = () => {
               </DropdownMenu>
             </div>
 
-            {/* Enhanced Prompt Input */}
-            <div className="space-y-4">
-              <div className="relative">
-                <label className="block text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
+            {/* Enhanced Prompt Input - This expands to fill space */}
+            <div className="flex-1 flex flex-col min-h-0 space-y-4">
+              <div className="flex-1 flex flex-col min-h-0 relative">
+                <label className="block text-sm font-semibold text-foreground mb-2 flex-shrink-0 flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-primary" />
                   Video Prompt
                 </label>
@@ -271,10 +271,10 @@ const VideoToolsPage = () => {
                   onChange={(e) => setPrompt(e.target.value)}
                   placeholder="A futuristic cityscape at sunset, neon lights reflecting on wet streets, cyberpunk aesthetic, cinematic 4K, slow panning shot..."
                   disabled={activeMode === "video-to-video"}
-                  className="w-full h-32 sm:h-40 bg-background/60 backdrop-blur-sm border-2 border-border/50 rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground/60 resize-none focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  className="w-full flex-1 min-h-[120px] bg-background/60 backdrop-blur-sm border-2 border-border/50 rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground/60 resize-none focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 />
                 <div className="absolute bottom-3 right-3 flex items-center gap-2">
-                  <Badge variant="outline" className="text-xs border-border/30">
+                  <Badge variant="outline" className="text-xs border-border/30 bg-background/80">
                     {prompt.length} chars
                   </Badge>
                 </div>
@@ -285,7 +285,7 @@ const VideoToolsPage = () => {
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="border-2 border-dashed border-primary/30 rounded-xl p-6 text-center bg-gradient-to-br from-primary/5 to-purple-500/5 hover:border-primary/50 transition-all cursor-pointer group"
+                  className="border-2 border-dashed border-primary/30 rounded-xl p-6 text-center bg-gradient-to-br from-primary/5 to-purple-500/5 hover:border-primary/50 transition-all cursor-pointer group flex-shrink-0"
                 >
                   <motion.div
                     animate={{ y: [0, -5, 0] }}
@@ -307,7 +307,7 @@ const VideoToolsPage = () => {
               )}
               
               {/* Action Buttons */}
-              <div className="flex items-center justify-between flex-wrap gap-3">
+              <div className="flex items-center justify-between flex-wrap gap-3 flex-shrink-0">
                 <div className="flex items-center gap-3">
                   <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary/30 border border-border/30">
                     <Switch
@@ -339,8 +339,8 @@ const VideoToolsPage = () => {
               </div>
             </div>
 
-            {/* Advanced Options */}
-            <div className="grid grid-cols-2 gap-4">
+            {/* Advanced Options - flex-shrink-0 to stay at bottom */}
+            <div className="grid grid-cols-2 gap-4 flex-shrink-0">
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-foreground flex items-center gap-2">
                   <Timer className="w-4 h-4 text-primary" />
@@ -359,7 +359,7 @@ const VideoToolsPage = () => {
                   </select>
                   <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
                 </div>
-                <Badge variant="outline" className="text-xs border-primary/20 text-primary">
+                <Badge variant="outline" className="text-xs border-primary/20 text-primary bg-primary/5">
                   <Star className="w-3 h-3 mr-1" />
                   Pro Feature
                 </Badge>
@@ -380,6 +380,7 @@ const VideoToolsPage = () => {
             <motion.div
               whileHover={{ scale: isLoading || !prompt.trim() ? 1 : 1.02 }}
               whileTap={{ scale: isLoading || !prompt.trim() ? 1 : 0.98 }}
+              className="flex-shrink-0"
             >
               <Button
                 onClick={handleGenerate}
@@ -407,11 +408,11 @@ const VideoToolsPage = () => {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="flex flex-col w-full lg:w-[48%] min-w-0 overflow-y-auto scrollbar-hide"
+          className="flex flex-col w-full lg:w-[60%] min-h-0 h-full"
         >
-          <div className="rounded-2xl border border-border/50 bg-gradient-to-br from-card/80 via-card/60 to-card/40 backdrop-blur-xl shadow-2xl shadow-primary/5 p-5 sm:p-6 space-y-6 h-full flex flex-col min-h-0">
+          <div className="flex flex-col rounded-2xl border border-border/50 bg-gradient-to-br from-card/80 via-card/60 to-card/40 backdrop-blur-xl shadow-2xl shadow-primary/5 p-5 sm:p-6 space-y-6 h-full min-h-0 overflow-hidden">
             {/* Header with Actions */}
-            <div className="flex items-center justify-between pb-4 border-b border-border/50">
+            <div className="flex items-center justify-between pb-4 border-b border-border/50 flex-shrink-0">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-green-500/20 to-emerald-500/20 flex items-center justify-center">
                   <Eye className="w-5 h-5 text-green-500" />
@@ -459,8 +460,8 @@ const VideoToolsPage = () => {
               </div>
             </div>
 
-            {/* Enhanced Video Preview Area */}
-            <div className="flex-1 flex items-center justify-center min-h-0 overflow-hidden">
+            {/* Enhanced Video Preview Area - Occupies all available height */}
+            <div className="flex-1 flex items-center justify-center min-h-0 overflow-hidden bg-black/5 rounded-2xl border-2 border-dashed border-border/50 relative">
               <AnimatePresence mode="wait">
                 {isLoading ? (
                   <motion.div
@@ -504,13 +505,15 @@ const VideoToolsPage = () => {
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
-                    className="w-full h-full flex flex-col min-h-0 space-y-4"
+                    className="w-full h-full flex flex-col min-h-0 space-y-4 p-4"
                   >
-                    <div className="relative rounded-xl overflow-hidden flex-1 min-h-0 bg-gradient-to-br from-background to-muted/30 border-2 border-border/50 shadow-xl group">
+                    <div className="relative rounded-xl overflow-hidden flex-1 min-h-0 bg-black border-2 border-border/50 shadow-xl group">
                       <video
                         src={generatedVideo}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-contain"
                         controls={false}
+                        autoPlay
+                        loop
                         ref={(video) => {
                           if (video) {
                             video.onplay = () => setIsPlaying(true);
@@ -532,7 +535,7 @@ const VideoToolsPage = () => {
                               }
                             }
                           }}
-                          className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-md hover:bg-white/30 flex items-center justify-center transition-all border-2 border-white/30"
+                          className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-md hover:bg-white/30 flex items-center justify-center transition-all border-2 border-white/30 shadow-2xl"
                         >
                           {isPlaying ? (
                             <Pause className="w-10 h-10 text-white" />
@@ -549,15 +552,15 @@ const VideoToolsPage = () => {
                       </div>
                     </div>
                     <div className="flex gap-3 flex-shrink-0">
-                      <Button variant="outline" size="lg" className="flex-1 gap-2 border-primary/30 hover:border-primary/50 hover:bg-primary/5">
+                      <Button variant="outline" size="lg" className="flex-1 gap-2 border-primary/30 hover:border-primary/50 hover:bg-primary/5 transition-all">
                         <Download className="w-4 h-4" />
                         Download
                       </Button>
-                      <Button variant="outline" size="lg" className="flex-1 gap-2 border-primary/30 hover:border-primary/50 hover:bg-primary/5">
+                      <Button variant="outline" size="lg" className="flex-1 gap-2 border-primary/30 hover:border-primary/50 hover:bg-primary/5 transition-all">
                         <Share2 className="w-4 h-4" />
                         Share
                       </Button>
-                      <Button variant="outline" size="lg" className="gap-2 border-primary/30 hover:border-primary/50 hover:bg-primary/5">
+                      <Button variant="outline" size="lg" className="gap-2 border-primary/30 hover:border-primary/50 hover:bg-primary/5 transition-all">
                         <Copy className="w-4 h-4" />
                       </Button>
                     </div>
