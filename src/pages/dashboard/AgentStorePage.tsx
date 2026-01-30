@@ -427,18 +427,18 @@ const AgentStorePage = () => {
       {/* Header */}
       <div className="mb-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-          <div className="flex items-center gap-3">
-            <div className="relative">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="relative flex-shrink-0">
               <div className="absolute inset-0 bg-gradient-to-r from-primary to-purple-500 rounded-lg blur opacity-50" />
-              <div className="relative bg-gradient-to-br from-background to-muted border border-border/50 rounded-lg p-2 shadow-lg">
-                <BrainCircuit className="w-6 h-6 text-primary" />
+              <div className="relative bg-gradient-to-br from-background to-muted border border-border/50 rounded-lg p-2 sm:p-2.5 shadow-lg">
+                <BrainCircuit className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
               </div>
             </div>
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">
+            <div className="min-w-0">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground tracking-tight truncate">
                 Agent Store
               </h1>
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1 truncate">
                 Discover and manage your AI agents
               </p>
             </div>
@@ -502,35 +502,40 @@ const AgentStorePage = () => {
         </div>
 
         {/* Search and Stats */}
-        <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-          <div className="relative w-full md:max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center justify-between">
+          <div className="relative w-full sm:max-w-md flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60 pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search agents, tags, or descriptions..."
-              className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-card/50 backdrop-blur-sm border border-border/50 text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all text-sm shadow-sm"
+              className="w-full pl-9 pr-9 sm:pr-10 py-2.5 sm:py-3 rounded-xl bg-card/50 backdrop-blur-sm border border-border/50 text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all text-sm sm:text-base shadow-sm"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1"
+                aria-label="Clear search"
               >
-                ×
+                <X className="w-4 h-4" />
               </button>
             )}
           </div>
 
-          <div className="flex items-center gap-4 text-sm">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-              <span className="text-muted-foreground">{agents.filter(a => a.status === "PUBLISHED").length} Active</span>
+          <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm flex-shrink-0">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse flex-shrink-0" />
+              <span className="text-muted-foreground whitespace-nowrap">
+                {agents.filter(a => a.status === "PUBLISHED").length} Active
+              </span>
             </div>
-            <div className="hidden md:block text-muted-foreground">•</div>
-            <div className="flex items-center gap-2">
-              <Users className="w-4 h-4 text-muted-foreground" />
-              <span className="text-muted-foreground">{agents.reduce((acc, a) => acc + a.interactions, 0).toLocaleString()} Interactions</span>
+            <div className="hidden sm:block text-muted-foreground">•</div>
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-muted-foreground flex-shrink-0" />
+              <span className="text-muted-foreground whitespace-nowrap">
+                {agents.reduce((acc, a) => acc + a.interactions, 0).toLocaleString()} Interactions
+              </span>
             </div>
           </div>
         </div>
@@ -580,8 +585,8 @@ const AgentStorePage = () => {
           transition={{ duration: 0.2 }}
           className={cn(
             viewMode === "grid" 
-              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
-              : "space-y-3"
+              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5"
+              : "space-y-3 sm:space-y-4"
           )}
         >
           {filteredAgents.map((agent, index) => (
@@ -598,38 +603,52 @@ const AgentStorePage = () => {
               )}
             >
               <Card className={cn(
-                "group relative overflow-hidden border-border/50 bg-card/50 backdrop-blur-sm h-full transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 hover:border-primary/30",
+                "group relative overflow-hidden border border-border/50 bg-card/50 backdrop-blur-sm h-full transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 hover:border-primary/30 flex flex-col",
                 viewMode === "grid" 
                   ? "hover:scale-[1.02]" 
                   : "flex-1"
               )}>
-                <div className="absolute inset-0 bg-gradient-to-br from-transparent via-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-br from-transparent via-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
                 
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="relative">
-                        <div className="absolute inset-0 bg-gradient-to-br from-primary to-purple-500 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity" />
-                        <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-primary/10 to-purple-500/10 border border-primary/20 flex items-center justify-center">
-                          <Bot className="w-6 h-6 text-primary" />
+                <CardHeader className="pb-2 pt-4 px-4 flex-shrink-0">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-start gap-2 flex-1 min-w-0">
+                      <div className="relative flex-shrink-0">
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary to-purple-500 rounded-lg blur opacity-30 group-hover:opacity-50 transition-opacity" />
+                        <div className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-lg bg-gradient-to-br from-primary/10 to-purple-500/10 border border-primary/20 flex items-center justify-center">
+                          <Bot className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                         </div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <CardTitle className="text-base font-semibold truncate group-hover:text-primary transition-colors">
+                      <div className="flex-1 min-w-0 space-y-1">
+                        <div className="flex items-start gap-1.5">
+                          <CardTitle className="text-sm sm:text-base font-bold truncate group-hover:text-primary transition-colors leading-tight">
                             {agent.name}
                           </CardTitle>
-                          <Badge variant="outline" className={getStatusColor(agent.status)}>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-1">
+                          <Badge 
+                            variant="outline" 
+                            className={cn(
+                              "text-[9px] sm:text-[10px] px-1 py-0 font-medium shrink-0",
+                              getStatusColor(agent.status)
+                            )}
+                          >
                             {agent.status}
                           </Badge>
-                        </div>
-                        <div className="flex items-center gap-2 mt-1">
-                          <Badge variant="outline" className={getPricingColor(agent.pricing)}>
+                          <Badge 
+                            variant="outline" 
+                            className={cn(
+                              "text-[9px] sm:text-[10px] px-1 py-0 font-medium shrink-0",
+                              getPricingColor(agent.pricing)
+                            )}
+                          >
                             {agent.pricing}
                           </Badge>
-                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                            <Clock className="w-3 h-3" />
-                            {Math.floor((Date.now() - agent.lastActive.getTime()) / 3600000)}h ago
+                          <div className="flex items-center gap-0.5 text-[9px] sm:text-[10px] text-muted-foreground shrink-0">
+                            <Clock className="w-2.5 h-2.5 flex-shrink-0" />
+                            <span className="truncate">
+                              {Math.floor((Date.now() - agent.lastActive.getTime()) / 3600000)}h ago
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -640,9 +659,9 @@ const AgentStorePage = () => {
                         <Button 
                           variant="ghost" 
                           size="icon" 
-                          className="h-8 w-8 hover:bg-muted relative z-10"
+                          className="h-7 w-7 hover:bg-muted relative z-10 flex-shrink-0"
                         >
-                          <MoreVertical className="w-4 h-4" />
+                          <MoreVertical className="w-3.5 h-3.5" />
                           <span className="sr-only">Open menu</span>
                         </Button>
                       </DropdownMenuTrigger>
@@ -699,56 +718,74 @@ const AgentStorePage = () => {
                     </DropdownMenu>
                   </div>
                   
-                  <div className="flex flex-wrap gap-1.5 mt-3">
-                    {agent.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-secondary/50 text-muted-foreground border border-border/50"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
+                  {agent.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-2 overflow-hidden">
+                      {agent.tags.slice(0, 3).map((tag) => (
+                        <span
+                          key={tag}
+                          className="inline-flex items-center px-1.5 py-0.5 rounded-md text-[9px] sm:text-[10px] bg-secondary/50 text-muted-foreground border border-border/50 font-medium truncate max-w-[100px] sm:max-w-[120px]"
+                          title={tag}
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                      {agent.tags.length > 3 && (
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded-md text-[9px] sm:text-[10px] bg-secondary/50 text-muted-foreground border border-border/50 font-medium">
+                          +{agent.tags.length - 3}
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </CardHeader>
 
-                <CardContent className={viewMode === "list" ? "flex-1" : ""}>
-                  <CardDescription className="text-sm line-clamp-2">
+                <CardContent className={cn(
+                  "flex-1 flex flex-col overflow-hidden px-4 pb-3",
+                  viewMode === "list" ? "flex-1" : ""
+                )}>
+                  <CardDescription className="text-xs sm:text-sm text-muted-foreground line-clamp-2 leading-snug mb-2 flex-shrink-0">
                     {agent.description}
                   </CardDescription>
                   
-                  <div className="flex items-center justify-between mt-4 pt-4 border-t border-border/50">
-                    <div className="flex items-center gap-4 text-sm">
-                      <div className="flex items-center gap-1.5">
-                        <Users className="w-4 h-4 text-muted-foreground" />
-                        <span className="font-medium">{agent.interactions.toLocaleString()}</span>
-                        <span className="text-muted-foreground">interactions</span>
+                  <div className="mt-auto pt-3 border-t border-border/50 flex items-center justify-between gap-2 flex-shrink-0">
+                    <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs min-w-0">
+                      <div className="flex items-center gap-1 min-w-0">
+                        <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-muted-foreground flex-shrink-0" />
+                        <span className="font-semibold text-foreground truncate">
+                          {agent.interactions.toLocaleString()}
+                        </span>
+                        <span className="text-muted-foreground hidden sm:inline truncate">
+                          interactions
+                        </span>
+                        <span className="text-muted-foreground sm:hidden truncate">
+                          int.
+                        </span>
                       </div>
                     </div>
                     
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 hover:bg-primary/10"
+                        className="h-6 w-6 sm:h-7 sm:w-7 hover:bg-primary/10 flex-shrink-0"
                         onClick={() => toast.info(`Sharing ${agent.name}`)}
                       >
-                        <ExternalLink className="w-4 h-4" />
+                        <ExternalLink className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                       </Button>
-                      {/* Integrated Interact Button */}
                       <Button
                         size="sm"
-                        className="gap-2 bg-gradient-to-r from-primary/90 to-primary hover:from-primary hover:to-primary/90"
+                        className="gap-1 text-[10px] sm:text-xs px-2 h-6 sm:h-7 bg-gradient-to-r from-primary/90 to-primary hover:from-primary hover:to-primary/90 flex-shrink-0"
                         onClick={() => setActiveChatAgent(agent)}
                       >
-                        <PlayCircle className="w-4 h-4" />
-                        Interact
+                        <PlayCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                        <span className="hidden sm:inline">Interact</span>
+                        <span className="sm:hidden">Chat</span>
                       </Button>
                     </div>
                   </div>
                 </CardContent>
 
                 {viewMode === "grid" && (
-                  <CardFooter className="pt-0">
+                  <CardFooter className="pt-2 pb-3 px-4 flex-shrink-0">
                     <Progress value={Math.min(agent.interactions / 100, 100)} className="h-1" />
                   </CardFooter>
                 )}
