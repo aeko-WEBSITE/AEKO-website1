@@ -333,7 +333,7 @@ const Navbar = () => {
                       variant="ghost"
                       size="sm"
                       onClick={() => navigate("/auth/sign-in")}
-                      className="text-foreground/90 dark:text-white/90 hover:text-foreground dark:hover:text-white hover:bg-accent dark:hover:bg-white/10"
+                      className="text-white dark:text-white/90 hover:text-foreground dark:hover:text-white hover:bg-accent dark:hover:bg-white/10"
                     >
                       Sign In
                     </Button>

@@ -37,6 +37,9 @@ import {
   PlayCircle,
   X,
   MessageSquare,
+  Lightbulb,
+  CheckCircle,
+  ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -49,6 +52,7 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -102,6 +106,52 @@ const AgentStorePage = () => {
   // New State for Chat Drawer and Input
   const [activeChatAgent, setActiveChatAgent] = useState<Agent | null>(null);
   const [chatMessage, setChatMessage] = useState("");
+
+  // Agent Superpowers Modal State
+  const [isSuperpowersModalOpen, setIsSuperpowersModalOpen] = useState(false);
+  const [selectedAgentForCustomize, setSelectedAgentForCustomize] = useState<Agent | null>(null);
+  const [superpowersTab, setSuperpowersTab] = useState<"website" | "files" | "integrations">("website");
+  
+  // Superpowers Website Knowledge State
+  const [superpowersWebsiteUrl, setSuperpowersWebsiteUrl] = useState("");
+  const [isSuperpowersCrawling, setIsSuperpowersCrawling] = useState(false);
+  const [superpowersCrawledUrls, setSuperpowersCrawledUrls] = useState<Array<{url: string; title: string; isParent?: boolean}>>([]);
+  const [superpowersSelectedUrls, setSuperpowersSelectedUrls] = useState<string[]>([]);
+  const [superpowersUrlSearchQuery, setSuperpowersUrlSearchQuery] = useState("");
+  
+  // Superpowers Knowledge Files State
+  const [superpowersUploadedFiles, setSuperpowersUploadedFiles] = useState<Array<{name: string; size: string}>>([]);
+  
+  // Superpowers Integrations State
+  const [superpowersSelectedIntegrations, setSuperpowersSelectedIntegrations] = useState<string[]>([]);
+  const [superpowersIntegrationSearchQuery, setSuperpowersIntegrationSearchQuery] = useState("");
+
+  const integrations = [
+    {
+      id: "fortinet-fortigate",
+      name: "fortinet-fortigate",
+      displayName: "FORTINET - MCP Enabled",
+      category: "NETWORKING_FIREWALL",
+      tools: 33,
+      icon: "🔴",
+    },
+    {
+      id: "proxmox-ve",
+      name: "proxmox-ve",
+      displayName: "PROXMOX - MCP Enabled",
+      category: "VIRTUALIZATION",
+      tools: 38,
+      icon: "🟠",
+    },
+    {
+      id: "nexus-epm",
+      name: "nexus-epm",
+      displayName: "NEXUS_EPM - MCP Enabled",
+      category: "RMM",
+      tools: 17,
+      icon: "🔵",
+    },
+  ];
 
   const [agents, setAgents] = useState<Agent[]>([
     {
@@ -307,6 +357,65 @@ const AgentStorePage = () => {
       default: return "bg-green-500/20 text-green-500 border-green-500/30";
     }
   };
+
+  // Superpowers Modal Handlers
+  const handleSuperpowersCrawlWebsite = async () => {
+    if (!superpowersWebsiteUrl.trim()) return;
+    
+    setIsSuperpowersCrawling(true);
+    // Simulate crawling
+    setTimeout(() => {
+      const mockUrls = [
+        { url: superpowersWebsiteUrl, title: new URL(superpowersWebsiteUrl).hostname, isParent: true },
+        { url: `${superpowersWebsiteUrl}refund-policy`, title: "Refund Policy" },
+        { url: `${superpowersWebsiteUrl}terms-of-service`, title: "Terms Of Service" },
+        { url: `${superpowersWebsiteUrl}privacy-policy`, title: "Privacy Policy" },
+        { url: `${superpowersWebsiteUrl}support`, title: "Support" },
+        { url: `${superpowersWebsiteUrl}for-real-estate`, title: "For Real Estate" },
+        { url: `${superpowersWebsiteUrl}for-designers`, title: "For Designers" },
+      ];
+      setSuperpowersCrawledUrls(mockUrls);
+      setIsSuperpowersCrawling(false);
+    }, 2000);
+  };
+  
+  const handleSuperpowersToggleUrl = (url: string) => {
+    setSuperpowersSelectedUrls(prev => 
+      prev.includes(url) 
+        ? prev.filter(u => u !== url)
+        : [...prev, url]
+    );
+  };
+  
+  const handleSuperpowersFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      const newFiles = Array.from(files).map(file => ({
+        name: file.name,
+        size: `${(file.size / 1024).toFixed(2)} KB`
+      }));
+      setSuperpowersUploadedFiles(prev => [...prev, ...newFiles]);
+    }
+  };
+  
+  const handleSuperpowersToggleIntegration = (id: string) => {
+    setSuperpowersSelectedIntegrations(prev =>
+      prev.includes(id)
+        ? prev.filter(i => i !== id)
+        : [...prev, id]
+    );
+  };
+
+  const superpowersFilteredUrls = superpowersCrawledUrls.filter(url => 
+    url.title.toLowerCase().includes(superpowersUrlSearchQuery.toLowerCase()) ||
+    url.url.toLowerCase().includes(superpowersUrlSearchQuery.toLowerCase())
+  );
+  
+  const superpowersFilteredIntegrations = integrations.filter(integration =>
+    integration.name.toLowerCase().includes(superpowersIntegrationSearchQuery.toLowerCase()) ||
+    integration.displayName.toLowerCase().includes(superpowersIntegrationSearchQuery.toLowerCase()) ||
+    integration.category.toLowerCase().includes(superpowersIntegrationSearchQuery.toLowerCase())
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-background/95 via-muted/5 p-4 md:p-6 relative overflow-hidden">
@@ -528,25 +637,62 @@ const AgentStorePage = () => {
                     
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-8 w-8 hover:bg-muted relative z-10"
+                        >
                           <MoreVertical className="w-4 h-4" />
+                          <span className="sr-only">Open menu</span>
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-48">
-                        <DropdownMenuItem>
+                      <DropdownMenuContent align="end" className="w-48 z-[100]">
+                        <DropdownMenuItem
+                          onSelect={() => {
+                            console.log("Customize clicked for agent:", agent.name);
+                            setSelectedAgentForCustomize(agent);
+                            setSuperpowersTab("website");
+                            setIsSuperpowersModalOpen(true);
+                          }}
+                          className="cursor-pointer"
+                        >
+                          <Sparkles className="w-4 h-4 mr-2" />
+                          Customize
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onSelect={() => {
+                            toast.info("Edit Agent feature coming soon!");
+                          }}
+                          className="cursor-pointer"
+                        >
                           <Pencil className="w-4 h-4 mr-2" />
                           Edit Agent
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem
+                          onSelect={() => {
+                            toast.info("Share Agent feature coming soon!");
+                          }}
+                          className="cursor-pointer"
+                        >
                           <ExternalLink className="w-4 h-4 mr-2" />
                           Share Agent
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem
+                          onSelect={() => {
+                            toast.info("View Code feature coming soon!");
+                          }}
+                          className="cursor-pointer"
+                        >
                           <Code className="w-4 h-4 mr-2" />
                           View Code
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-destructive">
+                        <DropdownMenuItem 
+                          onSelect={() => {
+                            toast.error("Delete Agent feature coming soon!");
+                          }}
+                          className="text-destructive cursor-pointer"
+                        >
                           Delete Agent
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -1098,6 +1244,312 @@ const AgentStorePage = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Agent Superpowers Modal */}
+      <Dialog open={isSuperpowersModalOpen} onOpenChange={setIsSuperpowersModalOpen}>
+        <DialogContent className="max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col p-0 dark:bg-[#0a0a0a] bg-background border-border/50 rounded-2xl">
+          <DialogHeader className="px-6 pt-6 pb-4 border-b border-border/50">
+            <div className="flex items-center justify-between">
+              <div>
+                <DialogTitle className="text-2xl font-bold text-foreground">
+                  Agent Superpowers
+                </DialogTitle>
+                <DialogDescription className="text-sm text-muted-foreground mt-1">
+                  Enhance your agent with additional capabilities
+                </DialogDescription>
+              </div>
+              <button
+                onClick={() => setIsSuperpowersModalOpen(false)}
+                className="rounded-sm opacity-70 hover:opacity-100 transition-opacity"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+          </DialogHeader>
+
+          <Tabs value={superpowersTab} onValueChange={(v) => setSuperpowersTab(v as typeof superpowersTab)} className="flex-1 flex flex-col overflow-hidden">
+            <div className="px-6 pt-4 border-b border-border/50">
+              <TabsList className="grid w-full grid-cols-3 bg-transparent">
+                <TabsTrigger 
+                  value="website" 
+                  className="data-[state=active]:bg-background/50 data-[state=active]:text-foreground"
+                >
+                  <Globe className="w-4 h-4 mr-2" />
+                  Website Knowledge
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="files"
+                  className="data-[state=active]:bg-background/50 data-[state=active]:text-foreground"
+                >
+                  <Database className="w-4 h-4 mr-2" />
+                  Knowledge Files
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="integrations"
+                  className="data-[state=active]:bg-background/50 data-[state=active]:text-foreground"
+                >
+                  <Settings className="w-4 h-4 mr-2" />
+                  Integrations
+                </TabsTrigger>
+              </TabsList>
+            </div>
+
+            <div className="flex-1 overflow-y-auto px-6 py-4">
+              {/* Website Knowledge Tab */}
+              <TabsContent value="website" className="mt-0 space-y-4">
+                <div className="space-y-4">
+                  <div className="flex gap-2">
+                    <div className="flex-1 relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <input
+                        type="text"
+                        value={superpowersWebsiteUrl}
+                        onChange={(e) => setSuperpowersWebsiteUrl(e.target.value)}
+                        placeholder="Enter website URL (e.g., https://example.com)"
+                        className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-background/80 border border-border/50 text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50"
+                      />
+                    </div>
+                    <Button
+                      onClick={handleSuperpowersCrawlWebsite}
+                      disabled={!superpowersWebsiteUrl.trim() || isSuperpowersCrawling}
+                      className="px-6"
+                    >
+                      {isSuperpowersCrawling ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Crawling...
+                        </>
+                      ) : (
+                        <>
+                          <Globe className="w-4 h-4 mr-2" />
+                          Crawl Website
+                        </>
+                      )}
+                    </Button>
+                  </div>
+
+                  {superpowersCrawledUrls.length > 0 && (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-sm font-semibold text-foreground">
+                          Selected URLs To Scrape ({superpowersSelectedUrls.length}/{superpowersCrawledUrls.length})
+                        </h3>
+                        <span className="text-xs text-muted-foreground">Will save on deploy</span>
+                      </div>
+                      
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <input
+                          type="text"
+                          value={superpowersUrlSearchQuery}
+                          onChange={(e) => setSuperpowersUrlSearchQuery(e.target.value)}
+                          placeholder="Search website pages..."
+                          className="w-full pl-10 pr-4 py-2 rounded-lg bg-background/80 border border-border/50 text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50"
+                        />
+                      </div>
+
+                      <div className="border border-border/50 rounded-lg max-h-[400px] overflow-y-auto bg-background/50">
+                        {superpowersFilteredUrls.map((item, index) => (
+                          <div
+                            key={index}
+                            className={`flex items-center gap-3 px-4 py-3 border-b border-border/30 last:border-b-0 hover:bg-background/80 transition-colors cursor-pointer ${
+                              item.isParent ? 'bg-background/40' : ''
+                            }`}
+                            onClick={() => handleSuperpowersToggleUrl(item.url)}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={superpowersSelectedUrls.includes(item.url)}
+                              onChange={() => handleSuperpowersToggleUrl(item.url)}
+                              className="w-4 h-4 rounded border-border text-primary focus:ring-primary"
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                            <Globe className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <div className="text-sm font-medium text-foreground truncate">
+                                {item.title}
+                              </div>
+                              <div className="text-xs text-muted-foreground truncate">
+                                {item.url}
+                              </div>
+                            </div>
+                            {item.isParent && (
+                              <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+
+              {/* Knowledge Files Tab */}
+              <TabsContent value="files" className="mt-0 space-y-4">
+                <div className="space-y-4">
+                  <div className="border-2 border-dashed border-border/50 rounded-lg p-8 text-center hover:border-primary/50 transition-colors">
+                    <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium text-foreground">
+                        Upload knowledge files
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        PDF, DOCX, TXT, MD files supported
+                      </p>
+                      <label className="inline-block">
+                        <input
+                          type="file"
+                          multiple
+                          accept=".pdf,.docx,.txt,.md"
+                          onChange={handleSuperpowersFileUpload}
+                          className="hidden"
+                        />
+                        <Button variant="outline" className="mt-4" asChild>
+                          <span className="cursor-pointer">Choose Files</span>
+                        </Button>
+                      </label>
+                    </div>
+                  </div>
+
+                  {superpowersUploadedFiles.length > 0 && (
+                    <div className="space-y-2">
+                      <h3 className="text-sm font-semibold text-foreground">
+                        Uploaded Files ({superpowersUploadedFiles.length})
+                      </h3>
+                      <div className="border border-border/50 rounded-lg divide-y divide-border/50">
+                        {superpowersUploadedFiles.map((file, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center justify-between px-4 py-3 hover:bg-background/80 transition-colors"
+                          >
+                            <div className="flex items-center gap-3">
+                              <FileText className="w-5 h-5 text-muted-foreground" />
+                              <div>
+                                <div className="text-sm font-medium text-foreground">
+                                  {file.name}
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  {file.size}
+                                </div>
+                              </div>
+                            </div>
+                            <button
+                              onClick={() => setSuperpowersUploadedFiles(prev => prev.filter((_, i) => i !== index))}
+                              className="text-muted-foreground hover:text-destructive transition-colors"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+
+              {/* Integrations Tab */}
+              <TabsContent value="integrations" className="mt-0 space-y-4">
+                <div className="space-y-4">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <input
+                      type="text"
+                      value={superpowersIntegrationSearchQuery}
+                      onChange={(e) => setSuperpowersIntegrationSearchQuery(e.target.value)}
+                      placeholder="Search integrations..."
+                      className="w-full pl-10 pr-4 py-2 rounded-lg bg-background/80 border border-border/50 text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50"
+                    />
+                  </div>
+
+                  <div className="space-y-3">
+                    <h3 className="text-sm font-semibold text-foreground">
+                      Available Integrations
+                    </h3>
+                    <div className="grid gap-3">
+                      {superpowersFilteredIntegrations.map((integration) => {
+                        const isSelected = superpowersSelectedIntegrations.includes(integration.id);
+                        return (
+                          <div
+                            key={integration.id}
+                            onClick={() => handleSuperpowersToggleIntegration(integration.id)}
+                            className={`relative p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                              isSelected
+                                ? 'border-primary/50 bg-primary/5 dark:bg-primary/10'
+                                : 'border-border/50 hover:border-primary/30 bg-background/50'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-4 flex-1">
+                                <div className="w-12 h-12 rounded-lg bg-background/80 border border-border/50 flex items-center justify-center text-2xl">
+                                  {integration.icon}
+                                </div>
+                                <div className="flex-1">
+                                  <div className="text-sm font-semibold text-foreground mb-1">
+                                    {integration.displayName}
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xs px-2 py-0.5 rounded bg-background/80 border border-border/50 text-muted-foreground">
+                                      {integration.category}
+                                    </span>
+                                    <span className="text-xs text-muted-foreground">
+                                      {integration.tools} tools
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="flex items-center">
+                                <div className={`relative w-11 h-6 rounded-full transition-colors ${
+                                  isSelected ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'
+                                }`}>
+                                  <div className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${
+                                    isSelected ? 'translate-x-5' : 'translate-x-0'
+                                  }`} />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {superpowersSelectedIntegrations.length > 0 && (
+                    <div className="mt-4 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20 flex items-start gap-2">
+                      <Lightbulb className="w-4 h-4 text-yellow-500 mt-0.5 flex-shrink-0" />
+                      <p className="text-xs text-foreground">
+                        Select integrations now. They will be connected automatically when you create the agent. ({superpowersSelectedIntegrations.length} selected)
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+            </div>
+
+            <div className="px-6 py-4 border-t border-border/50 flex items-center justify-between">
+              <Button
+                variant="outline"
+                onClick={() => setIsSuperpowersModalOpen(false)}
+                className="gap-2"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Back
+              </Button>
+              <Button
+                onClick={() => {
+                  toast.success("Agent superpowers updated!", {
+                    description: "Your agent has been enhanced with the selected capabilities.",
+                  });
+                  setIsSuperpowersModalOpen(false);
+                }}
+                className="gap-2 bg-gradient-to-r from-primary to-primary/80"
+              >
+                Next
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+            </div>
+          </Tabs>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

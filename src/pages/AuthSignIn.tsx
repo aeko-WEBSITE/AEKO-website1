@@ -54,12 +54,12 @@ const AuthSignIn = () => {
 
   return (
     <div className="min-h-screen flex bg-background">
-      {/* Left Panel - Login/Signup UI (Unchanged) */}
-      <div className="w-full lg:w-[480px] bg-card flex flex-col p-8 lg:p-8 relative z-10 overflow-hidden">
+      {/* Left Panel - Login/Signup UI */}
+      <div className="w-full lg:w-[480px] bg-card flex flex-col p-8 lg:p-8 relative z-10 overflow-hidden border-r border-border">
         {/* Animated Background Glow Effects */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <motion.div
-            className="absolute -top-20 -left-20 w-96 h-96 bg-primary/10 rounded-full blur-3xl"
+            className="absolute -top-20 -left-20 w-96 h-96 bg-primary/10 dark:bg-primary/10 rounded-full blur-3xl"
             animate={{
               x: [0, 50, 0],
               y: [0, 30, 0],
@@ -72,7 +72,7 @@ const AuthSignIn = () => {
             }}
           />
           <motion.div
-            className="absolute -bottom-20 -right-20 w-96 h-96 bg-primary/10 rounded-full blur-3xl"
+            className="absolute -bottom-20 -right-20 w-96 h-96 bg-primary/10 dark:bg-primary/10 rounded-full blur-3xl"
             animate={{
               x: [0, -50, 0],
               y: [0, -30, 0],
@@ -99,7 +99,7 @@ const AuthSignIn = () => {
               className="absolute inset-0 rounded-full"
               style={{
                 padding: '3px',
-                background: 'linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.5), rgba(255,255,255,0.9))',
+                background: 'linear-gradient(135deg, hsl(var(--foreground) / 0.9), hsl(var(--foreground) / 0.5), hsl(var(--foreground) / 0.9))',
                 backgroundSize: '200% 200%',
                 WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
                 WebkitMaskComposite: 'xor',
@@ -124,7 +124,7 @@ const AuthSignIn = () => {
             </div>
           </div>
           <div className="flex items-baseline gap-0.5">
-            <span className="text-2xl font-bold text-white">AEKO.</span>
+            <span className="text-2xl font-bold text-foreground">AEKO.</span>
             <motion.span
               className="text-2xl font-bold"
               style={{
@@ -155,10 +155,10 @@ const AuthSignIn = () => {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="mb-8"
         >
-          <h2 className="text-white text-2xl font-semibold mb-1">
+          <h2 className="text-foreground text-2xl font-semibold mb-1">
             {isSignUp ? "Create your account" : "Sign up or Login with"}
           </h2>
-          <p className="text-gray-400 text-sm">
+          <p className="text-muted-foreground text-sm">
             {isSignUp ? "Join AEKO Creative Suite today" : "Get started with AI-powered creativity"}
           </p>
         </motion.div>
@@ -175,10 +175,10 @@ const AuthSignIn = () => {
             <Button
               type="button"
               variant="outline"
-              className="w-full h-14 bg-[#1F2937] hover:bg-[#374151] border border-white/10 text-white justify-start gap-3 rounded-xl transition-all duration-300"
+              className="w-full h-14 bg-secondary hover:bg-secondary/80 dark:bg-[#1F2937] dark:hover:bg-[#374151] border border-border text-foreground justify-start gap-3 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md"
               onClick={handleGoogleSignIn}
             >
-              <div className="relative z-10 w-7 h-7 rounded-full bg-white flex items-center justify-center">
+              <div className="relative z-10 w-7 h-7 rounded-full bg-white dark:bg-white flex items-center justify-center">
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                   <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -195,11 +195,11 @@ const AuthSignIn = () => {
             <Button
               type="button"
               variant="outline"
-              className="w-full h-14 bg-[#0D1117] hover:bg-[#161B22] border border-white/10 text-white justify-start gap-3 rounded-xl transition-all duration-300"
+              className="w-full h-14 bg-secondary hover:bg-secondary/80 dark:bg-[#0D1117] dark:hover:bg-[#161B22] border border-border text-foreground justify-start gap-3 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md"
               onClick={() => navigate("/dashboard/tools/agent")}
             >
               <div className="relative z-10 w-7 h-7 rounded-full flex items-center justify-center">
-                <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-foreground" fill="currentColor" viewBox="0 0 24 24">
                   <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd"/>
                 </svg>
               </div>
@@ -212,11 +212,11 @@ const AuthSignIn = () => {
             <Button
               type="button"
               variant="outline"
-              className="w-full h-14 bg-[#000000] hover:bg-[#1C1C1C] text-white justify-start gap-3 rounded-xl transition-all duration-300 border-0"
+              className="w-full h-14 bg-foreground hover:bg-foreground/90 dark:bg-[#000000] dark:hover:bg-[#1C1C1C] text-background dark:text-white justify-start gap-3 rounded-xl transition-all duration-300 border-0 shadow-sm hover:shadow-md"
               onClick={() => navigate("/dashboard/tools/agent")}
             >
-              <div className="relative z-10 w-7 h-7 rounded-full bg-white/10 flex items-center justify-center">
-                <Apple className="w-5 h-5 text-white" />
+              <div className="relative z-10 w-7 h-7 rounded-full bg-background/20 dark:bg-white/10 flex items-center justify-center">
+                <Apple className="w-5 h-5 text-background dark:text-white" />
               </div>
               <span className="font-semibold text-base relative z-10">Apple</span>
             </Button>
@@ -227,11 +227,11 @@ const AuthSignIn = () => {
             <Button
               type="button"
               variant="outline"
-              className="w-full h-14 bg-[#2F2F2F] hover:bg-[#3A3A3A] border border-white/10 text-white justify-start gap-3 rounded-xl transition-all duration-300"
+              className="w-full h-14 bg-secondary hover:bg-secondary/80 dark:bg-[#2F2F2F] dark:hover:bg-[#3A3A3A] border border-border text-foreground justify-start gap-3 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md"
               onClick={() => navigate("/dashboard/tools/agent")}
             >
-              <div className="relative z-10 w-7 h-7 rounded-lg bg-white flex items-center justify-center">
-                <div className="w-4 h-4 bg-[#2F2F2F] rounded-sm grid grid-cols-2 gap-0.5">
+              <div className="relative z-10 w-7 h-7 rounded-lg bg-white dark:bg-white flex items-center justify-center">
+                <div className="w-4 h-4 bg-secondary dark:bg-[#2F2F2F] rounded-sm grid grid-cols-2 gap-0.5">
                   <div className="bg-[#F25022]"></div>
                   <div className="bg-[#7FBA00]"></div>
                   <div className="bg-[#00A4EF]"></div>
@@ -264,7 +264,7 @@ const AuthSignIn = () => {
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               onSubmit={handleSubmit}
-              className="mt-4 space-y-4 p-6 bg-card/90 rounded-xl border-2 border-border shadow-xl backdrop-blur-sm"
+              className="mt-4 space-y-4 p-6 bg-card/90 dark:bg-card/90 rounded-xl border-2 border-border shadow-xl backdrop-blur-sm"
             >
               <div>
                 <Input
@@ -272,7 +272,7 @@ const AuthSignIn = () => {
                   placeholder="Email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="h-12 bg-card/80 border-2 border-border focus:border-primary text-foreground placeholder:text-muted-foreground rounded-lg transition-all duration-300 focus:ring-2 focus:ring-primary/20"
+                  className="h-12 bg-background dark:bg-card/80 border-2 border-border focus:border-primary text-foreground placeholder:text-muted-foreground rounded-lg transition-all duration-300 focus:ring-2 focus:ring-primary/20"
                 />
               </div>
               <div>
@@ -281,7 +281,7 @@ const AuthSignIn = () => {
                   placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="h-12 bg-card/80 border-2 border-border focus:border-primary text-foreground placeholder:text-muted-foreground rounded-lg transition-all duration-300 focus:ring-2 focus:ring-primary/20"
+                  className="h-12 bg-background dark:bg-card/80 border-2 border-border focus:border-primary text-foreground placeholder:text-muted-foreground rounded-lg transition-all duration-300 focus:ring-2 focus:ring-primary/20"
                 />
               </div>
               <div className="flex gap-2">
@@ -291,8 +291,8 @@ const AuthSignIn = () => {
                   onClick={() => setIsSignUp(false)}
                   className={`flex-1 h-11 border-2 text-foreground font-semibold rounded-lg transition-all duration-300 ${
                     !isSignUp 
-                      ? "bg-primary/30 border-primary shadow-lg shadow-primary/20" 
-                      : "bg-card/60 border-border hover:border-primary/40"
+                      ? "bg-primary/20 dark:bg-primary/30 border-primary shadow-lg shadow-primary/20" 
+                      : "bg-secondary/50 dark:bg-card/60 border-border hover:border-primary/40"
                   }`}
                 >
                   Sign In
@@ -303,8 +303,8 @@ const AuthSignIn = () => {
                   onClick={() => setIsSignUp(true)}
                   className={`flex-1 h-11 border-2 text-foreground font-semibold rounded-lg transition-all duration-300 ${
                     isSignUp 
-                      ? "bg-primary/30 border-primary shadow-lg shadow-primary/20" 
-                      : "bg-card/60 border-border hover:border-primary/40"
+                      ? "bg-primary/20 dark:bg-primary/30 border-primary shadow-lg shadow-primary/20" 
+                      : "bg-secondary/50 dark:bg-card/60 border-border hover:border-primary/40"
                   }`}
                 >
                   Sign Up
@@ -360,7 +360,7 @@ const AuthSignIn = () => {
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex-1">
               <Button
                 variant="outline"
-                className="w-full h-12 bg-primary/30 border-2 border-primary/60 hover:border-primary hover:bg-primary/40 text-primary-foreground rounded-xl shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300"
+                className="w-full h-12 bg-primary/20 dark:bg-primary/30 border-2 border-primary/60 hover:border-primary hover:bg-primary/30 dark:hover:bg-primary/40 text-primary-foreground rounded-xl shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300"
                 onClick={() => toast.info("App Store link coming soon")}
               >
                 <Apple className="w-5 h-5 mr-2" />
@@ -370,7 +370,7 @@ const AuthSignIn = () => {
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex-1">
               <Button
                 variant="outline"
-                className="w-full h-12 bg-primary/30 border-2 border-primary/60 hover:border-primary hover:bg-primary/40 text-primary-foreground rounded-xl shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300"
+                className="w-full h-12 bg-primary/20 dark:bg-primary/30 border-2 border-primary/60 hover:border-primary hover:bg-primary/30 dark:hover:bg-primary/40 text-primary-foreground rounded-xl shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300"
                 onClick={() => toast.info("Google Play link coming soon")}
               >
                 <Chrome className="w-5 h-5 mr-2" />
