@@ -17,36 +17,40 @@ import AgentLLMPage from "./pages/dashboard/AgentLLMPage";
 import ImageToolsPage from "./pages/dashboard/ImageToolsPage";
 import VideoToolsPage from "./pages/dashboard/VideoToolsPage";
 import AgentStorePage from "./pages/dashboard/AgentStorePage";
+import ToolsPage from "./pages/dashboard/ToolsPage";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/auth/sign-in" element={<AuthSignIn />} />
-          <Route path="/dashboard" element={<DashboardLayout />}>
-            <Route index element={<DashboardHome />} />
-            <Route path="feed" element={<FeedPage />} />
-            <Route path="tools" element={<ToolsLayout />}>
-              <Route path="agent" element={<AgentLLMPage />} />
-              <Route path="image" element={<ImageToolsPage />} />
-              <Route path="video" element={<VideoToolsPage />} />
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/auth/sign-in" element={<AuthSignIn />} />
+            <Route path="/dashboard" element={<DashboardLayout />}>
+              <Route index element={<DashboardHome />} />
+              <Route path="feed" element={<FeedPage />} />
+              <Route path="tools" element={<ToolsPage />} />
+              <Route path="tools-old" element={<ToolsLayout />}>
+                <Route path="agent" element={<AgentLLMPage />} />
+                <Route path="image" element={<ImageToolsPage />} />
+                <Route path="video" element={<VideoToolsPage />} />
+              </Route>
+              <Route path="account" element={<AccountPage />} />
+              <Route path="creation-history" element={<CreationHistoryPage />} />
+              <Route path="support" element={<SupportPage />} />
+              <Route path="agent-store" element={<AgentStorePage />} />
             </Route>
-            <Route path="account" element={<AccountPage />} />
-            <Route path="creation-history" element={<CreationHistoryPage />} />
-            <Route path="support" element={<SupportPage />} />
-            <Route path="agent-store" element={<AgentStorePage />} />
-          </Route>
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+}
 
 export default App;

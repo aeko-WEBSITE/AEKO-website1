@@ -18,6 +18,7 @@ import {
   Sun,
   Moon,
   Store,
+  Briefcase,
 } from "lucide-react";
 import logoDark from "@/assets/ChatGPT Image Dec 25, 2025, 03_45_44 PM.png";
 // import logoLight from "@/assets/ak-logo.png"; // Uncomment when you add the AK logo file
@@ -39,9 +40,9 @@ const navItems = [
 ];
 
 const toolsSubItems = [
-  { path: "/dashboard/tools/agent", icon: MessageSquare, label: "Agent LLM" },
-  { path: "/dashboard/tools/image", icon: ImageIcon, label: "Image" },
-  { path: "/dashboard/tools/video", icon: Video, label: "Video" },
+  { path: "/dashboard/tools-old/agent", icon: MessageSquare, label: "Agent LLM" },
+  { path: "/dashboard/tools-old/image", icon: ImageIcon, label: "Image" },
+  { path: "/dashboard/tools-old/video", icon: Video, label: "Video" },
 ];
 
 const DashboardLayout = () => {
@@ -51,7 +52,7 @@ const DashboardLayout = () => {
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
 
-  const isToolsActive = location.pathname.startsWith("/dashboard/tools");
+  const isToolsActive = location.pathname.startsWith("/dashboard/tools-old");
   // Auto-open dropdown if on tools page
   const [toolsDropdownOpen, setToolsDropdownOpen] = useState(isToolsActive);
 
@@ -510,7 +511,67 @@ const DashboardLayout = () => {
                 </TooltipContent>
               </Tooltip>
 
-              {/* 5. Support */}
+              {/* 5. ToolCase */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <motion.div
+                    whileHover={{ scale: 1.15, rotate: 5 }}
+                    whileTap={{ scale: 0.85, rotate: -5 }}
+                    className="relative"
+                  >
+                    <Link
+                      to="/dashboard/tools"
+                      onClick={() => setSidebarOpen(false)}
+                      className={`flex items-center justify-center w-10 h-10 rounded-full transition-all ${
+                        location.pathname === "/dashboard/tools"
+                          ? "gradient-active-nav text-foreground"
+                          : "text-muted-foreground hover:text-foreground hover:bg-secondary/30"
+                      }`}
+                    >
+                      <Briefcase className="w-5 h-5 stroke-2 text-white font-bold" style={{ filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.8))' }} />
+                      {location.pathname === "/dashboard/tools" && (
+                        <motion.div
+                          className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-400/40 via-pink-400/40 to-blue-400/40 blur-md"
+                          animate={{
+                            opacity: [0.4, 0.8, 0.4],
+                            scale: [1, 1.3, 1],
+                          }}
+                          transition={{
+                            duration: 2,
+                            repeat: Infinity,
+                            ease: 'easeInOut',
+                          }}
+                        />
+                      )}
+                      {/* Bright Click Animation Effect */}
+                      <motion.div
+                        className="absolute inset-0 rounded-full bg-white blur-xl"
+                        initial={{ scale: 0, opacity: 0 }}
+                        whileTap={{ 
+                          scale: [0, 2, 2.5, 0],
+                          opacity: [0, 1, 0.8, 0]
+                        }}
+                        transition={{ duration: 0.6, ease: "easeOut" }}
+                      />
+                      {/* Secondary Bright Ring on Click */}
+                      <motion.div
+                        className="absolute inset-0 rounded-full border-2 border-white"
+                        initial={{ scale: 1, opacity: 0 }}
+                        whileTap={{ 
+                          scale: [1, 2, 2.5],
+                          opacity: [0, 0.9, 0]
+                        }}
+                        transition={{ duration: 0.5, ease: "easeOut" }}
+                      />
+                    </Link>
+                  </motion.div>
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                  <p>ToolCase</p>
+                </TooltipContent>
+              </Tooltip>
+
+              {/* 6. Support */}
               {navItems.filter(item => item.path === "/dashboard/support").map((item) => {
                 const Icon = item.icon;
                 const isActive = location.pathname === item.path;
