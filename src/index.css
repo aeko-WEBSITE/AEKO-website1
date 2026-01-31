@@ -81,16 +81,13 @@
     --shadow-glow-accent: 0 8px 20px hsl(199 95% 48% / 0.15), 0 0 15px hsl(239 84% 67% / 0.1);
     --shadow-card: 0 4px 24px hsl(0 0% 0% / 0.06);
 
-    /* Sidebar for light theme */
-    --sidebar-background: 210 20% 98%;
-    --sidebar-foreground: 222 47% 11%;
-    /* Active Navigation Indicator: Full Hero Gradient */
-    --sidebar-primary: 239 84% 67%; /* Base color, gradient applied via class */
-    --sidebar-primary-foreground: 222 47% 11%;
-    --sidebar-accent: 210 40% 96%;
+   --sidebar-background: 210 20% 98%; /* Very light grey-blue */
+    --sidebar-foreground: 215 25% 27%; /* Dark slate text */
+    --sidebar-primary: 239 84% 67%; 
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 40% 94%; /* Subtle hover state */
     --sidebar-accent-foreground: 222 47% 11%;
     --sidebar-border: 214 32% 91%;
-    /* Focus Ring: Sky Blue from gradient */
     --sidebar-ring: 199 95% 48%;
   }
 
@@ -169,16 +166,13 @@
     --shadow-glow-accent: 0 0 30px hsl(199 95% 48% / 0.3), 0 0 50px hsl(239 84% 67% / 0.2);
     --shadow-card: 0 4px 24px hsl(0 0% 0% / 0.6);
 
-    /* Sidebar for dark theme - Black */
-    --sidebar-background: 0 0% 0%;
+    --sidebar-background: 222 47% 4%; /* Near black with a hint of navy */
     --sidebar-foreground: 210 20% 98%;
-    /* Active Navigation Indicator: Primary color */
-    --sidebar-primary: 239 84% 67%; /* Base color, gradient applied via class */
-    --sidebar-primary-foreground: 210 20% 98%;
-    --sidebar-accent: 0 0% 12%;
+    --sidebar-primary: 239 84% 67%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 217 32% 12%; /* Slightly lighter charcoal for hover */
     --sidebar-accent-foreground: 210 20% 98%;
-    --sidebar-border: 0 0% 15%;
-    /* Focus Ring: Primary color */
+    --sidebar-border: 217 32% 15%; /* Distinct but subtle border */
     --sidebar-ring: 239 84% 67%;
   }
 }

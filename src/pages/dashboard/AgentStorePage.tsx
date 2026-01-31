@@ -1286,21 +1286,13 @@ const AgentStorePage = () => {
       <Dialog open={isSuperpowersModalOpen} onOpenChange={setIsSuperpowersModalOpen}>
         <DialogContent className="max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col p-0 dark:bg-[#0a0a0a] bg-background border-border/50 rounded-2xl">
           <DialogHeader className="px-6 pt-6 pb-4 border-b border-border/50">
-            <div className="flex items-center justify-between">
-              <div>
+            <div>
                 <DialogTitle className="text-2xl font-bold text-foreground">
-                  Agent Superpowers
+                    Agent Superpowers
                 </DialogTitle>
                 <DialogDescription className="text-sm text-muted-foreground mt-1">
-                  Enhance your agent with additional capabilities
+                    Enhance your agent with additional capabilities
                 </DialogDescription>
-              </div>
-              <button
-                onClick={() => setIsSuperpowersModalOpen(false)}
-                className="rounded-sm opacity-70 hover:opacity-100 transition-opacity"
-              >
-                <X className="h-5 w-5" />
-              </button>
             </div>
           </DialogHeader>
 
