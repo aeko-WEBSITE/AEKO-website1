@@ -137,30 +137,30 @@ const Navbar = () => {
             ease: [0.4, 0, 0.2, 1],
           }}
         >
-          {/* Glass Background with Blur - Purple Gradient */}
+          {/* Glass Background with Blur - Theme Aware */}
           <motion.div
-            className="relative overflow-hidden bg-gradient-to-b from-purple-900/90 via-purple-800/80 to-purple-900/90 border-2 border-white"
+            className="relative overflow-hidden dark:bg-card/95 dark:backdrop-blur-xl bg-white/95 backdrop-blur-xl border dark:border-border border-border/50"
             animate={{
               backdropFilter: "blur(20px) saturate(180%)",
               borderRadius: isScrolled || isOpen ? "20px" : "9999px",
               boxShadow: isScrolled || isOpen
-                ? "0 8px 32px rgba(124, 58, 237, 0.3)"
-                : "0 8px 32px rgba(124, 58, 237, 0.2)",
+                ? "0 8px 32px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.05)"
+                : "0 4px 20px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.03)",
             }}
             transition={{
               duration: 0.4,
               ease: [0.4, 0, 0.2, 1],
             }}
           >
-            {/* Rainbow Gradient Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-600/30 via-pink-500/20 via-blue-500/20 via-green-500/20 via-yellow-500/20 to-purple-600/30 rounded-r-2xl pointer-events-none" 
+            {/* Subtle Gradient Overlay - Theme Aware */}
+            <div className="absolute inset-0 dark:bg-gradient-to-br dark:from-primary/5 dark:via-transparent dark:to-transparent bg-gradient-to-br from-indigo-50/30 via-blue-50/20 to-purple-50/30 pointer-events-none" 
               style={{ borderRadius: isScrolled || isOpen ? "20px" : "9999px" }}
             />
-            {/* Animated Gradient Border */}
+            {/* Subtle Animated Gradient Border - Only visible on hover/focus */}
             <motion.div
-              className="absolute inset-0 rounded-full opacity-50"
+              className="absolute inset-0 rounded-full opacity-0 dark:opacity-30"
               style={{
-                background: "linear-gradient(135deg, rgba(124, 58, 237, 0.5), rgba(59, 130, 246, 0.5), rgba(34, 211, 238, 0.5), rgba(236, 72, 153, 0.5))",
+                background: "linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(14, 165, 233, 0.3), rgba(34, 197, 94, 0.3), rgba(236, 72, 153, 0.3))",
                 backgroundSize: "200% 200%",
                 borderRadius: "inherit",
                 padding: "1px",
@@ -174,7 +174,7 @@ const Navbar = () => {
               }}
               transition={{
                 backgroundPosition: {
-                  duration: 3,
+                  duration: 5,
                   repeat: Infinity,
                   ease: "linear",
                 },
@@ -186,8 +186,8 @@ const Navbar = () => {
             />
 
             {/* Content Container */}
-            <div className="relative px-4 md:px-6 py-1.5 md:py-2 z-10">
-              <div className="flex items-center justify-between gap-4 md:gap-8">
+            <div className="relative px-3 sm:px-4 md:px-6 py-1.5 md:py-2 z-10">
+              <div className="flex items-center justify-between gap-2 sm:gap-4 md:gap-6 lg:gap-8">
                 {/* Left Side - Logo */}
                 <motion.a
                   href="#"
@@ -226,16 +226,9 @@ const Navbar = () => {
                     </div>
                   </div>
                   <div className="flex items-baseline gap-0.5">
-                    <span className="text-sm md:text-base font-bold text-white">AEKO.</span>
+                    <span className="text-sm md:text-base font-bold dark:text-white text-foreground">AEKO.</span>
                     <motion.span
-                      className="text-sm md:text-base font-bold"
-                      style={{
-                        background: 'linear-gradient(135deg, #7C3AED, #3B82F6, #22D3EE, #22C55E, #FACC15, #EC4899, #7C3AED)',
-                        backgroundSize: '200% 200%',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                        backgroundClip: 'text',
-                      }}
+                      className="text-sm md:text-base font-bold gradient-text"
                       animate={{
                         backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
                       }}
@@ -251,32 +244,32 @@ const Navbar = () => {
                 </motion.a>
 
                 {/* Right Side - All Nav Links + CTA */}
-                <div className="hidden md:flex items-center gap-4 lg:gap-6">
+                <div className="hidden sm:flex items-center gap-2 md:gap-4 lg:gap-6">
                   {/* Models Dropdown */}
                   <DropdownMenu onOpenChange={(open) => setIsExpanded(open)}>
                     <DropdownMenuTrigger asChild>
                       <motion.button
-                        className="text-xs sm:text-sm text-white/90 hover:text-white transition-colors duration-200 flex items-center gap-1.5 px-2 sm:px-3 py-1 rounded-lg hover:bg-white/5"
+                        className="text-xs md:text-sm text-foreground/80 dark:text-foreground/90 hover:text-foreground dark:hover:text-foreground transition-colors duration-200 flex items-center gap-1.5 px-2 md:px-3 py-1.5 rounded-lg hover:bg-accent/50 dark:hover:bg-accent/50"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
                         Models
-                        <ChevronDown className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                        <ChevronDown className="w-3 h-3 md:w-3.5 md:h-3.5" />
                       </motion.button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-64 backdrop-blur-xl bg-card dark:bg-black/80 border-border dark:border-white/10">
+                    <DropdownMenuContent align="start" className="w-56 md:w-64 backdrop-blur-xl bg-card dark:bg-card border border-border shadow-xl">
                       {modelsMenuItems.map((item) => {
                         const Icon = item.icon;
                         return (
                           <DropdownMenuItem
                             key={item.path}
                             onClick={() => navigate(item.path)}
-                            className="cursor-pointer hover:bg-accent dark:hover:bg-white/10"
+                            className="cursor-pointer hover:bg-accent/50 dark:hover:bg-accent/50 transition-colors"
                           >
-                            <Icon className="w-4 h-4 mr-2" aria-hidden="true" />
+                            <Icon className="w-4 h-4 mr-2 text-primary" aria-hidden="true" />
                             <div className="flex flex-col">
-                              <span className="font-medium text-foreground dark:text-white">{item.name}</span>
-                              <span className="text-xs text-muted-foreground dark:text-white/60">{item.description}</span>
+                              <span className="font-medium text-foreground">{item.name}</span>
+                              <span className="text-xs text-muted-foreground">{item.description}</span>
                             </div>
                           </DropdownMenuItem>
                         );
@@ -288,7 +281,7 @@ const Navbar = () => {
                   <DropdownMenu onOpenChange={(open) => setIsExpanded(open)}>
                     <DropdownMenuTrigger asChild>
                       <motion.button
-                        className="text-xs sm:text-sm text-white/90 hover:text-white transition-colors duration-200 flex items-center gap-1.5 px-2 sm:px-3 py-1 rounded-lg hover:bg-white/5"
+                        className="text-xs sm:text-sm dark:text-white/90 dark:hover:text-white text-foreground/80 hover:text-foreground transition-colors duration-200 flex items-center gap-1.5 px-2 sm:px-3 py-1 rounded-lg dark:hover:bg-white/5 hover:bg-accent/50"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
@@ -296,19 +289,19 @@ const Navbar = () => {
                         <ChevronDown className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                       </motion.button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-64 backdrop-blur-xl bg-card dark:bg-black/80 border-border dark:border-white/10">
+                    <DropdownMenuContent align="start" className="w-56 md:w-64 backdrop-blur-xl bg-card dark:bg-card border border-border shadow-xl">
                       {featuresMenuItems.map((item) => {
                         const Icon = item.icon;
                         return (
                           <DropdownMenuItem
                             key={item.path}
                             onClick={() => navigate(item.path)}
-                            className="cursor-pointer hover:bg-accent dark:hover:bg-white/10"
+                            className="cursor-pointer hover:bg-accent/50 dark:hover:bg-accent/50 transition-colors"
                           >
-                            <Icon className="w-4 h-4 mr-2" aria-hidden="true" />
+                            <Icon className="w-4 h-4 mr-2 text-primary" aria-hidden="true" />
                             <div className="flex flex-col">
-                              <span className="font-medium text-foreground dark:text-white">{item.name}</span>
-                              <span className="text-xs text-muted-foreground dark:text-white/60">{item.description}</span>
+                              <span className="font-medium text-foreground">{item.name}</span>
+                              <span className="text-xs text-muted-foreground">{item.description}</span>
                             </div>
                           </DropdownMenuItem>
                         );
@@ -320,7 +313,7 @@ const Navbar = () => {
                     <motion.a
                       key={link.name}
                       href={link.href}
-                      className="text-xs sm:text-sm text-white/90 hover:text-white transition-colors duration-200 px-2 sm:px-3 py-1 rounded-lg hover:bg-white/5"
+                      className="text-xs md:text-sm text-foreground/80 dark:text-foreground/90 hover:text-foreground dark:hover:text-foreground transition-colors duration-200 px-2 md:px-3 py-1.5 rounded-lg hover:bg-accent/50 dark:hover:bg-accent/50"
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                     >
@@ -333,7 +326,7 @@ const Navbar = () => {
                       variant="ghost"
                       size="sm"
                       onClick={() => navigate("/auth/sign-in")}
-                      className="text-white dark:text-white/90 hover:text-foreground dark:hover:text-white hover:bg-accent dark:hover:bg-white/10"
+                      className="text-foreground/80 dark:text-foreground/90 hover:text-foreground dark:hover:text-foreground hover:bg-accent/50 dark:hover:bg-accent/50 text-xs md:text-sm px-2 md:px-4"
                     >
                       Sign In
                     </Button>
@@ -344,7 +337,7 @@ const Navbar = () => {
                       variant="default"
                       size="sm"
                       onClick={() => navigate("/auth/sign-in")}
-                      className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold shadow-lg"
+                      className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold shadow-lg text-xs md:text-sm px-2 md:px-4"
                     >
                       Start Creating
                     </Button>
@@ -354,7 +347,7 @@ const Navbar = () => {
                 {/* Mobile Menu Button */}
                 <motion.button
                   onClick={() => setIsOpen(!isOpen)}
-                  className="md:hidden p-2 text-foreground dark:text-white rounded-lg hover:bg-accent dark:hover:bg-white/10 transition-colors"
+                  className="sm:hidden p-2 text-foreground dark:text-foreground rounded-lg hover:bg-accent/50 dark:hover:bg-accent/50 transition-colors"
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                 >
@@ -374,20 +367,20 @@ const Navbar = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
             transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-            className="fixed top-20 md:top-24 left-4 right-4 md:hidden z-40"
+            className="fixed top-16 sm:top-20 left-2 right-2 sm:left-4 sm:right-4 sm:hidden z-40"
           >
             <motion.div
-              className="backdrop-blur-2xl bg-gradient-to-b from-purple-900/90 via-purple-800/80 to-purple-900/90 border border-white/10 rounded-2xl shadow-2xl overflow-hidden relative"
+              className="backdrop-blur-2xl dark:bg-card/95 bg-white/95 border border-border rounded-2xl shadow-2xl overflow-hidden relative"
               initial={{ borderRadius: "9999px" }}
               animate={{ borderRadius: "20px" }}
               transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
             >
-              {/* Rainbow Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-600/30 via-pink-500/20 via-blue-500/20 via-green-500/20 via-yellow-500/20 to-purple-600/30 rounded-2xl pointer-events-none" />
-              <div className="relative z-10 px-6 py-6 space-y-4 max-h-[80vh] overflow-y-auto">
+              {/* Subtle Gradient Overlay - Theme Aware */}
+              <div className="absolute inset-0 dark:bg-gradient-to-br dark:from-primary/5 dark:via-transparent dark:to-transparent bg-gradient-to-br from-indigo-50/30 via-blue-50/20 to-purple-50/30 rounded-2xl pointer-events-none" />
+              <div className="relative z-10 px-4 sm:px-6 py-4 sm:py-6 space-y-3 sm:space-y-4 max-h-[85vh] overflow-y-auto">
                 {/* Mobile Models Menu */}
                 <div>
-                  <div className="text-sm font-semibold text-foreground dark:text-white mb-3 px-2">Models</div>
+                  <div className="text-sm font-semibold text-foreground mb-3 px-2">Models</div>
                   <div className="space-y-1">
                     {modelsMenuItems.map((item) => {
                       const Icon = item.icon;
@@ -400,7 +393,7 @@ const Navbar = () => {
                             setIsOpen(false);
                             navigate(item.path);
                           }}
-                          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-foreground/80 dark:text-white/80 hover:text-foreground dark:hover:text-white hover:bg-accent dark:hover:bg-white/10 transition-colors"
+                          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-foreground/80 hover:text-foreground hover:bg-accent/50 dark:hover:bg-accent/50 transition-colors"
                           whileHover={{ x: 4 }}
                           whileTap={{ scale: 0.98 }}
                         >
@@ -417,7 +410,7 @@ const Navbar = () => {
 
                 {/* Mobile Features Menu */}
                 <div>
-                  <div className="text-sm font-semibold text-foreground dark:text-white mb-3 px-2">Features</div>
+                  <div className="text-sm font-semibold text-foreground mb-3 px-2">Features</div>
                   <div className="space-y-1">
                     {featuresMenuItems.map((item) => {
                       const Icon = item.icon;
@@ -430,7 +423,7 @@ const Navbar = () => {
                             setIsOpen(false);
                             navigate(item.path);
                           }}
-                          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-foreground/80 dark:text-white/80 hover:text-foreground dark:hover:text-white hover:bg-accent dark:hover:bg-white/10 transition-colors"
+                          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-foreground/80 hover:text-foreground hover:bg-accent/50 dark:hover:bg-accent/50 transition-colors"
                           whileHover={{ x: 4 }}
                           whileTap={{ scale: 0.98 }}
                         >
@@ -450,7 +443,7 @@ const Navbar = () => {
                     key={link.name}
                     href={link.href}
                     onClick={() => setIsOpen(false)}
-                    className="block px-3 py-2.5 rounded-lg text-sm text-foreground/80 dark:text-white/80 hover:text-foreground dark:hover:text-white hover:bg-accent dark:hover:bg-white/10 transition-colors"
+                    className="block px-3 py-2.5 rounded-lg text-sm text-foreground/80 hover:text-foreground hover:bg-accent/50 dark:hover:bg-accent/50 transition-colors"
                     whileHover={{ x: 4 }}
                     whileTap={{ scale: 0.98 }}
                   >
@@ -458,11 +451,11 @@ const Navbar = () => {
                   </motion.a>
                 ))}
                 
-                <div className="pt-4 border-t border-white/10 space-y-2">
+                <div className="pt-4 border-t border-border space-y-2">
                   <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                     <Button
                       variant="ghost"
-                      className="w-full justify-center text-foreground dark:text-white hover:bg-accent dark:hover:bg-white/10"
+                      className="w-full justify-center text-foreground hover:bg-accent/50 dark:hover:bg-accent/50"
                       onClick={() => {
                         setIsOpen(false);
                         navigate("/auth/sign-in");

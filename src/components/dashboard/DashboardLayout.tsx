@@ -87,37 +87,16 @@ const DashboardLayout = () => {
       {/* Sidebar - Icon Only with Tooltips */}
       <TooltipProvider>
         <aside
-          className={`fixed inset-y-0 left-0 z-50 w-16 transform transition-transform duration-300 lg:translate-x-0 ${
+          className={`fixed inset-y-0 left-0 z-50 w-14 sm:w-16 transform transition-transform duration-300 lg:translate-x-0 ${
             sidebarOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
-          {/* Bold Black Animated Border */}
+          {/* Subtle Animated Border - Theme Aware */}
           <motion.div
-            className="absolute inset-0 rounded-r-2xl pointer-events-none"
+            className="absolute inset-0 rounded-r-2xl pointer-events-none dark:opacity-40 opacity-20"
             style={{
-              padding: '4px',
-              background: 'linear-gradient(135deg, #000000, #1a1a1a, #000000, #0a0a0a, #000000)',
-              backgroundSize: '300% 300%',
-              WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-              WebkitMaskComposite: 'xor',
-              maskComposite: 'exclude',
-            }}
-            animate={{
-              backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
-            }}
-            transition={{
-              duration: 3,
-              repeat: Infinity,
-              ease: 'linear',
-            }}
-          />
-          
-          {/* Purple Rainbow Gradient Border - Inner Layer */}
-          <motion.div
-            className="absolute inset-0 rounded-r-2xl pointer-events-none"
-            style={{
-              padding: '1.5px',
-              background: 'linear-gradient(135deg, #7C3AED, #3B82F6, #22D3EE, #22C55E, #FACC15, #EC4899)',
+              padding: '1px',
+              background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(14, 165, 233, 0.3), rgba(34, 197, 94, 0.3), rgba(236, 72, 153, 0.3))',
               backgroundSize: '200% 200%',
               WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
               WebkitMaskComposite: 'xor',
@@ -133,43 +112,22 @@ const DashboardLayout = () => {
             }}
           />
           
-          {/* White Animation Highlight Border */}
-          <motion.div
-            className="absolute inset-0 rounded-r-2xl pointer-events-none"
-            style={{
-              padding: '2px',
-              background: 'linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.5), rgba(255,255,255,0.9), rgba(255,255,255,0.3), rgba(255,255,255,0.9))',
-              backgroundSize: '200% 200%',
-              WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-              WebkitMaskComposite: 'xor',
-              maskComposite: 'exclude',
-            }}
-            animate={{
-              backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
-            }}
-            transition={{
-              duration: 4,
-              repeat: Infinity,
-              ease: 'linear',
-            }}
-          />
-          
-          <div className="flex flex-col h-full bg-gradient-to-b from-purple-900/90 via-purple-800/80 to-purple-900/90 border-r border-border rounded-r-2xl relative z-10 backdrop-blur-sm">
-            {/* Rainbow Gradient Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-600/30 via-pink-500/20 via-blue-500/20 via-green-500/20 via-yellow-500/20 to-purple-600/30 rounded-r-2xl pointer-events-none" />
+          <div className="flex flex-col h-full dark:bg-card bg-white border-r border-border rounded-r-2xl relative z-10 backdrop-blur-sm">
+            {/* Subtle Gradient Overlay - Theme Aware */}
+            <div className="absolute inset-0 dark:bg-gradient-to-br dark:from-primary/5 dark:via-transparent dark:to-transparent bg-gradient-to-br from-indigo-50/30 via-blue-50/20 to-purple-50/30 rounded-r-2xl pointer-events-none" />
             <div className="relative z-10 flex flex-col h-full">
             {/* Logo */}
-            <div className="flex items-center justify-center py-5 border-b border-border relative">
+            <div className="flex items-center justify-center py-3 sm:py-4 md:py-5 border-b border-border relative">
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Link to="/" className="flex items-center justify-center">
-                    <div className="relative w-12 h-12 flex items-center justify-center">
-                      {/* Animated Border */}
+                    <div className="relative w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center">
+                      {/* Subtle Animated Border */}
                       <motion.div
-                        className="absolute inset-0 rounded-full"
+                        className="absolute inset-0 rounded-full opacity-30 dark:opacity-50"
                         style={{
-                          padding: '3px',
-                          background: 'linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.5), rgba(255,255,255,0.9))',
+                          padding: '2px',
+                          background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.4), rgba(14, 165, 233, 0.4), rgba(34, 197, 94, 0.4))',
                           backgroundSize: '200% 200%',
                           WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
                           WebkitMaskComposite: 'xor',
@@ -184,8 +142,8 @@ const DashboardLayout = () => {
                           ease: 'linear',
                         }}
                       />
-                      {/* Logo Container - Simple as before */}
-                      <div className="relative w-10 h-10 rounded-full overflow-hidden bg-transparent flex items-center justify-center">
+                      {/* Logo Container */}
+                      <div className="relative w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden bg-transparent flex items-center justify-center">
                         <img 
                           src={logoDark} 
                           alt="AEKO" 
@@ -201,14 +159,14 @@ const DashboardLayout = () => {
               </Tooltip>
               <button
                 onClick={() => setSidebarOpen(false)}
-                className="lg:hidden absolute top-2 right-2 text-muted-foreground hover:text-foreground"
+                className="lg:hidden absolute top-2 right-2 text-muted-foreground hover:text-foreground p-1"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
             </div>
 
             {/* Navigation - Icon Only with Tooltips */}
-            <nav className="flex-1 px-2 py-6 space-y-1 overflow-y-auto">
+            <nav className="flex-1 px-1.5 sm:px-2 py-4 sm:py-6 space-y-1 overflow-y-auto">
               {/* 1. Dashboard */}
               {navItems.filter(item => item.path === "/dashboard").map((item) => {
                 const Icon = item.icon;
@@ -219,10 +177,10 @@ const DashboardLayout = () => {
                       <Link
                         to={item.path}
                         onClick={() => setSidebarOpen(false)}
-                        className={`flex items-center justify-center w-10 h-10 rounded-full transition-all ${
+                        className={`flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full transition-all ${
                           isActive
                             ? "gradient-active-nav text-foreground"
-                            : "text-muted-foreground hover:text-foreground hover:bg-secondary/30"
+                            : "text-muted-foreground hover:text-foreground hover:bg-accent/50 dark:hover:bg-accent/50"
                         }`}
                       >
                         <motion.div
@@ -238,13 +196,13 @@ const DashboardLayout = () => {
                             ease: 'easeInOut',
                           }}
                         >
-                          <Icon className={`w-5 h-5 stroke-2 transition-all ${isActive ? 'text-white font-bold drop-shadow-2xl' : 'text-white font-bold hover:text-white'}`} style={{ filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.8))' }} />
+                          <Icon className={`w-4 h-4 sm:w-5 sm:h-5 stroke-2 transition-all ${isActive ? 'text-primary dark:text-primary font-semibold' : 'text-foreground/70 dark:text-foreground/70 font-medium hover:text-foreground dark:hover:text-foreground'}`} />
                           {isActive && (
                             <motion.div
-                              className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-400/40 via-pink-400/40 to-blue-400/40 blur-md"
+                              className="absolute inset-0 rounded-full bg-primary/20 dark:bg-primary/30 blur-md"
                               animate={{
-                                opacity: [0.4, 0.8, 0.4],
-                                scale: [1, 1.3, 1],
+                                opacity: [0.3, 0.6, 0.3],
+                                scale: [1, 1.2, 1],
                               }}
                               transition={{
                                 duration: 2,
@@ -253,9 +211,9 @@ const DashboardLayout = () => {
                               }}
                             />
                           )}
-                          {/* Bright Click Animation Effect */}
+                          {/* Click Animation Effect - Theme Aware */}
                           <motion.div
-                            className="absolute inset-0 rounded-full bg-white blur-xl"
+                            className="absolute inset-0 rounded-full bg-primary/20 dark:bg-primary/30 blur-xl"
                             initial={{ scale: 0, opacity: 0 }}
                             whileTap={{ 
                               scale: [0, 2, 2.5, 0],
@@ -263,9 +221,9 @@ const DashboardLayout = () => {
                             }}
                             transition={{ duration: 0.6, ease: "easeOut" }}
                           />
-                          {/* Secondary Bright Ring on Click */}
+                          {/* Secondary Ring on Click */}
                           <motion.div
-                            className="absolute inset-0 rounded-full border-2 border-white"
+                            className="absolute inset-0 rounded-full border-2 border-primary/50"
                             initial={{ scale: 1, opacity: 0 }}
                             whileTap={{ 
                               scale: [1, 2, 2.5],
@@ -293,10 +251,10 @@ const DashboardLayout = () => {
                       <Link
                         to={item.path}
                         onClick={() => setSidebarOpen(false)}
-                        className={`flex items-center justify-center w-10 h-10 rounded-full transition-all ${
+                        className={`flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full transition-all ${
                           isActive
                             ? "gradient-active-nav text-foreground"
-                            : "text-muted-foreground hover:text-foreground hover:bg-secondary/30"
+                            : "text-muted-foreground hover:text-foreground hover:bg-accent/50 dark:hover:bg-accent/50"
                         }`}
                       >
                         <motion.div
@@ -312,13 +270,13 @@ const DashboardLayout = () => {
                             ease: 'easeInOut',
                           }}
                         >
-                          <Icon className={`w-5 h-5 stroke-2 transition-all ${isActive ? 'text-white font-bold drop-shadow-2xl' : 'text-white font-bold hover:text-white'}`} style={{ filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.8))' }} />
+                          <Icon className={`w-4 h-4 sm:w-5 sm:h-5 stroke-2 transition-all ${isActive ? 'text-primary dark:text-primary font-semibold' : 'text-foreground/70 dark:text-foreground/70 font-medium hover:text-foreground dark:hover:text-foreground'}`} />
                           {isActive && (
                             <motion.div
-                              className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-400/40 via-pink-400/40 to-blue-400/40 blur-md"
+                              className="absolute inset-0 rounded-full bg-primary/20 dark:bg-primary/30 blur-md"
                               animate={{
-                                opacity: [0.4, 0.8, 0.4],
-                                scale: [1, 1.3, 1],
+                                opacity: [0.3, 0.6, 0.3],
+                                scale: [1, 1.2, 1],
                               }}
                               transition={{
                                 duration: 2,
@@ -327,9 +285,9 @@ const DashboardLayout = () => {
                               }}
                             />
                           )}
-                          {/* Bright Click Animation Effect */}
+                          {/* Click Animation Effect - Theme Aware */}
                           <motion.div
-                            className="absolute inset-0 rounded-full bg-white blur-xl"
+                            className="absolute inset-0 rounded-full bg-primary/20 dark:bg-primary/30 blur-xl"
                             initial={{ scale: 0, opacity: 0 }}
                             whileTap={{ 
                               scale: [0, 2, 2.5, 0],
@@ -337,9 +295,9 @@ const DashboardLayout = () => {
                             }}
                             transition={{ duration: 0.6, ease: "easeOut" }}
                           />
-                          {/* Secondary Bright Ring on Click */}
+                          {/* Secondary Ring on Click */}
                           <motion.div
-                            className="absolute inset-0 rounded-full border-2 border-white"
+                            className="absolute inset-0 rounded-full border-2 border-primary/50"
                             initial={{ scale: 1, opacity: 0 }}
                             whileTap={{ 
                               scale: [1, 2, 2.5],
@@ -365,16 +323,16 @@ const DashboardLayout = () => {
                       onClick={() => setToolsDropdownOpen(!toolsDropdownOpen)}
                       whileHover={{ scale: 1.15, rotate: 5 }}
                       whileTap={{ scale: 0.85, rotate: -5 }}
-                      className={`relative flex items-center justify-center w-10 h-10 rounded-full transition-all ${
+                      className={`relative flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full transition-all ${
                         isToolsActive
-                          ? "bg-pink-500/20 text-foreground"
-                          : "text-muted-foreground hover:text-foreground hover:bg-secondary/30"
+                          ? "gradient-active-nav text-foreground"
+                          : "text-muted-foreground hover:text-foreground hover:bg-accent/50 dark:hover:bg-accent/50"
                       }`}
                     >
-                      <Wrench className="w-5 h-5 stroke-2 text-white font-bold" style={{ filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.8))' }} />
-                      {/* Bright Click Animation Effect */}
+                      <Wrench className="w-4 h-4 sm:w-5 sm:h-5 stroke-2 text-foreground/70 dark:text-foreground/70 font-medium hover:text-foreground dark:hover:text-foreground" />
+                      {/* Click Animation Effect - Theme Aware */}
                       <motion.div
-                        className="absolute inset-0 rounded-full bg-white blur-xl"
+                        className="absolute inset-0 rounded-full bg-primary/20 dark:bg-primary/30 blur-xl"
                         initial={{ scale: 0, opacity: 0 }}
                         whileTap={{ 
                           scale: [0, 2, 2.5, 0],
@@ -382,9 +340,9 @@ const DashboardLayout = () => {
                         }}
                         transition={{ duration: 0.6, ease: "easeOut" }}
                       />
-                      {/* Secondary Bright Ring on Click */}
+                      {/* Secondary Ring on Click */}
                       <motion.div
-                        className="absolute inset-0 rounded-full border-2 border-white"
+                        className="absolute inset-0 rounded-full border-2 border-primary/50"
                         initial={{ scale: 1, opacity: 0 }}
                         whileTap={{ 
                           scale: [1, 2, 2.5],
@@ -418,10 +376,10 @@ const DashboardLayout = () => {
                                   onClick={() => {
                                     setSidebarOpen(false);
                                   }}
-                                  className={`flex items-center justify-center w-10 h-10 rounded-full transition-all ${
+                                  className={`flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full transition-all ${
                                     isActive
                                       ? "gradient-active-nav text-foreground"
-                                      : "text-muted-foreground hover:text-foreground hover:bg-secondary/30"
+                                      : "text-muted-foreground hover:text-foreground hover:bg-accent/50 dark:hover:bg-accent/50"
                                   }`}
                                 >
                                   <motion.div
@@ -429,7 +387,7 @@ const DashboardLayout = () => {
                                     whileTap={{ scale: 0.85, rotate: -5 }}
                                     className="relative"
                                   >
-                                    <Icon className={`w-4 h-4 stroke-2 text-white font-bold ${isActive ? 'drop-shadow-2xl' : ''}`} style={{ filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.8))' }} />
+                                    <Icon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-2 text-foreground/70 dark:text-foreground/70 font-medium hover:text-foreground dark:hover:text-foreground ${isActive ? 'text-primary dark:text-primary font-semibold' : ''}`} />
                                     {/* Bright Click Animation Effect */}
                                     <motion.div
                                       className="absolute inset-0 rounded-full bg-white blur-xl"
@@ -476,16 +434,16 @@ const DashboardLayout = () => {
                     <Link
                       to="/dashboard/agent-store"
                       onClick={() => setSidebarOpen(false)}
-                      className={`flex items-center justify-center w-10 h-10 rounded-full transition-all ${
+                      className={`flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full transition-all ${
                         location.pathname === "/dashboard/agent-store"
-                          ? "bg-pink-500/20 text-foreground"
-                          : "text-muted-foreground hover:text-foreground hover:bg-secondary/30"
+                          ? "gradient-active-nav text-foreground"
+                          : "text-muted-foreground hover:text-foreground hover:bg-accent/50 dark:hover:bg-accent/50"
                       }`}
                     >
-                      <Store className="w-5 h-5 stroke-2 text-white font-bold" style={{ filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.8))' }} />
-                      {/* Bright Click Animation Effect */}
+                      <Store className="w-4 h-4 sm:w-5 sm:h-5 stroke-2 text-foreground/70 dark:text-foreground/70 font-medium hover:text-foreground dark:hover:text-foreground" />
+                      {/* Click Animation Effect - Theme Aware */}
                       <motion.div
-                        className="absolute inset-0 rounded-full bg-white blur-xl"
+                        className="absolute inset-0 rounded-full bg-primary/20 dark:bg-primary/30 blur-xl"
                         initial={{ scale: 0, opacity: 0 }}
                         whileTap={{ 
                           scale: [0, 2, 2.5, 0],
@@ -493,9 +451,9 @@ const DashboardLayout = () => {
                         }}
                         transition={{ duration: 0.6, ease: "easeOut" }}
                       />
-                      {/* Secondary Bright Ring on Click */}
+                      {/* Secondary Ring on Click */}
                       <motion.div
-                        className="absolute inset-0 rounded-full border-2 border-white"
+                        className="absolute inset-0 rounded-full border-2 border-primary/50"
                         initial={{ scale: 1, opacity: 0 }}
                         whileTap={{ 
                           scale: [1, 2, 2.5],
@@ -522,19 +480,19 @@ const DashboardLayout = () => {
                     <Link
                       to="/dashboard/tools"
                       onClick={() => setSidebarOpen(false)}
-                      className={`flex items-center justify-center w-10 h-10 rounded-full transition-all ${
+                      className={`flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full transition-all ${
                         location.pathname === "/dashboard/tools"
                           ? "gradient-active-nav text-foreground"
-                          : "text-muted-foreground hover:text-foreground hover:bg-secondary/30"
+                          : "text-muted-foreground hover:text-foreground hover:bg-accent/50 dark:hover:bg-accent/50"
                       }`}
                     >
-                      <Briefcase className="w-5 h-5 stroke-2 text-white font-bold" style={{ filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.8))' }} />
+                      <Briefcase className="w-4 h-4 sm:w-5 sm:h-5 stroke-2 text-foreground/70 dark:text-foreground/70 font-medium hover:text-foreground dark:hover:text-foreground" />
                       {location.pathname === "/dashboard/tools" && (
                         <motion.div
-                          className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-400/40 via-pink-400/40 to-blue-400/40 blur-md"
+                          className="absolute inset-0 rounded-full bg-primary/20 dark:bg-primary/30 blur-md"
                           animate={{
-                            opacity: [0.4, 0.8, 0.4],
-                            scale: [1, 1.3, 1],
+                            opacity: [0.3, 0.6, 0.3],
+                            scale: [1, 1.2, 1],
                           }}
                           transition={{
                             duration: 2,
@@ -543,9 +501,9 @@ const DashboardLayout = () => {
                           }}
                         />
                       )}
-                      {/* Bright Click Animation Effect */}
+                      {/* Click Animation Effect - Theme Aware */}
                       <motion.div
-                        className="absolute inset-0 rounded-full bg-white blur-xl"
+                        className="absolute inset-0 rounded-full bg-primary/20 dark:bg-primary/30 blur-xl"
                         initial={{ scale: 0, opacity: 0 }}
                         whileTap={{ 
                           scale: [0, 2, 2.5, 0],
@@ -553,9 +511,9 @@ const DashboardLayout = () => {
                         }}
                         transition={{ duration: 0.6, ease: "easeOut" }}
                       />
-                      {/* Secondary Bright Ring on Click */}
+                      {/* Secondary Ring on Click */}
                       <motion.div
-                        className="absolute inset-0 rounded-full border-2 border-white"
+                        className="absolute inset-0 rounded-full border-2 border-primary/50"
                         initial={{ scale: 1, opacity: 0 }}
                         whileTap={{ 
                           scale: [1, 2, 2.5],
@@ -581,10 +539,10 @@ const DashboardLayout = () => {
                       <Link
                         to={item.path}
                         onClick={() => setSidebarOpen(false)}
-                        className={`flex items-center justify-center w-10 h-10 rounded-full transition-all ${
+                        className={`flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full transition-all ${
                           isActive
                             ? "gradient-active-nav text-foreground"
-                            : "text-muted-foreground hover:text-foreground hover:bg-secondary/30"
+                            : "text-muted-foreground hover:text-foreground hover:bg-accent/50 dark:hover:bg-accent/50"
                         }`}
                       >
                         <motion.div
@@ -600,13 +558,13 @@ const DashboardLayout = () => {
                             ease: 'easeInOut',
                           }}
                         >
-                          <Icon className={`w-5 h-5 stroke-2 transition-all ${isActive ? 'text-white font-bold drop-shadow-2xl' : 'text-white font-bold hover:text-white'}`} style={{ filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.8))' }} />
+                          <Icon className={`w-4 h-4 sm:w-5 sm:h-5 stroke-2 transition-all ${isActive ? 'text-primary dark:text-primary font-semibold' : 'text-foreground/70 dark:text-foreground/70 font-medium hover:text-foreground dark:hover:text-foreground'}`} />
                           {isActive && (
                             <motion.div
-                              className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-400/40 via-pink-400/40 to-blue-400/40 blur-md"
+                              className="absolute inset-0 rounded-full bg-primary/20 dark:bg-primary/30 blur-md"
                               animate={{
-                                opacity: [0.4, 0.8, 0.4],
-                                scale: [1, 1.3, 1],
+                                opacity: [0.3, 0.6, 0.3],
+                                scale: [1, 1.2, 1],
                               }}
                               transition={{
                                 duration: 2,
@@ -615,9 +573,9 @@ const DashboardLayout = () => {
                               }}
                             />
                           )}
-                          {/* Bright Click Animation Effect */}
+                          {/* Click Animation Effect - Theme Aware */}
                           <motion.div
-                            className="absolute inset-0 rounded-full bg-white blur-xl"
+                            className="absolute inset-0 rounded-full bg-primary/20 dark:bg-primary/30 blur-xl"
                             initial={{ scale: 0, opacity: 0 }}
                             whileTap={{ 
                               scale: [0, 2, 2.5, 0],
@@ -625,9 +583,9 @@ const DashboardLayout = () => {
                             }}
                             transition={{ duration: 0.6, ease: "easeOut" }}
                           />
-                          {/* Secondary Bright Ring on Click */}
+                          {/* Secondary Ring on Click */}
                           <motion.div
-                            className="absolute inset-0 rounded-full border-2 border-white"
+                            className="absolute inset-0 rounded-full border-2 border-primary/50"
                             initial={{ scale: 1, opacity: 0 }}
                             whileTap={{ 
                               scale: [1, 2, 2.5],
@@ -647,7 +605,7 @@ const DashboardLayout = () => {
             </nav>
 
             {/* Bottom Actions */}
-            <div className="px-2 pb-2 space-y-1 border-t border-border/50 pt-2 mt-auto">
+            <div className="px-1.5 sm:px-2 pb-2 sm:pb-3 space-y-1 border-t border-border pt-2 sm:pt-3 mt-auto">
               {/* Theme Toggle */}
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -655,13 +613,13 @@ const DashboardLayout = () => {
                     onClick={toggleTheme}
                     whileHover={{ scale: 1.15, rotate: 5 }}
                     whileTap={{ scale: 0.85, rotate: -5 }}
-                    className="relative flex items-center justify-center w-10 h-10 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary/30 transition-all"
+                    className="relative flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent/50 dark:hover:bg-accent/50 transition-all"
                     title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
                   >
                     {theme === "dark" ? (
-                      <Sun className="w-5 h-5 stroke-2 text-white font-bold" style={{ filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.8))' }} />
+                      <Sun className="w-4 h-4 sm:w-5 sm:h-5 stroke-2 text-foreground/70 dark:text-foreground/70 font-medium hover:text-foreground dark:hover:text-foreground" />
                     ) : (
-                      <Moon className="w-5 h-5 stroke-2 text-white font-bold" style={{ filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.8))' }} />
+                      <Moon className="w-4 h-4 sm:w-5 sm:h-5 stroke-2 text-foreground/70 dark:text-foreground/70 font-medium hover:text-foreground dark:hover:text-foreground" />
                     )}
                     {/* Bright Click Animation Effect */}
                     <motion.div
@@ -702,14 +660,14 @@ const DashboardLayout = () => {
                   >
                     <Link
                       to="/dashboard/account"
-                      className="flex items-center justify-center w-10 h-10 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary/30 transition-all"
+                      className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent/50 dark:hover:bg-accent/50 transition-all"
                     >
                       <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-medium text-sm">
                         A
                       </div>
-                      {/* Bright Click Animation Effect */}
+                      {/* Click Animation Effect - Theme Aware */}
                       <motion.div
-                        className="absolute inset-0 rounded-full bg-white blur-xl"
+                        className="absolute inset-0 rounded-full bg-primary/20 dark:bg-primary/30 blur-xl"
                         initial={{ scale: 0, opacity: 0 }}
                         whileTap={{ 
                           scale: [0, 2, 2.5, 0],
@@ -717,9 +675,9 @@ const DashboardLayout = () => {
                         }}
                         transition={{ duration: 0.6, ease: "easeOut" }}
                       />
-                      {/* Secondary Bright Ring on Click */}
+                      {/* Secondary Ring on Click */}
                       <motion.div
-                        className="absolute inset-0 rounded-full border-2 border-white"
+                        className="absolute inset-0 rounded-full border-2 border-primary/50"
                         initial={{ scale: 1, opacity: 0 }}
                         whileTap={{ 
                           scale: [1, 2, 2.5],
@@ -743,11 +701,11 @@ const DashboardLayout = () => {
                     onClick={handleLogout}
                     whileHover={{ scale: 1.15, rotate: 5 }}
                     whileTap={{ scale: 0.85, rotate: -5 }}
-                    className="relative flex items-center justify-center w-10 h-10 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary/30 transition-all"
+                    className="relative flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent/50 dark:hover:bg-accent/50 transition-all"
                   >
-                    <LogOut className="w-5 h-5 stroke-2 text-white font-bold" style={{ filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.8))' }} />
+                    <LogOut className="w-4 h-4 sm:w-5 sm:h-5 stroke-2 text-foreground/70 dark:text-foreground/70 font-medium hover:text-foreground dark:hover:text-foreground" />
                     <motion.div
-                      className="absolute inset-0 rounded-full bg-white/30"
+                      className="absolute inset-0 rounded-full bg-primary/20 dark:bg-primary/30"
                       initial={{ scale: 0, opacity: 0 }}
                       whileTap={{ scale: 1.5, opacity: [0.5, 0] }}
                       transition={{ duration: 0.3 }}
@@ -765,13 +723,13 @@ const DashboardLayout = () => {
       </TooltipProvider>
 
       {/* Main Content */}
-      <div className="flex-1 lg:ml-16 overflow-x-hidden">
+      <div className="flex-1 lg:ml-14 xl:ml-16 overflow-x-hidden">
         {/* Mobile Menu Button - Floating */}
         <button
           onClick={() => setSidebarOpen(true)}
-          className="lg:hidden fixed top-4 left-4 z-50 p-3 rounded-xl bg-card border border-border shadow-lg text-foreground hover:bg-secondary/50 transition-colors"
+          className="lg:hidden fixed top-3 left-3 sm:top-4 sm:left-4 z-50 p-2.5 sm:p-3 rounded-xl bg-card border border-border shadow-lg text-foreground hover:bg-accent/50 dark:hover:bg-accent/50 transition-colors"
         >
-          <Menu className="w-5 h-5" />
+          <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
         </button>
 
         {/* Page Content */}
