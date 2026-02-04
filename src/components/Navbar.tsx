@@ -42,19 +42,19 @@ const Navbar = () => {
     { 
       name: "LLM Agent", 
       icon: MessageSquare, 
-      path: "/dashboard/tools/agent",
+      path: "/dashboard/tools-old/agent",
       description: "Chat with AI agents"
     },
     { 
       name: "Image Generation", 
       icon: Image, 
-      path: "/dashboard/tools/image",
+      path: "/dashboard/tools-old/image",
       description: "Create stunning images"
     },
     { 
       name: "Video Generation", 
       icon: Video, 
-      path: "/dashboard/tools/video",
+      path: "/dashboard/tools-old/video",
       description: "Generate videos with AI"
     },
     { 
@@ -73,28 +73,28 @@ const Navbar = () => {
       description: "Build and customize AI agents",
     },
     {
-      name: "Tool Integration",
+      name: "ToolCase",
       icon: Plug,
       path: "/dashboard/tools",
       description: "Integrate with your favorite tools",
     },
     {
-      name: "Image and Video Generation",
+      name: "Image Generation",
       icon: Film,
-      path: "/dashboard/tools/image",
-      description: "Create images and videos with AI",
+      path: "/dashboard/tools-old/image",
+      description: "Create images with AI",
     },
     {
-      name: "Voice AI Agent",
+      name: "Video Generation",
+      icon: Video,
+      path: "/dashboard/tools-old/video",
+      description: "Generate videos with AI",
+    },
+    {
+      name: "LLM Agent",
       icon: Mic,
-      path: "/dashboard/tools/agent",
+      path: "/dashboard/tools-old/agent",
       description: "Interact with voice-enabled AI",
-    },
-    {
-      name: "Advanced AI Tools",
-      icon: Zap,
-      path: "/dashboard/tools",
-      description: "Powerful AI tools and utilities",
     },
   ];
 
