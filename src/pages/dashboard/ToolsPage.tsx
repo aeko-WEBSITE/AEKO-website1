@@ -33,12 +33,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-import { useTheme } from "@/hooks/use-theme";
 
 type TabType = "Tickets" | "Featuring" | "Itome" | "Flipaty" | "Cominany";
 
 const ToolsPage = () => {
-  const { theme } = useTheme();
   const [activeTopTab, setActiveTopTab] = useState<TabType>("Tickets");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -240,54 +238,34 @@ const ToolsPage = () => {
   ];
 
   const getStatusColor = (status: string) => {
-    const isDark = theme === "dark";
     switch (status.toLowerCase()) {
       case "open":
       case "active":
       case "completed":
-        return isDark
-          ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
-          : "bg-emerald-50 text-emerald-700 border-emerald-200";
+        return "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-400 dark:border-emerald-500/30";
       case "in progress":
       case "in review":
-        return isDark
-          ? "bg-blue-500/20 text-blue-400 border-blue-500/30"
-          : "bg-blue-50 text-blue-700 border-blue-200";
+        return "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/30";
       case "resolved":
       case "featured":
-        return isDark
-          ? "bg-purple-500/20 text-purple-400 border-purple-500/30"
-          : "bg-purple-50 text-purple-700 border-purple-200";
+        return "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-500/20 dark:text-purple-400 dark:border-purple-500/30";
       case "pending":
-        return isDark
-          ? "bg-amber-500/20 text-amber-400 border-amber-500/30"
-          : "bg-amber-50 text-amber-700 border-amber-200";
+        return "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30";
       default:
-        return isDark
-          ? "bg-gray-800 text-gray-300 border-gray-700"
-          : "bg-gray-100 text-gray-700 border-gray-200";
+        return "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700";
     }
   };
 
   const getPriorityColor = (priority: string) => {
-    const isDark = theme === "dark";
     switch (priority.toLowerCase()) {
       case "high":
-        return isDark
-          ? "bg-red-500/20 text-red-400 border-red-500/30"
-          : "bg-red-50 text-red-700 border-red-200";
+        return "bg-red-50 text-red-700 border-red-200 dark:bg-red-500/20 dark:text-red-400 dark:border-red-500/30";
       case "medium":
-        return isDark
-          ? "bg-amber-500/20 text-amber-400 border-amber-500/30"
-          : "bg-amber-50 text-amber-700 border-amber-200";
+        return "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30";
       case "low":
-        return isDark
-          ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
-          : "bg-emerald-50 text-emerald-700 border-emerald-200";
+        return "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-400 dark:border-emerald-500/30";
       default:
-        return isDark
-          ? "bg-gray-800 text-gray-300 border-gray-700"
-          : "bg-gray-100 text-gray-700 border-gray-200";
+        return "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700";
     }
   };
 
@@ -295,40 +273,24 @@ const ToolsPage = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className={cn(
-            "text-3xl font-bold tracking-tight",
-            theme === "dark" ? "text-white" : "text-gray-900"
-          )}>
+          <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
             Support Tickets
           </h2>
-          <p className={cn(
-            "text-sm mt-1.5",
-            theme === "dark" ? "text-gray-400" : "text-gray-600"
-          )}>
+          <p className="text-sm mt-1.5 text-gray-600 dark:text-gray-400">
             Manage and track all support tickets efficiently
           </p>
         </div>
-        <Button className="gap-2 shadow-sm">
+        <Button className="gap-2 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg dark:shadow-sm">
           <Plus className="w-4 h-4" />
           New Ticket
         </Button>
       </div>
 
-      <Card className={cn(
-        "border shadow-sm transition-colors duration-300",
-        theme === "dark" 
-          ? "bg-[#0f0f0f] border-gray-800" 
-          : "bg-white border-gray-200"
-      )}>
-        <CardHeader className={cn(
-          "pb-4",
-          theme === "dark" ? "border-b border-gray-800" : "border-b border-gray-200"
-        )}>
+      <Card className="border transition-all duration-300 ease-in-out bg-white border-gray-200 shadow-md hover:shadow-lg dark:bg-[#0f0f0f] dark:border-gray-800 dark:shadow-sm">
+        <CardHeader className="pb-4 border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-[#0f0f0f]">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <CardTitle className={cn(
-                theme === "dark" ? "text-white" : "text-gray-900"
-              )}>
+              <CardTitle className="text-gray-900 dark:text-white">
                 Tickets Overview
               </CardTitle>
               <CardDescription className="mt-1">
@@ -337,23 +299,19 @@ const ToolsPage = () => {
             </div>
             <div className="flex items-center gap-2">
               <div className="relative">
-                <Search className={cn(
-                  "absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4",
-                  theme === "dark" ? "text-gray-500" : "text-gray-400"
-                )} />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
                 <Input
                   placeholder="Search tickets..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className={cn(
-                    "w-full sm:w-64 pl-9",
-                    theme === "dark"
-                      ? "bg-gray-900 border-gray-800 text-white placeholder:text-gray-500"
-                      : "bg-gray-50 border-gray-200"
-                  )}
+                  className="w-full sm:w-64 pl-9 transition-all duration-300 ease-in-out bg-white border-gray-200 shadow-sm focus:shadow-md focus:border-primary/50 dark:bg-gray-900 dark:border-gray-800 dark:text-white dark:placeholder:text-gray-500"
                 />
               </div>
-              <Button variant="outline" size="icon" className="shrink-0">
+              <Button 
+                variant="outline" 
+                size="icon" 
+                className="shrink-0 transition-all duration-300 ease-in-out shadow-sm hover:shadow-md dark:shadow-none"
+              >
                 <Filter className="w-4 h-4" />
               </Button>
             </div>
@@ -363,51 +321,26 @@ const ToolsPage = () => {
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className={cn(
-                  theme === "dark" 
-                    ? "border-b border-gray-800 hover:bg-gray-900/50" 
-                    : "border-b border-gray-200 hover:bg-gray-50"
-                )}>
-                  <TableHead className={cn(
-                    "font-semibold",
-                    theme === "dark" ? "text-gray-300" : "text-gray-700"
-                  )}>
+                <TableRow className="border-b border-gray-200 hover:bg-gray-50 bg-white dark:border-gray-800 dark:hover:bg-gray-900/50 dark:bg-[#0f0f0f]">
+                  <TableHead className="font-semibold text-gray-700 dark:text-gray-300">
                     Ticket ID
                   </TableHead>
-                  <TableHead className={cn(
-                    "font-semibold",
-                    theme === "dark" ? "text-gray-300" : "text-gray-700"
-                  )}>
+                  <TableHead className="font-semibold text-gray-700 dark:text-gray-300">
                     Title
                   </TableHead>
-                  <TableHead className={cn(
-                    "font-semibold",
-                    theme === "dark" ? "text-gray-300" : "text-gray-700"
-                  )}>
+                  <TableHead className="font-semibold text-gray-700 dark:text-gray-300">
                     Status
                   </TableHead>
-                  <TableHead className={cn(
-                    "font-semibold",
-                    theme === "dark" ? "text-gray-300" : "text-gray-700"
-                  )}>
+                  <TableHead className="font-semibold text-gray-700 dark:text-gray-300">
                     Priority
                   </TableHead>
-                  <TableHead className={cn(
-                    "font-semibold",
-                    theme === "dark" ? "text-gray-300" : "text-gray-700"
-                  )}>
+                  <TableHead className="font-semibold text-gray-700 dark:text-gray-300">
                     Assignee
                   </TableHead>
-                  <TableHead className={cn(
-                    "font-semibold",
-                    theme === "dark" ? "text-gray-300" : "text-gray-700"
-                  )}>
+                  <TableHead className="font-semibold text-gray-700 dark:text-gray-300">
                     Category
                   </TableHead>
-                  <TableHead className={cn(
-                    "font-semibold",
-                    theme === "dark" ? "text-gray-300" : "text-gray-700"
-                  )}>
+                  <TableHead className="font-semibold text-gray-700 dark:text-gray-300">
                     Created
                   </TableHead>
                   <TableHead className="text-right font-semibold">Actions</TableHead>
@@ -417,21 +350,12 @@ const ToolsPage = () => {
                 {ticketsData.map((ticket) => (
                   <TableRow
                     key={ticket.id}
-                    className={cn(
-                      theme === "dark"
-                        ? "border-b border-gray-800 hover:bg-gray-900/50"
-                        : "border-b border-gray-200 hover:bg-gray-50"
-                    )}
+                    className="border-b border-gray-200 hover:bg-gray-50 bg-white dark:border-gray-800 dark:hover:bg-gray-900/50 dark:bg-[#0f0f0f]"
                   >
-                    <TableCell className={cn(
-                      "font-medium",
-                      theme === "dark" ? "text-white" : "text-gray-900"
-                    )}>
+                    <TableCell className="font-medium text-gray-900 dark:text-white">
                       {ticket.id}
                     </TableCell>
-                    <TableCell className={cn(
-                      theme === "dark" ? "text-gray-300" : "text-gray-700"
-                    )}>
+                    <TableCell className="text-gray-700 dark:text-gray-300">
                       {ticket.title}
                     </TableCell>
                     <TableCell>
@@ -444,32 +368,31 @@ const ToolsPage = () => {
                         {ticket.priority}
                       </Badge>
                     </TableCell>
-                    <TableCell className={cn(
-                      theme === "dark" ? "text-gray-300" : "text-gray-600"
-                    )}>
+                    <TableCell className="text-gray-600 dark:text-gray-300">
                       {ticket.assignee}
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className={cn(
-                        "text-xs",
-                        theme === "dark"
-                          ? "bg-gray-800 text-gray-300 border-gray-700"
-                          : "bg-gray-100 text-gray-700 border-gray-200"
-                      )}>
+                      <Badge variant="outline" className="text-xs bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700">
                         {ticket.category}
                       </Badge>
                     </TableCell>
-                    <TableCell className={cn(
-                      theme === "dark" ? "text-gray-400" : "text-gray-500"
-                    )}>
+                    <TableCell className="text-gray-500 dark:text-gray-400">
                       {ticket.created}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-8 w-8 transition-all duration-300 ease-in-out hover:bg-gray-100 dark:hover:bg-transparent"
+                        >
                           <Eye className="w-4 h-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-8 w-8 transition-all duration-300 ease-in-out hover:bg-gray-100 dark:hover:bg-transparent"
+                        >
                           <Edit className="w-4 h-4" />
                         </Button>
                       </div>
@@ -488,20 +411,14 @@ const ToolsPage = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className={cn(
-            "text-3xl font-bold tracking-tight",
-            theme === "dark" ? "text-white" : "text-gray-900"
-          )}>
+          <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
             Featured Products
           </h2>
-          <p className={cn(
-            "text-sm mt-1.5",
-            theme === "dark" ? "text-gray-400" : "text-gray-600"
-          )}>
+          <p className="text-sm mt-1.5 text-gray-600 dark:text-gray-400">
             Discover our most popular features and products
           </p>
         </div>
-        <Button className="gap-2 shadow-sm">
+        <Button className="gap-2 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg dark:shadow-sm">
           <Plus className="w-4 h-4" />
           Add Feature
         </Button>
@@ -511,30 +428,17 @@ const ToolsPage = () => {
         {featuringData.map((item) => (
           <Card
             key={item.id}
-            className={cn(
-              "transition-all duration-300 hover:shadow-lg",
-              theme === "dark"
-                ? "bg-[#0f0f0f] border-gray-800 hover:border-gray-700"
-                : "bg-white border-gray-200 hover:border-gray-300"
-            )}
+            className="transition-all duration-300 ease-in-out bg-white border-gray-200 shadow-md hover:shadow-xl hover:border-gray-300 dark:bg-[#0f0f0f] dark:border-gray-800 dark:hover:border-gray-700 dark:hover:shadow-lg"
           >
-            <CardHeader>
+            <CardHeader className="bg-white dark:bg-transparent">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-3">
-                    <CardTitle className={cn(
-                      "text-xl",
-                      theme === "dark" ? "text-white" : "text-gray-900"
-                    )}>
+                    <CardTitle className="text-xl text-gray-900 dark:text-white">
                       {item.name}
                     </CardTitle>
                     {item.status === "Featured" && (
-                      <Badge className={cn(
-                        "text-xs",
-                        theme === "dark"
-                          ? "bg-purple-500/20 text-purple-400 border-purple-500/30"
-                          : "bg-purple-50 text-purple-700 border-purple-200"
-                      )}>
+                      <Badge className="text-xs bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-500/20 dark:text-purple-400 dark:border-purple-500/30">
                         <Star className="w-3 h-3 mr-1 fill-current" />
                         Featured
                       </Badge>
@@ -542,12 +446,7 @@ const ToolsPage = () => {
                   </div>
                   <Badge
                     variant="outline"
-                    className={cn(
-                      "mb-3 text-xs",
-                      theme === "dark"
-                        ? "bg-gray-800 text-gray-300 border-gray-700"
-                        : "bg-gray-100 text-gray-700 border-gray-200"
-                    )}
+                    className="mb-3 text-xs bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700"
                   >
                     {item.category}
                   </Badge>
@@ -557,12 +456,9 @@ const ToolsPage = () => {
                 </div>
               </div>
             </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between pt-4 border-t border-border">
-                <div className={cn(
-                  "flex items-center gap-6 text-sm",
-                  theme === "dark" ? "text-gray-400" : "text-gray-600"
-                )}>
+            <CardContent className="bg-white dark:bg-transparent">
+              <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-border">
+                <div className="flex items-center gap-6 text-sm text-gray-600 dark:text-gray-400">
                   <div className="flex items-center gap-1.5">
                     <Eye className="w-4 h-4" />
                     <span className="font-medium">{item.views.toLocaleString()}</span>
@@ -576,7 +472,11 @@ const ToolsPage = () => {
                     <span className="font-medium">{item.likes}</span>
                   </div>
                 </div>
-                <Button variant="outline" size="sm">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="transition-all duration-300 ease-in-out shadow-sm hover:shadow-md dark:shadow-none"
+                >
                   View Details
                 </Button>
               </div>
@@ -591,20 +491,14 @@ const ToolsPage = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className={cn(
-            "text-3xl font-bold tracking-tight",
-            theme === "dark" ? "text-white" : "text-gray-900"
-          )}>
+          <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
             Income Reports
           </h2>
-          <p className={cn(
-            "text-sm mt-1.5",
-            theme === "dark" ? "text-gray-400" : "text-gray-600"
-          )}>
+          <p className="text-sm mt-1.5 text-gray-600 dark:text-gray-400">
             Track revenue and financial metrics
           </p>
         </div>
-        <Button className="gap-2 shadow-sm">
+        <Button className="gap-2 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg dark:shadow-sm">
           <Download className="w-4 h-4" />
           Export Report
         </Button>
@@ -621,29 +515,18 @@ const ToolsPage = () => {
           return (
             <Card
               key={idx}
-              className={cn(
-                "transition-all duration-200 hover:shadow-md",
-                theme === "dark"
-                  ? "bg-card border-border"
-                  : "bg-white border-gray-200"
-              )}
+              className="transition-all duration-300 ease-in-out bg-white border-gray-200 shadow-md hover:shadow-lg dark:bg-[#0f0f0f] dark:border-gray-800 dark:hover:shadow-md"
             >
-              <CardHeader className="pb-3">
+              <CardHeader className="pb-3 bg-white dark:bg-transparent">
                 <CardDescription className="text-xs font-medium uppercase tracking-wide">
                   {stat.label}
                 </CardDescription>
-                <CardTitle className={cn(
-                  "text-2xl font-bold mt-2",
-                  theme === "dark" ? "text-white" : "text-gray-900"
-                )}>
+                <CardTitle className="text-2xl font-bold mt-2 text-gray-900 dark:text-white">
                   {stat.value}
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className={cn(
-                  "flex items-center gap-2 text-sm font-medium",
-                  theme === "dark" ? "text-emerald-400" : "text-emerald-600"
-                )}>
+              <CardContent className="bg-white dark:bg-transparent">
+                <div className="flex items-center gap-2 text-sm font-medium text-emerald-600 dark:text-emerald-400">
                   <TrendingUp className="w-4 h-4" />
                   <span>{stat.change} from last month</span>
                 </div>
@@ -653,19 +536,9 @@ const ToolsPage = () => {
         })}
       </div>
 
-      <Card className={cn(
-        "border shadow-sm",
-        theme === "dark"
-          ? "bg-card border-border"
-          : "bg-white border-gray-200"
-      )}>
-        <CardHeader className={cn(
-          "pb-4",
-          theme === "dark" ? "border-b border-gray-800" : "border-b border-gray-200"
-        )}>
-          <CardTitle className={cn(
-            theme === "dark" ? "text-white" : "text-gray-900"
-          )}>
+      <Card className="border transition-all duration-300 ease-in-out bg-white border-gray-200 shadow-md hover:shadow-lg dark:bg-[#0f0f0f] dark:border-gray-800 dark:shadow-sm">
+        <CardHeader className="pb-4 border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-[#0f0f0f]">
+          <CardTitle className="text-gray-900 dark:text-white">
             Recent Reports
           </CardTitle>
           <CardDescription>Latest income and analytics reports</CardDescription>
@@ -674,82 +547,46 @@ const ToolsPage = () => {
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className={cn(
-                  theme === "dark"
-                    ? "border-b border-gray-800 hover:bg-gray-900/50"
-                    : "border-b border-gray-200 hover:bg-gray-50"
-                )}>
-                  <TableHead className={cn(
-                    "font-semibold",
-                    theme === "dark" ? "text-gray-300" : "text-gray-700"
-                  )}>
+                <TableRow className="border-b border-gray-200 hover:bg-gray-50 bg-white dark:border-gray-800 dark:hover:bg-gray-900/50 dark:bg-[#0f0f0f]">
+                  <TableHead className="font-semibold text-gray-700 dark:text-gray-300">
                     Title
                   </TableHead>
-                  <TableHead className={cn(
-                    "font-semibold",
-                    theme === "dark" ? "text-gray-300" : "text-gray-700"
-                  )}>
+                  <TableHead className="font-semibold text-gray-700 dark:text-gray-300">
                     Type
                   </TableHead>
-                  <TableHead className={cn(
-                    "font-semibold",
-                    theme === "dark" ? "text-gray-300" : "text-gray-700"
-                  )}>
+                  <TableHead className="font-semibold text-gray-700 dark:text-gray-300">
                     Amount
                   </TableHead>
-                  <TableHead className={cn(
-                    "font-semibold",
-                    theme === "dark" ? "text-gray-300" : "text-gray-700"
-                  )}>
+                  <TableHead className="font-semibold text-gray-700 dark:text-gray-300">
                     Date
                   </TableHead>
-                  <TableHead className={cn(
-                    "font-semibold",
-                    theme === "dark" ? "text-gray-300" : "text-gray-700"
-                  )}>
+                  <TableHead className="font-semibold text-gray-700 dark:text-gray-300">
                     Status
                   </TableHead>
-                  <TableHead className="text-right font-semibold">Actions</TableHead>
+                  <TableHead className="text-right font-semibold text-gray-700 dark:text-gray-300">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {itomeData.map((item) => (
                   <TableRow
                     key={item.id}
-                    className={cn(
-                      theme === "dark"
-                        ? "border-b border-gray-800 hover:bg-gray-900/50"
-                        : "border-b border-gray-200 hover:bg-gray-50"
-                    )}
+                    className="border-b border-gray-200 hover:bg-gray-50 bg-white dark:border-gray-800 dark:hover:bg-gray-900/50 dark:bg-[#0f0f0f]"
                   >
-                    <TableCell className={cn(
-                      "font-medium",
-                      theme === "dark" ? "text-white" : "text-gray-900"
-                    )}>
+                    <TableCell className="font-medium text-gray-900 dark:text-white">
                       {item.title}
                     </TableCell>
                     <TableCell>
                       <Badge
                         variant="outline"
-                        className={cn(
-                          "text-xs",
-                          theme === "dark"
-                            ? "bg-gray-800 text-gray-300 border-gray-700"
-                            : "bg-gray-100 text-gray-700 border-gray-200"
-                        )}
+                        className="text-xs bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700"
                       >
                         {item.type}
                       </Badge>
                     </TableCell>
-                    <TableCell className={cn(
-                      "font-semibold",
-                      theme === "dark" ? "text-white" : "text-gray-900"
-                    )}>
+                    <TableCell className="font-semibold text-gray-900 dark:text-white">
                       {item.amount}
                     </TableCell>
-                    <TableCell className={cn(
-                      theme === "dark" ? "text-gray-400" : "text-gray-500"
-                    )}>
+                    <TableCell className="text-gray-500 dark:text-gray-400">
                       {item.date}
                     </TableCell>
                     <TableCell>
@@ -758,7 +595,11 @@ const ToolsPage = () => {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-8 w-8 transition-all duration-300 ease-in-out hover:bg-gray-100 dark:hover:bg-transparent"
+                      >
                         <Download className="w-4 h-4" />
                       </Button>
                     </TableCell>
@@ -776,20 +617,14 @@ const ToolsPage = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className={cn(
-            "text-3xl font-bold tracking-tight",
-            theme === "dark" ? "text-white" : "text-gray-900"
-          )}>
+          <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
             Subscription Plans
           </h2>
-          <p className={cn(
-            "text-sm mt-1.5",
-            theme === "dark" ? "text-gray-400" : "text-gray-600"
-          )}>
+          <p className="text-sm mt-1.5 text-gray-600 dark:text-gray-400">
             Manage pricing and subscription tiers
           </p>
         </div>
-        <Button className="gap-2 shadow-sm">
+        <Button className="gap-2 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg dark:shadow-sm">
           <Plus className="w-4 h-4" />
           New Plan
         </Button>
@@ -800,19 +635,15 @@ const ToolsPage = () => {
           <Card
             key={plan.id}
             className={cn(
-              "transition-all duration-200 hover:shadow-lg",
+              "transition-all duration-300 ease-in-out",
               plan.id === 1 && "ring-2 ring-primary",
-              theme === "dark"
-                ? "bg-card border-border hover:border-gray-700"
-                : "bg-white border-gray-200 hover:border-gray-300"
+              "bg-white border-gray-200 shadow-md hover:shadow-xl hover:border-gray-300",
+              "dark:bg-[#0f0f0f] dark:border-gray-800 dark:hover:border-gray-700 dark:hover:shadow-lg"
             )}
           >
-            <CardHeader>
+            <CardHeader className="bg-white dark:bg-transparent">
               <div className="flex items-center justify-between mb-4">
-                <CardTitle className={cn(
-                  "text-xl",
-                  theme === "dark" ? "text-white" : "text-gray-900"
-                )}>
+                <CardTitle className="text-xl text-gray-900 dark:text-white">
                   {plan.name}
                 </CardTitle>
                 <Badge className={cn("text-xs", getStatusColor(plan.status))}>
@@ -820,38 +651,26 @@ const ToolsPage = () => {
                 </Badge>
               </div>
               <div className="flex items-baseline gap-2">
-                <span className={cn(
-                  "text-4xl font-bold",
-                  theme === "dark" ? "text-white" : "text-gray-900"
-                )}>
+                <span className="text-4xl font-bold text-gray-900 dark:text-white">
                   {plan.price}
                 </span>
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="bg-white dark:bg-transparent">
               <div className="space-y-4">
-                <div className={cn(
-                  "flex items-center gap-2 text-sm pb-3 border-b border-border",
-                  theme === "dark" ? "text-gray-400" : "text-gray-600"
-                )}>
+                <div className="flex items-center gap-2 text-sm pb-3 border-b border-gray-200 text-gray-600 dark:border-border dark:text-gray-400">
                   <Users className="w-4 h-4" />
                   <span className="font-medium">{plan.users.toLocaleString()} active users</span>
                 </div>
                 <div className="space-y-3">
-                  <p className={cn(
-                    "text-sm font-semibold",
-                    theme === "dark" ? "text-white" : "text-gray-900"
-                  )}>
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white">
                     Features:
                   </p>
                   <ul className="space-y-2">
                     {plan.features.map((feature, idx) => (
                       <li
                         key={idx}
-                        className={cn(
-                          "flex items-center gap-2 text-sm",
-                          theme === "dark" ? "text-gray-300" : "text-gray-600"
-                        )}
+                        className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300"
                       >
                         <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
                         <span>{feature}</span>
@@ -860,7 +679,12 @@ const ToolsPage = () => {
                   </ul>
                 </div>
                 <Button
-                  className="w-full mt-4"
+                  className={cn(
+                    "w-full mt-4 transition-all duration-300 ease-in-out",
+                    plan.id === 1 
+                      ? "shadow-md hover:shadow-lg dark:shadow-sm"
+                      : "shadow-sm hover:shadow-md dark:shadow-none"
+                  )}
                   variant={plan.id === 1 ? "default" : "outline"}
                 >
                   {plan.id === 1 ? "Current Plan" : "Upgrade"}
@@ -877,20 +701,14 @@ const ToolsPage = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
-          <h2 className={cn(
-            "text-3xl font-bold tracking-tight",
-            theme === "dark" ? "text-white" : "text-gray-900"
-          )}>
+          <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
             Companies
           </h2>
-          <p className={cn(
-            "text-sm mt-1.5",
-            theme === "dark" ? "text-gray-400" : "text-gray-600"
-          )}>
+          <p className="text-sm mt-1.5 text-gray-600 dark:text-gray-400">
             Manage company profiles and information
           </p>
                     </div>
-        <Button className="gap-2 shadow-sm">
+        <Button className="gap-2 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg dark:shadow-sm">
           <Plus className="w-4 h-4" />
           Add Company
         </Button>
@@ -900,36 +718,20 @@ const ToolsPage = () => {
         {cominanyData.map((company) => (
           <Card
             key={company.id}
-            className={cn(
-              "transition-all duration-200 hover:shadow-lg",
-              theme === "dark"
-                ? "bg-card border-border hover:border-gray-700"
-                : "bg-white border-gray-200 hover:border-gray-300"
-            )}
+            className="transition-all duration-300 ease-in-out bg-white border-gray-200 shadow-md hover:shadow-xl hover:border-gray-300 dark:bg-[#0f0f0f] dark:border-gray-800 dark:hover:border-gray-700 dark:hover:shadow-lg"
           >
-            <CardHeader>
+            <CardHeader className="bg-white dark:bg-transparent">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-3">
-                    <Building2 className={cn(
-                      "w-5 h-5 shrink-0",
-                      theme === "dark" ? "text-gray-400" : "text-gray-600"
-                    )} />
-                    <CardTitle className={cn(
-                      "text-xl",
-                      theme === "dark" ? "text-white" : "text-gray-900"
-                    )}>
+                    <Building2 className="w-5 h-5 shrink-0 text-gray-600 dark:text-gray-400" />
+                    <CardTitle className="text-xl text-gray-900 dark:text-white">
                       {company.name}
                     </CardTitle>
                   </div>
                   <Badge
                     variant="outline"
-                    className={cn(
-                      "mb-3 text-xs",
-                      theme === "dark"
-                        ? "bg-gray-800 text-gray-300 border-gray-700"
-                        : "bg-gray-100 text-gray-700 border-gray-200"
-                    )}
+                    className="mb-3 text-xs bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700"
                   >
                     {company.industry}
                   </Badge>
@@ -939,35 +741,34 @@ const ToolsPage = () => {
                 </Badge>
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="bg-white dark:bg-transparent">
               <div className="space-y-3">
-                <div className={cn(
-                  "flex items-center gap-2 text-sm",
-                  theme === "dark" ? "text-gray-400" : "text-gray-600"
-                )}>
+                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                   <Users className="w-4 h-4 shrink-0" />
                   <span>{company.employees} employees</span>
                 </div>
-                <div className={cn(
-                  "flex items-center gap-2 text-sm",
-                  theme === "dark" ? "text-gray-400" : "text-gray-600"
-                )}>
+                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                   <DollarSign className="w-4 h-4 shrink-0" />
                   <span>Revenue: {company.revenue}</span>
                 </div>
-                <div className={cn(
-                  "flex items-center gap-2 text-sm",
-                  theme === "dark" ? "text-gray-400" : "text-gray-600"
-                )}>
+                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                   <Globe className="w-4 h-4 shrink-0" />
                   <span>{company.location}</span>
                 </div>
-                <div className="flex items-center gap-2 pt-3 border-t border-border">
-                  <Button variant="outline" size="sm" className="flex-1">
+                <div className="flex items-center gap-2 pt-3 border-t border-gray-200 dark:border-border">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="flex-1 transition-all duration-300 ease-in-out shadow-sm hover:shadow-md dark:shadow-none"
+                  >
                     <Eye className="w-4 h-4 mr-2" />
                     View Details
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="transition-all duration-300 ease-in-out shadow-sm hover:shadow-md dark:shadow-none"
+                  >
                     <Edit className="w-4 h-4" />
                   </Button>
                     </div>
@@ -1005,19 +806,9 @@ const ToolsPage = () => {
   };
 
   return (
-    <div className={cn(
-      "min-h-screen transition-colors duration-300",
-      theme === "dark"
-        ? "bg-[#0a0a0a]"
-        : "bg-white"
-    )}>
+    <div className="min-h-screen transition-all duration-300 ease-in-out bg-white dark:bg-[#0a0a0a]">
       {/* Top Navigation Bar */}
-      <div className={cn(
-        "border-b shadow-sm backdrop-blur-sm transition-colors duration-300 sticky top-0 z-10",
-        theme === "dark"
-          ? "border-gray-800 bg-[#0a0a0a]/95"
-          : "border-gray-200 bg-white/95"
-      )}>
+      <div className="border-b shadow-sm backdrop-blur-sm transition-all duration-300 ease-in-out sticky top-0 z-10 border-gray-200 bg-white/95 shadow-md dark:border-gray-800 dark:bg-[#0a0a0a]/95 dark:shadow-sm">
         <div className="container mx-auto px-4 py-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-1 flex-wrap">
@@ -1028,12 +819,10 @@ const ToolsPage = () => {
                     key={tab.id}
                     onClick={() => setActiveTopTab(tab.id)}
                     className={cn(
-                      "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+                      "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ease-in-out",
                       activeTopTab === tab.id
-                        ? "bg-primary text-primary-foreground shadow-sm"
-                        : theme === "dark"
-                          ? "text-gray-400 hover:text-white hover:bg-gray-800/50"
-                          : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                        ? "bg-primary text-primary-foreground shadow-md"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 border border-transparent hover:border-gray-200 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-800/50 dark:border-transparent"
                     )}
                   >
                     <Icon className="w-4 h-4" />
@@ -1046,12 +835,7 @@ const ToolsPage = () => {
               <Button
                 variant="outline"
                 size="sm"
-                className={cn(
-                  "gap-2",
-                  theme === "dark"
-                    ? "border-gray-800 bg-gray-900 hover:bg-gray-800"
-                    : "border-gray-200 bg-white hover:bg-gray-50"
-                )}
+                className="gap-2 transition-all duration-300 ease-in-out border-gray-200 bg-white hover:bg-gray-50 shadow-sm hover:shadow-md dark:border-gray-800 dark:bg-gray-900 dark:hover:bg-gray-800 dark:shadow-none"
               >
                 <Search className="w-4 h-4" />
                 Arierntes
@@ -1059,12 +843,7 @@ const ToolsPage = () => {
               <Button
                 variant="outline"
                 size="sm"
-                className={cn(
-                  "gap-2",
-                  theme === "dark"
-                    ? "border-gray-800 bg-gray-900 hover:bg-gray-800"
-                    : "border-gray-200 bg-white hover:bg-gray-50"
-                )}
+                className="gap-2 transition-all duration-300 ease-in-out border-gray-200 bg-white hover:bg-gray-50 shadow-sm hover:shadow-md dark:border-gray-800 dark:bg-gray-900 dark:hover:bg-gray-800 dark:shadow-none"
               >
                 <Globe className="w-4 h-4" />
                 Red Wertory
