@@ -111,7 +111,7 @@ const VideoToolsPage = () => {
       {/* Professional Header */}
       <div className="relative z-10 flex-shrink-0 border-b border-border/50 bg-gradient-to-r from-card/80 via-card/60 to-card/80 backdrop-blur-xl px-4 sm:px-6 py-4">
         <div className="flex items-center justify-between w-full">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             <motion.div
               className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center shadow-lg"
               animate={{
@@ -130,7 +130,7 @@ const VideoToolsPage = () => {
               <Video className="w-6 h-6 text-white" />
             </motion.div>
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-foreground">AI Video Playground</h1>
+              <h1 className="text-xl sm:text-xl font-bold text-foreground">AI Video Playground</h1>
               <p className="text-xs sm:text-sm text-muted-foreground">Create stunning videos with AI</p>
             </div>
           </div>
@@ -171,13 +171,13 @@ const VideoToolsPage = () => {
       </div>
 
       {/* Main Playground Layout */}
-      <div className="relative z-10 flex flex-1 h-full w-full min-w-0 gap-4 sm:gap-6 overflow-hidden p-4 sm:p-6">
+      <div className="relative z-6 flex flex-1 h-full w-full min-w-0 gap-2 sm:gap-4 overflow-hidden p-4 sm:p-4">
         {/* LEFT: Input Section - Professional Card */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
-          className="flex flex-col w-full lg:w-[40%] min-h-0 h-full"
+          className="flex flex-col w-full lg:w-[30%] min-h-0 h-full"
         >
           <div className="flex flex-col rounded-2xl border border-border/50 bg-gradient-to-br from-card/80 via-card/60 to-card/40 backdrop-blur-xl shadow-2xl shadow-primary/5 p-5 sm:p-6 space-y-6 h-full overflow-hidden">
             {/* Header with Model Selector */}
@@ -408,7 +408,7 @@ const VideoToolsPage = () => {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="flex flex-col w-full lg:w-[60%] min-h-0 h-full"
+          className="flex flex-col w-full lg:w-[70%] min-h-0 h-full"
         >
           <div className="flex flex-col rounded-2xl border border-border/50 bg-gradient-to-br from-card/80 via-card/60 to-card/40 backdrop-blur-xl shadow-2xl shadow-primary/5 p-5 sm:p-6 space-y-6 h-full min-h-0 overflow-hidden">
             {/* Header with Actions */}

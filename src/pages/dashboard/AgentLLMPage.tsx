@@ -379,10 +379,6 @@ const AgentLLMPage = () => {
                         <Upload className="w-5 h-5" />
                       </button>
                       
-                      {/* Mic */}
-                      <button className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors duration-300" title="Voice">
-                        <Mic className="w-5 h-5" />
-                      </button>
                       
                       {/* Purple Plus Button */}
                       <button className="w-8 h-8 rounded-full bg-purple-600 dark:bg-[#8B5CF6] hover:bg-purple-700 dark:hover:bg-[#7C3AED] flex items-center justify-center text-white transition-colors duration-300 shadow-lg shadow-purple-900/30 dark:shadow-purple-900/50">
@@ -402,7 +398,7 @@ const AgentLLMPage = () => {
 
                        {/* Agents Button */}
                       <button 
-                         className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-[#242630] border border-gray-200 dark:border-white/5 text-xs font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-[#2a2c38] transition-all duration-300"
+                         className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-[#242630] border border-gray-200 dark:border-white/5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-[#2a2c38] transition-all duration-300"
                          onClick={() => toast.info("Agent selector")}
                       >
                         <Bot className="w-3.5 h-3.5" />
@@ -412,9 +408,17 @@ const AgentLLMPage = () => {
                     </div>
                     
                     {/* Right Group */}
-                    <div>
-                      <button className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors duration-300" title="Enhance">
-                         <Sparkles className="w-5 h-5" />
+                    {/* Right Group */}
+                    <div className="flex items-center gap-1 sm:gap-2 px-1">
+                      {/* Mic Button */}
+                      <button 
+                        className="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400 active:scale-95 transition-all duration-200" aria-label="Voice Input" title="Voice">
+                        <Mic className="w-5 h-5" />
+                      </button>
+
+                      {/* Enhance Button */}
+                      <button className="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-purple-50 dark:hover:bg-purple-900/30 hover:text-purple-600 dark:hover:text-purple-400 active:scale-95 transition-all duration-200" aria-label="Enhance Prompt" title="Enhance">
+                        <Sparkles className="w-5 h-5" />
                       </button>
                     </div>
                   </div>
