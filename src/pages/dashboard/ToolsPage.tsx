@@ -809,7 +809,7 @@ const ToolsPage = () => {
     <div className="min-h-screen transition-all duration-300 ease-in-out bg-white dark:bg-[#0a0a0a]">
       {/* Top Navigation Bar */}
       <div className="border-b shadow-sm backdrop-blur-sm transition-all duration-300 ease-in-out sticky top-0 z-10 border-gray-200 bg-white/95 shadow-md dark:border-gray-800 dark:bg-[#0a0a0a]/95 dark:shadow-sm">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-4 py-4 max-w-full">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-1 flex-wrap">
               {tabs.map((tab) => {
@@ -854,7 +854,7 @@ const ToolsPage = () => {
         </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <div className="container mx-auto px-4 py-8 max-w-full">
         <AnimatePresence mode="wait">
       <motion.div
             key={activeTopTab}
