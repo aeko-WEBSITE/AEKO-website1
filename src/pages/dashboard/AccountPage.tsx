@@ -37,7 +37,7 @@ const AccountPage = () => {
   };
 
   return (
-    <div className="w-full space-y-6 max-w-[1280px] mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-6">
+    <div className="w-full space-y-6 max-w-full mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-6">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
