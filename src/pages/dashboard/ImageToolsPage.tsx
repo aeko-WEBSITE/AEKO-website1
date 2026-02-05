@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Loader2,
@@ -25,6 +25,12 @@ import {
   Upload,
   X,
   Edit2,
+  Download,
+  Heart,
+  Share2,
+  MoreVertical,
+  Check,
+  Menu,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -36,8 +42,16 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { moduleAPI } from "@/lib/api";
 import { toast } from "sonner";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { Progress } from "@/components/ui/progress";
+import { cn } from "@/lib/utils";
 
 // Tool modes
 type ToolMode = "text2image" | "image2image" | "image-editing" | "bg-removal";
@@ -48,13 +62,6 @@ const toolModes = [
   { id: "image-editing" as ToolMode, label: "Image Editing", icon: Wand2 },
   { id: "bg-removal" as ToolMode, label: "Background Removal", icon: Eraser },
 ];
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import { Progress } from "@/components/ui/progress";
-import { cn } from "@/lib/utils";
 
 // Image models
 const imageModels = [
@@ -65,16 +72,37 @@ const imageModels = [
   { id: "dalle-3", name: "DALL-E 3", description: "OpenAI's latest model" },
 ];
 
-// Aspect ratios matching the image
+// Styles
+const styles = [
+  { id: "dynamic", name: "Dynamic" },
+  { id: "cinematic", name: "Cinematic" },
+  { id: "photographic", name: "Photographic" },
+  { id: "anime", name: "Anime" },
+  { id: "3d", name: "3D Render" },
+];
+
+// Aspect ratios
 const aspectRatios = [
-  { value: "2:3", label: "2:3" },
-  { value: "1:1", label: "1:1" },
-  { value: "9:16", label: "9:16" },
-  { value: "4:3", label: "4:3" },
+  { value: "2:3", label: "2:3", icon: "📐" },
+  { value: "1:1", label: "1:1", icon: "⬜" },
+  { value: "16:9", label: "16:9", icon: "📺" },
+  { value: "4:3", label: "4:3", icon: "🖼️" },
 ];
 
 // Task type
 type TaskStatus = "pending" | "processing" | "completed" | "failed";
+
+interface GeneratedImage {
+  id: string;
+  prompt: string;
+  imageUrl: string;
+  model: string;
+  style?: string;
+  aspectRatio: string;
+  createdAt: Date;
+  width: number;
+  height: number;
+}
 
 interface Task {
   id: string;
@@ -82,6 +110,8 @@ interface Task {
   status: TaskStatus;
   progress: number;
   model: string;
+  style?: string;
+  aspectRatio: string;
   estimatedTime?: string;
   createdAt: Date;
   result?: string;
@@ -90,17 +120,24 @@ interface Task {
 const ImageToolsPage = () => {
   const [toolMode, setToolMode] = useState<ToolMode>("text2image");
   const [selectedModel, setSelectedModel] = useState("flux-2-dev");
+  const [selectedStyle, setSelectedStyle] = useState("dynamic");
   const [prompt, setPrompt] = useState("");
   const [generationMode, setGenerationMode] = useState<"standard" | "quality">("standard");
   const [promptMagic, setPromptMagic] = useState<"auto" | "on" | "off">("auto");
   const [aspectRatio, setAspectRatio] = useState("1:1");
+  const [numImages, setNumImages] = useState(1);
+  const [privateMode, setPrivateMode] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [generatedImages, setGeneratedImages] = useState<GeneratedImage[]>([]);
+  const [selectedImage, setSelectedImage] = useState<GeneratedImage | null>(null);
   const [isImageSettingsOpen, setIsImageSettingsOpen] = useState(true);
   const [isBasicSettingsOpen, setIsBasicSettingsOpen] = useState(true);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [uploadedImageFile, setUploadedImageFile] = useState<File | null>(null);
   const [referenceImageUrl, setReferenceImageUrl] = useState("");
   const [strength, setStrength] = useState(0.7);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Get current date
@@ -108,7 +145,7 @@ const ImageToolsPage = () => {
     const date = new Date();
     const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    return `${days[date.getDay()]}, ${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+    return `${days[date.getDay()]}, ${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
   };
 
   // Handle image upload
@@ -159,60 +196,9 @@ const ImageToolsPage = () => {
     }
   };
 
-  // Handle generation
-  const handleGenerate = async () => {
-    if (!prompt.trim()) return;
-
-    if (
-      (toolMode === "image2image" || toolMode === "image-editing" || toolMode === "bg-removal") &&
-      !uploadedImage && !uploadedImageFile
-    ) {
-      toast.error("Please upload an image first");
-      return;
-    }
-
-    const newTask: Task = {
-      id: `task-${Date.now()}`,
-      prompt: prompt.trim(),
-      status: "pending",
-      progress: 0,
-      model: selectedModel,
-      createdAt: new Date(),
-    };
-
-    setTasks((prev) => [newTask, ...prev]);
-    setPrompt("");
-
-    // Simulate task processing
-    setTimeout(() => {
-      setTasks((prev) =>
-        prev.map((task) =>
-          task.id === newTask.id ? { ...task, status: "processing", progress: 3 } : task
-        )
-      );
-
-      // Simulate progress
-      const progressInterval = setInterval(() => {
-        setTasks((prev) =>
-          prev.map((task) => {
-            if (task.id === newTask.id && task.status === "processing") {
-              const newProgress = Math.min(task.progress + Math.random() * 10, 95);
-              if (newProgress >= 95) {
-                clearInterval(progressInterval);
-                // Actually generate the image
-                generateImage(task);
-              }
-              return { ...task, progress: newProgress };
-            }
-            return task;
-          })
-        );
-      }, 1000);
-    }, 500);
-  };
-
   // Helper function to extract image from response
   const extractImageFromResponse = (response: any): string | null => {
+    // Try various response formats
     if (response.image_base64) {
       return response.image_base64.startsWith("data:")
         ? response.image_base64
@@ -253,15 +239,79 @@ const ImageToolsPage = () => {
     return null;
   };
 
-  // Actually generate image
-  const generateImage = async (task: Task) => {
+  // Handle generation
+  const handleGenerate = async () => {
+    if (!prompt.trim()) {
+      toast.error("Please enter a prompt");
+      return;
+    }
+
+    if (
+      (toolMode === "image2image" || toolMode === "image-editing" || toolMode === "bg-removal") &&
+      !uploadedImage && !uploadedImageFile
+    ) {
+      toast.error("Please upload an image first");
+      return;
+    }
+
+    setIsGenerating(true);
+
+    // Create tasks for multiple images
+    const newTasks: Task[] = [];
+    for (let i = 0; i < numImages; i++) {
+      const newTask: Task = {
+        id: `task-${Date.now()}-${i}`,
+        prompt: prompt.trim(),
+        status: "pending",
+        progress: 0,
+        model: selectedModel,
+        style: selectedStyle,
+        aspectRatio: aspectRatio,
+        createdAt: new Date(),
+      };
+      newTasks.push(newTask);
+    }
+
+    setTasks((prev) => [...newTasks, ...prev]);
+
+    // Process each task
+    for (const task of newTasks) {
+      processTask(task);
+    }
+
+    setPrompt("");
+  };
+
+  // Process a single task
+  const processTask = async (task: Task) => {
     try {
+      // Update to processing
+      setTasks((prev) =>
+        prev.map((t) =>
+          t.id === task.id ? { ...t, status: "processing", progress: 5 } : t
+        )
+      );
+
+      // Simulate progress
+      const progressInterval = setInterval(() => {
+        setTasks((prev) =>
+          prev.map((t) => {
+            if (t.id === task.id && t.status === "processing") {
+              const newProgress = Math.min(t.progress + Math.random() * 15, 90);
+              return { ...t, progress: newProgress };
+            }
+            return t;
+          })
+        );
+      }, 500);
+
+      // Actually generate the image
       let imageUrl: string | null = null;
 
       if (toolMode === "text2image") {
         const ratio = aspectRatios.find((r) => r.value === aspectRatio);
-        const width = ratio?.value === "1:1" ? 1024 : ratio?.value === "2:3" ? 768 : ratio?.value === "9:16" ? 576 : 1024;
-        const height = ratio?.value === "1:1" ? 1024 : ratio?.value === "2:3" ? 1152 : ratio?.value === "9:16" ? 1024 : 768;
+        const width = ratio?.value === "1:1" ? 1024 : ratio?.value === "2:3" ? 768 : ratio?.value === "16:9" ? 1024 : ratio?.value === "4:3" ? 1024 : 1024;
+        const height = ratio?.value === "1:1" ? 1024 : ratio?.value === "2:3" ? 1152 : ratio?.value === "16:9" ? 576 : ratio?.value === "4:3" ? 768 : 1024;
 
         const response = await moduleAPI.imageGen({
           prompt: task.prompt,
@@ -271,9 +321,23 @@ const ImageToolsPage = () => {
         });
 
         imageUrl = extractImageFromResponse(response);
+        
+        // If we got an ID instead, poll for result
         if (!imageUrl && response.id) {
-          const result = await moduleAPI.fetchImageResult(response.id);
-          imageUrl = extractImageFromResponse(result);
+          // Poll for result
+          let attempts = 0;
+          const maxAttempts = 30;
+          while (attempts < maxAttempts && !imageUrl) {
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            try {
+              const result = await moduleAPI.fetchImageResult(response.id);
+              imageUrl = extractImageFromResponse(result);
+              if (imageUrl) break;
+            } catch (error) {
+              // Continue polling
+            }
+            attempts++;
+          }
         }
       } else if (toolMode === "image2image" || toolMode === "image-editing") {
         let fileToSend: File | undefined;
@@ -301,9 +365,21 @@ const ImageToolsPage = () => {
         });
 
         imageUrl = extractImageFromResponse(response);
+        
         if (!imageUrl && response.id) {
-          const result = await moduleAPI.fetchImageResult(response.id);
-          imageUrl = extractImageFromResponse(result);
+          let attempts = 0;
+          const maxAttempts = 30;
+          while (attempts < maxAttempts && !imageUrl) {
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            try {
+              const result = await moduleAPI.fetchImageResult(response.id);
+              imageUrl = extractImageFromResponse(result);
+              if (imageUrl) break;
+            } catch (error) {
+              // Continue polling
+            }
+            attempts++;
+          }
         }
       } else if (toolMode === "bg-removal") {
         let fileToSend: File | undefined;
@@ -328,13 +404,28 @@ const ImageToolsPage = () => {
         });
 
         imageUrl = extractImageFromResponse(response);
+        
         if (!imageUrl && response.id) {
-          const result = await moduleAPI.fetchImageResult(response.id);
-          imageUrl = extractImageFromResponse(result);
+          let attempts = 0;
+          const maxAttempts = 30;
+          while (attempts < maxAttempts && !imageUrl) {
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            try {
+              const result = await moduleAPI.fetchImageResult(response.id);
+              imageUrl = extractImageFromResponse(result);
+              if (imageUrl) break;
+            } catch (error) {
+              // Continue polling
+            }
+            attempts++;
+          }
         }
       }
 
+      clearInterval(progressInterval);
+
       if (imageUrl) {
+        // Update task as completed
         setTasks((prev) =>
           prev.map((t) =>
             t.id === task.id
@@ -342,9 +433,35 @@ const ImageToolsPage = () => {
               : t
           )
         );
+
+        // Add to generated images
+        const ratio = aspectRatios.find((r) => r.value === aspectRatio);
+        const width = ratio?.value === "1:1" ? 1024 : ratio?.value === "2:3" ? 768 : ratio?.value === "16:9" ? 1024 : 1024;
+        const height = ratio?.value === "1:1" ? 1024 : ratio?.value === "2:3" ? 1152 : ratio?.value === "16:9" ? 576 : 1024;
+
+        const newImage: GeneratedImage = {
+          id: task.id,
+          prompt: task.prompt,
+          imageUrl: imageUrl,
+          model: selectedModel,
+          style: selectedStyle,
+          aspectRatio: aspectRatio,
+          createdAt: new Date(),
+          width,
+          height,
+        };
+
+        setGeneratedImages((prev) => [newImage, ...prev]);
+        
+        // Select the first generated image
+        if (!selectedImage) {
+          setSelectedImage(newImage);
+        }
+
         toast.success("Image generated successfully!");
+        setIsGenerating(false);
       } else {
-        throw new Error("Failed to extract image");
+        throw new Error("Failed to extract image from response");
       }
     } catch (error: any) {
       setTasks((prev) =>
@@ -353,13 +470,8 @@ const ImageToolsPage = () => {
         )
       );
       toast.error(error.message || "Failed to generate image");
+      setIsGenerating(false);
     }
-  };
-
-  // Cancel task
-  const handleCancelTask = (taskId: string) => {
-    setTasks((prev) => prev.filter((task) => task.id !== taskId));
-    toast.info("Task cancelled");
   };
 
   // Copy model name
@@ -369,27 +481,46 @@ const ImageToolsPage = () => {
     toast.success("Model name copied!");
   };
 
+  // Download image
+  const handleDownloadImage = (image: GeneratedImage) => {
+    const link = document.createElement("a");
+    link.href = image.imageUrl;
+    link.download = `aeko-image-${image.id}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success("Image downloaded!");
+  };
+
   return (
     <div className="flex flex-col h-screen w-full bg-background overflow-hidden">
       {/* TOP NAVIGATION BAR */}
-      <div className="flex-shrink-0 h-14 border-b border-border bg-card/50 backdrop-blur-sm flex items-center justify-between px-4">
-        <div className="flex items-center gap-4">
+      <div className="flex-shrink-0 h-14 border-b border-border bg-card/50 backdrop-blur-sm flex items-center justify-between px-4 sm:px-6">
+        <div className="flex items-center gap-3 sm:gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 lg:hidden"
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+          >
+            <Menu className="w-4 h-4" />
+          </Button>
           <span className="text-sm font-semibold text-foreground">Image</span>
-          <Button variant="ghost" size="sm" className="h-8 text-xs">
+          <Button variant="ghost" size="sm" className="h-8 text-xs hidden sm:flex">
             Guides
           </Button>
         </div>
         <div className="flex-1 flex items-center justify-center">
           <span className="text-xs text-muted-foreground">{getCurrentDate()}</span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2">
           <Button variant="ghost" size="icon" className="h-8 w-8">
             <Search className="w-4 h-4" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8">
+          <Button variant="ghost" size="icon" className="h-8 w-8 hidden sm:flex">
             <Grid3x3 className="w-4 h-4" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8">
+          <Button variant="ghost" size="icon" className="h-8 w-8 hidden sm:flex">
             <Filter className="w-4 h-4" />
           </Button>
           <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -398,10 +529,34 @@ const ImageToolsPage = () => {
         </div>
       </div>
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden relative">
+        {/* Mobile Sidebar Overlay */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+
         {/* LEFT SIDEBAR - Settings */}
-        <div className="w-80 flex-shrink-0 border-r border-border bg-card/30 overflow-y-auto">
+        <div className={cn(
+          "w-64 sm:w-80 flex-shrink-0 border-r border-border bg-card/30 overflow-y-auto fixed lg:static inset-y-0 left-0 z-50 lg:z-auto transform transition-transform duration-300",
+          sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        )}>
           <div className="p-4 space-y-4">
+            {/* Close Button for Mobile */}
+            <div className="flex items-center justify-between lg:hidden mb-4">
+              <span className="text-sm font-semibold text-foreground">Settings</span>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => setSidebarOpen(false)}
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+
             {/* Tool Mode Selection */}
             <div className="space-y-2">
               <label className="text-xs font-medium text-muted-foreground">Tool Mode</label>
@@ -429,7 +584,7 @@ const ImageToolsPage = () => {
               </div>
             </div>
 
-            {/* Reference Image Upload - for image2image, image-editing, bg-removal */}
+            {/* Reference Image Upload */}
             {(toolMode === "image2image" || toolMode === "image-editing" || toolMode === "bg-removal") && (
               <div className="space-y-2">
                 <label className="text-xs font-medium text-muted-foreground flex items-center gap-2">
@@ -439,7 +594,6 @@ const ImageToolsPage = () => {
                   )}
                 </label>
                 
-                {/* URL Input */}
                 <div className="flex gap-2">
                   <Input
                     value={referenceImageUrl}
@@ -458,7 +612,6 @@ const ImageToolsPage = () => {
                   </Button>
                 </div>
 
-                {/* Image Preview */}
                 {uploadedImage ? (
                   <div className="relative group rounded-lg overflow-hidden border border-border bg-background">
                     <img
@@ -514,51 +667,93 @@ const ImageToolsPage = () => {
               <div className="flex items-center justify-between">
                 <label className="text-xs font-medium text-muted-foreground">Model</label>
               </div>
-              <div className="flex items-center gap-2">
-                <Select value={selectedModel} onValueChange={setSelectedModel}>
-                  <SelectTrigger className="flex-1 h-9 bg-background border-border text-foreground">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-popover border-border">
-                    {imageModels.map((model) => (
-                      <SelectItem key={model.id} value={model.id} className="text-foreground">
-                        {model.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9 shrink-0"
-                  onClick={handleCopyModel}
-                >
-                  <Copy className="w-4 h-4" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0">
-                  <Info className="w-4 h-4" />
-                </Button>
-              </div>
-              <Select defaultValue="1">
+              <Select value={selectedModel} onValueChange={setSelectedModel}>
+                <SelectTrigger className="flex-1 h-9 bg-background border-border text-foreground">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-popover border-border">
+                  {imageModels.map((model) => (
+                    <SelectItem key={model.id} value={model.id} className="text-foreground">
+                      {model.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Style Selection */}
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-muted-foreground">Style</label>
+              <Select value={selectedStyle} onValueChange={setSelectedStyle}>
                 <SelectTrigger className="h-9 bg-background border-border text-foreground">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-popover border-border">
-                  <SelectItem value="1" className="text-foreground">1</SelectItem>
+                  {styles.map((style) => (
+                    <SelectItem key={style.id} value={style.id} className="text-foreground">
+                      {style.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
-              <Button variant="outline" className="w-full h-9 text-xs">
-                Combo Library NEW
-              </Button>
             </div>
 
-            {/* Additional Section - Collapsed */}
-            <Collapsible>
-              <CollapsibleTrigger className="flex items-center justify-between w-full p-2 rounded hover:bg-secondary/50">
-                <span className="text-xs text-muted-foreground">Additional</span>
-                <Plus className="w-4 h-4 text-muted-foreground" />
-              </CollapsibleTrigger>
-            </Collapsible>
+            {/* Aspect Ratio */}
+            {toolMode === "text2image" && (
+              <div className="space-y-2">
+                <label className="text-xs font-medium text-muted-foreground">Aspect Ratio</label>
+                <div className="grid grid-cols-4 gap-2">
+                  {aspectRatios.map((ratio) => (
+                    <Button
+                      key={ratio.value}
+                      variant={aspectRatio === ratio.value ? "default" : "outline"}
+                      size="sm"
+                      className={cn(
+                        "h-10 text-xs flex flex-col gap-1",
+                        aspectRatio === ratio.value && "ring-2 ring-primary"
+                      )}
+                      onClick={() => setAspectRatio(ratio.value)}
+                    >
+                      <span className="text-lg">{ratio.icon}</span>
+                      <span>{ratio.label}</span>
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Number of Images */}
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-muted-foreground">Number of Images</label>
+              <div className="flex gap-2">
+                {[1, 2, 3, 4].map((num) => (
+                  <Button
+                    key={num}
+                    variant={numImages === num ? "default" : "outline"}
+                    size="sm"
+                    className={cn(
+                      "flex-1 h-9 text-xs",
+                      numImages === num && "ring-2 ring-primary"
+                    )}
+                    onClick={() => setNumImages(num)}
+                  >
+                    {num}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            {/* Private Mode */}
+            <div className="flex items-center justify-between p-2 rounded-lg border border-border bg-background/50">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-medium text-foreground">Private Mode</span>
+                <span className="text-[10px] text-muted-foreground">🔒</span>
+              </div>
+              <Switch
+                checked={privateMode}
+                onCheckedChange={setPrivateMode}
+              />
+            </div>
 
             {/* Basic Settings */}
             <Collapsible open={isBasicSettingsOpen} onOpenChange={setIsBasicSettingsOpen}>
@@ -571,7 +766,6 @@ const ImageToolsPage = () => {
                 )}
               </CollapsibleTrigger>
               <CollapsibleContent className="space-y-3 mt-2">
-                {/* Generation Mode */}
                 <div className="space-y-2">
                   <label className="text-xs font-medium text-muted-foreground">Generation Mode</label>
                   <div className="flex gap-2">
@@ -600,7 +794,6 @@ const ImageToolsPage = () => {
                   </div>
                 </div>
 
-                {/* Prompt Magic */}
                 <div className="space-y-2">
                   <label className="text-xs font-medium text-muted-foreground">Prompt Magic</label>
                   <div className="flex gap-2">
@@ -639,54 +832,6 @@ const ImageToolsPage = () => {
                     </Button>
                   </div>
                 </div>
-              </CollapsibleContent>
-            </Collapsible>
-
-            {/* Image Settings */}
-            <Collapsible open={isImageSettingsOpen} onOpenChange={setIsImageSettingsOpen}>
-              <CollapsibleTrigger className="flex items-center justify-between w-full p-2 rounded hover:bg-secondary/50">
-                <span className="text-xs font-medium text-foreground">Image Settings</span>
-                {isImageSettingsOpen ? (
-                  <ChevronUp className="w-4 h-4 text-muted-foreground" />
-                ) : (
-                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                )}
-              </CollapsibleTrigger>
-              <CollapsibleContent className="space-y-3 mt-2">
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm" className="flex-1 h-8 text-xs">
-                    <RotateCcw className="w-3 h-3 mr-1" />
-                    Reset
-                  </Button>
-                  <Button variant="outline" size="sm" className="flex-1 h-8 text-xs">
-                    <StickyNote className="w-3 h-3 mr-1" />
-                    Notes
-                  </Button>
-                </div>
-                {toolMode === "text2image" && (
-                  <div className="space-y-2">
-                    <label className="text-xs font-medium text-muted-foreground">Aspect Ratio</label>
-                    <div className="grid grid-cols-4 gap-2">
-                      {aspectRatios.map((ratio) => (
-                        <Button
-                          key={ratio.value}
-                          variant={aspectRatio === ratio.value ? "default" : "outline"}
-                          size="sm"
-                          className={cn(
-                            "h-8 text-xs",
-                            aspectRatio === ratio.value && "ring-2 ring-primary"
-                          )}
-                          onClick={() => setAspectRatio(ratio.value)}
-                        >
-                          {ratio.label}
-                        </Button>
-                      ))}
-                      <Button variant="outline" size="sm" className="h-8 text-xs">
-                        More
-                      </Button>
-                    </div>
-                  </div>
-                )}
 
                 {/* Strength - for image2image and image-editing */}
                 {(toolMode === "image2image" || toolMode === "image-editing") && (
@@ -715,149 +860,214 @@ const ImageToolsPage = () => {
 
         {/* MAIN CONTENT AREA */}
         <div className="flex-1 flex flex-col overflow-hidden bg-background">
-          <div className="flex-1 overflow-y-auto p-6 space-y-4">
-            {/* Tasks List */}
-            {tasks.length === 0 ? (
-              <div className="flex items-center justify-center h-full text-center">
-                <div className="space-y-2">
-                  <ImageIcon className="w-12 h-12 mx-auto text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground">No tasks yet. Create one below!</p>
-                </div>
-              </div>
-            ) : (
-              tasks.map((task) => (
-                <motion.div
-                  key={task.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="border border-border rounded-lg p-4 bg-card/50 space-y-3"
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-sm font-medium text-foreground">
-                          Txt2Img {task.prompt.length > 50 ? `${task.prompt.substring(0, 50)}...` : task.prompt}
-                        </span>
-                      </div>
-                      {task.status === "processing" && (
-                        <div className="space-y-1">
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="text-muted-foreground">
-                              Completed {Math.round(task.progress)}%.
-                            </span>
-                            <span className="text-muted-foreground">
-                              Ready in about 5 minutes
-                            </span>
-                          </div>
-                          <Progress value={task.progress} className="h-2" />
-                        </div>
-                      )}
-                      {task.status === "pending" && (
-                        <span className="text-xs text-muted-foreground">Waiting to start...</span>
-                      )}
-                      {task.status === "completed" && task.result && (
-                        <div className="mt-2 rounded overflow-hidden border border-border">
-                          <img
-                            src={task.result}
-                            alt={task.prompt}
-                            className="w-full h-auto max-h-64 object-contain"
-                          />
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex items-start gap-2 ml-4">
-                      <div className="flex flex-col items-center gap-1">
-                        <div className="w-10 h-10 rounded border border-border bg-secondary/50 flex items-center justify-center">
-                          <ImageIcon className="w-5 h-5 text-muted-foreground" />
-                        </div>
-                        <span className="text-[10px] text-muted-foreground">
-                          Model {imageModels.find((m) => m.id === task.model)?.name || "Z Image"}
-                        </span>
-                        <div className="flex gap-1">
-                          <Button variant="ghost" size="icon" className="h-6 w-6">
-                            <Info className="w-3 h-3" />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-6 w-6">
-                            <RefreshCw className="w-3 h-3" />
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {task.status === "pending" && (
-                      <Button variant="outline" size="sm" className="h-8 text-xs">
-                        Try Fast Queue
-                      </Button>
-                    )}
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      className="h-8 text-xs"
-                      onClick={() => handleCancelTask(task.id)}
-                    >
-                      Cancel Task
-                    </Button>
-                  </div>
-                </motion.div>
-              ))
-            )}
-          </div>
-
-          {/* Bottom Input Area */}
-          <div className="flex-shrink-0 border-t border-border bg-card/50 p-4 space-y-3">
-            <Button
-              variant="default"
-              size="sm"
-              className="h-8 text-xs gap-2"
-            >
-              <Play className="w-3 h-3" />
-              Play It
-            </Button>
+          {/* Prompt Input Area */}
+          <div className="flex-shrink-0 border-b border-border bg-card/30 p-4 sm:p-6 space-y-4">
             <div className="flex items-center gap-2">
-              <div className="flex-1 relative">
-                <Input
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  placeholder="What do you want to create?"
-                  className="pr-20 bg-background border-border text-foreground"
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      handleGenerate();
-                    }
-                  }}
-                />
-                <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
-                  <Button variant="ghost" size="icon" className="h-6 w-6">
-                    <ImageIcon className="w-4 h-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon" className="h-6 w-6">
-                    <Grid3x3 className="w-4 h-4" />
-                  </Button>
-                </div>
+              <Textarea
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                placeholder="What do you want to create? Describe your image in detail..."
+                className="min-h-[100px] bg-background border-border text-foreground resize-none"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && e.ctrlKey) {
+                    e.preventDefault();
+                    handleGenerate();
+                  }
+                }}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 gap-2"
+                >
+                  <MessageSquare className="w-4 h-4" />
+                  <span className="hidden sm:inline">Assistant</span>
+                </Button>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-10 gap-2"
-              >
-                <MessageSquare className="w-4 h-4" />
-                Assistant
-              </Button>
               <Button
                 onClick={handleGenerate}
-                disabled={!prompt.trim()}
-                size="sm"
-                className="h-10 gap-2"
+                disabled={!prompt.trim() || isGenerating}
+                size="lg"
+                className="h-10 gap-2 px-6"
               >
-                <Sparkles className="w-4 h-4" />
-                Generate
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Generating...</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4" />
+                    <span>Generate</span>
+                  </>
+                )}
               </Button>
             </div>
           </div>
-        </div>
 
+          {/* Generated Images Area */}
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+            {generatedImages.length === 0 ? (
+              <div className="flex items-center justify-center h-full text-center">
+                <div className="space-y-2">
+                  <ImageIcon className="w-12 h-12 mx-auto text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground">No images generated yet. Create one above!</p>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {/* Date Header */}
+                <div className="flex items-center justify-between">
+                  <h2 className="text-sm font-semibold text-foreground">{getCurrentDate()}</h2>
+                </div>
+
+                {/* Images Grid with Details Card */}
+                <div className="flex flex-col xl:flex-row gap-6">
+                  {/* Images Grid - Horizontal Scrollable */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                      {generatedImages.map((image) => (
+                        <motion.div
+                          key={image.id}
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          className={cn(
+                            "relative group flex-shrink-0 w-64 sm:w-80 rounded-lg overflow-hidden border-2 transition-all cursor-pointer",
+                            selectedImage?.id === image.id
+                              ? "border-primary shadow-lg"
+                              : "border-border hover:border-primary/50"
+                          )}
+                          onClick={() => setSelectedImage(image)}
+                        >
+                          <img
+                            src={image.imageUrl}
+                            alt={image.prompt}
+                            className="w-full h-auto object-contain bg-secondary/20"
+                          />
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                            <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+                              <Button
+                                size="icon"
+                                variant="secondary"
+                                className="h-8 w-8"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDownloadImage(image);
+                                }}
+                              >
+                                <Download className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                size="icon"
+                                variant="secondary"
+                                className="h-8 w-8"
+                              >
+                                <Heart className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                size="icon"
+                                variant="secondary"
+                                className="h-8 w-8"
+                              >
+                                <Share2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Image Details Card */}
+                  {selectedImage && (
+                    <motion.div
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      className="w-full xl:w-80 flex-shrink-0 border border-border rounded-lg bg-card/50 p-4 space-y-4"
+                    >
+                      <div className="space-y-3">
+                        <div>
+                          <p className="text-xs text-muted-foreground mb-1">Prompt</p>
+                          <p className="text-sm text-foreground line-clamp-3">{selectedImage.prompt}</p>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-xs text-muted-foreground mb-1">Model</p>
+                            <p className="text-sm font-medium text-foreground">
+                              {imageModels.find((m) => m.id === selectedImage.model)?.name || "Unknown"}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground mb-1">Style</p>
+                            <p className="text-sm font-medium text-foreground">
+                              {styles.find((s) => s.id === selectedImage.style)?.name || "Dynamic"}
+                            </p>
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground mb-1">Resolution</p>
+                          <p className="text-sm font-medium text-foreground">
+                            {selectedImage.width} x {selectedImage.height}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground mb-1">Aspect Ratio</p>
+                          <p className="text-sm font-medium text-foreground">{selectedImage.aspectRatio}</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2 pt-2 border-t border-border">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1 h-9"
+                          onClick={() => handleDownloadImage(selectedImage)}
+                        >
+                          <Download className="w-4 h-4 mr-2" />
+                          Download
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-9 w-9 p-0"
+                        >
+                          <MoreVertical className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </motion.div>
+                  )}
+                </div>
+
+                {/* Active Tasks */}
+                {tasks.filter(t => t.status !== "completed" && t.status !== "failed").length > 0 && (
+                  <div className="space-y-2">
+                    <h3 className="text-xs font-semibold text-muted-foreground uppercase">Generating...</h3>
+                    {tasks
+                      .filter(t => t.status !== "completed" && t.status !== "failed")
+                      .map((task) => (
+                        <div
+                          key={task.id}
+                          className="border border-border rounded-lg p-3 bg-card/50 space-y-2"
+                        >
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-foreground truncate flex-1 mr-2">
+                              {task.prompt.length > 40 ? `${task.prompt.substring(0, 40)}...` : task.prompt}
+                            </span>
+                            <span className="text-muted-foreground">
+                              {Math.round(task.progress)}%
+                            </span>
+                          </div>
+                          <Progress value={task.progress} className="h-1.5" />
+                        </div>
+                      ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
