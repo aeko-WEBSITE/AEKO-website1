@@ -31,6 +31,10 @@ import {
   MoreVertical,
   Check,
   Menu,
+  Maximize2,
+  Zap,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -52,24 +56,26 @@ import {
 } from "@/components/ui/collapsible";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 
 // Tool modes
 type ToolMode = "text2image" | "image2image" | "image-editing" | "bg-removal";
 
 const toolModes = [
-  { id: "text2image" as ToolMode, label: "Text to Image", icon: Type },
-  { id: "image2image" as ToolMode, label: "Image to Image", icon: ArrowLeftRight },
-  { id: "image-editing" as ToolMode, label: "Image Editing", icon: Wand2 },
-  { id: "bg-removal" as ToolMode, label: "Background Removal", icon: Eraser },
+  { id: "text2image" as ToolMode, label: "Text to Image", icon: Type, color: "text-blue-500" },
+  { id: "image2image" as ToolMode, label: "Image to Image", icon: ArrowLeftRight, color: "text-purple-500" },
+  { id: "image-editing" as ToolMode, label: "AI Edit", icon: Wand2, color: "text-amber-500" },
+  { id: "bg-removal" as ToolMode, label: "Remove BG", icon: Eraser, color: "text-rose-500" },
 ];
 
 // Image models
 const imageModels = [
-  { id: "flux-2-dev", name: "Z Image", description: "High quality image generation" },
-  { id: "flux-kontext-dev", name: "Kingly", description: "Advanced context understanding" },
-  { id: "gen3", name: "Gen3", description: "Next-gen image model" },
-  { id: "sdxl", name: "SDXL", description: "Stable Diffusion XL" },
-  { id: "dalle-3", name: "DALL-E 3", description: "OpenAI's latest model" },
+  { id: "flux-2-dev", name: "Z Image", description: "High quality image generation", badge: "Pro" },
+  { id: "flux-kontext-dev", name: "Kingly", description: "Advanced context understanding", badge: "New" },
+  { id: "gen3", name: "Gen3", description: "Next-gen image model", badge: "Beta" },
+  { id: "sdxl", name: "SDXL", description: "Stable Diffusion XL", badge: null },
+  { id: "dalle-3", name: "DALL-E 3", description: "OpenAI's latest model", badge: "Premium" },
 ];
 
 // Styles
@@ -118,6 +124,7 @@ interface Task {
 }
 
 const ImageToolsPage = () => {
+  const [isDarkMode, setIsDarkMode] = useState(true);
   const [toolMode, setToolMode] = useState<ToolMode>("text2image");
   const [selectedModel, setSelectedModel] = useState("flux-2-dev");
   const [selectedStyle, setSelectedStyle] = useState("dynamic");
@@ -130,7 +137,6 @@ const ImageToolsPage = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [generatedImages, setGeneratedImages] = useState<GeneratedImage[]>([]);
   const [selectedImage, setSelectedImage] = useState<GeneratedImage | null>(null);
-  const [isImageSettingsOpen, setIsImageSettingsOpen] = useState(true);
   const [isBasicSettingsOpen, setIsBasicSettingsOpen] = useState(true);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [uploadedImageFile, setUploadedImageFile] = useState<File | null>(null);
@@ -139,6 +145,16 @@ const ImageToolsPage = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Toggle Theme
+  const toggleTheme = () => {
+    setIsDarkMode(!isDarkMode);
+    if (isDarkMode) {
+      document.documentElement.classList.remove("dark");
+    } else {
+      document.documentElement.classList.add("dark");
+    }
+  };
 
   // Get current date
   const getCurrentDate = () => {
@@ -168,7 +184,6 @@ const ImageToolsPage = () => {
   // Handle URL input for reference image
   const handleUrlImageLoad = async () => {
     if (!referenceImageUrl.trim()) return;
-    
     try {
       const response = await fetch(referenceImageUrl);
       if (!response.ok) throw new Error("Failed to load image");
@@ -198,7 +213,6 @@ const ImageToolsPage = () => {
 
   // Helper function to extract image from response
   const extractImageFromResponse = (response: any): string | null => {
-    // Try various response formats
     if (response.image_base64) {
       return response.image_base64.startsWith("data:")
         ? response.image_base64
@@ -256,7 +270,6 @@ const ImageToolsPage = () => {
 
     setIsGenerating(true);
 
-    // Create tasks for multiple images
     const newTasks: Task[] = [];
     for (let i = 0; i < numImages; i++) {
       const newTask: Task = {
@@ -274,7 +287,6 @@ const ImageToolsPage = () => {
 
     setTasks((prev) => [...newTasks, ...prev]);
 
-    // Process each task
     for (const task of newTasks) {
       processTask(task);
     }
@@ -285,14 +297,12 @@ const ImageToolsPage = () => {
   // Process a single task
   const processTask = async (task: Task) => {
     try {
-      // Update to processing
       setTasks((prev) =>
         prev.map((t) =>
           t.id === task.id ? { ...t, status: "processing", progress: 5 } : t
         )
       );
 
-      // Simulate progress
       const progressInterval = setInterval(() => {
         setTasks((prev) =>
           prev.map((t) => {
@@ -305,13 +315,12 @@ const ImageToolsPage = () => {
         );
       }, 500);
 
-      // Actually generate the image
       let imageUrl: string | null = null;
 
       if (toolMode === "text2image") {
         const ratio = aspectRatios.find((r) => r.value === aspectRatio);
-        const width = ratio?.value === "1:1" ? 1024 : ratio?.value === "2:3" ? 768 : ratio?.value === "16:9" ? 1024 : ratio?.value === "4:3" ? 1024 : 1024;
-        const height = ratio?.value === "1:1" ? 1024 : ratio?.value === "2:3" ? 1152 : ratio?.value === "16:9" ? 576 : ratio?.value === "4:3" ? 768 : 1024;
+        const width = ratio?.value === "1:1" ? 1024 : ratio?.value === "2:3" ? 768 : ratio?.value === "16:9" ? 1024 : 1024;
+        const height = ratio?.value === "1:1" ? 1024 : ratio?.value === "2:3" ? 1152 : ratio?.value === "16:9" ? 576 : 1024;
 
         const response = await moduleAPI.imageGen({
           prompt: task.prompt,
@@ -322,9 +331,7 @@ const ImageToolsPage = () => {
 
         imageUrl = extractImageFromResponse(response);
         
-        // If we got an ID instead, poll for result
         if (!imageUrl && response.id) {
-          // Poll for result
           let attempts = 0;
           const maxAttempts = 30;
           while (attempts < maxAttempts && !imageUrl) {
@@ -333,9 +340,7 @@ const ImageToolsPage = () => {
               const result = await moduleAPI.fetchImageResult(response.id);
               imageUrl = extractImageFromResponse(result);
               if (imageUrl) break;
-            } catch (error) {
-              // Continue polling
-            }
+            } catch (error) {}
             attempts++;
           }
         }
@@ -352,10 +357,6 @@ const ImageToolsPage = () => {
           initImageBase64 = base64String;
         }
 
-        if (!fileToSend && !initImageBase64) {
-          throw new Error("Please upload an image");
-        }
-
         const response = await moduleAPI.imageToImage({
           prompt: task.prompt,
           model_id: selectedModel,
@@ -365,22 +366,6 @@ const ImageToolsPage = () => {
         });
 
         imageUrl = extractImageFromResponse(response);
-        
-        if (!imageUrl && response.id) {
-          let attempts = 0;
-          const maxAttempts = 30;
-          while (attempts < maxAttempts && !imageUrl) {
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            try {
-              const result = await moduleAPI.fetchImageResult(response.id);
-              imageUrl = extractImageFromResponse(result);
-              if (imageUrl) break;
-            } catch (error) {
-              // Continue polling
-            }
-            attempts++;
-          }
-        }
       } else if (toolMode === "bg-removal") {
         let fileToSend: File | undefined;
         let initImageBase64: string | undefined;
@@ -394,38 +379,17 @@ const ImageToolsPage = () => {
           initImageBase64 = base64String;
         }
 
-        if (!fileToSend && !initImageBase64) {
-          throw new Error("Please upload an image");
-        }
-
         const response = await moduleAPI.backgroundRemoval({
           file: fileToSend,
           init_image: fileToSend ? undefined : initImageBase64,
         });
 
         imageUrl = extractImageFromResponse(response);
-        
-        if (!imageUrl && response.id) {
-          let attempts = 0;
-          const maxAttempts = 30;
-          while (attempts < maxAttempts && !imageUrl) {
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            try {
-              const result = await moduleAPI.fetchImageResult(response.id);
-              imageUrl = extractImageFromResponse(result);
-              if (imageUrl) break;
-            } catch (error) {
-              // Continue polling
-            }
-            attempts++;
-          }
-        }
       }
 
       clearInterval(progressInterval);
 
       if (imageUrl) {
-        // Update task as completed
         setTasks((prev) =>
           prev.map((t) =>
             t.id === task.id
@@ -434,7 +398,6 @@ const ImageToolsPage = () => {
           )
         );
 
-        // Add to generated images
         const ratio = aspectRatios.find((r) => r.value === aspectRatio);
         const width = ratio?.value === "1:1" ? 1024 : ratio?.value === "2:3" ? 768 : ratio?.value === "16:9" ? 1024 : 1024;
         const height = ratio?.value === "1:1" ? 1024 : ratio?.value === "2:3" ? 1152 : ratio?.value === "16:9" ? 576 : 1024;
@@ -452,16 +415,12 @@ const ImageToolsPage = () => {
         };
 
         setGeneratedImages((prev) => [newImage, ...prev]);
-        
-        // Select the first generated image
-        if (!selectedImage) {
-          setSelectedImage(newImage);
-        }
+        if (!selectedImage) setSelectedImage(newImage);
 
-        toast.success("Image generated successfully!");
+        toast.success("Creation complete!");
         setIsGenerating(false);
       } else {
-        throw new Error("Failed to extract image from response");
+        throw new Error("Failed to extract image");
       }
     } catch (error: any) {
       setTasks((prev) =>
@@ -469,115 +428,117 @@ const ImageToolsPage = () => {
           t.id === task.id ? { ...t, status: "failed", progress: 0 } : t
         )
       );
-      toast.error(error.message || "Failed to generate image");
+      toast.error(error.message || "Generation failed");
       setIsGenerating(false);
     }
-  };
-
-  // Copy model name
-  const handleCopyModel = () => {
-    const modelName = imageModels.find((m) => m.id === selectedModel)?.name || "";
-    navigator.clipboard.writeText(modelName);
-    toast.success("Model name copied!");
   };
 
   // Download image
   const handleDownloadImage = (image: GeneratedImage) => {
     const link = document.createElement("a");
     link.href = image.imageUrl;
-    link.download = `aeko-image-${image.id}.png`;
+    link.download = `creation-${image.id}.png`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    toast.success("Image downloaded!");
+    toast.success("Downloaded!");
   };
 
   return (
-    <div className="flex flex-col h-screen w-full bg-background overflow-hidden">
+    <div className="flex flex-col h-screen w-full bg-white dark:bg-[#0a0a0a] text-zinc-900 dark:text-zinc-100 overflow-hidden selection:bg-primary/30 transition-colors duration-200">
       {/* TOP NAVIGATION BAR */}
-      <div className="flex-shrink-0 h-14 border-b border-border bg-card/50 backdrop-blur-sm flex items-center justify-between px-4 sm:px-6">
-        <div className="flex items-center gap-3 sm:gap-4">
+      <div className="flex-shrink-0 h-16 border-b border-zinc-200 dark:border-white/5 bg-zinc-50 dark:bg-zinc-900/50 backdrop-blur-xl flex items-center justify-between px-4 sm:px-8 z-50">
+        <div className="flex items-center gap-4">
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 lg:hidden"
+            className="h-9 w-9 lg:hidden hover:bg-zinc-200 dark:hover:bg-white/5"
             onClick={() => setSidebarOpen(!sidebarOpen)}
           >
-            <Menu className="w-4 h-4" />
+            <Menu className="w-5 h-5" />
           </Button>
-          <span className="text-sm font-semibold text-foreground">Image</span>
-          <Button variant="ghost" size="sm" className="h-8 text-xs hidden sm:flex">
-            Guides
-          </Button>
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(var(--primary),0.5)]">
+              <Sparkles className="w-5 h-5 text-primary-foreground" />
+            </div>
+            <span className="text-lg font-bold tracking-tight hidden sm:block">Aeko Studio</span>
+          </div>
+          <Separator orientation="vertical" className="h-6 bg-zinc-200 dark:bg-white/10 hidden lg:block" />
+          <div className="hidden lg:flex gap-1 text-zinc-500 dark:text-zinc-400">
+            <Button variant="ghost" size="sm" className="text-xs font-medium hover:text-zinc-900 dark:hover:text-white">Assets</Button>
+            <Button variant="ghost" size="sm" className="text-xs font-medium hover:text-zinc-900 dark:hover:text-white">Templates</Button>
+          </div>
         </div>
+        
         <div className="flex-1 flex items-center justify-center">
-          <span className="text-xs text-muted-foreground">{getCurrentDate()}</span>
+          <div className="px-4 py-1.5 rounded-full bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/10 text-[11px] font-medium text-zinc-500 dark:text-zinc-400 flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              {getCurrentDate()}
+          </div>
         </div>
-        <div className="flex items-center gap-1 sm:gap-2">
-          <Button variant="ghost" size="icon" className="h-8 w-8">
+
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" className="h-9 w-9 hover:bg-zinc-200 dark:hover:bg-white/5 text-zinc-500 dark:text-zinc-400">
             <Search className="w-4 h-4" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8 hidden sm:flex">
-            <Grid3x3 className="w-4 h-4" />
-          </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8 hidden sm:flex">
-            <Filter className="w-4 h-4" />
-          </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8">
+          <Button variant="ghost" size="icon" className="h-9 w-9 hover:bg-zinc-200 dark:hover:bg-white/5 text-zinc-500 dark:text-zinc-400">
             <User className="w-4 h-4" />
+          </Button>
+          <Button className="h-9 px-4 text-xs font-semibold bg-primary hover:opacity-90">
+            Upgrade
           </Button>
         </div>
       </div>
 
       <div className="flex flex-1 overflow-hidden relative">
         {/* Mobile Sidebar Overlay */}
-        {sidebarOpen && (
-          <div
-            className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 lg:hidden"
-            onClick={() => setSidebarOpen(false)}
-          />
-        )}
+        <AnimatePresence>
+          {sidebarOpen && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-md z-40 lg:hidden"
+              onClick={() => setSidebarOpen(false)}
+            />
+          )}
+        </AnimatePresence>
 
-        {/* LEFT SIDEBAR - Settings */}
+        {/* LEFT SIDEBAR - Attractive Proper Grey */}
         <div className={cn(
-          "w-64 sm:w-80 flex-shrink-0 border-r border-border bg-card/30 overflow-y-auto fixed lg:static inset-y-0 left-0 z-50 lg:z-auto transform transition-transform duration-300",
+          "w-72 sm:w-80 flex-shrink-0 border-r border-zinc-200 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900/40 backdrop-blur-sm overflow-y-auto fixed lg:static inset-y-0 left-0 z-50 lg:z-auto transform transition-all duration-300 ease-in-out shadow-2xl lg:shadow-none",
           sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}>
-          <div className="p-4 space-y-4">
-            {/* Close Button for Mobile */}
-            <div className="flex items-center justify-between lg:hidden mb-4">
-              <span className="text-sm font-semibold text-foreground">Settings</span>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => setSidebarOpen(false)}
-              >
+          <div className="p-6 space-y-8">
+            <div className="flex items-center justify-between lg:hidden">
+              <span className="text-sm font-bold text-zinc-600 dark:text-zinc-300">Studio Settings</span>
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setSidebarOpen(false)}>
                 <X className="w-4 h-4" />
               </Button>
             </div>
 
             {/* Tool Mode Selection */}
-            <div className="space-y-2">
-              <label className="text-xs font-medium text-muted-foreground">Tool Mode</label>
-              <div className="grid grid-cols-2 gap-1.5">
+            <div className="space-y-3">
+              <label className="text-[11px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-500 flex items-center gap-2">
+                <Grid3x3 className="w-3 h-3" />
+                Workflow Mode
+              </label>
+              <div className="grid grid-cols-2 gap-2">
                 {toolModes.map((mode) => {
                   const Icon = mode.icon;
                   const isActive = toolMode === mode.id;
                   return (
                     <Button
                       key={mode.id}
-                      variant={isActive ? "default" : "outline"}
-                      size="sm"
-                      className={cn(
-                        "h-8 text-[10px] font-medium justify-center gap-1.5 px-2 truncate",
-                        isActive && "ring-2 ring-primary"
-                      )}
+                      variant="outline"
                       onClick={() => setToolMode(mode.id)}
-                      title={mode.label}
+                      className={cn(
+                        "h-auto py-3 px-2 flex-col gap-2 bg-white dark:bg-zinc-800/50 border-zinc-200 dark:border-white/5 transition-all hover:bg-zinc-200 dark:hover:bg-white/5",
+                        isActive && "bg-zinc-200 dark:bg-white/5 border-primary ring-1 ring-primary/50 shadow-sm"
+                      )}
                     >
-                      <Icon className="w-3 h-3 shrink-0" />
-                      <span className="truncate">{mode.label}</span>
+                      <Icon className={cn("w-4 h-4", mode.color)} />
+                      <span className="text-[10px] font-bold text-zinc-600 dark:text-zinc-300">{mode.label}</span>
                     </Button>
                   );
                 })}
@@ -585,490 +546,283 @@ const ImageToolsPage = () => {
             </div>
 
             {/* Reference Image Upload */}
-            {(toolMode === "image2image" || toolMode === "image-editing" || toolMode === "bg-removal") && (
-              <div className="space-y-2">
-                <label className="text-xs font-medium text-muted-foreground flex items-center gap-2">
-                  Reference Image
-                  {(toolMode === "image2image" || toolMode === "image-editing") && (
-                    <span className="text-[10px] text-muted-foreground">(Required)</span>
-                  )}
-                </label>
-                
-                <div className="flex gap-2">
-                  <Input
-                    value={referenceImageUrl}
-                    onChange={(e) => setReferenceImageUrl(e.target.value)}
-                    placeholder="Enter image URL"
-                    className="flex-1 h-8 text-xs bg-background border-border text-foreground"
-                  />
-                  <Button
-                    onClick={handleUrlImageLoad}
-                    disabled={!referenceImageUrl.trim()}
-                    variant="outline"
-                    size="sm"
-                    className="h-8 w-8 shrink-0 p-0"
-                  >
-                    <Upload className="w-3 h-3" />
-                  </Button>
-                </div>
-
+            {(toolMode !== "text2image") && (
+              <div className="space-y-3 pt-2">
+                <label className="text-[11px] font-bold uppercase tracking-wider text-zinc-500">Source Image</label>
                 {uploadedImage ? (
-                  <div className="relative group rounded-lg overflow-hidden border border-border bg-background">
-                    <img
-                      src={uploadedImage}
-                      alt="Reference"
-                      className="w-full h-auto max-h-[200px] object-contain"
-                    />
-                    <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Button
-                        onClick={() => fileInputRef.current?.click()}
-                        size="sm"
-                        variant="secondary"
-                        className="h-7 w-7 p-0"
-                      >
-                        <Edit2 className="w-3 h-3" />
-                      </Button>
-                      <Button
-                        onClick={handleRemoveImage}
-                        size="sm"
-                        variant="destructive"
-                        className="h-7 w-7 p-0"
-                      >
-                        <X className="w-3 h-3" />
-                      </Button>
+                  <div className="relative group rounded-xl overflow-hidden border border-zinc-300 dark:border-white/10 bg-white dark:bg-black shadow-inner">
+                    <img src={uploadedImage} alt="Ref" className="w-full h-auto max-h-[180px] object-cover opacity-80 group-hover:opacity-100 transition-all" />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-2 transition-all">
+                      <Button onClick={() => fileInputRef.current?.click()} size="icon" variant="secondary" className="h-8 w-8 rounded-full shadow-md"><Edit2 className="w-3 h-3" /></Button>
+                      <Button onClick={handleRemoveImage} size="icon" variant="destructive" className="h-8 w-8 rounded-full shadow-md"><X className="w-3 h-3" /></Button>
                     </div>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      className="hidden"
-                    />
                   </div>
                 ) : (
-                  <label className="flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-4 cursor-pointer transition-colors border-border bg-secondary/30 hover:border-primary hover:bg-secondary/50">
-                    <Upload className="w-6 h-6 mb-2 text-muted-foreground" />
-                    <span className="text-xs text-foreground mb-1">Click to upload</span>
-                    <span className="text-[10px] text-muted-foreground">PNG, JPG, WEBP</span>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      className="hidden"
-                    />
+                  <label className="flex flex-col items-center justify-center border-2 border-dashed border-zinc-300 dark:border-white/10 rounded-xl p-8 cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-all group bg-white dark:bg-transparent shadow-sm">
+                    <div className="w-10 h-10 rounded-full bg-zinc-100 dark:bg-white/5 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                      <Upload className="w-5 h-5 text-zinc-500" />
+                    </div>
+                    <span className="text-xs font-bold text-zinc-500">Upload base image</span>
+                    <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
                   </label>
                 )}
               </div>
             )}
 
             {/* Model Selection */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label className="text-xs font-medium text-muted-foreground">Model</label>
-              </div>
+            <div className="space-y-3">
+              <label className="text-[11px] font-bold uppercase tracking-wider text-zinc-500">Core Engine</label>
               <Select value={selectedModel} onValueChange={setSelectedModel}>
-                <SelectTrigger className="flex-1 h-9 bg-background border-border text-foreground">
+                <SelectTrigger className="h-11 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-white/5 focus:ring-primary/20 shadow-sm">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-popover border-border">
+                <SelectContent className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-white/10 text-zinc-900 dark:text-zinc-200">
                   {imageModels.map((model) => (
-                    <SelectItem key={model.id} value={model.id} className="text-foreground">
-                      {model.name}
+                    <SelectItem key={model.id} value={model.id} className="focus:bg-zinc-100 dark:focus:bg-white/5">
+                      <div className="flex items-center gap-2 py-0.5">
+                        <span className="font-medium">{model.name}</span>
+                        {model.badge && <Badge className="text-[9px] h-4 bg-primary/20 text-primary border-0">{model.badge}</Badge>}
+                      </div>
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
 
-            {/* Style Selection */}
-            <div className="space-y-2">
-              <label className="text-xs font-medium text-muted-foreground">Style</label>
-              <Select value={selectedStyle} onValueChange={setSelectedStyle}>
-                <SelectTrigger className="h-9 bg-background border-border text-foreground">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-popover border-border">
-                  {styles.map((style) => (
-                    <SelectItem key={style.id} value={style.id} className="text-foreground">
-                      {style.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Aspect Ratio */}
-            {toolMode === "text2image" && (
-              <div className="space-y-2">
-                <label className="text-xs font-medium text-muted-foreground">Aspect Ratio</label>
-                <div className="grid grid-cols-4 gap-2">
-                  {aspectRatios.map((ratio) => (
-                    <Button
-                      key={ratio.value}
-                      variant={aspectRatio === ratio.value ? "default" : "outline"}
-                      size="sm"
+            {/* Visual Style */}
+            <div className="space-y-3">
+              <label className="text-[11px] font-bold uppercase tracking-wider text-zinc-500">Art Style</label>
+              <div className="flex flex-wrap gap-2">
+                {styles.map(s => (
+                    <button 
+                      key={s.id}
+                      onClick={() => setSelectedStyle(s.id)}
                       className={cn(
-                        "h-10 text-xs flex flex-col gap-1",
-                        aspectRatio === ratio.value && "ring-2 ring-primary"
+                        "px-2 py-1.5 rounded-full text-[11px] font-bold border border-zinc-200 dark:border-white/5 bg-white dark:bg-zinc-900/50 hover:border-zinc-400 dark:hover:border-white/20 transition-all text-zinc-600 dark:text-zinc-400",
+                        selectedStyle === s.id && "bg-zinc-900 text-white border-zinc-900 dark:bg-white dark:text-black dark:border-white shadow-sm"
                       )}
-                      onClick={() => setAspectRatio(ratio.value)}
                     >
-                      <span className="text-lg">{ratio.icon}</span>
-                      <span>{ratio.label}</span>
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Number of Images */}
-            <div className="space-y-2">
-              <label className="text-xs font-medium text-muted-foreground">Number of Images</label>
-              <div className="flex gap-2">
-                {[1, 2, 3, 4].map((num) => (
-                  <Button
-                    key={num}
-                    variant={numImages === num ? "default" : "outline"}
-                    size="sm"
-                    className={cn(
-                      "flex-1 h-9 text-xs",
-                      numImages === num && "ring-2 ring-primary"
-                    )}
-                    onClick={() => setNumImages(num)}
-                  >
-                    {num}
-                  </Button>
+                      {s.name}
+                    </button>
                 ))}
               </div>
             </div>
 
-            {/* Private Mode */}
-            <div className="flex items-center justify-between p-2 rounded-lg border border-border bg-background/50">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-medium text-foreground">Private Mode</span>
-                <span className="text-[10px] text-muted-foreground">🔒</span>
+            {/* Aspect Ratio */}
+            {toolMode === "text2image" && (
+              <div className="space-y-3">
+                <label className="text-[11px] font-bold uppercase tracking-wider text-zinc-500">Canvas Dimensions</label>
+                <div className="grid grid-cols-4 gap-2">
+                  {aspectRatios.map((ratio) => (
+                    <Button
+                      key={ratio.value}
+                      variant="outline"
+                      className={cn(
+                        "h-12 flex-col gap-1 bg-white dark:bg-zinc-900/50 border-zinc-200 dark:border-white/5 hover:bg-zinc-100 dark:hover:bg-white/5 shadow-sm",
+                        aspectRatio === ratio.value && "border-primary bg-primary/5 dark:bg-primary/10"
+                      )}
+                      onClick={() => setAspectRatio(ratio.value)}
+                    >
+                      <span className="text-sm">{ratio.icon}</span>
+                      <span className="text-[9px] font-bold">{ratio.label}</span>
+                    </Button>
+                  ))}
+                </div>
               </div>
-              <Switch
-                checked={privateMode}
-                onCheckedChange={setPrivateMode}
-              />
+            )}
+
+            {/* Advanced Settings */}
+            <div className="pt-4">
+              <Collapsible open={isBasicSettingsOpen} onOpenChange={setIsBasicSettingsOpen} className="border border-zinc-200 dark:border-white/5 rounded-xl bg-white dark:bg-zinc-900/30 overflow-hidden shadow-sm">
+                <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-zinc-50 dark:hover:bg-white/5 transition-colors">
+                  <span className="text-[11px] font-bold uppercase text-zinc-500">Advanced Control</span>
+                  <ChevronDown className={cn("w-4 h-4 transition-transform", isBasicSettingsOpen && "rotate-180")} />
+                </CollapsibleTrigger>
+                <CollapsibleContent className="p-4 pt-0 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-tight">Private Session</span>
+                    <Switch checked={privateMode} onCheckedChange={setPrivateMode} />
+                  </div>
+                  <Separator className="bg-zinc-200 dark:bg-white/5" />
+                  <div className="space-y-3">
+                    <div className="flex justify-between text-[10px] font-bold text-zinc-500">
+                        <span>STRENGTH</span>
+                        <span className="text-primary">{strength * 100}%</span>
+                    </div>
+                    <input type="range" min="0" max="1" step="0.05" value={strength} onChange={(e) => setStrength(parseFloat(e.target.value))} 
+                      className="w-full h-1 bg-zinc-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-primary" />
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
             </div>
-
-            {/* Basic Settings */}
-            <Collapsible open={isBasicSettingsOpen} onOpenChange={setIsBasicSettingsOpen}>
-              <CollapsibleTrigger className="flex items-center justify-between w-full p-2 rounded hover:bg-secondary/50">
-                <span className="text-xs font-medium text-foreground">Basic Settings</span>
-                {isBasicSettingsOpen ? (
-                  <ChevronUp className="w-4 h-4 text-muted-foreground" />
-                ) : (
-                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                )}
-              </CollapsibleTrigger>
-              <CollapsibleContent className="space-y-3 mt-2">
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-muted-foreground">Generation Mode</label>
-                  <div className="flex gap-2">
-                    <Button
-                      variant={generationMode === "standard" ? "default" : "outline"}
-                      size="sm"
-                      className={cn(
-                        "flex-1 h-8 text-xs",
-                        generationMode === "standard" && "ring-2 ring-primary"
-                      )}
-                      onClick={() => setGenerationMode("standard")}
-                    >
-                      Standard
-                    </Button>
-                    <Button
-                      variant={generationMode === "quality" ? "default" : "outline"}
-                      size="sm"
-                      className={cn(
-                        "flex-1 h-8 text-xs",
-                        generationMode === "quality" && "ring-2 ring-primary"
-                      )}
-                      onClick={() => setGenerationMode("quality")}
-                    >
-                      Quality
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-muted-foreground">Prompt Magic</label>
-                  <div className="flex gap-2">
-                    <Button
-                      variant={promptMagic === "auto" ? "default" : "outline"}
-                      size="sm"
-                      className={cn(
-                        "flex-1 h-8 text-xs",
-                        promptMagic === "auto" && "ring-2 ring-primary"
-                      )}
-                      onClick={() => setPromptMagic("auto")}
-                    >
-                      Auto
-                    </Button>
-                    <Button
-                      variant={promptMagic === "on" ? "default" : "outline"}
-                      size="sm"
-                      className={cn(
-                        "flex-1 h-8 text-xs",
-                        promptMagic === "on" && "ring-2 ring-primary"
-                      )}
-                      onClick={() => setPromptMagic("on")}
-                    >
-                      On
-                    </Button>
-                    <Button
-                      variant={promptMagic === "off" ? "default" : "outline"}
-                      size="sm"
-                      className={cn(
-                        "flex-1 h-8 text-xs",
-                        promptMagic === "off" && "ring-2 ring-primary"
-                      )}
-                      onClick={() => setPromptMagic("off")}
-                    >
-                      Off
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Strength - for image2image and image-editing */}
-                {(toolMode === "image2image" || toolMode === "image-editing") && (
-                  <div className="space-y-2">
-                    <label className="text-xs font-medium text-muted-foreground">
-                      Strength: {strength.toFixed(1)}
-                    </label>
-                    <input
-                      type="range"
-                      min="0"
-                      max="1"
-                      step="0.1"
-                      value={strength}
-                      onChange={(e) => setStrength(parseFloat(e.target.value))}
-                      className="w-full h-2 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
-                    />
-                    <p className="text-[10px] text-muted-foreground">
-                      Higher values create more dramatic transformations
-                    </p>
-                  </div>
-                )}
-              </CollapsibleContent>
-            </Collapsible>
           </div>
         </div>
 
         {/* MAIN CONTENT AREA */}
-        <div className="flex-1 flex flex-col overflow-hidden bg-background">
-          {/* Prompt Input Area */}
-          <div className="flex-shrink-0 border-b border-border bg-card/30 p-4 sm:p-6 space-y-4">
-            <div className="flex items-center gap-2">
-              <Textarea
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                placeholder="What do you want to create? Describe your image in detail..."
-                className="min-h-[100px] bg-background border-border text-foreground resize-none"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && e.ctrlKey) {
-                    e.preventDefault();
-                    handleGenerate();
-                  }
-                }}
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-9 gap-2"
-                >
-                  <MessageSquare className="w-4 h-4" />
-                  <span className="hidden sm:inline">Assistant</span>
-                </Button>
+        <div className="flex-1 flex flex-col bg-white dark:bg-black relative transition-colors duration-300">
+          
+          {/* PROMPT AREA - Soft Transition Surface */}
+          <div className="flex-shrink-0 p-6 sm:p-10 border-b border-zinc-200 dark:border-white/5 bg-zinc-50 dark:bg-zinc-900/20">
+            <div className="max-w-4xl mx-auto space-y-4">
+              <div className="relative group">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-purple-600 rounded-2xl blur opacity-10 dark:opacity-20 group-focus-within:opacity-25 dark:group-focus-within:opacity-40 transition duration-1000"></div>
+                
+                {/* GREY INPUT BOX FOR LIGHT MODE */}
+                <div className="relative bg-zinc-100 dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-white/10 overflow-hidden shadow-xl transition-all focus-within:border-zinc-400 dark:focus-within:border-zinc-700">
+                  <Textarea
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    placeholder="Describe your imagination in detail..."
+                    className="min-h-[120px] bg-transparent border-0 text-lg placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus-visible:ring-0 resize-none p-5 text-zinc-900 dark:text-zinc-100"
+                    onKeyDown={(e) => e.key === "Enter" && e.ctrlKey && handleGenerate()}
+                  />
+                  <div className="flex items-center justify-between p-3 bg-zinc-200/50 dark:bg-black/40 border-t border-zinc-300 dark:border-white/5">
+                    <div className="flex gap-2">
+                      <Button variant="ghost" size="sm" className="h-8 rounded-lg text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-300/50 dark:hover:bg-white/5 gap-2">
+                          <Zap className="w-3.5 h-3.5" />
+                          <span className="text-xs font-bold">Enhance</span>
+                      </Button>
+                      <Button variant="ghost" size="sm" className="h-8 rounded-lg text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-300/50 dark:hover:bg-white/5 gap-2">
+                          <RotateCcw className="w-3.5 h-3.5" />
+                          <span className="text-xs font-bold">Random</span>
+                      </Button>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Button 
+                        onClick={handleGenerate} 
+                        disabled={!prompt.trim() || isGenerating}
+                        className="bg-primary hover:bg-primary/90 text-primary-foreground h-9 px-6 rounded-xl font-bold shadow-lg shadow-primary/20 transition-all active:scale-95"
+                      >
+                        {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Sparkles className="w-4 h-4 mr-2" /> Generate</>}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <Button
-                onClick={handleGenerate}
-                disabled={!prompt.trim() || isGenerating}
-                size="lg"
-                className="h-10 gap-2 px-6"
-              >
-                {isGenerating ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Generating...</span>
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="w-4 h-4" />
-                    <span>Generate</span>
-                  </>
-                )}
-              </Button>
             </div>
           </div>
 
-          {/* Generated Images Area */}
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6">
-            {generatedImages.length === 0 ? (
-              <div className="flex items-center justify-center h-full text-center">
-                <div className="space-y-2">
-                  <ImageIcon className="w-12 h-12 mx-auto text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground">No images generated yet. Create one above!</p>
+          {/* Canvas Viewport */}
+          <div className="flex-1 overflow-y-auto custom-scrollbar">
+            <div className="p-8 sm:p-12 max-w-7xl mx-auto">
+              {generatedImages.length === 0 && !isGenerating ? (
+                <div className="h-[40vh] flex flex-col items-center justify-center text-center opacity-30">
+                  <div className="w-20 h-20 rounded-3xl bg-zinc-200 dark:bg-zinc-900 flex items-center justify-center mb-6">
+                    <ImageIcon className="w-10 h-10 text-zinc-500" />
+                  </div>
+                  <h3 className="text-xl font-bold mb-2 text-zinc-900 dark:text-zinc-100">Ready to Create?</h3>
+                  <p className="max-w-xs text-sm text-zinc-500 dark:text-zinc-400 uppercase tracking-widest font-bold">Enter a prompt to see the magic happen</p>
                 </div>
-              </div>
-            ) : (
-              <div className="space-y-6">
-                {/* Date Header */}
-                <div className="flex items-center justify-between">
-                  <h2 className="text-sm font-semibold text-foreground">{getCurrentDate()}</h2>
-                </div>
-
-                {/* Images Grid with Details Card */}
-                <div className="flex flex-col xl:flex-row gap-6">
-                  {/* Images Grid - Horizontal Scrollable */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                      {generatedImages.map((image) => (
-                        <motion.div
-                          key={image.id}
-                          initial={{ opacity: 0, scale: 0.9 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          className={cn(
-                            "relative group flex-shrink-0 w-64 sm:w-80 rounded-lg overflow-hidden border-2 transition-all cursor-pointer",
-                            selectedImage?.id === image.id
-                              ? "border-primary shadow-lg"
-                              : "border-border hover:border-primary/50"
-                          )}
-                          onClick={() => setSelectedImage(image)}
-                        >
-                          <img
-                            src={image.imageUrl}
-                            alt={image.prompt}
-                            className="w-full h-auto object-contain bg-secondary/20"
-                          />
-                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                            <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
-                              <Button
-                                size="icon"
-                                variant="secondary"
-                                className="h-8 w-8"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDownloadImage(image);
-                                }}
-                              >
-                                <Download className="w-4 h-4" />
-                              </Button>
-                              <Button
-                                size="icon"
-                                variant="secondary"
-                                className="h-8 w-8"
-                              >
-                                <Heart className="w-4 h-4" />
-                              </Button>
-                              <Button
-                                size="icon"
-                                variant="secondary"
-                                className="h-8 w-8"
-                              >
-                                <Share2 className="w-4 h-4" />
-                              </Button>
+              ) : (
+                <div className="space-y-12">
+                  <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-10">
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between border-b border-zinc-200 dark:border-white/5 pb-4">
+                        <h2 className="text-sm font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">Creations Gallery</h2>
+                        <div className="flex gap-2">
+                            <Button variant="outline" size="sm" className="h-8 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-white/5 shadow-sm">Grid View</Button>
+                            <Button variant="outline" size="sm" className="h-8 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-white/5 shadow-sm">History</Button>
+                        </div>
+                      </div>
+                      
+                      {/* Horizontal Gallery */}
+                      <div className="flex gap-6 overflow-x-auto pb-6 snap-x no-scrollbar">
+                        {generatedImages.map((image) => (
+                          <motion.div
+                            key={image.id}
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className={cn(
+                              "relative flex-shrink-0 w-[300px] sm:w-[450px] group rounded-2xl overflow-hidden border-2 transition-all cursor-pointer snap-center shadow-xl",
+                              selectedImage?.id === image.id ? "border-primary shadow-2xl shadow-primary/10" : "border-transparent dark:border-white/5 hover:border-zinc-300 dark:hover:border-white/20"
+                            )}
+                            onClick={() => setSelectedImage(image)}
+                          >
+                            <img src={image.imageUrl} alt="Generated" className="w-full aspect-[4/5] object-cover" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-5">
+                              <div className="flex gap-2 justify-end">
+                                  <Button size="icon" variant="secondary" className="h-9 w-9 rounded-full shadow-lg" onClick={(e) => { e.stopPropagation(); handleDownloadImage(image); }}>
+                                    <Download className="w-4 h-4" />
+                                  </Button>
+                                  <Button size="icon" variant="secondary" className="h-9 w-9 rounded-full shadow-lg"><Share2 className="w-4 h-4" /></Button>
+                              </div>
                             </div>
+                          </motion.div>
+                        ))}
+                      </div>
+
+                      {/* Rendering Progress */}
+                      {tasks.filter(t => t.status !== "completed" && t.status !== "failed").length > 0 && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          {tasks.filter(t => t.status !== "completed" && t.status !== "failed").map(task => (
+                              <div key={task.id} className="p-5 rounded-2xl bg-zinc-100 dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 space-y-4 shadow-md">
+                                <div className="flex justify-between items-center">
+                                  <div className="flex items-center gap-2">
+                                      <Loader2 className="w-3 h-3 animate-spin text-primary" />
+                                      <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Rendering Frame</span>
+                                  </div>
+                                  <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100">{Math.round(task.progress)}%</span>
+                                </div>
+                                <Progress value={task.progress} className="h-1.5 bg-white dark:bg-zinc-800 shadow-inner" />
+                              </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Inspector Panel */}
+                    <AnimatePresence>
+                      {selectedImage && (
+                        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
+                          <div className="p-6 rounded-2xl bg-zinc-100 dark:bg-zinc-900/40 border border-zinc-200 dark:border-white/10 backdrop-blur-md sticky top-0 shadow-xl space-y-6">
+                              <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-500 flex items-center gap-2">
+                                <Info className="w-4 h-4 text-primary" />
+                                Creation Stats
+                              </h3>
+                              <div className="p-4 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-white/5 shadow-inner">
+                                <p className="text-[11px] font-bold text-zinc-400 uppercase mb-2">Prompt</p>
+                                <p className="text-xs leading-relaxed text-zinc-600 dark:text-zinc-300 italic">"{selectedImage.prompt}"</p>
+                              </div>
+                              <Separator className="bg-zinc-300 dark:bg-white/5" />
+                              <div className="grid grid-cols-2 gap-3">
+                                  <div className="p-3 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-white/5 text-center">
+                                    <p className="text-[9px] font-bold text-zinc-400 uppercase mb-1">Model</p>
+                                    <p className="text-[10px] font-bold truncate">{selectedImage.model}</p>
+                                  </div>
+                                  <div className="p-3 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-white/5 text-center">
+                                    <p className="text-[9px] font-bold text-zinc-400 uppercase mb-1">Aspect</p>
+                                    <p className="text-[10px] font-bold">{selectedImage.aspectRatio}</p>
+                                  </div>
+                              </div>
+                              <Button 
+                                className="w-full bg-zinc-900 text-white dark:bg-white dark:text-black hover:opacity-90 font-bold h-11 shadow-lg"
+                                onClick={() => handleDownloadImage(selectedImage)}
+                              >
+                                  <Download className="w-4 h-4 mr-2" />
+                                  Download Result
+                              </Button>
                           </div>
                         </motion.div>
-                      ))}
-                    </div>
+                      )}
+                    </AnimatePresence>
                   </div>
-
-                  {/* Image Details Card */}
-                  {selectedImage && (
-                    <motion.div
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      className="w-full xl:w-80 flex-shrink-0 border border-border rounded-lg bg-card/50 p-4 space-y-4"
-                    >
-                      <div className="space-y-3">
-                        <div>
-                          <p className="text-xs text-muted-foreground mb-1">Prompt</p>
-                          <p className="text-sm text-foreground line-clamp-3">{selectedImage.prompt}</p>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-xs text-muted-foreground mb-1">Model</p>
-                            <p className="text-sm font-medium text-foreground">
-                              {imageModels.find((m) => m.id === selectedImage.model)?.name || "Unknown"}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-muted-foreground mb-1">Style</p>
-                            <p className="text-sm font-medium text-foreground">
-                              {styles.find((s) => s.id === selectedImage.style)?.name || "Dynamic"}
-                            </p>
-                          </div>
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground mb-1">Resolution</p>
-                          <p className="text-sm font-medium text-foreground">
-                            {selectedImage.width} x {selectedImage.height}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground mb-1">Aspect Ratio</p>
-                          <p className="text-sm font-medium text-foreground">{selectedImage.aspectRatio}</p>
-                        </div>
-                      </div>
-                      <div className="flex gap-2 pt-2 border-t border-border">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="flex-1 h-9"
-                          onClick={() => handleDownloadImage(selectedImage)}
-                        >
-                          <Download className="w-4 h-4 mr-2" />
-                          Download
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="h-9 w-9 p-0"
-                        >
-                          <MoreVertical className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </motion.div>
-                  )}
                 </div>
-
-                {/* Active Tasks */}
-                {tasks.filter(t => t.status !== "completed" && t.status !== "failed").length > 0 && (
-                  <div className="space-y-2">
-                    <h3 className="text-xs font-semibold text-muted-foreground uppercase">Generating...</h3>
-                    {tasks
-                      .filter(t => t.status !== "completed" && t.status !== "failed")
-                      .map((task) => (
-                        <div
-                          key={task.id}
-                          className="border border-border rounded-lg p-3 bg-card/50 space-y-2"
-                        >
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="text-foreground truncate flex-1 mr-2">
-                              {task.prompt.length > 40 ? `${task.prompt.substring(0, 40)}...` : task.prompt}
-                            </span>
-                            <span className="text-muted-foreground">
-                              {Math.round(task.progress)}%
-                            </span>
-                          </div>
-                          <Progress value={task.progress} className="h-1.5" />
-                        </div>
-                      ))}
-                  </div>
-                )}
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </div>
+
+      <style>{`
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #d4d4d8; border-radius: 10px; }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #27272a; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #a1a1aa; }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
+      `}</style>
     </div>
   );
 };
