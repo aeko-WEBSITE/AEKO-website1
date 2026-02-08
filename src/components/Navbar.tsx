@@ -139,7 +139,7 @@ const Navbar = () => {
         >
           {/* Glass Background with Blur - Theme Aware */}
           <motion.div
-            className="relative overflow-hidden dark:bg-card/95 dark:backdrop-blur-xl bg-white/95 backdrop-blur-xl border dark:border-border border-border/50"
+            className="relative overflow-hidden dark:bg-purple-950/50 dark:backdrop-blur-xl bg-purple-50/80 backdrop-blur-xl border dark:border-border border-border/50"
             animate={{
               backdropFilter: "blur(20px) saturate(180%)",
               borderRadius: isScrolled || isOpen ? "20px" : "9999px",
