@@ -152,9 +152,9 @@ const CreateAgentSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="max-w-5xl mx-auto relative z-10"
+          className="max-w-full mx-auto relative z-10"
         >
-          <div className="relative group">
+          <div className="relative group ">
             {/* Colorful Outer Glow */}
             <motion.div
               className="absolute -inset-2 rounded-3xl blur-3xl"
