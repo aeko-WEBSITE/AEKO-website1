@@ -55,7 +55,7 @@ const features = [
 
 const FeaturesSection = () => {
   return (
-    <section id="features" className="py-24 lg:py-32 relative">
+    <section id="features" className="py-12 lg:py-16 relative">
       {/* Background gradient */}
       <div className="absolute inset-0 hero-gradient opacity-30" />
 

@@ -56,7 +56,7 @@ const tagIcons: Record<string, typeof Zap> = {
 
 const ModelsSection = () => {
   return (
-    <section id="models" className="py-24 lg:py-32 relative">
+    <section id="models" className="py-12 lg:py-16 relative">
       {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/20 to-background" />
 

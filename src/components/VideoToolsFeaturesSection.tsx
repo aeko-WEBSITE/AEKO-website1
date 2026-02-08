@@ -26,7 +26,7 @@ const videoCards = [
 const VideoToolsFeaturesSection = () => {
 
   return (
-    <section className="py-28 lg:py-36 relative overflow-x-clip w-full bg-background">
+    <section className="py-14 lg:py-18 relative overflow-x-clip w-full bg-background">
       <div className="container mx-auto relative z-10 px-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left Panel - Text and Feature Boxes */}

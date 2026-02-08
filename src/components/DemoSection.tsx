@@ -55,7 +55,7 @@ const DemoSection = () => {
   };
 
   return (
-    <section id="demo" className="py-24 relative overflow-hidden">
+    <section id="demo" className="py-12 relative overflow-hidden">
       {/* Background Effects */}
       <div className="absolute inset-0 bg-gradient-to-b from-background via-primary/5 to-background" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/10 rounded-full blur-[150px]" />

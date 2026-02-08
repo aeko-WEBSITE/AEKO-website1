@@ -50,7 +50,7 @@ const PlaygroundSection = () => {
   });
 
   return (
-    <section className="py-24 lg:py-32 relative overflow-hidden">
+    <section className="py-12 lg:py-16 relative overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/10 to-background" />
 

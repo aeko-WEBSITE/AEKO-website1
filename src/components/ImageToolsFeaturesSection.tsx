@@ -154,7 +154,7 @@ const ImageToolsFeaturesSection = () => {
   };
 
   return (
-    <section className="relative py-28 md:py-36 w-full overflow-x-clip bg-background">
+    <section className="relative py-14 md:py-16 w-full overflow-x-clip bg-background">
       {/* Animated mesh and sparkles */}
       <motion.div
         className="pointer-events-none absolute inset-0 z-0"
