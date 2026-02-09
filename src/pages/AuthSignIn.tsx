@@ -5,7 +5,7 @@ import { Mail, Apple, Chrome } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import logoDark from "@/assets/ChatGPT Image Dec 25, 2025, 03_45_44 PM.png";
+import logo from "@/assets/aeko-logo.png";
 
 // Video Configuration
 const VIDEO_PLAYLIST = [
@@ -115,16 +115,16 @@ const AuthSignIn = () => {
               }}
             />
             {/* Logo Container */}
-            <div className="relative w-10 h-10 rounded-full overflow-hidden bg-transparent flex items-center justify-center">
+            <div className="relative h-12 w-auto min-w-[120px] rounded-xl overflow-hidden bg-white dark:bg-white/95 shadow-lg ring-2 ring-black/10 dark:ring-white/20 flex items-center justify-center px-2">
               <img 
-                src={logoDark} 
+                src={logo} 
                 alt="AEKO" 
-                className="w-full h-full object-contain" 
+                className="h-full w-auto object-contain object-center" 
               />
             </div>
           </div>
           <div className="flex items-baseline gap-0.5">
-            <span className="text-2xl font-bold text-foreground">AEKO.</span>
+            <span className="text-2xl font-bold text-foreground sr-only">AEKO.</span>
             <motion.span
               className="text-2xl font-bold"
               style={{

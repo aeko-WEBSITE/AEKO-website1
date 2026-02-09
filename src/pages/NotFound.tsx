@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { Home, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import logoDark from "@/assets/ChatGPT Image Dec 25, 2025, 03_45_44 PM.png";
+import logo from "@/assets/aeko-logo.png";
 
 const NotFound = () => {
   const location = useLocation();
@@ -80,11 +80,11 @@ const NotFound = () => {
                   ease: 'linear',
                 }}
               />
-              <div className="relative w-20 h-20 rounded-full overflow-hidden bg-transparent flex items-center justify-center">
+              <div className="relative h-16 w-auto min-w-[140px] rounded-xl overflow-hidden bg-white dark:bg-white/95 shadow-xl ring-2 ring-black/10 dark:ring-white/20 flex items-center justify-center px-3">
                 <img 
-                  src={logoDark} 
+                  src={logo} 
                   alt="AEKO" 
-                  className="w-full h-full object-contain" 
+                  className="h-full w-auto object-contain object-center" 
                 />
               </div>
             </div>

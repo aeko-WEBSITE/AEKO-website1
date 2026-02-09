@@ -16,8 +16,6 @@ import {
   Zap,
   CheckCircle2,
   Ticket,
-  Clock,
-  FileCheck,
   ArrowRight,
   ArrowDown,
   ArrowDownRight,
@@ -103,61 +101,43 @@ const CreateAgentSection = () => {
     },
   ];
 
-  const features = [
+  const whatItDoesFeatures = [
     {
       icon: MessageSquare,
       title: "Handle customer inquiries 24/7",
-      description: "Round-the-clock support with instant responses",
-      color: "from-blue-500 to-cyan-500",
-    },
-    {
-      icon: ShoppingCart,
-      title: "Process orders and bookings automatically",
-      description: "Seamless order management and booking systems",
-      color: "from-primary to-primary/80",
+      description: "Round-the-clock support with instant responses. Talk to your agent on any channel—DMs and group chats.",
     },
     {
       icon: Zap,
       title: "Analyze sentiment and resolve issues",
-      description: "Real-time sentiment analysis and issue resolution",
-      color: "from-orange-500 to-red-500",
+      description: "Real-time sentiment analysis and issue resolution. Your data stays private by default.",
     },
     {
       icon: Globe,
       title: "Integrate with your existing tools",
-      description: "Connect with your favorite business tools",
-      color: "from-green-500 to-emerald-500",
+      description: "Connect with your favorite business tools and APIs. Works with the apps you already use.",
     },
     {
       icon: Sparkles,
       title: "Learn from your business data",
-      description: "AI-powered insights from your data",
-      color: "from-primary to-primary/80",
+      description: "AI-powered insights and personalization from your data. Becomes uniquely yours over time.",
     },
     {
       icon: Rocket,
       title: "Scale with your business needs",
-      description: "Grow seamlessly as your business expands",
-      color: "from-pink-500 to-rose-500",
+      description: "Grow seamlessly as your business expands. Full access or sandboxed—your choice.",
     },
     {
       icon: Ticket,
       title: "Support ticket creation",
-      description: "Automated ticket generation and tracking",
-      color: "from-yellow-500 to-orange-500",
+      description: "Automated ticket generation and tracking. Extend with community skills or build your own.",
     },
-    {
-      icon: Clock,
-      title: "Reminder tool",
-      description: "Never miss important deadlines",
-      color: "from-teal-500 to-cyan-500",
-    },
-    {
-      icon: FileCheck,
-      title: "Docs convert tool",
-      description: "Transform documents effortlessly",
-      color: "from-primary to-primary/80",
-    },
+  ];
+
+  const integrations = [
+    "WhatsApp", "Telegram", "Discord", "Slack", "Signal", "iMessage",
+    "Claude", "GPT", "Spotify", "Hue", "Obsidian", "X Twitter",
+    "Browser", "Gmail", "GitHub",
   ];
 
   return (
@@ -386,98 +366,128 @@ const CreateAgentSection = () => {
             </div>
           </motion.div>
 
-          {/* Launch AI Agents Section - Professional Refined Design */}
-          <motion.div initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.6 }} className="mt-24 max-w-6xl mx-auto px-4">
-            <div className="text-center mb-12">
-              <h3 className="text-3xl md:text-4xl font-bold text-foreground mb-4 tracking-tight">Launch AI Agents in Minutes</h3>
-              <p className="text-muted-foreground max-w-2xl mx-auto text-lg font-medium">Deploy specialized agents tailored to your business workflows without writing code.</p>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {useCases.map((useCase, index) => {
-                const Icon = useCase.icon;
-                return (
-                  <motion.div key={useCase.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: index * 0.1 }}>
-                    <Accordion type="single" collapsible className="w-full">
-                      <AccordionItem value={`item-${index}`} className="border border-border/60 rounded-2xl bg-card/50 dark:bg-zinc-900/40 backdrop-blur-sm overflow-hidden transition-all hover:border-primary/40 shadow-sm">
-                        <AccordionTrigger className="hover:no-underline px-6 py-5 group">
-                          <div className="flex items-center gap-4 text-left">
-                            <div className={`absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b ${useCase.color}`} />
-                            <div className={`p-2.5 rounded-xl bg-gradient-to-br ${useCase.color} flex-shrink-0 shadow-lg`}><Icon className="w-5 h-5 text-white" /></div>
-                            <div>
-                              <h4 className="text-base font-bold text-foreground group-hover:text-primary transition-colors">{useCase.title}</h4>
-                              <p className="text-sm text-muted-foreground line-clamp-1 font-normal">{useCase.description}</p>
-                            </div>
-                          </div>
-                        </AccordionTrigger>
-                        <AccordionContent className="px-6 pb-6 pt-2">
-                          <div className="rounded-xl bg-muted/30 dark:bg-black/40 border border-border/40 p-4 space-y-4">
-                            <div className="flex items-center gap-2 mb-2">
-                              <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-                              <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Live Simulation</span>
-                            </div>
-                            <div className="space-y-3">
-                              {useCase.example.split('\n').map((line, lineIndex) => {
-                                const isCustomer = line.startsWith('Customer:') || line.startsWith('Admin:');
-                                return (
-                                  <div key={lineIndex} className={`flex ${isCustomer ? 'justify-start' : 'justify-end'}`}>
-                                    <div className={`max-w-[85%] px-4 py-2.5 rounded-2xl text-sm ${isCustomer ? 'bg-white dark:bg-zinc-800 border border-border/50 text-foreground rounded-tl-none shadow-sm' : 'bg-primary text-primary-foreground rounded-tr-none shadow-md'}`}>
-                                      <span className="block text-[10px] opacity-70 mb-1 font-bold">{isCustomer ? 'USER' : 'AI AGENT'}</span>
-                                      {line.replace(/^(Customer:|Agent:|Admin:)\s*/, '')}
-                                    </div>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        </AccordionContent>
-                      </AccordionItem>
-                    </Accordion>
-                  </motion.div>
-                );
-              })}
-            </div>
-          </motion.div>
-
-          {/* Capabilities Grid - Features */}
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.7 }} className="mt-24">
-            <div className="relative rounded-3xl p-8 lg:p-10 dark:p-10 dark:lg:p-12 shadow-2xl overflow-hidden border-2 border-border/60 dark:border-white" style={{ borderRadius: '24px' }}>
-              <motion.div
-                className="absolute inset-0 rounded-3xl pointer-events-none hidden dark:block"
-                style={{
-                  padding: '4px',
-                  background: 'linear-gradient(135deg, #7C3AED, #3B82F6, #22D3EE, #10B981, #F59E0B, #EC4899, #7C3AED)',
-                  backgroundSize: '300% 300%',
-                  WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                  WebkitMaskComposite: 'xor',
-                  maskComposite: 'exclude',
-                }}
-                animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
-                transition={{ duration: 5, repeat: Infinity, ease: 'linear' }}
-              />
-              <div className="absolute inset-0 dark:inset-[4px] rounded-3xl bg-card/95 dark:bg-[#121212] backdrop-blur-2xl" style={{ borderRadius: '22px' }} />
+          {/* Launch AI Agents Section - 2x2 card layout (reference UI) */}
+          <motion.div initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.6 }} className="mt-24">
+            <div className="relative rounded-2xl p-8 lg:p-10 overflow-hidden bg-card/80 dark:bg-[#0a0a0a] border border-border/50 dark:border-white/10">
+              <div className="absolute inset-0 pointer-events-none opacity-30">
+                <div className="absolute top-1/4 left-1/4 w-2 h-2 rounded-full bg-purple-500/40 blur-sm" />
+                <div className="absolute bottom-1/3 right-1/4 w-2 h-2 rounded-full bg-sky-400/30 blur-sm" />
+              </div>
               <div className="relative z-10">
-                <div className="text-center mb-12">
-                  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 dark:bg-primary/20 border border-primary/20 dark:border-primary/30 mb-4">
-                    <Sparkles className="w-4 h-4 text-primary" /><span className="text-xs font-semibold text-primary uppercase tracking-wider">Capabilities</span>
-                  </div>
-                  <h4 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-foreground mb-4 tracking-tight">What Your Custom Agent Can Do</h4>
+                <div className="text-center mb-10">
+                  <h3 className="text-3xl md:text-4xl font-bold text-foreground mb-3 tracking-tight">Launch AI Agents in Minutes</h3>
+                  <p className="text-muted-foreground max-w-2xl mx-auto text-lg font-medium">Deploy specialized agents tailored to your business workflows without writing code.</p>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 lg:gap-4">
-                  {features.map((feature, index) => {
-                    const Icon = feature.icon;
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-5">
+                  {useCases.map((useCase, index) => {
+                    const Icon = useCase.icon;
                     return (
-                      <motion.div key={index} className="group" initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: 0.8 + index * 0.05 }}>
-                        <div className="relative h-full p-4 rounded-xl bg-background/80 dark:bg-white/5 border border-border/50 dark:border-white/10 hover:border-primary/40 transition-all duration-300 hover:-translate-y-1 overflow-hidden shadow-sm">
-                          <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-[0.08] dark:group-hover:opacity-[0.12] transition-opacity duration-500`} />
-                          <div className="relative z-10 flex flex-col items-center gap-3 text-center h-full">
-                            <div className={`relative w-14 h-14 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}><Icon className="w-7 h-7 text-white" /></div>
-                            <h5 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors leading-snug line-clamp-2">{feature.title}</h5>
-                          </div>
-                        </div>
+                      <motion.div key={useCase.title} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: index * 0.08 }} className="rounded-xl overflow-hidden bg-background/60 dark:bg-white/[0.06] border border-border/50 dark:border-white/10 hover:border-purple-500/30 transition-all duration-300 shadow-sm">
+                        <Accordion type="single" collapsible className="w-full">
+                          <AccordionItem value={`item-${index}`} className="border-none">
+                            <AccordionTrigger className="hover:no-underline px-5 py-5 gap-4 text-left [&>svg]:text-muted-foreground [&>svg]:shrink-0 [&>svg]:ml-auto">
+                              <div className="flex items-center gap-4 flex-1 min-w-0">
+                                <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${useCase.color} flex items-center justify-center flex-shrink-0 shadow-lg`}>
+                                  <Icon className="w-6 h-6 text-white" />
+                                </div>
+                                <div className="min-w-0">
+                                  <h4 className="text-base font-bold text-foreground">{useCase.title}</h4>
+                                  <p className="text-sm text-muted-foreground mt-0.5">{useCase.description}</p>
+                                </div>
+                              </div>
+                            </AccordionTrigger>
+                            <AccordionContent className="px-5 pb-5 pt-0">
+                              <div className="rounded-xl bg-muted/30 dark:bg-black/40 border border-border/40 p-4 space-y-4">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+                                  <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Live Simulation</span>
+                                </div>
+                                <div className="space-y-3">
+                                  {useCase.example.split('\n').map((line, lineIndex) => {
+                                    const isCustomer = line.startsWith('Customer:') || line.startsWith('Admin:');
+                                    return (
+                                      <div key={lineIndex} className={`flex ${isCustomer ? 'justify-start' : 'justify-end'}`}>
+                                        <div className={`max-w-[85%] px-4 py-2.5 rounded-2xl text-sm ${isCustomer ? 'bg-white dark:bg-zinc-800 border border-border/50 text-foreground rounded-tl-none shadow-sm' : 'bg-primary text-primary-foreground rounded-tr-none shadow-md'}`}>
+                                          <span className="block text-[10px] opacity-70 mb-1 font-bold">{isCustomer ? 'USER' : 'AI AGENT'}</span>
+                                          {line.replace(/^(Customer:|Agent:|Admin:)\s*/, '')}
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            </AccordionContent>
+                          </AccordionItem>
+                        </Accordion>
                       </motion.div>
                     );
                   })}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* What It Does + Works With Everything - Reference UI */}
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.7 }} className="mt-24">
+            <div className="relative rounded-2xl p-8 lg:p-10 overflow-hidden bg-card/80 dark:bg-[#0a0a0a] border border-border/50 dark:border-white/10">
+              {/* Subtle dot pattern */}
+              <div className="absolute inset-0 pointer-events-none opacity-30">
+                <div className="absolute top-1/4 left-1/4 w-2 h-2 rounded-full bg-purple-500/40 blur-sm" />
+              <div className="absolute top-1/3 right-1/3 w-2 h-2 rounded-full bg-sky-400/30 blur-sm" />
+              <div className="absolute bottom-1/4 right-1/4 w-2 h-2 rounded-full bg-purple-500/30 blur-sm" />
+              </div>
+              <div className="relative z-10 space-y-14">
+                {/* What It Does */}
+                <div>
+                  <h4 className="text-2xl md:text-3xl font-bold text-foreground mb-8 flex items-center gap-2">
+                    <span className="text-purple-500">&gt;</span> What It Does
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-5">
+                    {whatItDoesFeatures.map((feature, index) => {
+                      const Icon = feature.icon;
+                      return (
+                        <motion.div
+                          key={index}
+                          initial={{ opacity: 0, y: 16 }}
+                          whileInView={{ opacity: 1, y: 0 }}
+                          viewport={{ once: true }}
+                          transition={{ duration: 0.4, delay: index * 0.06 }}
+                          className="group rounded-xl p-5 bg-background/60 dark:bg-white/[0.06] border border-border/50 dark:border-white/10 hover:border-purple-500/30 transition-all duration-300"
+                        >
+                          <div className="flex flex-col h-full">
+                            <div className="mb-3 flex justify-center">
+                              <div className="rounded-lg p-2.5 border-2 border-purple-500/80 text-purple-500 dark:border-purple-500 dark:text-purple-500 group-hover:border-sky-400 group-hover:text-sky-400 transition-colors">
+                                <Icon className="w-6 h-6" strokeWidth={2} />
+                              </div>
+                            </div>
+                            <h5 className="text-base font-bold text-foreground mb-2 text-center">{feature.title}</h5>
+                            <p className="text-sm text-muted-foreground leading-relaxed text-center flex-1">{feature.description}</p>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                </div>
+                {/* Works With Everything */}
+                <div>
+                  <h4 className="text-2xl md:text-3xl font-bold text-foreground mb-6 flex items-center gap-2">
+                    <span className="text-purple-500">&gt;</span> Works With Everything
+                  </h4>
+                  <div className="flex flex-wrap gap-2 lg:gap-3">
+                    {integrations.map((name, index) => (
+                      <motion.span
+                        key={name}
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.3, delay: index * 0.02 }}
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-background/60 dark:bg-white/[0.06] border border-border/50 dark:border-white/10 text-sm font-medium text-foreground hover:border-purple-500/30 hover:text-sky-400/90 transition-colors"
+                      >
+                        {name}
+                      </motion.span>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>

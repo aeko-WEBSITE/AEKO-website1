@@ -31,7 +31,7 @@ import {
 import { moduleAPI } from "@/lib/api";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import logoDark from "@/assets/ChatGPT Image Dec 25, 2025, 03_45_44 PM.png";
+import logo from "@/assets/aeko-logo.png";
 
 interface ChatMessage {
   id: string;
@@ -185,8 +185,8 @@ const AgentLLMPage = () => {
             <div className="max-w-5xl mx-auto flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-3">
-                  <div className="relative w-10 h-10 rounded-full overflow-hidden bg-transparent flex items-center justify-center">
-                    <img src={logoDark} alt="AEKO" className="w-full h-full object-contain" />
+                  <div className="relative h-9 w-auto min-w-[100px] rounded-lg overflow-hidden bg-white dark:bg-white/95 shadow-md ring-2 ring-black/10 dark:ring-white/20 flex items-center justify-center px-2">
+                    <img src={logo} alt="AEKO" className="h-full w-auto object-contain object-center" />
                   </div>
                   <div>
                     <div className="flex items-baseline gap-1">
@@ -251,8 +251,8 @@ const AgentLLMPage = () => {
                   >
                     {message.role === "assistant" && (
                       <div className="flex-shrink-0 mt-1">
-                        <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-gray-100 to-gray-200 dark:from-[#1a1b26] dark:to-[#242636] border border-gray-300 dark:border-white/10 flex items-center justify-center shadow-lg transition-colors duration-300">
-                          <img src={logoDark} alt="AI" className="w-5 h-5 object-contain" />
+                        <div className="w-9 h-9 rounded-full overflow-hidden bg-gradient-to-tr from-gray-100 to-gray-200 dark:from-[#1a1b26] dark:to-[#242636] border border-gray-300 dark:border-white/10 flex items-center justify-center shadow-lg transition-colors duration-300">
+                          <img src={logo} alt="AI" className="w-full h-full object-cover object-center scale-[1.65]" />
                         </div>
                       </div>
                     )}
@@ -275,8 +275,8 @@ const AgentLLMPage = () => {
                 ))}
                 {isLoading && (
                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-4">
-                     <div className="w-9 h-9 rounded-full bg-gray-100 dark:bg-[#1a1b26] border border-gray-300 dark:border-white/10 flex items-center justify-center transition-colors duration-300">
-                        <img src={logoDark} alt="AI" className="w-5 h-5 object-contain" />
+                        <div className="w-9 h-9 rounded-lg overflow-hidden bg-white dark:bg-white/95 shadow-md ring-2 ring-black/10 dark:ring-white/20 flex items-center justify-center transition-colors duration-300 p-1">
+                          <img src={logo} alt="AI" className="w-full h-full object-contain object-center" />
                      </div>
                      <div className="flex items-center gap-1.5 px-1 h-9">
                         <div className="w-1.5 h-1.5 bg-purple-600 dark:bg-purple-500 rounded-full animate-bounce transition-colors duration-300" />

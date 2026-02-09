@@ -9,8 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import logoDark from "@/assets/ChatGPT Image Dec 25, 2025, 03_45_44 PM.png";
-// import logoLight from "@/assets/ak-logo.png"; // Uncomment when you add the AK logo file
+import logo from "@/assets/aeko-logo.png";
 import { useTheme } from "@/hooks/use-theme";
 
 const Navbar = () => {
@@ -216,28 +215,18 @@ const Navbar = () => {
                         ease: 'linear',
                       }}
                     />
-                    {/* Logo Container */}
-                    <div className="relative w-5 h-5 md:w-6 md:h-6 rounded-full overflow-hidden bg-transparent flex items-center justify-center">
+                    {/* Logo Container - round circle */}
+                    <div className="relative w-8 h-8 md:w-9 md:h-9 rounded-full overflow-hidden bg-white dark:bg-white/95 shadow-md ring-2 ring-black/10 dark:ring-white/20 flex items-center justify-center p-0.5">
                       <img 
-                        src={logoDark} 
+                        src={logo} 
                         alt="AEKO" 
-                        className="w-full h-full object-contain" 
+                        className="w-full h-full object-contain object-center" 
                       />
                     </div>
                   </div>
                   <div className="flex items-baseline gap-0.5">
-                    <span className="text-sm md:text-base font-bold dark:text-white text-foreground">AEKO.</span>
-                    <motion.span
-                      className="text-sm md:text-base font-bold gradient-text"
-                      animate={{
-                        backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
-                      }}
-                      transition={{
-                        duration: 3,
-                        repeat: Infinity,
-                        ease: 'linear',
-                      }}
-                    >
+                    <span className="text-sm md:text-base font-bold dark:text-white text-foreground sr-only">AEKO.</span>
+                    <motion.span className="text-sm md:text-base font-bold gradient-text sr-only">
                       AI
                     </motion.span>
                   </div>

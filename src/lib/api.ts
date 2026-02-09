@@ -1,11 +1,14 @@
 // API Base URL configuration
-// Priority: VITE_API_URL env variable > https://demo.liquidata.dev/ > localhost:5000
+// In dev: use '' so Vite proxy (vite.config proxy /api -> localhost:5000) is used for crawl/auth/llm.
+// Otherwise: VITE_API_URL if set, else demo server.
 const getApiBaseUrl = (): string => {
   const env = import.meta.env;
-  if (env.VITE_API_URL) {
+  if (env.VITE_API_URL !== undefined && env.VITE_API_URL !== '') {
     return env.VITE_API_URL;
   }
-  // Default to demo server
+  if (import.meta.env.DEV) {
+    return ''; // same-origin so Vite proxies /api to backend (e.g. port 5000)
+  }
   return 'https://demo.liquidata.dev';
 };
 

@@ -20,8 +20,7 @@ import {
   Store,
   Briefcase,
 } from "lucide-react";
-import logoDark from "@/assets/ChatGPT Image Dec 25, 2025, 03_45_44 PM.png";
-// import logoLight from "@/assets/ak-logo.png"; // Uncomment when you add the AK logo file
+import logo from "@/assets/aeko-logo.png";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -112,12 +111,12 @@ const DashboardLayout = () => {
             }}
           />
           
-          <div className="flex flex-col h-full dark:bg-card bg-white border-r border-border rounded-r-2xl relative z-10 backdrop-blur-sm">
-            {/* Subtle Gradient Overlay - Theme Aware */}
-            <div className="absolute inset-0 dark:bg-gradient-to-br dark:from-primary/5 dark:via-transparent dark:to-transparent bg-gradient-to-br from-indigo-50/30 via-blue-50/20 to-purple-50/30 rounded-r-2xl pointer-events-none" />
+          <div className="flex flex-col h-full rounded-r-2xl relative z-10 overflow-hidden sidebar-header-match border-r border-border/50 dark:border-border dark:bg-purple-950/50 bg-purple-50/80 backdrop-blur-xl">
+            {/* Same gradient overlay as home page header */}
+            <div className="absolute inset-0 dark:bg-gradient-to-br dark:from-primary/5 dark:via-transparent dark:to-transparent bg-gradient-to-br from-indigo-50/30 via-blue-50/20 to-purple-50/30 pointer-events-none rounded-r-2xl" />
             <div className="relative z-10 flex flex-col h-full">
             {/* Logo */}
-            <div className="flex items-center justify-center py-3 sm:py-4 md:py-5 border-b border-border relative">
+            <div className="flex items-center justify-center py-3 sm:py-4 md:py-5 border-b border-purple-900/50 relative">
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Link to="/" className="flex items-center justify-center">
@@ -143,11 +142,11 @@ const DashboardLayout = () => {
                         }}
                       />
                       {/* Logo Container */}
-                      <div className="relative w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden bg-transparent flex items-center justify-center">
+                      <div className="relative w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden bg-white dark:bg-white/95 shadow-md ring-2 ring-black/10 dark:ring-white/20 flex items-center justify-center p-0.5">
                         <img 
-                          src={logoDark} 
+                          src={logo} 
                           alt="AEKO" 
-                          className="w-full h-full object-contain" 
+                          className="w-full h-full object-contain object-center" 
                         />
                       </div>
                     </div>
@@ -605,7 +604,7 @@ const DashboardLayout = () => {
             </nav>
 
             {/* Bottom Actions */}
-            <div className="px-1.5 sm:px-2 pb-2 sm:pb-3 space-y-1 border-t border-border pt-2 sm:pt-3 mt-auto">
+            <div className="px-1.5 sm:px-2 pb-2 sm:pb-3 space-y-1 border-t border-purple-900/50 pt-2 sm:pt-3 mt-auto">
               {/* Theme Toggle */}
               <Tooltip>
                 <TooltipTrigger asChild>

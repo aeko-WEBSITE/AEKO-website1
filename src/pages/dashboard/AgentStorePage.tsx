@@ -100,6 +100,9 @@ const AgentStorePage = () => {
   const [currentStep, setCurrentStep] = useState<"create" | "knowledge">("create");
   const [selectedUrls, setSelectedUrls] = useState<string[]>([]);
   const [knowledgeTab, setKnowledgeTab] = useState<"website" | "files" | "integrations">("website");
+  const [knowledgeStepCrawling, setKnowledgeStepCrawling] = useState(false);
+  const [knowledgeStepCrawledSite, setKnowledgeStepCrawledSite] = useState<{ title: string; url: string; description: string } | null>(null);
+  const [knowledgeStepPages, setKnowledgeStepPages] = useState<Array<{ url: string; title: string; description: string }>>([]);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [selectedFilter, setSelectedFilter] = useState<string>("all");
 
@@ -115,6 +118,13 @@ const AgentStorePage = () => {
   // Superpowers Website Knowledge State
   const [superpowersWebsiteUrl, setSuperpowersWebsiteUrl] = useState("");
   const [isSuperpowersCrawling, setIsSuperpowersCrawling] = useState(false);
+  const [superpowersCrawledSite, setSuperpowersCrawledSite] = useState<{
+    url: string;
+    title: string;
+    description: string;
+    favicon: string | null;
+    logo: string | null;
+  } | null>(null);
   const [superpowersCrawledUrls, setSuperpowersCrawledUrls] = useState<Array<{url: string; title: string; isParent?: boolean}>>([]);
   const [superpowersSelectedUrls, setSuperpowersSelectedUrls] = useState<string[]>([]);
   const [superpowersUrlSearchQuery, setSuperpowersUrlSearchQuery] = useState("");
@@ -265,7 +275,8 @@ const AgentStorePage = () => {
     setCrawledData(null);
 
     try {
-      const data = await crawlAPI.crawlWebsite(websiteUrl);
+      const urlToCrawl = normalizeUrl(websiteUrl);
+      const data = await crawlAPI.crawlWebsite(urlToCrawl);
 
       if (data.success && data.data) {
         setCrawledData(data.data);
@@ -296,19 +307,6 @@ const AgentStorePage = () => {
   };
 
   useEffect(() => {
-    if (websiteUrl.trim() && !isCrawling) {
-      const urlPattern = /^https?:\/\/.+/;
-      if (urlPattern.test(websiteUrl)) {
-        const timeoutId = setTimeout(() => {
-          handleCrawlWebsite();
-        }, 1500);
-
-        return () => clearTimeout(timeoutId);
-      }
-    }
-  }, [websiteUrl]);
-
-  useEffect(() => {
     if (!isCreateDialogOpen) {
       setWebsiteUrl("");
       setIsCrawling(false);
@@ -318,24 +316,96 @@ const AgentStorePage = () => {
       setAgentDescription("");
       setLogoUrl("");
       setFaviconUrl("");
+      setKnowledgeStepCrawling(false);
+      setKnowledgeStepCrawledSite(null);
+      setKnowledgeStepPages([]);
     }
   }, [isCreateDialogOpen]);
 
-  const handleNext = () => {
+  // Auto-crawl when user pastes or enters a valid website URL (debounced)
+  useEffect(() => {
+    if (!isCreateDialogOpen || currentStep !== "create" || !websiteUrl.trim()) return;
+    if (!isValidUrl(websiteUrl)) return;
+
+    const timeoutId = setTimeout(() => {
+      handleCrawlWebsite();
+    }, 1200);
+
+    return () => clearTimeout(timeoutId);
+  }, [websiteUrl, isCreateDialogOpen, currentStep]);
+
+  const handleNext = async () => {
     if (!websiteUrl.trim()) {
       toast.error("Please enter a website URL");
       return;
     }
     setCurrentStep("knowledge");
+    const urlToCrawl = normalizeUrl(websiteUrl);
+    setKnowledgeStepCrawling(true);
+    setKnowledgeStepPages([]);
+    setKnowledgeStepCrawledSite(null);
+    try {
+      const data = await crawlAPI.crawlWebsite(urlToCrawl);
+      if (data.success && data.data) {
+        const baseUrl = (data.data.url || urlToCrawl).replace(/\/$/, "");
+        setKnowledgeStepCrawledSite({
+          title: data.data.title || new URL(urlToCrawl).hostname,
+          url: data.data.url || urlToCrawl,
+          description: data.data.description || "",
+        });
+        const pages = [
+          { url: baseUrl + "/", title: data.data.title || "Homepage", description: "Main website content" },
+          { url: baseUrl + "/about", title: "About Us", description: "Company information" },
+          { url: baseUrl + "/products", title: "Products", description: "Product catalog" },
+          { url: baseUrl + "/contact", title: "Contact", description: "Contact information" },
+          { url: baseUrl + "/privacy-policy", title: "Privacy Policy", description: "Privacy policy" },
+          { url: baseUrl + "/terms", title: "Terms", description: "Terms of service" },
+          { url: baseUrl + "/support", title: "Support", description: "Support & help" },
+        ];
+        setKnowledgeStepPages(pages);
+        setSelectedUrls([baseUrl + "/"]);
+        toast.success("Website crawled", { description: "Select pages to include in your agent knowledge." });
+      } else {
+        const baseUrl = urlToCrawl.replace(/\/$/, "");
+        setKnowledgeStepPages([
+          { url: baseUrl + "/", title: "Homepage", description: "Main website content" },
+          { url: baseUrl + "/about", title: "About Us", description: "Company information" },
+          { url: baseUrl + "/products", title: "Products", description: "Product catalog" },
+          { url: baseUrl + "/contact", title: "Contact", description: "Contact information" },
+        ]);
+        setSelectedUrls([baseUrl + "/"]);
+      }
+    } catch (err: any) {
+      const baseUrl = urlToCrawl.replace(/\/$/, "");
+      setKnowledgeStepPages([
+        { url: baseUrl + "/", title: "Homepage", description: "Main website content" },
+        { url: baseUrl + "/about", title: "About Us", description: "Company information" },
+        { url: baseUrl + "/products", title: "Products", description: "Product catalog" },
+        { url: baseUrl + "/contact", title: "Contact", description: "Contact information" },
+      ]);
+      setSelectedUrls([baseUrl + "/"]);
+      toast.error("Crawl failed", { description: "Showing suggested pages. You can still select them." });
+    } finally {
+      setKnowledgeStepCrawling(false);
+    }
   };
 
   const handleBack = () => {
     setCurrentStep("create");
   };
 
+  const normalizeUrl = (input: string) => {
+    const trimmed = input.trim();
+    if (!trimmed) return "";
+    if (/^https?:\/\//i.test(trimmed)) return trimmed;
+    return `https://${trimmed}`;
+  };
+
   const isValidUrl = (url: string) => {
+    const toTest = normalizeUrl(url);
+    if (!toTest) return false;
     try {
-      new URL(url);
+      new URL(toTest);
       return true;
     } catch {
       return false;
@@ -361,22 +431,41 @@ const AgentStorePage = () => {
   // Superpowers Modal Handlers
   const handleSuperpowersCrawlWebsite = async () => {
     if (!superpowersWebsiteUrl.trim()) return;
-    
+    const urlToCrawl = normalizeUrl(superpowersWebsiteUrl);
     setIsSuperpowersCrawling(true);
-    // Simulate crawling
-    setTimeout(() => {
-      const mockUrls = [
-        { url: superpowersWebsiteUrl, title: new URL(superpowersWebsiteUrl).hostname, isParent: true },
-        { url: `${superpowersWebsiteUrl}refund-policy`, title: "Refund Policy" },
-        { url: `${superpowersWebsiteUrl}terms-of-service`, title: "Terms Of Service" },
-        { url: `${superpowersWebsiteUrl}privacy-policy`, title: "Privacy Policy" },
-        { url: `${superpowersWebsiteUrl}support`, title: "Support" },
-        { url: `${superpowersWebsiteUrl}for-real-estate`, title: "For Real Estate" },
-        { url: `${superpowersWebsiteUrl}for-designers`, title: "For Designers" },
-      ];
-      setSuperpowersCrawledUrls(mockUrls);
+    setSuperpowersCrawledSite(null);
+    setSuperpowersCrawledUrls([]);
+    setSuperpowersSelectedUrls([]);
+    try {
+      const data = await crawlAPI.crawlWebsite(urlToCrawl);
+      if (data.success && data.data) {
+        setSuperpowersCrawledSite({
+          url: data.data.url,
+          title: data.data.title || new URL(urlToCrawl).hostname,
+          description: data.data.description || "",
+          favicon: data.data.favicon || null,
+          logo: data.data.logo || null,
+        });
+        const baseUrl = data.data.url.replace(/\/$/, "");
+        const suggested = [
+          { url: baseUrl + "/", title: data.data.title || "Homepage", isParent: true },
+          { url: baseUrl + "/about", title: "About" },
+          { url: baseUrl + "/contact", title: "Contact" },
+          { url: baseUrl + "/privacy-policy", title: "Privacy Policy" },
+          { url: baseUrl + "/terms", title: "Terms" },
+          { url: baseUrl + "/support", title: "Support" },
+        ];
+        setSuperpowersCrawledUrls(suggested);
+        setSuperpowersSelectedUrls([baseUrl + "/"]);
+        toast.success("Website crawled", { description: "Website KB is ready. Select pages to include." });
+      } else {
+        toast.error("Crawl failed", { description: data.message || "Could not fetch website." });
+      }
+    } catch (err: any) {
+      toast.error("Crawl failed", { description: err.message || "Check URL and try again." });
+    } finally {
       setIsSuperpowersCrawling(false);
-    }, 2000);
+    }
   };
   
   const handleSuperpowersToggleUrl = (url: string) => {
@@ -805,7 +894,7 @@ const AgentStorePage = () => {
         }
       }}>
         <DialogContent className="max-w-6xl w-full h-[90vh] p-0 gap-0 overflow-hidden bg-gradient-to-br from-background via-background to-muted/5 border-0 shadow-2xl">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-purple-500/5" />
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-purple-500/5 pointer-events-none" />
           
           <AnimatePresence mode="wait">
             {currentStep === "create" ? (
@@ -846,27 +935,67 @@ const AgentStorePage = () => {
                           <span className="text-destructive">*</span>
                         </span>
                       </label>
-                      <div className="relative group">
-                        <Input
-                          type="url"
-                          value={websiteUrl}
-                          onChange={(e) => setWebsiteUrl(e.target.value)}
-                          placeholder="https://your-website.com"
-                          className="w-full h-12 pl-4 pr-12 rounded-xl bg-card border-2 border-border/50 focus:border-primary focus:ring-0 transition-all group-hover:border-primary/50"
-                        />
-                        <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                          {isCrawling && (
-                            <Loader2 className="w-4 h-4 animate-spin text-primary" />
-                          )}
-                          {crawlSuccess && !isCrawling && (
-                            <CheckCircle2 className="w-5 h-5 text-green-500" />
-                          )}
+                      <div className="flex gap-2">
+                        <div className="relative flex-1 group">
+                          <Input
+                            type="url"
+                            value={websiteUrl}
+                            onChange={(e) => setWebsiteUrl(e.target.value)}
+                            placeholder="https://your-website.com"
+                            className="w-full h-12 pl-4 pr-12 rounded-xl bg-card border-2 border-border/50 focus:border-primary focus:ring-0 transition-all group-hover:border-primary/50"
+                          />
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                            {isCrawling && (
+                              <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                            )}
+                            {crawlSuccess && !isCrawling && (
+                              <CheckCircle2 className="w-5 h-5 text-green-500" />
+                            )}
+                          </div>
                         </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={handleCrawlWebsite}
+                          disabled={!websiteUrl.trim() || isCrawling || !isValidUrl(websiteUrl)}
+                          className="h-12 px-4 rounded-xl shrink-0 gap-2 border-2 border-primary/30 hover:border-primary/50 hover:bg-primary/5"
+                        >
+                          {isCrawling ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Globe className="w-4 h-4" />
+                          )}
+                          Fetch details
+                        </Button>
                       </div>
                       <p className="text-xs text-muted-foreground flex items-center gap-2">
                         <Zap className="w-3 h-3" />
-                        Auto-crawls when valid URL is detected
+                        Paste or enter a valid URL — details are fetched automatically after a moment, or click &quot;Fetch details&quot; to refresh
                       </p>
+                      {crawledData && (
+                        <div className="rounded-xl border border-border/50 bg-card/50 dark:bg-white/[0.03] p-4 space-y-2">
+                          <p className="text-xs font-medium text-muted-foreground flex items-center gap-2">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
+                            Website details fetched
+                          </p>
+                          <div className="flex items-start gap-3">
+                            {(crawledData.favicon || crawledData.logo) && (
+                              <img
+                                src={crawledData.logo || crawledData.favicon || ''}
+                                alt=""
+                                className="w-10 h-10 rounded-lg object-contain bg-muted/50"
+                                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                              />
+                            )}
+                            <div className="min-w-0 flex-1">
+                              <p className="text-sm font-semibold text-foreground truncate">{crawledData.title}</p>
+                              {crawledData.description && (
+                                <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{crawledData.description}</p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     <div className="grid gap-6">
@@ -933,7 +1062,18 @@ const AgentStorePage = () => {
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <div className="relative">
-                              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center">
+                              {(faviconUrl || logoUrl) ? (
+                                <img
+                                  src={logoUrl || faviconUrl || ''}
+                                  alt=""
+                                  className="w-10 h-10 rounded-xl object-contain bg-muted/50 border border-border/50"
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).style.display = 'none';
+                                    (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
+                                  }}
+                                />
+                              ) : null}
+                              <div className={cn("w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center", (faviconUrl || logoUrl) && "hidden")}>
                                 <span className="text-white font-bold">AI</span>
                               </div>
                               <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-green-500 border-2 border-card" />
@@ -997,10 +1137,10 @@ const AgentStorePage = () => {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.3 }}
-                className="h-full relative z-10"
+                className="h-full min-h-0 flex flex-col relative z-10"
               >
-                <div className="flex flex-col h-full bg-background/80 backdrop-blur-sm">
-                  <div className="p-6 border-b border-border/50">
+                <div className="flex flex-col h-full min-h-0 bg-background/80 backdrop-blur-sm">
+                  <div className="p-6 border-b border-border/50 shrink-0">
                     <div className="flex items-center justify-between">
                       <div>
                         <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent">
@@ -1021,7 +1161,7 @@ const AgentStorePage = () => {
                     </div>
                   </div>
 
-                  <div className="px-6 pt-6">
+                  <div className="flex-1 min-h-0 overflow-y-auto px-6 pt-6">
                     <Tabs value={knowledgeTab} onValueChange={(v: any) => setKnowledgeTab(v)} className="w-full">
                       <TabsList className="grid grid-cols-3 mb-8">
                         <TabsTrigger value="website" className="gap-2 py-3">
@@ -1038,64 +1178,72 @@ const AgentStorePage = () => {
                         </TabsTrigger>
                       </TabsList>
 
-                      <TabsContent value="website" className="space-y-6">
+                      <TabsContent value="website" className="space-y-6 mt-0">
                         <div className="rounded-xl bg-gradient-to-br from-primary/5 to-purple-500/5 border border-primary/10 p-6">
                           <div className="flex items-center justify-between mb-4">
                             <div>
-                              <h4 className="font-semibold text-foreground">Website Pages</h4>
+                              <h4 className="font-semibold text-foreground">Website Knowledge Base</h4>
                               <p className="text-sm text-muted-foreground">
-                                Select pages to crawl for knowledge
+                                {knowledgeStepCrawling
+                                  ? "Crawling website…"
+                                  : "Select pages to include in your agent knowledge"}
                               </p>
                             </div>
-                            <Badge variant="secondary">
-                              {selectedUrls.length} selected
-                            </Badge>
+                            {!knowledgeStepCrawling && (
+                              <Badge variant="secondary">
+                                {selectedUrls.length} selected
+                              </Badge>
+                            )}
                           </div>
 
-                          <div className="space-y-3">
-                            {websiteUrl && [
-                              { url: websiteUrl, title: "Homepage", description: "Main website content" },
-                              { url: `${websiteUrl}/about`, title: "About Us", description: "Company information" },
-                              { url: `${websiteUrl}/products`, title: "Products", description: "Product catalog" },
-                              { url: `${websiteUrl}/contact`, title: "Contact", description: "Contact information" },
-                            ].map((item, index) => (
-                              <div
-                                key={index}
-                                className={cn(
-                                  "flex items-center gap-4 p-4 rounded-xl border transition-all cursor-pointer hover:border-primary/50",
-                                  selectedUrls.includes(item.url)
-                                    ? "bg-primary/5 border-primary/30"
-                                    : "bg-card border-border/50"
-                                )}
-                                onClick={() => {
-                                  setSelectedUrls(prev =>
-                                    prev.includes(item.url)
-                                      ? prev.filter(u => u !== item.url)
-                                      : [...prev, item.url]
-                                  );
-                                }}
-                              >
-                                <div className={cn(
-                                  "w-5 h-5 rounded-lg border flex items-center justify-center transition-all",
-                                  selectedUrls.includes(item.url)
-                                    ? "bg-primary border-primary"
-                                    : "border-border"
-                                )}>
-                                  {selectedUrls.includes(item.url) && (
-                                    <CheckCircle2 className="w-3 h-3 text-white" />
+                          {knowledgeStepCrawling && (
+                            <div className="flex flex-col items-center justify-center py-12 gap-4">
+                              <Loader2 className="w-10 h-10 animate-spin text-primary" />
+                              <p className="text-sm text-muted-foreground">Fetching website details and pages…</p>
+                            </div>
+                          )}
+
+                          {!knowledgeStepCrawling && knowledgeStepPages.length > 0 && (
+                            <div className="space-y-3">
+                              {knowledgeStepPages.map((item, index) => (
+                                <div
+                                  key={index}
+                                  className={cn(
+                                    "flex items-center gap-4 p-4 rounded-xl border transition-all cursor-pointer hover:border-primary/50",
+                                    selectedUrls.includes(item.url)
+                                      ? "bg-primary/5 border-primary/30"
+                                      : "bg-card border-border/50"
                                   )}
-                                </div>
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-2">
-                                    <h5 className="font-medium">{item.title}</h5>
-                                    <ExternalLink className="w-3 h-3 text-muted-foreground" />
+                                  onClick={() => {
+                                    setSelectedUrls(prev =>
+                                      prev.includes(item.url)
+                                        ? prev.filter(u => u !== item.url)
+                                        : [...prev, item.url]
+                                    );
+                                  }}
+                                >
+                                  <div className={cn(
+                                    "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all shrink-0",
+                                    selectedUrls.includes(item.url)
+                                      ? "bg-primary border-primary"
+                                      : "border-border"
+                                  )}>
+                                    {selectedUrls.includes(item.url) && (
+                                      <CheckCircle2 className="w-3 h-3 text-white" />
+                                    )}
                                   </div>
-                                  <p className="text-sm text-muted-foreground">{item.description}</p>
-                                  <p className="text-xs text-muted-foreground truncate">{item.url}</p>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2">
+                                      <h5 className="font-medium">{item.title}</h5>
+                                      <ExternalLink className="w-3 h-3 text-muted-foreground shrink-0" />
+                                    </div>
+                                    <p className="text-sm text-muted-foreground">{item.description}</p>
+                                    <p className="text-xs text-muted-foreground truncate">{item.url}</p>
+                                  </div>
                                 </div>
-                              </div>
-                            ))}
-                          </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
 
                         <div className="flex items-center justify-between p-4 rounded-xl bg-card border border-border/50">
@@ -1153,7 +1301,7 @@ const AgentStorePage = () => {
                     </Tabs>
                   </div>
 
-                  <div className="mt-auto p-6 border-t border-border/50">
+                  <div className="shrink-0 mt-auto p-6 border-t border-border/50 bg-background/80">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
                         <div className="flex items-center gap-2">
@@ -1340,7 +1488,7 @@ const AgentStorePage = () => {
                     </div>
                     <Button
                       onClick={handleSuperpowersCrawlWebsite}
-                      disabled={!superpowersWebsiteUrl.trim() || isSuperpowersCrawling}
+                      disabled={!superpowersWebsiteUrl.trim() || isSuperpowersCrawling || !isValidUrl(superpowersWebsiteUrl)}
                       className="px-6"
                     >
                       {isSuperpowersCrawling ? (
@@ -1357,56 +1505,81 @@ const AgentStorePage = () => {
                     </Button>
                   </div>
 
-                  {superpowersCrawledUrls.length > 0 && (
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-sm font-semibold text-foreground">
-                          Selected URLs To Scrape ({superpowersSelectedUrls.length}/{superpowersCrawledUrls.length})
+                  {/* Website KB – shown after crawl */}
+                  {(superpowersCrawledSite || superpowersCrawledUrls.length > 0) && (
+                    <div className="rounded-xl border border-border/50 bg-card/50 dark:bg-white/[0.03] overflow-hidden">
+                      <div className="px-4 py-3 border-b border-border/50 bg-muted/30 dark:bg-white/[0.04]">
+                        <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                          <Globe className="w-4 h-4 text-primary" />
+                          Website Knowledge Base
                         </h3>
-                        <span className="text-xs text-muted-foreground">Will save on deploy</span>
+                        <p className="text-xs text-muted-foreground mt-0.5">Crawled website – select pages to include in your agent knowledge</p>
                       </div>
-                      
-                      <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                        <input
-                          type="text"
-                          value={superpowersUrlSearchQuery}
-                          onChange={(e) => setSuperpowersUrlSearchQuery(e.target.value)}
-                          placeholder="Search website pages..."
-                          className="w-full pl-10 pr-4 py-2 rounded-lg bg-background/80 border border-border/50 text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50"
-                        />
-                      </div>
-
-                      <div className="border border-border/50 rounded-lg max-h-[400px] overflow-y-auto bg-background/50">
-                        {superpowersFilteredUrls.map((item, index) => (
-                          <div
-                            key={index}
-                            className={`flex items-center gap-3 px-4 py-3 border-b border-border/30 last:border-b-0 hover:bg-background/80 transition-colors cursor-pointer ${
-                              item.isParent ? 'bg-background/40' : ''
-                            }`}
-                            onClick={() => handleSuperpowersToggleUrl(item.url)}
-                          >
-                            <input
-                              type="checkbox"
-                              checked={superpowersSelectedUrls.includes(item.url)}
-                              onChange={() => handleSuperpowersToggleUrl(item.url)}
-                              className="w-4 h-4 rounded border-border text-primary focus:ring-primary"
-                              onClick={(e) => e.stopPropagation()}
-                            />
-                            <Globe className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                            <div className="flex-1 min-w-0">
-                              <div className="text-sm font-medium text-foreground truncate">
-                                {item.title}
-                              </div>
-                              <div className="text-xs text-muted-foreground truncate">
-                                {item.url}
-                              </div>
-                            </div>
-                            {item.isParent && (
-                              <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                      <div className="p-4 space-y-4">
+                        {superpowersCrawledSite && (
+                          <div className="flex items-start gap-3 p-3 rounded-lg bg-background/60 dark:bg-white/[0.04] border border-border/40">
+                            {(superpowersCrawledSite.favicon || superpowersCrawledSite.logo) && (
+                              <img
+                                src={superpowersCrawledSite.logo || superpowersCrawledSite.favicon || ""}
+                                alt=""
+                                className="w-10 h-10 rounded-lg object-contain bg-muted/50 shrink-0"
+                                onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                              />
                             )}
+                            <div className="min-w-0 flex-1">
+                              <p className="text-sm font-semibold text-foreground">{superpowersCrawledSite.title}</p>
+                              {superpowersCrawledSite.description && (
+                                <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{superpowersCrawledSite.description}</p>
+                              )}
+                              <p className="text-xs text-muted-foreground/80 truncate mt-1">{superpowersCrawledSite.url}</p>
+                            </div>
+                            <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
                           </div>
-                        ))}
+                        )}
+
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <h4 className="text-xs font-semibold text-foreground">
+                              Pages to scrape ({superpowersSelectedUrls.length}/{superpowersCrawledUrls.length})
+                            </h4>
+                            <span className="text-[10px] text-muted-foreground">Will save on deploy</span>
+                          </div>
+                          <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                            <input
+                              type="text"
+                              value={superpowersUrlSearchQuery}
+                              onChange={(e) => setSuperpowersUrlSearchQuery(e.target.value)}
+                              placeholder="Search website pages..."
+                              className="w-full pl-10 pr-4 py-2 rounded-lg bg-background/80 border border-border/50 text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 text-sm"
+                            />
+                          </div>
+                          <div className="border border-border/50 rounded-lg max-h-[320px] overflow-y-auto bg-background/50">
+                            {superpowersFilteredUrls.map((item, index) => (
+                              <div
+                                key={index}
+                                className={`flex items-center gap-3 px-4 py-2.5 border-b border-border/30 last:border-b-0 hover:bg-background/80 transition-colors cursor-pointer ${
+                                  item.isParent ? "bg-background/40" : ""
+                                }`}
+                                onClick={() => handleSuperpowersToggleUrl(item.url)}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={superpowersSelectedUrls.includes(item.url)}
+                                  onChange={() => handleSuperpowersToggleUrl(item.url)}
+                                  className="w-4 h-4 rounded border-border text-primary focus:ring-primary"
+                                  onClick={(e) => e.stopPropagation()}
+                                />
+                                <Globe className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                                <div className="flex-1 min-w-0">
+                                  <div className="text-sm font-medium text-foreground truncate">{item.title}</div>
+                                  <div className="text-xs text-muted-foreground truncate">{item.url}</div>
+                                </div>
+                                {item.isParent && <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   )}

@@ -402,3 +402,36 @@
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+/* Sidebar purple in both themes: always use light text for contrast */
+.sidebar-header-match a,
+.sidebar-header-match button {
+  color: rgba(255, 255, 255, 0.9);
+}
+.sidebar-header-match a:hover,
+.sidebar-header-match button:hover {
+  color: white;
+  background-color: rgba(255, 255, 255, 0.12);
+}
+.sidebar-header-match [class*="text-foreground"],
+.sidebar-header-match [class*="text-muted"] {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+.sidebar-header-match .gradient-active-nav {
+  background: rgba(255, 255, 255, 0.18);
+  color: white;
+}
+.sidebar-header-match svg {
+  color: inherit;
+}
+.sidebar-header-match nav [class*="text-primary"] {
+  color: white !important;
+}
+
+/* Logo for black & white theme: grayscale in light, inverted in dark */
+.logo-bw-theme img {
+  filter: grayscale(1);
+}
+.dark .logo-bw-theme img {
+  filter: grayscale(1) invert(1);
+}
