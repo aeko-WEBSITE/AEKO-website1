@@ -10,9 +10,6 @@ import {
   Globe,
   Sparkles,
   MessageSquare,
-  ShoppingCart,
-  Headphones,
-  Briefcase,
   Zap,
   CheckCircle2,
   Ticket,
@@ -39,13 +36,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-
 const CreateAgentSection = () => {
   const [agentDescription, setAgentDescription] = useState("");
   const [agentName, setAgentName] = useState("");
@@ -68,37 +58,6 @@ const CreateAgentSection = () => {
     "AI Agent",
     "Image to Agent",
     "Text to Agent",
-  ];
-
-  const useCases = [
-    {
-      title: "Customer Support Agent",
-      description: "Autonomous resolution for order tracking and logistics.",
-      example: "Customer: Status of order #AE-992? It was due yesterday.\nAgent: Package is at the Vasai hub; out for delivery by 6 PM today.",
-      icon: Headphones,
-      color: "from-green-500 to-emerald-500",
-    },
-    {
-      title: "E-commerce Assistant",
-      description: "Scale personalized shopping and custom order workflows.",
-      example: "Customer: Is the Midnight Hoodie in Size L available for ₹1,499?\nAgent: Yes, 4 units left. Would you like to proceed to checkout?",
-      icon: ShoppingCart,
-      color: "from-primary to-primary/80",
-    },
-    {
-      title: "Travel Booking Agent",
-      description: "Real-time API integration for flight and hotel management.",
-      example: "Customer: My flight is delayed. Rebook me on the next available.\nAgent: Rebooked on Indigo 6E-2134 at 12:45 PM. Seat 12F confirmed.",
-      icon: Briefcase,
-      color: "from-blue-500 to-cyan-500",
-    },
-    {
-      title: "Business Intelligence",
-      description: "Convert unstructured conversation into actionable data insights.",
-      example: "Admin: Why are returns increasing for the Summer Collection?\nAgent: 65% of tickets cite sizing inconsistencies across those SKUs.",
-      icon: Zap,
-      color: "from-orange-500 to-red-500",
-    },
   ];
 
   const whatItDoesFeatures = [
@@ -361,68 +320,6 @@ const CreateAgentSection = () => {
                     />
                     <div className="absolute inset-0 pointer-events-none z-20 shadow-[inset_0_0_100px_rgba(0,0,0,0.2)]" />
                   </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Launch AI Agents Section - 2x2 card layout (reference UI) */}
-          <motion.div initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.6 }} className="mt-24">
-            <div className="relative rounded-2xl p-8 lg:p-10 overflow-hidden bg-card/80 dark:bg-[#0a0a0a] border border-border/50 dark:border-white/10">
-              <div className="absolute inset-0 pointer-events-none opacity-30">
-                <div className="absolute top-1/4 left-1/4 w-2 h-2 rounded-full bg-purple-500/40 blur-sm" />
-                <div className="absolute bottom-1/3 right-1/4 w-2 h-2 rounded-full bg-sky-400/30 blur-sm" />
-              </div>
-              <div className="relative z-10">
-                <div className="text-center mb-10">
-                  <h3 className="text-3xl md:text-4xl font-bold text-foreground mb-3 tracking-tight">Launch AI Agents in Minutes</h3>
-                  <p className="text-muted-foreground max-w-2xl mx-auto text-lg font-medium">Deploy specialized agents tailored to your business workflows without writing code.</p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-5">
-                  {useCases.map((useCase, index) => {
-                    const Icon = useCase.icon;
-                    return (
-                      <motion.div key={useCase.title} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: index * 0.08 }} className="rounded-xl overflow-hidden bg-background/60 dark:bg-white/[0.06] border border-border/50 dark:border-white/10 hover:border-purple-500/30 transition-all duration-300 shadow-sm">
-                        <Accordion type="single" collapsible className="w-full">
-                          <AccordionItem value={`item-${index}`} className="border-none">
-                            <AccordionTrigger className="hover:no-underline px-5 py-5 gap-4 text-left [&>svg]:text-muted-foreground [&>svg]:shrink-0 [&>svg]:ml-auto">
-                              <div className="flex items-center gap-4 flex-1 min-w-0">
-                                <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${useCase.color} flex items-center justify-center flex-shrink-0 shadow-lg`}>
-                                  <Icon className="w-6 h-6 text-white" />
-                                </div>
-                                <div className="min-w-0">
-                                  <h4 className="text-base font-bold text-foreground">{useCase.title}</h4>
-                                  <p className="text-sm text-muted-foreground mt-0.5">{useCase.description}</p>
-                                </div>
-                              </div>
-                            </AccordionTrigger>
-                            <AccordionContent className="px-5 pb-5 pt-0">
-                              <div className="rounded-xl bg-muted/30 dark:bg-black/40 border border-border/40 p-4 space-y-4">
-                                <div className="flex items-center gap-2 mb-2">
-                                  <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-                                  <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Live Simulation</span>
-                                </div>
-                                <div className="space-y-3">
-                                  {useCase.example.split('\n').map((line, lineIndex) => {
-                                    const isCustomer = line.startsWith('Customer:') || line.startsWith('Admin:');
-                                    return (
-                                      <div key={lineIndex} className={`flex ${isCustomer ? 'justify-start' : 'justify-end'}`}>
-                                        <div className={`max-w-[85%] px-4 py-2.5 rounded-2xl text-sm ${isCustomer ? 'bg-white dark:bg-zinc-800 border border-border/50 text-foreground rounded-tl-none shadow-sm' : 'bg-primary text-primary-foreground rounded-tr-none shadow-md'}`}>
-                                          <span className="block text-[10px] opacity-70 mb-1 font-bold">{isCustomer ? 'USER' : 'AI AGENT'}</span>
-                                          {line.replace(/^(Customer:|Agent:|Admin:)\s*/, '')}
-                                        </div>
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-                              </div>
-                            </AccordionContent>
-                          </AccordionItem>
-                        </Accordion>
-                      </motion.div>
-                    );
-                  })}
                 </div>
               </div>
             </div>

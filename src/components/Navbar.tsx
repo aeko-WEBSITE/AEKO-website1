@@ -136,9 +136,9 @@ const Navbar = () => {
             ease: [0.4, 0, 0.2, 1],
           }}
         >
-          {/* Glass Background with Blur - Theme Aware */}
+          {/* Glass Background with Blur - matches dashboard sidebar gradient */}
           <motion.div
-            className="relative overflow-hidden dark:bg-purple-950/50 dark:backdrop-blur-xl bg-purple-50/80 backdrop-blur-xl border dark:border-border border-border/50"
+            className="relative overflow-hidden bg-gradient-to-r from-purple-700 via-purple-800 to-purple-950 backdrop-blur-xl border border-purple-500/40"
             animate={{
               backdropFilter: "blur(20px) saturate(180%)",
               borderRadius: isScrolled || isOpen ? "20px" : "9999px",
@@ -215,8 +215,8 @@ const Navbar = () => {
                         ease: 'linear',
                       }}
                     />
-                    {/* Logo Container - round circle */}
-                    <div className="relative w-8 h-8 md:w-9 md:h-9 rounded-full overflow-hidden bg-white dark:bg-white/95 shadow-md ring-2 ring-black/10 dark:ring-white/20 flex items-center justify-center p-0.5">
+                    {/* Logo Container - round, clearly visible */}
+                    <div className="relative w-8 h-8 md:w-9 md:h-9 rounded-full overflow-hidden bg-white dark:bg-slate-900 shadow-md ring-2 ring-black/10 dark:ring-white/20 flex items-center justify-center p-1">
                       <img 
                         src={logo} 
                         alt="AEKO" 

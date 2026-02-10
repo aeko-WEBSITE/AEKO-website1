@@ -403,23 +403,25 @@
   display: none;
 }
 
-/* Sidebar purple in both themes: always use light text for contrast */
+/* Sidebar attractive purple: light text and purple-tinted hovers */
 .sidebar-header-match a,
 .sidebar-header-match button {
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.92);
 }
 .sidebar-header-match a:hover,
 .sidebar-header-match button:hover {
   color: white;
-  background-color: rgba(255, 255, 255, 0.12);
+  background-color: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 .sidebar-header-match [class*="text-foreground"],
 .sidebar-header-match [class*="text-muted"] {
-  color: rgba(255, 255, 255, 0.9) !important;
+  color: rgba(255, 255, 255, 0.92) !important;
 }
 .sidebar-header-match .gradient-active-nav {
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.2);
   color: white;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.15);
 }
 .sidebar-header-match svg {
   color: inherit;

@@ -80,11 +80,11 @@ const NotFound = () => {
                   ease: 'linear',
                 }}
               />
-              <div className="relative h-16 w-auto min-w-[140px] rounded-xl overflow-hidden bg-white dark:bg-white/95 shadow-xl ring-2 ring-black/10 dark:ring-white/20 flex items-center justify-center px-3">
+              <div className="absolute inset-[3px] rounded-full overflow-hidden bg-white dark:bg-slate-900 shadow-xl ring-2 ring-black/10 dark:ring-white/20 flex items-center justify-center p-1.5">
                 <img 
                   src={logo} 
                   alt="AEKO" 
-                  className="h-full w-auto object-contain object-center" 
+                  className="w-full h-full object-contain object-center" 
                 />
               </div>
             </div>

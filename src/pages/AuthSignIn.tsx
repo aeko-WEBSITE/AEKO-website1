@@ -114,12 +114,12 @@ const AuthSignIn = () => {
                 ease: 'linear',
               }}
             />
-            {/* Logo Container */}
-            <div className="relative h-12 w-auto min-w-[120px] rounded-xl overflow-hidden bg-white dark:bg-white/95 shadow-lg ring-2 ring-black/10 dark:ring-white/20 flex items-center justify-center px-2">
+            {/* Logo Container - round, clearly visible */}
+            <div className="relative w-12 h-12 rounded-full overflow-hidden bg-white dark:bg-slate-900 shadow-lg ring-2 ring-black/10 dark:ring-white/20 flex items-center justify-center p-1">
               <img 
                 src={logo} 
                 alt="AEKO" 
-                className="h-full w-auto object-contain object-center" 
+                className="w-full h-full object-contain object-center" 
               />
             </div>
           </div>
