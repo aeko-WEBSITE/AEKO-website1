@@ -5,7 +5,8 @@ import { Mail, Apple, Chrome } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import logo from "@/assets/aeko-logo.png";
+import { useAuth } from "@/hooks/use-auth";
+import Logo from "@/components/Logo";
 
 // Video Configuration
 const VIDEO_PLAYLIST = [
@@ -23,10 +24,13 @@ const VIDEO_PLAYLIST = [
 
 const AuthSignIn = () => {
   const navigate = useNavigate();
+  const { login, register, refreshUser } = useAuth();
   const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
   const [showEmailForm, setShowEmailForm] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   
   // Video State Management
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
@@ -43,11 +47,57 @@ const AuthSignIn = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    navigate("/dashboard/tools/agent");
+    
+    if (!email || !password) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    if (isSignUp && !username) {
+      toast.error("Please enter a username");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      if (isSignUp) {
+        // Register
+        await register(email, username, password);
+        toast.success("Account created successfully!");
+        navigate("/dashboard");
+      } else {
+        // Login
+        await login(email, password);
+        toast.success("Logged in successfully!");
+        navigate("/dashboard");
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Authentication failed. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleGoogleSignIn = () => {
-    navigate("/dashboard/tools/agent");
+  const handleGoogleSignIn = async () => {
+    try {
+      setIsLoading(true);
+      // Import authAPI for Google login since it's a special case
+      const { authAPI } = await import("@/lib/api");
+      const result = await authAPI.googleLogin();
+      // If redirectUrl is provided, the API will redirect automatically
+      // Otherwise, check if we got tokens directly
+      if (result.accessToken) {
+        // Refresh user from context
+        refreshUser();
+        // Dispatch event to update UI
+        window.dispatchEvent(new Event('auth-storage-change'));
+        toast.success("Logged in with Google!");
+        navigate("/dashboard");
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Google sign-in failed. Please try again.");
+      setIsLoading(false);
+    }
   };
 
   const currentVideo = VIDEO_PLAYLIST[currentVideoIndex];
@@ -91,61 +141,9 @@ const AuthSignIn = () => {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="flex items-center gap-3 mb-12 relative z-10"
+          className="mb-12 relative z-10"
         >
-          <div className="relative w-12 h-12 flex items-center justify-center">
-            {/* Animated Border */}
-            <motion.div
-              className="absolute inset-0 rounded-full"
-              style={{
-                padding: '3px',
-                background: 'linear-gradient(135deg, hsl(var(--foreground) / 0.9), hsl(var(--foreground) / 0.5), hsl(var(--foreground) / 0.9))',
-                backgroundSize: '200% 200%',
-                WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                WebkitMaskComposite: 'xor',
-                maskComposite: 'exclude',
-              }}
-              animate={{
-                backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
-              }}
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                ease: 'linear',
-              }}
-            />
-            {/* Logo Container */}
-            <div className="relative h-12 w-auto min-w-[120px] rounded-xl overflow-hidden bg-white dark:bg-white/95 shadow-lg ring-2 ring-black/10 dark:ring-white/20 flex items-center justify-center px-2">
-              <img 
-                src={logo} 
-                alt="AEKO" 
-                className="h-full w-auto object-contain object-center" 
-              />
-            </div>
-          </div>
-          <div className="flex items-baseline gap-0.5">
-            <span className="text-2xl font-bold text-foreground sr-only">AEKO.</span>
-            <motion.span
-              className="text-2xl font-bold"
-              style={{
-                background: 'linear-gradient(135deg, #7C3AED, #3B82F6, #22D3EE, #22C55E, #FACC15, #EC4899, #7C3AED)',
-                backgroundSize: '200% 200%',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}
-              animate={{
-                backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
-              }}
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                ease: 'linear',
-              }}
-            >
-              AI
-            </motion.span>
-          </div>
+          <Logo size="lg" showText={true} href="/" />
         </motion.div>
 
         {/* Sign up or Login with */}
@@ -175,7 +173,8 @@ const AuthSignIn = () => {
             <Button
               type="button"
               variant="outline"
-              className="w-full h-14 bg-secondary hover:bg-secondary/80 dark:bg-[#1F2937] dark:hover:bg-[#374151] border border-border text-foreground justify-start gap-3 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md"
+              disabled={isLoading}
+              className="w-full h-14 bg-secondary hover:bg-secondary/80 dark:bg-[#1F2937] dark:hover:bg-[#374151] border border-border text-foreground justify-start gap-3 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={handleGoogleSignIn}
             >
               <div className="relative z-10 w-7 h-7 rounded-full bg-white dark:bg-white flex items-center justify-center">
@@ -266,6 +265,17 @@ const AuthSignIn = () => {
               onSubmit={handleSubmit}
               className="mt-4 space-y-4 p-6 bg-card/90 dark:bg-card/90 rounded-xl border-2 border-border shadow-xl backdrop-blur-sm"
             >
+              {isSignUp && (
+                <div>
+                  <Input
+                    type="text"
+                    placeholder="Username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="h-12 bg-background dark:bg-card/80 border-2 border-border focus:border-primary text-foreground placeholder:text-muted-foreground rounded-lg transition-all duration-300 focus:ring-2 focus:ring-primary/20"
+                  />
+                </div>
+              )}
               <div>
                 <Input
                   type="email"
@@ -313,7 +323,8 @@ const AuthSignIn = () => {
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Button
                   type="submit"
-                  className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-base rounded-lg shadow-lg shadow-primary/40 hover:shadow-primary/60 transition-all duration-300 relative overflow-hidden group"
+                  disabled={isLoading}
+                  className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-base rounded-lg shadow-lg shadow-primary/40 hover:shadow-primary/60 transition-all duration-300 relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <motion.div
                     className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
@@ -327,7 +338,9 @@ const AuthSignIn = () => {
                       ease: "linear",
                     }}
                   />
-                  <span className="relative z-10">{isSignUp ? "Create Account" : "Sign In"}</span>
+                  <span className="relative z-10">
+                    {isLoading ? (isSignUp ? "Creating Account..." : "Signing In...") : (isSignUp ? "Create Account" : "Sign In")}
+                  </span>
                 </Button>
               </motion.div>
             </motion.form>

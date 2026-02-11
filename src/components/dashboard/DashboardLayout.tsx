@@ -20,17 +20,18 @@ import {
   Store,
   Briefcase,
 } from "lucide-react";
-import logo from "@/assets/aeko-logo.png";
 import { Button } from "@/components/ui/button";
+import Logo from "@/components/Logo";
+import UserAvatar from "@/components/UserAvatar";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { authAPI } from "@/lib/api";
 import { toast } from "sonner";
 import { useTheme } from "@/hooks/use-theme";
+import { useAuth } from "@/hooks/use-auth";
 
 const navItems = [
   { path: "/dashboard", icon: Home, label: "Dashboard" },
@@ -50,6 +51,7 @@ const DashboardLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
+  const { user, logout } = useAuth();
 
   const isToolsActive = location.pathname.startsWith("/dashboard/tools-old");
   // Auto-open dropdown if on tools page
@@ -74,11 +76,13 @@ const DashboardLayout = () => {
     }
   }, [isToolsActive]);
 
-  const handleLogout = () => {
-    // Clear auth state (localStorage) and redirect to landing page
-    authAPI.logout();
-    toast.success("You have been logged out");
-    navigate("/");
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast.success("You have been logged out");
+    } catch (error: any) {
+      toast.error(error.message || "Error during logout");
+    }
   };
 
   return (
@@ -119,38 +123,9 @@ const DashboardLayout = () => {
             <div className="flex items-center justify-center py-3 sm:py-4 md:py-5 border-b border-purple-900/50 relative">
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Link to="/" className="flex items-center justify-center">
-                    <div className="relative w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center">
-                      {/* Subtle Animated Border */}
-                      <motion.div
-                        className="absolute inset-0 rounded-full opacity-30 dark:opacity-50"
-                        style={{
-                          padding: '2px',
-                          background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.4), rgba(14, 165, 233, 0.4), rgba(34, 197, 94, 0.4))',
-                          backgroundSize: '200% 200%',
-                          WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                          WebkitMaskComposite: 'xor',
-                          maskComposite: 'exclude',
-                        }}
-                        animate={{
-                          backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
-                        }}
-                        transition={{
-                          duration: 3,
-                          repeat: Infinity,
-                          ease: 'linear',
-                        }}
-                      />
-                      {/* Logo Container */}
-                      <div className="relative w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden bg-white dark:bg-white/95 shadow-md ring-2 ring-black/10 dark:ring-white/20 flex items-center justify-center p-0.5">
-                        <img 
-                          src={logo} 
-                          alt="AEKO" 
-                          className="w-full h-full object-contain object-center" 
-                        />
-                      </div>
-                    </div>
-                  </Link>
+                  <div>
+                    <Logo size="md" href="/" />
+                  </div>
                 </TooltipTrigger>
                 <TooltipContent side="right">
                   <p>AEKO.AI</p>
@@ -661,9 +636,7 @@ const DashboardLayout = () => {
                       to="/dashboard/account"
                       className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent/50 dark:hover:bg-accent/50 transition-all"
                     >
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-medium text-sm">
-                        A
-                      </div>
+                      <UserAvatar user={user} size="md" />
                       {/* Click Animation Effect - Theme Aware */}
                       <motion.div
                         className="absolute inset-0 rounded-full bg-primary/20 dark:bg-primary/30 blur-xl"

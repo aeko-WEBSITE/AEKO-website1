@@ -99,11 +99,19 @@ The frontend communicates with the backend through the API client in `src/lib/ap
    ```typescript
    import { authAPI } from '@/lib/api';
    
-   // Register
-   const result = await authAPI.register(name, email, password);
+   // Register (requires email, username, password)
+   const result = await authAPI.register(email, username, password);
+   // Returns: { accessToken, refreshToken, tokenType, user }
    
-   // Login
-   const result = await authAPI.login(email, password);
+   // Login (identifier can be email or username)
+   const result = await authAPI.login(identifier, password);
+   // Returns: { accessToken, refreshToken, tokenType, user }
+   
+   // Logout
+   await authAPI.logout();
+   
+   // Refresh token
+   const result = await authAPI.refresh(refreshToken);
    ```
 
 2. **Using LLM Chat:**

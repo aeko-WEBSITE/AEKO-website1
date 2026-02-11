@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import DashboardLayout from "./components/dashboard/DashboardLayout";
@@ -28,25 +29,27 @@ function App() {
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/auth/sign-in" element={<AuthSignIn />} />
-            <Route path="/dashboard" element={<DashboardLayout />}>
-              <Route index element={<DashboardHome />} />
-              <Route path="feed" element={<FeedPage />} />
-              <Route path="tools" element={<ToolsPage />} />
-              <Route path="tools-old" element={<ToolsLayout />}>
-                <Route path="agent" element={<AgentLLMPage />} />
-                <Route path="image" element={<ImageToolsPage />} />
-                <Route path="video" element={<VideoToolsPage />} />
+          <AuthProvider>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/auth/sign-in" element={<AuthSignIn />} />
+              <Route path="/dashboard" element={<DashboardLayout />}>
+                <Route index element={<DashboardHome />} />
+                <Route path="feed" element={<FeedPage />} />
+                <Route path="tools" element={<ToolsPage />} />
+                <Route path="tools-old" element={<ToolsLayout />}>
+                  <Route path="agent" element={<AgentLLMPage />} />
+                  <Route path="image" element={<ImageToolsPage />} />
+                  <Route path="video" element={<VideoToolsPage />} />
+                </Route>
+                <Route path="account" element={<AccountPage />} />
+                <Route path="creation-history" element={<CreationHistoryPage />} />
+                <Route path="support" element={<SupportPage />} />
+                <Route path="agent-store" element={<AgentStorePage />} />
               </Route>
-              <Route path="account" element={<AccountPage />} />
-              <Route path="creation-history" element={<CreationHistoryPage />} />
-              <Route path="support" element={<SupportPage />} />
-              <Route path="agent-store" element={<AgentStorePage />} />
-            </Route>
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
