@@ -75,7 +75,7 @@ const PricingSection = () => {
   return (
     <section id="pricing" className="py-24 lg:py-32 relative overflow-hidden">
       {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/10 to-background" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/10 to-background dark:from-transparent dark:via-transparent dark:to-transparent pointer-events-none" />
 
       <div className="container mx-auto px-4 lg:px-8 relative z-10">
         {/* Section Header */}

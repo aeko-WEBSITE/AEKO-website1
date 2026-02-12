@@ -340,26 +340,26 @@ const Navbar = () => {
                   ) : (
                     <>
                       <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => navigate("/auth/sign-in")}
-                          className="text-foreground/80 dark:text-foreground/90 hover:text-foreground dark:hover:text-foreground hover:bg-accent/50 dark:hover:bg-accent/50 text-xs md:text-sm px-2 md:px-4"
-                        >
-                          Sign In
-                        </Button>
-                      </motion.div>
-                      
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => navigate("/auth/sign-in")}
+                      className="text-foreground/80 dark:text-foreground/90 hover:text-foreground dark:hover:text-foreground hover:bg-accent/50 dark:hover:bg-accent/50 text-xs md:text-sm px-2 md:px-4"
+                    >
+                      Sign In
+                    </Button>
+                  </motion.div>
+                  
                       <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
-                        <Button
-                          variant="default"
-                          size="sm"
-                          onClick={() => navigate("/auth/sign-in")}
-                          className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold shadow-lg text-xs md:text-sm px-2 md:px-4"
-                        >
-                          Start Creating
-                        </Button>
-                      </motion.div>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={() => navigate("/auth/sign-in")}
+                      className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold shadow-lg text-xs md:text-sm px-2 md:px-4"
+                    >
+                      Start Creating
+                    </Button>
+                  </motion.div>
                     </>
                   )}
                 </div>
@@ -523,30 +523,30 @@ const Navbar = () => {
                     </>
                   ) : (
                     <>
-                      <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                        <Button
-                          variant="ghost"
-                          className="w-full justify-center text-foreground hover:bg-accent/50 dark:hover:bg-accent/50"
-                          onClick={() => {
-                            setIsOpen(false);
-                            navigate("/auth/sign-in");
-                          }}
-                        >
-                          Sign In
-                        </Button>
-                      </motion.div>
-                      <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                        <Button
-                          variant="default"
-                          className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-semibold"
-                          onClick={() => {
-                            setIsOpen(false);
-                            navigate("/auth/sign-in");
-                          }}
-                        >
-                          Start Creating
-                        </Button>
-                      </motion.div>
+                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-center text-foreground hover:bg-accent/50 dark:hover:bg-accent/50"
+                      onClick={() => {
+                        setIsOpen(false);
+                        navigate("/auth/sign-in");
+                      }}
+                    >
+                      Sign In
+                    </Button>
+                  </motion.div>
+                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <Button
+                      variant="default"
+                      className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-semibold"
+                      onClick={() => {
+                        setIsOpen(false);
+                        navigate("/auth/sign-in");
+                      }}
+                    >
+                      Start Creating
+                    </Button>
+                  </motion.div>
                     </>
                   )}
                 </div>

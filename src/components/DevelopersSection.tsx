@@ -102,9 +102,9 @@ const { choices } = await response.json();`
   ];
 
   return (
-    <section id="developers" className="py-10 lg:py-14 relative overflow-hidden w-full bg-background dark:bg-gradient-to-br dark:from-[#0a0a0f] dark:via-[#0f0f1a] dark:to-[#050508]">
-      {/* Theme-Aware Background Gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 dark:from-[#0a0a0f] dark:via-[#0f0f1a] dark:to-[#050508] w-full" />
+    <section id="developers" className="py-10 lg:py-14 relative overflow-hidden w-full bg-background dark:bg-transparent">
+      {/* Theme-Aware Background Gradient - transparent in dark so page grid shows */}
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 dark:from-transparent dark:via-transparent dark:to-transparent w-full pointer-events-none" />
       
       {/* Animated Gradient Orbs - Theme Aware */}
       <motion.div

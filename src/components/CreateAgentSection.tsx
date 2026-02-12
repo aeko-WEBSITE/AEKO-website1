@@ -36,14 +36,18 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 const CreateAgentSection = () => {
   const [agentDescription, setAgentDescription] = useState("");
-  const [agentName, setAgentName] = useState("");
   const [selectedModel, setSelectedModel] = useState("GPT-4 Turbo");
   const [webSearchEnabled, setWebSearchEnabled] = useState(false);
   const [isModelOpen, setIsModelOpen] = useState(false);
   const [isModeOpen, setIsModeOpen] = useState(false);
-  const [selectedMode, setSelectedMode] = useState("AI Agent");
+  const [selectedMode, setSelectedMode] = useState("Support Agent");
 
   const models = [
     "GPT-4 Turbo",
@@ -55,9 +59,13 @@ const CreateAgentSection = () => {
   ];
 
   const modes = [
-    "AI Agent",
-    "Image to Agent",
-    "Text to Agent",
+    "Support Agent",
+    "Booking Agent",
+    "Image/Video Agent",
+    "Data Analysis Agent",
+    "Lead Management Agent",
+    "Sales Agent",
+    "Content Creation Agent",
   ];
 
   const whatItDoesFeatures = [
@@ -97,6 +105,51 @@ const CreateAgentSection = () => {
     "WhatsApp", "Telegram", "Discord", "Slack", "Signal", "iMessage",
     "Claude", "GPT", "Spotify", "Hue", "Obsidian", "X Twitter",
     "Browser", "Gmail", "GitHub",
+  ];
+
+  const bestWorkingAgents = [
+    {
+      title: "Support Agent",
+      subtitle: "Customer Support AI",
+      bestFor: "eCommerce, SaaS, startups",
+      features: ["24/7 auto replies", "FAQ answering", "Order tracking", "Refund handling", "Escalate to human agent", "Multi-language"],
+      summary: "Replace 3 support staff with 1 AI agent",
+    },
+    {
+      title: "Booking Agent",
+      subtitle: "Appointment Scheduler",
+      bestFor: "Clinics, salons, consultants, agencies",
+      features: ["Book meetings automatically", "Calendar integration (Google/Outlook)", "Send reminders", "Reschedule / cancel", "Time-zone detection"],
+      summary: "Very high demand globally.",
+    },
+    {
+      title: "Lead Management Agent",
+      subtitle: null,
+      bestFor: "Agencies, real estate, B2B companies",
+      features: ["Capture leads from website", "Qualify using questions", "Score leads (Hot/Warm/Cold)", "Send to CRM", "Follow-up automatically"],
+      summary: "Powerful for B2B market.",
+    },
+    {
+      title: "Sales Agent",
+      subtitle: null,
+      bestFor: "SaaS, service providers",
+      features: ["Product recommendation", "Handle objections", "Upsell / cross-sell", "Close deals via chat", "Generate invoices"],
+      summary: "AI Closer Agent",
+    },
+    {
+      title: "Content Creation Agent",
+      subtitle: null,
+      bestFor: "Marketers, founders, agencies",
+      features: ["Blog writing", "Social media posts", "Ad copy", "Email campaigns", "SEO optimization"],
+      summary: "Offer different tone settings (professional, bold, casual).",
+    },
+    {
+      title: "Data Analysis Agent",
+      subtitle: null,
+      bestFor: "Business owners, enterprises",
+      features: ["Upload Excel/CSV", "Generate insights", "Create reports", "Predict trends", "Dashboard summary"],
+      summary: "Makes your platform look enterprise-level.",
+    },
   ];
 
   return (
@@ -142,6 +195,10 @@ const CreateAgentSection = () => {
             </h2>
           </motion.div>
 
+          {/* Left / Center (playground) / Right */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+            <div className="hidden lg:block lg:col-span-2 min-h-[200px]" aria-label="Left content area" />
+            <div className="lg:col-span-8">
           {/* Main Card - Modern Design */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -189,73 +246,69 @@ const CreateAgentSection = () => {
                 
                 <div className="absolute inset-0 dark:inset-[4px] rounded-3xl bg-card/95 dark:bg-card/30 backdrop-blur-xl border dark:border-none border-border/60 group-hover/card:border-primary/20 transition-all duration-300" style={{ borderRadius: '22px' }} />
                 
-                <div className="relative z-10">
-                  <div className="mb-6">
+                <div className="relative z-10 px-1">
+                  {/* Textarea – full width within card, consistent padding */}
+                  <div className="mb-5">
                     <textarea
                       value={agentDescription}
                       onChange={(e) => setAgentDescription(e.target.value)}
                       placeholder="Describe agent personality (e.g., 'Handle Shopify support tickets')"
                       rows={4}
-                      className="w-full px-4 py-3 rounded-xl bg-background/80 backdrop-blur-sm border border-border/50 text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-300 resize-none relative z-10 hover:border-primary/30 hover:shadow-md"
+                      className="w-full min-h-[104px] px-4 py-3.5 rounded-xl bg-black/95 text-foreground placeholder:text-muted-foreground/60 border border-white/10 focus:outline-none focus:ring-2 focus:ring-primary/60 focus:border-primary/60 transition-all duration-300 resize-none text-sm leading-relaxed"
                     />
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-border/50">
-                    <DropdownMenu open={isModeOpen} onOpenChange={setIsModeOpen}>
-                      <DropdownMenuTrigger asChild>
-                        <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary/50 hover:bg-secondary/70 border border-border/50 text-foreground text-sm transition-all duration-300 hover:border-primary/30 hover:shadow-md hover:scale-105 active:scale-100 group">
-                          <Bot className="w-4 h-4 transition-transform duration-300 group-hover:rotate-12" />
-                          <span>{selectedMode}</span>
-                          <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform duration-300 group-data-[state=open]:rotate-180" />
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="start">
-                        {modes.map((mode) => (
-                          <DropdownMenuItem key={mode} onClick={() => { setSelectedMode(mode); setIsModeOpen(false); }} className="cursor-pointer">{mode}</DropdownMenuItem>
-                        ))}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                  {/* Controls row – left group aligned, Deploy right; same height */}
+                  <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-border/50">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <DropdownMenu open={isModeOpen} onOpenChange={setIsModeOpen}>
+                        <DropdownMenuTrigger asChild>
+                          <button className="flex items-center gap-2 h-10 px-4 rounded-lg bg-secondary/50 hover:bg-secondary/70 border border-border/50 text-foreground text-sm transition-all duration-300 hover:border-primary/30 hover:shadow-sm group">
+                            <Bot className="w-4 h-4 shrink-0" />
+                            <span>{selectedMode}</span>
+                            <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0 group-data-[state=open]:rotate-180 transition-transform" />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="start">
+                          {modes.map((mode) => (
+                            <DropdownMenuItem key={mode} onClick={() => { setSelectedMode(mode); setIsModeOpen(false); }} className="cursor-pointer">{mode}</DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
 
-                    <DropdownMenu open={isModelOpen} onOpenChange={setIsModelOpen}>
-                      <DropdownMenuTrigger asChild>
-                        <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary/50 hover:bg-secondary/70 border border-border/50 text-foreground text-sm transition-all duration-300 hover:border-primary/30 hover:shadow-md hover:scale-105 active:scale-100 group">
-                          <Sparkles className="w-4 h-4 transition-transform duration-300 group-hover:rotate-12" />
-                          <span>{selectedModel}</span>
-                          <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform duration-300 group-data-[state=open]:rotate-180" />
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="start">
-                        {models.map((model) => (
-                          <DropdownMenuItem key={model} onClick={() => { setSelectedModel(model); setIsModelOpen(false); }} className="cursor-pointer">{model}</DropdownMenuItem>
-                        ))}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                      <DropdownMenu open={isModelOpen} onOpenChange={setIsModelOpen}>
+                        <DropdownMenuTrigger asChild>
+                          <button className="flex items-center gap-2 h-10 px-4 rounded-lg bg-secondary/50 hover:bg-secondary/70 border border-border/50 text-foreground text-sm transition-all duration-300 hover:border-primary/30 hover:shadow-sm group">
+                            <Sparkles className="w-4 h-4 shrink-0" />
+                            <span>{selectedModel}</span>
+                            <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0 group-data-[state=open]:rotate-180 transition-transform" />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="start">
+                          {models.map((model) => (
+                            <DropdownMenuItem key={model} onClick={() => { setSelectedModel(model); setIsModelOpen(false); }} className="cursor-pointer">{model}</DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
 
-                    <div className="h-6 w-px bg-border/50" />
+                      <div className="h-5 w-px bg-border/50 shrink-0 hidden sm:block" />
 
-                    <button
-                      onClick={() => setWebSearchEnabled(!webSearchEnabled)}
-                      className={`flex items-center justify-center w-10 h-10 rounded-lg border transition-all duration-300 hover:shadow-md hover:scale-110 active:scale-100 group ${webSearchEnabled ? "bg-primary/10 border-primary/50 text-primary hover:bg-primary/20" : "bg-secondary/50 border-border/50 text-foreground hover:bg-secondary/70"}`}
-                      title="Web Search"
-                    >
-                      <Globe className={`w-4 h-4 transition-transform duration-300 ${webSearchEnabled ? 'rotate-12' : 'group-hover:rotate-12'}`} />
-                    </button>
+                      <button
+                        onClick={() => setWebSearchEnabled(!webSearchEnabled)}
+                        className={`flex items-center justify-center h-10 w-10 rounded-lg border transition-all duration-300 hover:shadow-sm shrink-0 ${webSearchEnabled ? "bg-primary/10 border-primary/50 text-primary" : "bg-secondary/50 border-border/50 text-foreground hover:bg-secondary/70"}`}
+                        title="Web Search"
+                      >
+                        <Globe className="w-4 h-4" />
+                      </button>
 
-                    <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary/50 hover:bg-secondary/70 border border-border/50 text-foreground text-sm transition-all duration-300 hover:border-primary/30 hover:shadow-md hover:scale-105 active:scale-100 group">
-                      <FileText className="w-4 h-4 transition-transform duration-300 group-hover:scale-110" />
-                      <span>Upload File</span>
-                    </button>
+                      <button className="flex items-center gap-2 h-10 px-4 rounded-lg bg-secondary/50 hover:bg-secondary/70 border border-border/50 text-foreground text-sm transition-all duration-300 hover:border-primary/30 hover:shadow-sm shrink-0">
+                        <FileText className="w-4 h-4 shrink-0" />
+                        <span className="whitespace-nowrap">Upload File</span>
+                      </button>
+                    </div>
 
-                    <input
-                      type="text"
-                      value={agentName}
-                      onChange={(e) => setAgentName(e.target.value)}
-                      placeholder="Agent Name"
-                      className="px-4 py-2 rounded-lg bg-secondary/50 border border-border/50 text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-300 text-sm min-w-[120px] hover:border-primary/30 hover:shadow-md"
-                    />
-                    
-                    <Button variant="hero" size="lg" className="ml-auto gap-2 px-6 transition-all duration-300 hover:scale-105 active:scale-100 disabled:opacity-50 disabled:cursor-not-allowed group" disabled={!agentDescription.trim() || !agentName.trim()}>
-                      <Rocket className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
+                    <Button variant="hero" size="default" className="h-10 gap-2 px-5 shrink-0 transition-all duration-300 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed" disabled={!agentDescription.trim()}>
+                      <Rocket className="w-4 h-4 shrink-0" />
                       Deploy
                     </Button>
                   </div>
@@ -272,6 +325,9 @@ const CreateAgentSection = () => {
               , and <span className="gradient-text font-bold">videos</span> — powered by the world's best models.
             </p>
           </motion.div>
+            </div>
+            <div className="hidden lg:block lg:col-span-2 min-h-[200px]" aria-label="Right content area" />
+          </div>
 
           {/* Automate 80%+ Section */}
           <motion.div initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.4 }} className="mt-20 max-w-7xl mx-auto">
@@ -366,6 +422,56 @@ const CreateAgentSection = () => {
                     })}
                   </div>
                 </div>
+
+                {/* Best working bot - title visible, extra detail in dropdown */}
+                <div>
+                  <h4 className="text-2xl md:text-3xl font-bold text-foreground mb-8 flex items-center gap-2">
+                    <span className="text-purple-500">&gt;</span> Best working bot
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-5">
+                    {bestWorkingAgents.map((agent, index) => (
+                      <Collapsible key={index} className="group/card">
+                        <motion.div
+                          initial={{ opacity: 0, y: 16 }}
+                          whileInView={{ opacity: 1, y: 0 }}
+                          viewport={{ once: true }}
+                          transition={{ duration: 0.4, delay: index * 0.05 }}
+                          className="rounded-xl border border-border/50 dark:border-white/10 hover:border-purple-500/30 transition-all duration-300 overflow-hidden bg-background/60 dark:bg-white/[0.06]"
+                        >
+                          <CollapsibleTrigger className="w-full rounded-xl p-5 text-left flex items-center gap-3 hover:bg-white/5 dark:hover:bg-white/5 transition-colors">
+                            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-sm font-bold text-white">
+                              {index + 1}
+                            </div>
+                            <h5 className="text-base font-bold text-foreground dark:text-white flex-1">{agent.title}</h5>
+                            <ChevronDown className="w-5 h-5 text-muted-foreground dark:text-white/60 flex-shrink-0 transition-transform duration-200 group-data-[state=open]/card:rotate-180" />
+                          </CollapsibleTrigger>
+                          <CollapsibleContent>
+                            <div className="px-5 pb-5 pt-0 space-y-3 border-t border-border/50 dark:border-white/10">
+                              {agent.subtitle && (
+                                <p className="text-xs text-muted-foreground dark:text-white/60">({agent.subtitle})</p>
+                              )}
+                              <p className="text-xs text-muted-foreground dark:text-white/70">
+                                <span className="font-medium text-foreground dark:text-white/90">Best for:</span> {agent.bestFor}
+                              </p>
+                              <ul className="space-y-1.5">
+                                {agent.features.map((f, i) => (
+                                  <li key={i} className="text-xs text-muted-foreground dark:text-white/70 flex items-start gap-2">
+                                    <span className="text-purple-500 mt-0.5">•</span>
+                                    <span>{f}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                              <p className="text-xs font-medium text-foreground dark:text-white/90 pt-2 border-t border-border/50 dark:border-white/10">
+                                {agent.summary}
+                              </p>
+                            </div>
+                          </CollapsibleContent>
+                        </motion.div>
+                      </Collapsible>
+                    ))}
+                  </div>
+                </div>
+
                 {/* Works With Everything */}
                 <div>
                   <h4 className="text-2xl md:text-3xl font-bold text-foreground mb-6 flex items-center gap-2">

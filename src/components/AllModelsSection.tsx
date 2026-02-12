@@ -81,7 +81,7 @@ const AllModelsSection = () => {
   const duplicatedContent = [...galleryContent, ...galleryContent, ...galleryContent];
 
   return (
-    <section className="relative overflow-hidden w-full py-8 lg:py-12 bg-background">
+    <section className="relative overflow-hidden w-full py-8 lg:py-12 bg-background dark:bg-transparent">
       <div className="absolute inset-0 w-full">
         <motion.div
           className="absolute inset-0 opacity-10 dark:opacity-20"
