@@ -14,14 +14,18 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/use-auth";
+import UserAvatar from "@/components/UserAvatar";
 
 // Use more granular breakpoints for responsiveness
 const ACCOUNT_INPUT =
   "w-full px-4 py-2.5 rounded-lg sm:rounded-xl bg-secondary/30 border border-border/50 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 placeholder:text-muted-foreground text-sm sm:text-base";
 
 const AccountPage = () => {
+  const { user, isAuthenticated } = useAuth();
   const [showApiKey, setShowApiKey] = useState(false);
   const [copied, setCopied] = useState(false);
+
 
   const copyApiKey = () => {
     navigator.clipboard.writeText("ak_live_xxxxxxxxxxxxxxxxxxxx");
@@ -35,6 +39,25 @@ const AccountPage = () => {
       "Google sign-in will be available soon. For now, use your email account.",
     );
   };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="w-full space-y-6 max-w-full mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center py-12"
+        >
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
+            Please sign in to view your account
+          </h1>
+          <p className="text-muted-foreground">
+            You need to be logged in to access account settings.
+          </p>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full space-y-6 max-w-full mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-6">
@@ -94,9 +117,7 @@ const AccountPage = () => {
             <div className="flex flex-col md:flex-row gap-6">
               {/* Avatar */}
               <div className="flex flex-row md:flex-col gap-3 items-center">
-                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center text-3xl font-bold text-white">
-                  A
-                </div>
+                <UserAvatar user={user} size="xl" />
                 <Button variant="outline" size="sm">
                   Change
                 </Button>
@@ -113,34 +134,59 @@ const AccountPage = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm text-muted-foreground mb-2">
-                      Display Name
-                    </label>
-                    <input
-                      type="text"
-                      defaultValue="Alex Creator"
-                      className={ACCOUNT_INPUT}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm text-muted-foreground mb-2">
                       Username
                     </label>
                     <input
                       type="text"
-                      defaultValue="@alexcreator"
-                      className={ACCOUNT_INPUT}
+                      value={user?.username || 'Not set'}
+                      readOnly
+                      className={`${ACCOUNT_INPUT} bg-secondary/20 cursor-not-allowed`}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-muted-foreground mb-2">
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      value={user?.email || 'Not set'}
+                      readOnly
+                      className={`${ACCOUNT_INPUT} bg-secondary/20 cursor-not-allowed`}
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm text-muted-foreground mb-2">
+                      Role
+                    </label>
+                    <input
+                      type="text"
+                      value={user?.role || 'User'}
+                      readOnly
+                      className={`${ACCOUNT_INPUT} capitalize bg-secondary/20 cursor-not-allowed`}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-muted-foreground mb-2">
+                      User ID
+                    </label>
+                    <input
+                      type="text"
+                      value={user?.id || 'N/A'}
+                      readOnly
+                      className={`${ACCOUNT_INPUT} font-mono text-xs bg-secondary/20 cursor-not-allowed`}
                     />
                   </div>
                 </div>
                 <div>
                   <label className="block text-sm text-muted-foreground mb-2">
-                    Email
+                    Account Status
                   </label>
-                  <input
-                    type="email"
-                    defaultValue="alex@example.com"
-                    className={ACCOUNT_INPUT}
-                  />
+                  <div className="flex items-center gap-2 px-4 py-2.5 rounded-lg sm:rounded-xl bg-green-500/10 border border-green-500/30">
+                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                    <span className="text-sm text-green-600 dark:text-green-400 font-medium">Active</span>
+                  </div>
                 </div>
                 <div>
                   <label className="block text-sm text-muted-foreground mb-2">
@@ -551,3 +597,4 @@ const AccountPage = () => {
 };
 
 export default AccountPage;
+

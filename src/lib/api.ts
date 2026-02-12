@@ -16,7 +16,12 @@ const API_BASE_URL = getApiBaseUrl();
 
 // Get auth token from localStorage
 const getAuthToken = (): string | null => {
-  return localStorage.getItem('authToken');
+  return localStorage.getItem('accessToken');
+};
+
+// Get refresh token from localStorage
+const getRefreshToken = (): string | null => {
+  return localStorage.getItem('refreshToken');
 };
 
 // API request helper
@@ -48,57 +53,353 @@ const apiRequest = async (
 
 // Auth API
 export const authAPI = {
-  register: async (name: string, email: string, password: string) => {
-    const response = await apiRequest('/api/auth/register', {
-      method: 'POST',
-      body: JSON.stringify({ name, email, password }),
-    });
-    const data = await response.json();
-    if (data.success && data.data.token) {
-      localStorage.setItem('authToken', data.data.token);
-      localStorage.setItem('user', JSON.stringify(data.data));
+  /**
+   * Register a new user
+   * POST /auth/register
+   * @param email - User email
+   * @param username - Username
+   * @param password - User password
+   * @returns Promise with accessToken, refreshToken, tokenType, and user data
+   */
+  register: async (email: string, username: string, password: string) => {
+    try {
+      const response = await apiRequest('/auth/register', {
+        method: 'POST',
+        body: JSON.stringify({ email, username, password }),
+      });
+
+      // Accept both 200 and 201 status codes for registration
+      if (!response.ok && response.status !== 201) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || errorData.error || `Server error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      if (data.accessToken) {
+        localStorage.setItem('accessToken', data.accessToken);
+        if (data.refreshToken) {
+          localStorage.setItem('refreshToken', data.refreshToken);
+        }
+        if (data.user) {
+          localStorage.setItem('user', JSON.stringify(data.user));
+        }
+      }
+      return data;
+    } catch (error: any) {
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        throw new Error('Cannot connect to backend. Make sure the backend server is running.');
+      }
+      throw error;
     }
-    return data;
   },
 
-  login: async (email: string, password: string) => {
-    const response = await apiRequest('/api/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ email, password }),
-    });
-    const data = await response.json();
-    if (data.success && data.data.token) {
-      localStorage.setItem('authToken', data.data.token);
-      localStorage.setItem('user', JSON.stringify(data.data));
+  /**
+   * Login with email/username and password
+   * POST /auth/login
+   * @param identifier - Email or username
+   * @param password - User password
+   * @returns Promise with accessToken, refreshToken, tokenType, and user data
+   */
+  login: async (identifier: string, password: string) => {
+    try {
+      const response = await apiRequest('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ identifier, password }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || errorData.error || `Server error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      if (data.accessToken) {
+        localStorage.setItem('accessToken', data.accessToken);
+        if (data.refreshToken) {
+          localStorage.setItem('refreshToken', data.refreshToken);
+        }
+        if (data.user) {
+          localStorage.setItem('user', JSON.stringify(data.user));
+        }
+      }
+      return data;
+    } catch (error: any) {
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        throw new Error('Cannot connect to backend. Make sure the backend server is running.');
+      }
+      throw error;
     }
-    return data;
   },
 
-  logout: () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('user');
+  /**
+   * Logout current device/session
+   * POST /auth/logout
+   * @returns Promise
+   */
+  logout: async () => {
+    try {
+      const response = await apiRequest('/auth/logout', {
+        method: 'POST',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || errorData.error || `Server error: ${response.status}`);
+      }
+
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('user');
+      return response.json().catch(() => ({}));
+    } catch (error: any) {
+      // Clear local storage even if request fails
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('user');
+      
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        throw new Error('Cannot connect to backend. Make sure the backend server is running.');
+      }
+      throw error;
+    }
   },
 
+  /**
+   * Logout from all devices/sessions
+   * POST /auth/logout-all
+   * @returns Promise
+   */
+  logoutAll: async () => {
+    try {
+      const response = await apiRequest('/auth/logout-all', {
+        method: 'POST',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || errorData.error || `Server error: ${response.status}`);
+      }
+
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('user');
+      return response.json().catch(() => ({}));
+    } catch (error: any) {
+      // Clear local storage even if request fails
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('user');
+      
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        throw new Error('Cannot connect to backend. Make sure the backend server is running.');
+      }
+      throw error;
+    }
+  },
+
+  /**
+   * Get current user from localStorage
+   * @returns User object or null
+   */
   getCurrentUser: () => {
     const userStr = localStorage.getItem('user');
     return userStr ? JSON.parse(userStr) : null;
   },
 
+  /**
+   * Check if user is authenticated
+   * @returns boolean
+   */
   isAuthenticated: (): boolean => {
     return !!getAuthToken();
   },
 
-  googleLogin: async (credential: string) => {
-    const response = await apiRequest('/api/auth/google', {
-      method: 'POST',
-      body: JSON.stringify({ credential }),
-    });
-    const data = await response.json();
-    if (data.success && data.data.token) {
-      localStorage.setItem('authToken', data.data.token);
-      localStorage.setItem('user', JSON.stringify(data.data));
+  /**
+   * Initiate Google OAuth login
+   * GET /auth/google
+   * @returns Promise with redirectUrl
+   */
+  googleLogin: async () => {
+    try {
+      const response = await apiRequest('/auth/google', {
+        method: 'GET',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || errorData.error || `Server error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      // If redirectUrl is provided, redirect the user
+      if (data.redirectUrl) {
+        window.location.href = data.redirectUrl;
+      }
+      return data;
+    } catch (error: any) {
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        throw new Error('Cannot connect to backend. Make sure the backend server is running.');
+      }
+      throw error;
     }
-    return data;
+  },
+
+  /**
+   * Google OAuth callback handler
+   * GET /auth/google/callback
+   * This is typically called by the OAuth provider after authentication
+   * @returns Promise with accessToken, refreshToken, tokenType, and user data
+   */
+  googleCallback: async () => {
+    try {
+      const response = await apiRequest('/auth/google/callback', {
+        method: 'GET',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || errorData.error || `Server error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      if (data.accessToken) {
+        localStorage.setItem('accessToken', data.accessToken);
+        if (data.refreshToken) {
+          localStorage.setItem('refreshToken', data.refreshToken);
+        }
+        if (data.user) {
+          localStorage.setItem('user', JSON.stringify(data.user));
+        }
+      }
+      return data;
+    } catch (error: any) {
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        throw new Error('Cannot connect to backend. Make sure the backend server is running.');
+      }
+      throw error;
+    }
+  },
+
+  /**
+   * Refresh access token using refresh token
+   * POST /auth/refresh
+   * @param refreshToken - Optional refresh token (uses stored token if not provided)
+   * @returns Promise with new accessToken, refreshToken, tokenType, and user data
+   */
+  refresh: async (refreshToken?: string) => {
+    try {
+      const token = refreshToken || getRefreshToken();
+      if (!token) {
+        throw new Error('No refresh token available');
+      }
+
+      const response = await apiRequest('/auth/refresh', {
+        method: 'POST',
+        body: JSON.stringify({ refreshToken: token }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || errorData.error || `Server error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      if (data.accessToken) {
+        localStorage.setItem('accessToken', data.accessToken);
+        if (data.refreshToken) {
+          localStorage.setItem('refreshToken', data.refreshToken);
+        }
+        if (data.user) {
+          localStorage.setItem('user', JSON.stringify(data.user));
+        }
+      }
+      return data;
+    } catch (error: any) {
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        throw new Error('Cannot connect to backend. Make sure the backend server is running.');
+      }
+      throw error;
+    }
+  },
+
+  /**
+   * Request password reset
+   * POST /auth/forgot-password
+   * @param email - User email address
+   * @returns Promise
+   */
+  forgotPassword: async (email: string) => {
+    try {
+      const response = await apiRequest('/auth/forgot-password', {
+        method: 'POST',
+        body: JSON.stringify({ email }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || errorData.error || `Server error: ${response.status}`);
+      }
+
+      return response.json().catch(() => ({}));
+    } catch (error: any) {
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        throw new Error('Cannot connect to backend. Make sure the backend server is running.');
+      }
+      throw error;
+    }
+  },
+
+  /**
+   * Reset password using reset token
+   * POST /auth/reset-password
+   * @param token - Password reset token
+   * @param newPassword - New password
+   * @returns Promise
+   */
+  resetPassword: async (token: string, newPassword: string) => {
+    try {
+      const response = await apiRequest('/auth/reset-password', {
+        method: 'POST',
+        body: JSON.stringify({ token, newPassword }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || errorData.error || `Server error: ${response.status}`);
+      }
+
+      return response.json().catch(() => ({}));
+    } catch (error: any) {
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        throw new Error('Cannot connect to backend. Make sure the backend server is running.');
+      }
+      throw error;
+    }
+  },
+
+  /**
+   * Get all active sessions/devices
+   * GET /auth/sessions
+   * @returns Promise with array of active sessions
+   */
+  getSessions: async () => {
+    try {
+      const response = await apiRequest('/auth/sessions', {
+        method: 'GET',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || errorData.error || `Server error: ${response.status}`);
+      }
+
+      return response.json();
+    } catch (error: any) {
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        throw new Error('Cannot connect to backend. Make sure the backend server is running.');
+      }
+      throw error;
+    }
   },
 };
 
