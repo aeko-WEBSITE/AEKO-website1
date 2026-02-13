@@ -103,9 +103,13 @@ const { choices } = await response.json();`
 
   return (
     <section id="developers" className="py-10 lg:py-14 relative overflow-hidden w-full bg-background dark:bg-transparent">
-      {/* Theme-Aware Background Gradient - transparent in dark so page grid shows */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 dark:from-transparent dark:via-transparent dark:to-transparent w-full pointer-events-none" />
-      
+      <div className="absolute inset-0" style={{
+            backgroundImage: `
+              linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px)
+            `,
+            backgroundSize: "50px 50px",
+          }} >  </div>
       {/* Animated Gradient Orbs - Theme Aware */}
       <motion.div
         className="absolute top-1/4 right-1/4 w-[400px] h-[400px] rounded-full blur-[100px] opacity-10 dark:opacity-15"
