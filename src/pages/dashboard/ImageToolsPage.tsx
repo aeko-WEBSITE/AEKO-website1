@@ -6,22 +6,16 @@ import {
   Copy,
   Image as ImageIcon,
   Info,
+  HelpCircle,
+  FlaskConical,
   Search,
-  Grid3x3,
   Filter,
   User,
   Play,
-  MessageSquare,
   ChevronDown,
-  ChevronUp,
   RefreshCw,
   Plus,
-  RotateCcw,
   StickyNote,
-  Type,
-  ArrowLeftRight,
-  Wand2,
-  Eraser,
   Upload,
   X,
   Edit2,
@@ -32,11 +26,16 @@ import {
   Check,
   Menu,
   Maximize2,
-  Zap,
   Sun,
   Moon,
+  Type,
+  ArrowLeftRight,
+  Eraser,
+  Wand2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -44,29 +43,31 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
 import { moduleAPI } from "@/lib/api";
 import { toast } from "sonner";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Progress } from "@/components/ui/progress";
+import { cn } from "@/lib/utils";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { Progress } from "@/components/ui/progress";
-import { cn } from "@/lib/utils";
-import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
 
-// Tool modes
-type ToolMode = "text2image" | "image2image" | "image-editing" | "bg-removal";
+// Tool mode – header segment options
+type ToolMode = "text2image" | "image2image" | "bg-removal" | "upscale";
 
-const toolModes = [
-  { id: "text2image" as ToolMode, label: "Text to Image", icon: Type, color: "text-blue-500" },
-  { id: "image2image" as ToolMode, label: "Image to Image", icon: ArrowLeftRight, color: "text-purple-500" },
-  { id: "image-editing" as ToolMode, label: "AI Edit", icon: Wand2, color: "text-amber-500" },
-  { id: "bg-removal" as ToolMode, label: "Remove BG", icon: Eraser, color: "text-rose-500" },
+const headerModes: { id: ToolMode; label: string; icon: typeof ImageIcon }[] = [
+  { id: "text2image", label: "Text to Image", icon: Type },
+  { id: "image2image", label: "Image to Image", icon: ArrowLeftRight },
+  { id: "bg-removal", label: "BG Removal", icon: Eraser },
+  { id: "upscale", label: "Upscale", icon: Maximize2 },
 ];
 
 // Image models
@@ -133,17 +134,16 @@ const ImageToolsPage = () => {
   const [promptMagic, setPromptMagic] = useState<"auto" | "on" | "off">("auto");
   const [aspectRatio, setAspectRatio] = useState("1:1");
   const [numImages, setNumImages] = useState(1);
-  const [privateMode, setPrivateMode] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [generatedImages, setGeneratedImages] = useState<GeneratedImage[]>([]);
   const [selectedImage, setSelectedImage] = useState<GeneratedImage | null>(null);
-  const [isBasicSettingsOpen, setIsBasicSettingsOpen] = useState(true);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [uploadedImageFile, setUploadedImageFile] = useState<File | null>(null);
   const [referenceImageUrl, setReferenceImageUrl] = useState("");
   const [strength, setStrength] = useState(0.7);
   const [isGenerating, setIsGenerating] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [modelPickerOpen, setModelPickerOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Toggle Theme
@@ -344,7 +344,7 @@ const ImageToolsPage = () => {
             attempts++;
           }
         }
-      } else if (toolMode === "image2image" || toolMode === "image-editing") {
+      } else if (toolMode === "image2image" || toolMode === "upscale") {
         let fileToSend: File | undefined;
         let initImageBase64: string | undefined;
 
@@ -362,7 +362,7 @@ const ImageToolsPage = () => {
           model_id: selectedModel,
           file: fileToSend,
           init_image: fileToSend ? undefined : initImageBase64,
-          strength: toolMode === "image-editing" ? 0.5 : strength,
+          strength: toolMode === "upscale" ? 0.35 : strength,
         });
 
         imageUrl = extractImageFromResponse(response);
@@ -446,47 +446,53 @@ const ImageToolsPage = () => {
 
   return (
     <div className="flex flex-col h-screen w-full bg-white dark:bg-[#0a0a0a] text-zinc-900 dark:text-zinc-100 overflow-hidden selection:bg-primary/30 transition-colors duration-200">
-      {/* TOP NAVIGATION BAR */}
-      <div className="flex-shrink-0 h-16 border-b border-zinc-200 dark:border-white/5 bg-zinc-50 dark:bg-zinc-900/50 backdrop-blur-xl flex items-center justify-between px-4 sm:px-8 z-50">
-        <div className="flex items-center gap-4">
+      {/* TOP NAVIGATION BAR – dark grey modern header, compact height */}
+      <div className="flex-shrink-0 min-h-[52px] py-2 border-b border-black bg-[#1a1a1e] flex items-center justify-between px-4 sm:px-6 z-50">
+        <div className="flex items-center gap-3 min-w-0">
           <Button
             variant="ghost"
             size="icon"
-            className="h-9 w-9 lg:hidden hover:bg-zinc-200 dark:hover:bg-white/5"
+            className="h-9 w-9 lg:hidden hover:bg-white/10 shrink-0 text-white"
             onClick={() => setSidebarOpen(!sidebarOpen)}
           >
             <Menu className="w-5 h-5" />
           </Button>
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(var(--primary),0.5)]">
-              <Sparkles className="w-5 h-5 text-primary-foreground" />
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-full bg-[#5F3DC4] flex items-center justify-center shrink-0 shadow-lg shadow-[#5F3DC4]/30">
+              <ImageIcon className="w-5 h-5 text-white" strokeWidth={2} />
             </div>
-            <span className="text-lg font-bold tracking-tight hidden sm:block">Aeko Studio</span>
-          </div>
-          <Separator orientation="vertical" className="h-6 bg-zinc-200 dark:bg-white/10 hidden lg:block" />
-          <div className="hidden lg:flex gap-1 text-zinc-500 dark:text-zinc-400">
-            <Button variant="ghost" size="sm" className="text-xs font-medium hover:text-zinc-900 dark:hover:text-white">Assets</Button>
-            <Button variant="ghost" size="sm" className="text-xs font-medium hover:text-zinc-900 dark:hover:text-white">Templates</Button>
-          </div>
-        </div>
-        
-        <div className="flex-1 flex items-center justify-center">
-          <div className="px-4 py-1.5 rounded-full bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/10 text-[11px] font-medium text-zinc-500 dark:text-zinc-400 flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              {getCurrentDate()}
+            <div className="min-w-0">
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white truncate">
+                Image generation tool
+              </h1>
+              <p className="text-sm text-zinc-400 dark:text-zinc-500 truncate">
+                Create images with AI
+              </p>
+            </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" className="h-9 w-9 hover:bg-zinc-200 dark:hover:bg-white/5 text-zinc-500 dark:text-zinc-400">
-            <Search className="w-4 h-4" />
-          </Button>
-          <Button variant="ghost" size="icon" className="h-9 w-9 hover:bg-zinc-200 dark:hover:bg-white/5 text-zinc-500 dark:text-zinc-400">
-            <User className="w-4 h-4" />
-          </Button>
-          <Button className="h-9 px-4 text-xs font-semibold bg-primary hover:opacity-90">
-            Upgrade
-          </Button>
+        <div className="flex items-center gap-0.5 p-1 rounded-xl bg-[#2C2C30] border border-black flex-wrap justify-end max-w-full">
+          {headerModes.map((mode) => {
+            const isActive = toolMode === mode.id;
+            const Icon = mode.icon;
+            return (
+              <button
+                key={mode.id}
+                type="button"
+                onClick={() => setToolMode(mode.id)}
+                className={cn(
+                  "inline-flex items-center gap-2 px-3 sm:px-4 py-2.5 rounded-lg text-sm font-semibold transition-all whitespace-nowrap",
+                  isActive
+                    ? "bg-gradient-to-r from-[#FF6B47] to-[#FF9A4D] text-white shadow-md"
+                    : "bg-transparent text-zinc-400 hover:text-zinc-300 hover:bg-white/5"
+                )}
+              >
+                <Icon className="w-4 h-4 shrink-0" strokeWidth={2} />
+                {mode.label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -504,53 +510,93 @@ const ImageToolsPage = () => {
           )}
         </AnimatePresence>
 
-        {/* LEFT SIDEBAR - Attractive Proper Grey */}
+        {/* LEFT SIDEBAR – pure black background, sub-borders unchanged */}
         <div className={cn(
-          "w-72 sm:w-80 flex-shrink-0 border-r border-zinc-200 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900/40 backdrop-blur-sm overflow-y-auto fixed lg:static inset-y-0 left-0 z-50 lg:z-auto transform transition-all duration-300 ease-in-out shadow-2xl lg:shadow-none",
+          "w-72 sm:w-80 flex-shrink-0 border-r border-white/10 bg-black overflow-y-auto fixed lg:static inset-y-0 left-0 z-50 lg:z-auto transform transition-all duration-300 ease-in-out shadow-xl lg:shadow-none",
           sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}>
-          <div className="p-6 space-y-8">
-            <div className="flex items-center justify-between lg:hidden">
-              <span className="text-sm font-bold text-zinc-600 dark:text-zinc-300">Studio Settings</span>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setSidebarOpen(false)}>
+          <div className="pt-2 px-4 pb-4 sm:pt-3 sm:px-5 sm:pb-5 space-y-5">
+            <div className="flex items-center justify-between lg:hidden pb-3 border-b border-white/10">
+              <span className="text-sm font-bold text-white">Studio Settings</span>
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-white" onClick={() => setSidebarOpen(false)}>
                 <X className="w-4 h-4" />
               </Button>
             </div>
 
-            {/* Tool Mode Selection */}
-            <div className="space-y-3">
-              <label className="text-[11px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-500 flex items-center gap-2">
-                <Grid3x3 className="w-3 h-3" />
-                Workflow Mode
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                {toolModes.map((mode) => {
-                  const Icon = mode.icon;
-                  const isActive = toolMode === mode.id;
-                  return (
-                    <Button
-                      key={mode.id}
-                      variant="outline"
-                      onClick={() => setToolMode(mode.id)}
-                      className={cn(
-                        "h-auto py-3 px-2 flex-col gap-2 bg-white dark:bg-zinc-800/50 border-zinc-200 dark:border-white/5 transition-all hover:bg-zinc-200 dark:hover:bg-white/5",
-                        isActive && "bg-zinc-200 dark:bg-white/5 border-primary ring-1 ring-primary/50 shadow-sm"
-                      )}
+            {/* Model – dropdown with vibrant gradient border (no label above) */}
+            <div>
+              <div className="rounded-xl overflow-hidden p-[2px] bg-gradient-to-r from-purple-400 via-fuchsia-400 to-blue-500 shadow-[0_0_0_1px_rgba(168,85,247,0.5),0_0_16px_rgba(168,85,247,0.35)]">
+                <Popover open={modelPickerOpen} onOpenChange={setModelPickerOpen}>
+                  <PopoverTrigger asChild>
+                    <button
+                      type="button"
+                      className="w-full h-12 rounded-[10px] bg-gradient-to-r from-purple-950/70 via-[#251e32] to-indigo-950/60 border-0 flex items-center justify-between gap-2 px-4 text-left hover:from-purple-900/60 hover:via-[#2a2340] hover:to-indigo-900/50 transition-all"
                     >
-                      <Icon className={cn("w-4 h-4", mode.color)} />
-                      <span className="text-[10px] font-bold text-zinc-600 dark:text-zinc-300">{mode.label}</span>
-                    </Button>
-                  );
-                })}
+                      <span className="font-semibold text-base text-white truncate">
+                        {imageModels.find((m) => m.id === selectedModel)?.name ?? selectedModel}
+                      </span>
+                      {imageModels.find((m) => m.id === selectedModel)?.badge && (
+                        <Badge className="text-[9px] h-5 bg-white/10 text-white border-0 shrink-0">
+                          {imageModels.find((m) => m.id === selectedModel)?.badge}
+                        </Badge>
+                      )}
+                      <ChevronDown className="w-4 h-4 text-white/80 shrink-0" />
+                    </button>
+                  </PopoverTrigger>
+                <PopoverContent
+                  align="start"
+                  side="right"
+                  sideOffset={8}
+                  className="w-[320px] sm:w-[360px] p-0 rounded-xl border border-white/10 bg-[#1c1b22] shadow-xl overflow-hidden"
+                >
+                  <div className="p-3 border-b border-white/10 bg-[#252329]">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Choose model</span>
+                  </div>
+                  <div className="max-h-[320px] overflow-y-auto p-2 space-y-1.5">
+                    {imageModels.map((model) => {
+                      const isSelected = selectedModel === model.id;
+                      return (
+                        <button
+                          key={model.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedModel(model.id);
+                            setModelPickerOpen(false);
+                          }}
+                          className={cn(
+                            "w-full rounded-xl p-3 text-left transition-all border",
+                            isSelected
+                              ? "bg-purple-500/20 border-purple-400/50 shadow-sm"
+                              : "bg-[#252329] border-transparent hover:bg-white/5 hover:border-white/10"
+                          )}
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-semibold text-sm text-white">{model.name}</span>
+                                {model.badge && (
+                                  <Badge className="text-[9px] h-4 bg-white/10 text-white border-0">{model.badge}</Badge>
+                                )}
+                              </div>
+                              <p className="text-xs text-zinc-400 mt-0.5 line-clamp-2">{model.description}</p>
+                            </div>
+                            {isSelected && <Check className="w-4 h-4 text-purple-400 shrink-0 mt-0.5" />}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </PopoverContent>
+              </Popover>
               </div>
             </div>
 
-            {/* Reference Image Upload */}
+            {/* Reference Image Upload – section with sub-border */}
             {(toolMode !== "text2image") && (
-              <div className="space-y-3 pt-2">
-                <label className="text-[11px] font-bold uppercase tracking-wider text-zinc-500">Source Image</label>
+              <div className="rounded-xl border border-white/10 bg-[#1c1b22] p-4 space-y-3">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Source Image</label>
                 {uploadedImage ? (
-                  <div className="relative group rounded-xl overflow-hidden border border-zinc-300 dark:border-white/10 bg-white dark:bg-black shadow-inner">
+                  <div className="relative group rounded-lg overflow-hidden border border-white/15 bg-[#252329] shadow-inner">
                     <img src={uploadedImage} alt="Ref" className="w-full h-auto max-h-[180px] object-cover opacity-80 group-hover:opacity-100 transition-all" />
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-2 transition-all">
                       <Button onClick={() => fileInputRef.current?.click()} size="icon" variant="secondary" className="h-8 w-8 rounded-full shadow-md"><Edit2 className="w-3 h-3" /></Button>
@@ -558,174 +604,221 @@ const ImageToolsPage = () => {
                     </div>
                   </div>
                 ) : (
-                  <label className="flex flex-col items-center justify-center border-2 border-dashed border-zinc-300 dark:border-white/10 rounded-xl p-8 cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-all group bg-white dark:bg-transparent shadow-sm">
-                    <div className="w-10 h-10 rounded-full bg-zinc-100 dark:bg-white/5 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                      <Upload className="w-5 h-5 text-zinc-500" />
+                  <label className="flex flex-col items-center justify-center border border-dashed border-white/15 rounded-lg p-8 cursor-pointer hover:border-purple-400/50 hover:bg-white/5 transition-all group bg-[#252329]">
+                    <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                      <Upload className="w-5 h-5 text-zinc-400" />
                     </div>
-                    <span className="text-xs font-bold text-zinc-500">Upload base image</span>
+                    <span className="text-xs font-bold text-zinc-400">Upload base image</span>
                     <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
                   </label>
                 )}
               </div>
             )}
 
-            {/* Model Selection */}
-            <div className="space-y-3">
-              <label className="text-[11px] font-bold uppercase tracking-wider text-zinc-500">Core Engine</label>
-              <Select value={selectedModel} onValueChange={setSelectedModel}>
-                <SelectTrigger className="h-11 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-white/5 focus:ring-primary/20 shadow-sm">
-                  <SelectValue />
+            {/* Style – dropdown with icon, subtle border */}
+            <div className="rounded-xl border border-white/10 bg-[#1c1b22] p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <FlaskConical className="w-3.5 h-3.5 text-white/70" />
+                <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Style</label>
+              </div>
+              <Select value={selectedStyle} onValueChange={(v) => setSelectedStyle(v)}>
+                <SelectTrigger className="h-11 rounded-lg bg-[#252329] border border-white/10 text-white font-medium text-base focus:ring-2 focus:ring-white/20">
+                  <SelectValue placeholder="Select style" />
                 </SelectTrigger>
-                <SelectContent className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-white/10 text-zinc-900 dark:text-zinc-200">
-                  {imageModels.map((model) => (
-                    <SelectItem key={model.id} value={model.id} className="focus:bg-zinc-100 dark:focus:bg-white/5">
-                      <div className="flex items-center gap-2 py-0.5">
-                        <span className="font-medium">{model.name}</span>
-                        {model.badge && <Badge className="text-[9px] h-4 bg-primary/20 text-primary border-0">{model.badge}</Badge>}
-                      </div>
+                <SelectContent className="bg-[#1c1b22] border-white/10">
+                  {styles.map((s) => (
+                    <SelectItem key={s.id} value={s.id} className="focus:bg-white/10 text-white">
+                      {s.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
 
-            {/* Visual Style */}
-            <div className="space-y-3">
-              <label className="text-[11px] font-bold uppercase tracking-wider text-zinc-500">Art Style</label>
-              <div className="flex flex-wrap gap-2">
-                {styles.map(s => (
-                    <button 
-                      key={s.id}
-                      onClick={() => setSelectedStyle(s.id)}
-                      className={cn(
-                        "px-2 py-1.5 rounded-full text-[11px] font-bold border border-zinc-200 dark:border-white/5 bg-white dark:bg-zinc-900/50 hover:border-zinc-400 dark:hover:border-white/20 transition-all text-zinc-600 dark:text-zinc-400",
-                        selectedStyle === s.id && "bg-zinc-900 text-white border-zinc-900 dark:bg-white dark:text-black dark:border-white shadow-sm"
-                      )}
-                    >
-                      {s.name}
-                    </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Aspect Ratio */}
+            {/* Content dimension – section with gradient border on selected */}
             {toolMode === "text2image" && (
-              <div className="space-y-3">
-                <label className="text-[11px] font-bold uppercase tracking-wider text-zinc-500">Canvas Dimensions</label>
+              <div className="rounded-xl border border-white/10 bg-[#1c1b22] p-4 space-y-3">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-sm font-medium text-white">Content dimension</span>
+                  <button type="button" className="p-0.5 rounded-full text-white/60 hover:text-white/90" aria-label="Help">
+                    <HelpCircle className="w-3.5 h-3.5" />
+                  </button>
+                </div>
                 <div className="grid grid-cols-4 gap-2">
-                  {aspectRatios.map((ratio) => (
-                    <Button
-                      key={ratio.value}
-                      variant="outline"
-                      className={cn(
-                        "h-12 flex-col gap-1 bg-white dark:bg-zinc-900/50 border-zinc-200 dark:border-white/5 hover:bg-zinc-100 dark:hover:bg-white/5 shadow-sm",
-                        aspectRatio === ratio.value && "border-primary bg-primary/5 dark:bg-primary/10"
-                      )}
-                      onClick={() => setAspectRatio(ratio.value)}
-                    >
-                      <span className="text-sm">{ratio.icon}</span>
-                      <span className="text-[9px] font-bold">{ratio.label}</span>
-                    </Button>
-                  ))}
+                  {aspectRatios.map((ratio) => {
+                    const isSelected = aspectRatio === ratio.value;
+                    return (
+                      <button
+                        key={ratio.value}
+                        type="button"
+                        onClick={() => setAspectRatio(ratio.value)}
+                        className={cn(
+                          "h-12 flex flex-col items-center justify-center gap-1 rounded-lg transition-all font-bold text-[9px] text-white relative overflow-hidden",
+                          isSelected
+                            ? "shadow-[0_0_0_1px_rgba(168,85,247,0.5),0_0_14px_rgba(168,85,247,0.35)]"
+                            : "border border-white/10 bg-[#252329] hover:border-white/20"
+                        )}
+                      >
+                        {isSelected ? (
+                          <span className="absolute inset-0 rounded-lg p-[2px] bg-gradient-to-r from-purple-400 via-fuchsia-400 to-blue-500">
+                            <span className="flex h-full w-full flex-col items-center justify-center gap-1 rounded-[5px] bg-[#1c1b22] text-white">
+                              <span className="text-sm">{ratio.icon}</span>
+                              <span>{ratio.label}</span>
+                            </span>
+                          </span>
+                        ) : (
+                          <>
+                            <span className="text-sm">{ratio.icon}</span>
+                            <span>{ratio.label}</span>
+                          </>
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
 
-            {/* Advanced Settings */}
-            <div className="pt-4">
-              <Collapsible open={isBasicSettingsOpen} onOpenChange={setIsBasicSettingsOpen} className="border border-zinc-200 dark:border-white/5 rounded-xl bg-white dark:bg-zinc-900/30 overflow-hidden shadow-sm">
-                <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-zinc-50 dark:hover:bg-white/5 transition-colors">
-                  <span className="text-[11px] font-bold uppercase text-zinc-500">Advanced Control</span>
-                  <ChevronDown className={cn("w-4 h-4 transition-transform", isBasicSettingsOpen && "rotate-180")} />
+            {/* Number of images – gradient border on selected, help icon */}
+            {toolMode === "text2image" && (
+              <div className="rounded-xl border border-white/10 bg-[#1c1b22] p-4 space-y-3">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-sm font-medium text-white">Number of images</span>
+                  <button type="button" className="p-0.5 rounded-full text-white/60 hover:text-white/90" aria-label="Help">
+                    <HelpCircle className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+                <div className="flex gap-2 flex-wrap">
+                  {[1, 2, 3, 4].map((n) => {
+                    const isSelected = numImages === n;
+                    return (
+                      <button
+                        key={n}
+                        type="button"
+                        onClick={() => setNumImages(n)}
+                        className={cn(
+                          "h-10 min-w-10 px-4 rounded-lg font-bold text-sm text-white transition-all relative",
+                          isSelected
+                            ? "shadow-[0_0_0_1px_rgba(168,85,247,0.5),0_0_14px_rgba(168,85,247,0.35)]"
+                            : "border border-white/10 bg-[#252329] hover:border-white/20"
+                        )}
+                      >
+                        {isSelected ? (
+                          <span className="absolute inset-0 rounded-lg p-[2px] bg-gradient-to-r from-purple-400 via-fuchsia-400 to-blue-500">
+                            <span className="flex h-full w-full items-center justify-center rounded-[5px] bg-[#1c1b22]">
+                              {n}
+                            </span>
+                          </span>
+                        ) : (
+                          n
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Advanced settings – dropdown, clear sub-border */}
+            <Collapsible>
+              <div className="rounded-xl border border-white/10 bg-[#1c1b22] overflow-hidden">
+                <CollapsibleTrigger className="group flex w-full items-center justify-between p-4 text-left hover:bg-white/5 transition-colors">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Advanced settings</span>
+                  <ChevronDown className="w-4 h-4 text-white/60 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                 </CollapsibleTrigger>
-                <CollapsibleContent className="p-4 pt-0 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-tight">Private Session</span>
-                    <Switch checked={privateMode} onCheckedChange={setPrivateMode} />
-                  </div>
-                  <Separator className="bg-zinc-200 dark:bg-white/5" />
-                  <div className="space-y-3">
-                    <div className="flex justify-between text-[10px] font-bold text-zinc-500">
-                        <span>STRENGTH</span>
-                        <span className="text-primary">{strength * 100}%</span>
+                <CollapsibleContent>
+                  <div className="px-4 pb-4 pt-0 space-y-3 border-t border-white/10">
+                    <div className="space-y-1.5 pt-3">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Seed (optional)</label>
+                      <Input
+                        type="number"
+                        placeholder="Random"
+                        className="h-9 text-sm text-white bg-[#252329] border border-white/10 placeholder:text-zinc-500"
+                      />
                     </div>
-                    <input type="range" min="0" max="1" step="0.05" value={strength} onChange={(e) => setStrength(parseFloat(e.target.value))} 
-                      className="w-full h-1 bg-zinc-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-primary" />
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Steps</label>
+                      <Input
+                        type="number"
+                        defaultValue="28"
+                        min={1}
+                        max={50}
+                        className="h-9 text-sm text-white bg-[#252329] border border-white/10"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Guidance scale</label>
+                      <Input
+                        type="number"
+                        defaultValue="7.5"
+                        min={1}
+                        max={20}
+                        step={0.5}
+                        className="h-9 text-sm text-white bg-[#252329] border border-white/10"
+                      />
+                    </div>
                   </div>
                 </CollapsibleContent>
-              </Collapsible>
+              </div>
+            </Collapsible>
+
+            {/* Enhance & Reset – single row with icons */}
+            <div className="rounded-xl border border-white/10 bg-[#1c1b22] p-3">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  className="flex-1 flex items-center justify-center gap-2 h-9 rounded-lg border border-white/10 bg-[#252329] text-zinc-400 hover:bg-white/10 hover:text-white hover:border-white/20 transition-all"
+                  title="Enhance"
+                >
+                  <Wand2 className="w-4 h-4 shrink-0" />
+                  <span className="text-xs font-medium">Enhance</span>
+                </button>
+                <button
+                  type="button"
+                  className="flex-1 flex items-center justify-center gap-2 h-9 rounded-lg border border-white/10 bg-[#252329] text-zinc-400 hover:bg-white/10 hover:text-white hover:border-white/20 transition-all"
+                  title="Reset"
+                >
+                  <RefreshCw className="w-4 h-4 shrink-0" />
+                  <span className="text-xs font-medium">Reset</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* MAIN CONTENT AREA */}
-        <div className="flex-1 flex flex-col bg-white dark:bg-black relative transition-colors duration-300">
-          
-          {/* PROMPT AREA - Soft Transition Surface */}
-          <div className="flex-shrink-0 p-6 sm:p-10 border-b border-zinc-200 dark:border-white/5 bg-zinc-50 dark:bg-zinc-900/20">
-            <div className="max-w-4xl mx-auto space-y-4">
-              <div className="relative group">
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-purple-600 rounded-2xl blur opacity-10 dark:opacity-20 group-focus-within:opacity-25 dark:group-focus-within:opacity-40 transition duration-1000"></div>
-                
-                {/* GREY INPUT BOX FOR LIGHT MODE */}
-                <div className="relative bg-zinc-100 dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-white/10 overflow-hidden shadow-xl transition-all focus-within:border-zinc-400 dark:focus-within:border-zinc-700">
-                  <Textarea
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
-                    placeholder="Describe your imagination in detail..."
-                    className="min-h-[120px] bg-transparent border-0 text-lg placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus-visible:ring-0 resize-none p-5 text-zinc-900 dark:text-zinc-100"
-                    onKeyDown={(e) => e.key === "Enter" && e.ctrlKey && handleGenerate()}
-                  />
-                  <div className="flex items-center justify-between p-3 bg-zinc-200/50 dark:bg-black/40 border-t border-zinc-300 dark:border-white/5">
-                    <div className="flex gap-2">
-                      <Button variant="ghost" size="sm" className="h-8 rounded-lg text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-300/50 dark:hover:bg-white/5 gap-2">
-                          <Zap className="w-3.5 h-3.5" />
-                          <span className="text-xs font-bold">Enhance</span>
-                      </Button>
-                      <Button variant="ghost" size="sm" className="h-8 rounded-lg text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-300/50 dark:hover:bg-white/5 gap-2">
-                          <RotateCcw className="w-3.5 h-3.5" />
-                          <span className="text-xs font-bold">Random</span>
-                      </Button>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Button 
-                        onClick={handleGenerate} 
-                        disabled={!prompt.trim() || isGenerating}
-                        className="bg-primary hover:bg-primary/90 text-primary-foreground h-9 px-6 rounded-xl font-bold shadow-lg shadow-primary/20 transition-all active:scale-95"
-                      >
-                        {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Sparkles className="w-4 h-4 mr-2" /> Generate</>}
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Canvas Viewport */}
-          <div className="flex-1 overflow-y-auto custom-scrollbar">
-            <div className="p-8 sm:p-12 max-w-7xl mx-auto">
+        {/* MAIN CONTENT AREA – output area with dark grid background (reference UI) */}
+        <div className="flex-1 flex flex-col bg-[#0B0C14] relative transition-colors duration-300">
+          {/* Generated output at top – more space for larger images */}
+          <div className="flex-1 overflow-y-auto custom-scrollbar min-h-0 relative">
+            {/* Subtle grid background */}
+            <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
+            <div className="relative z-10 p-5 sm:p-8 max-w-7xl mx-auto min-h-full">
               {generatedImages.length === 0 && !isGenerating ? (
-                <div className="h-[40vh] flex flex-col items-center justify-center text-center opacity-30">
-                  <div className="w-20 h-20 rounded-3xl bg-zinc-200 dark:bg-zinc-900 flex items-center justify-center mb-6">
-                    <ImageIcon className="w-10 h-10 text-zinc-500" />
+                <div className="min-h-[40vh] flex flex-col items-center justify-center text-center py-12">
+                  <div className="relative w-24 h-24 mb-6">
+                    <div className="absolute inset-0 rounded-2xl bg-white/5 border border-white/10 shadow-[0_0_24px_rgba(255,255,255,0.06)]" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Sparkles className="w-10 h-10 text-white/40" />
+                    </div>
                   </div>
-                  <h3 className="text-xl font-bold mb-2 text-zinc-900 dark:text-zinc-100">Ready to Create?</h3>
-                  <p className="max-w-xs text-sm text-zinc-500 dark:text-zinc-400 uppercase tracking-widest font-bold">Enter a prompt to see the magic happen</p>
+                  <h3 className="text-lg font-bold text-zinc-200 mb-2">Ready to Create</h3>
+                  <p className="text-sm text-zinc-500 max-w-sm">
+                    Enter your prompt in the sidebar and click generate to watch your imagination come to life.
+                  </p>
                 </div>
               ) : (
                 <div className="space-y-12">
                   <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-10">
                     <div className="space-y-6">
-                      <div className="flex items-center justify-between border-b border-zinc-200 dark:border-white/5 pb-4">
-                        <h2 className="text-sm font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">Creations Gallery</h2>
+                      <div className="flex items-center justify-between border-b border-white/5 pb-4">
+                        <h2 className="text-sm font-bold uppercase tracking-widest text-zinc-500">Creations Gallery</h2>
                         <div className="flex gap-2">
-                            <Button variant="outline" size="sm" className="h-8 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-white/5 shadow-sm">Grid View</Button>
-                            <Button variant="outline" size="sm" className="h-8 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-white/5 shadow-sm">History</Button>
+                            <Button variant="outline" size="sm" className="h-8 bg-white/5 border-white/10 text-zinc-300 hover:bg-white/10 hover:text-white shadow-sm">Grid View</Button>
+                            <Button variant="outline" size="sm" className="h-8 bg-white/5 border-white/10 text-zinc-300 hover:bg-white/10 hover:text-white shadow-sm">History</Button>
                         </div>
                       </div>
                       
-                      {/* Horizontal Gallery */}
+                      {/* Horizontal Gallery – larger cards so images look bigger */}
                       <div className="flex gap-6 overflow-x-auto pb-6 snap-x no-scrollbar">
                         {generatedImages.map((image) => (
                           <motion.div
@@ -733,8 +826,8 @@ const ImageToolsPage = () => {
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
                             className={cn(
-                              "relative flex-shrink-0 w-[300px] sm:w-[450px] group rounded-2xl overflow-hidden border-2 transition-all cursor-pointer snap-center shadow-xl",
-                              selectedImage?.id === image.id ? "border-primary shadow-2xl shadow-primary/10" : "border-transparent dark:border-white/5 hover:border-zinc-300 dark:hover:border-white/20"
+                              "relative flex-shrink-0 w-[340px] sm:w-[480px] lg:w-[560px] group rounded-2xl overflow-hidden border-2 transition-all cursor-pointer snap-center shadow-xl",
+                              selectedImage?.id === image.id ? "border-primary shadow-2xl shadow-primary/10" : "border-transparent border-white/5 hover:border-white/20"
                             )}
                             onClick={() => setSelectedImage(image)}
                           >
@@ -808,6 +901,39 @@ const ImageToolsPage = () => {
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+
+          {/* Prompt area at bottom – compact so output area gets more space */}
+          <div className="flex-shrink-0 p-3 sm:p-4 border-t border-white/5 bg-[#050509]">
+            <div className="w-full min-h-0">
+              <div className="rounded-xl bg-[#0B0C14] border border-white/10 shadow-[0_12px_32px_rgba(0,0,0,0.6)] overflow-hidden">
+                <div className="px-4 pt-4 pb-2">
+                  <Textarea
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    placeholder="Describe your imagination in detail..."
+                    className="min-h-[72px] max-h-[96px] w-full bg-transparent border-0 text-sm placeholder:text-zinc-500 focus-visible:ring-0 resize-none p-0 text-zinc-100 rounded-none"
+                    onKeyDown={(e) => e.key === "Enter" && e.ctrlKey && handleGenerate()}
+                  />
+                </div>
+                <div className="flex justify-end px-4 py-2 border-t border-white/10 bg-[#10121C]">
+                  <Button
+                    onClick={handleGenerate}
+                    disabled={!prompt.trim() || isGenerating}
+                    className="h-9 sm:h-10 px-5 sm:px-6 rounded-full text-sm font-semibold text-white bg-gradient-to-r from-[#FF6B47] via-[#FF6B47] to-[#FF9A4D] shadow-[0_8px_30px_rgba(0,0,0,0.6)] disabled:opacity-60 disabled:cursor-not-allowed active:scale-95 transition-transform"
+                  >
+                    {isGenerating ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4 mr-2" />
+                        Generate
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

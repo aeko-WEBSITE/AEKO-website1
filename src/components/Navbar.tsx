@@ -1,5 +1,5 @@
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
-import { Menu, X, MessageSquare, Image, Video, Sparkles, Bot, Plug, Film, Mic, Zap, ChevronDown } from "lucide-react";
+import { Menu, X, MessageSquare, Image, Video, Sparkles, Bot, Plug, Film, Mic, Zap, ChevronDown, User, LogOut } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -8,10 +8,13 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import logoDark from "@/assets/ChatGPT Image Dec 25, 2025, 03_45_44 PM.png";
-// import logoLight from "@/assets/ak-logo.png"; // Uncomment when you add the AK logo file
 import { useTheme } from "@/hooks/use-theme";
+import { useAuth } from "@/hooks/use-auth";
+import { toast } from "sonner";
+import Logo from "@/components/Logo";
+import UserAvatar from "@/components/UserAvatar";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -20,6 +23,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();
   const { scrollY } = useScroll();
+  const { user, isAuthenticated, logout } = useAuth();
 
   // Track scroll position for Dynamic Island morphing
   useMotionValueEvent(scrollY, "change", (latest) => {
@@ -137,9 +141,9 @@ const Navbar = () => {
             ease: [0.4, 0, 0.2, 1],
           }}
         >
-          {/* Glass Background with Blur - Theme Aware */}
+          {/* Glass Background with Blur - matches dashboard sidebar gradient */}
           <motion.div
-            className="relative overflow-hidden dark:bg-purple-950/50 dark:backdrop-blur-xl bg-purple-50/80 backdrop-blur-xl border dark:border-border border-border/50"
+            className="relative overflow-hidden bg-gradient-to-r from-purple-700 via-purple-800 to-purple-950 backdrop-blur-xl border border-purple-500/40"
             animate={{
               backdropFilter: "blur(20px) saturate(180%)",
               borderRadius: isScrolled || isOpen ? "20px" : "9999px",
@@ -189,59 +193,7 @@ const Navbar = () => {
             <div className="relative px-3 sm:px-4 md:px-6 py-1.5 md:py-2 z-10">
               <div className="flex items-center justify-between gap-2 sm:gap-4 md:gap-6 lg:gap-8">
                 {/* Left Side - Logo */}
-                <motion.a
-                  href="#"
-                  className="flex items-center gap-2 flex-shrink-0"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <div className="relative w-7 h-7 md:w-8 md:h-8 flex items-center justify-center">
-                    {/* Animated Border */}
-                    <motion.div
-                      className="absolute inset-0 rounded-full"
-                      style={{
-                        padding: '2px',
-                        background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.8), rgba(59, 130, 246, 0.8), rgba(34, 211, 238, 0.8), rgba(236, 72, 153, 0.8))',
-                        backgroundSize: '200% 200%',
-                        WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                        WebkitMaskComposite: 'xor',
-                        maskComposite: 'exclude',
-                      }}
-                      animate={{
-                        backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
-                      }}
-                      transition={{
-                        duration: 3,
-                        repeat: Infinity,
-                        ease: 'linear',
-                      }}
-                    />
-                    {/* Logo Container */}
-                    <div className="relative w-5 h-5 md:w-6 md:h-6 rounded-full overflow-hidden bg-transparent flex items-center justify-center">
-                      <img 
-                        src={logoDark} 
-                        alt="AEKO" 
-                        className="w-full h-full object-contain" 
-                      />
-                    </div>
-                  </div>
-                  <div className="flex items-baseline gap-0.5">
-                    <span className="text-sm md:text-base font-bold dark:text-white text-foreground">AEKO.</span>
-                    <motion.span
-                      className="text-sm md:text-base font-bold gradient-text"
-                      animate={{
-                        backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
-                      }}
-                      transition={{
-                        duration: 3,
-                        repeat: Infinity,
-                        ease: 'linear',
-                      }}
-                    >
-                      AI
-                    </motion.span>
-                  </div>
-                </motion.a>
+                <Logo size="md" href="/" />
 
                 {/* Right Side - All Nav Links + CTA */}
                 <div className="hidden sm:flex items-center gap-2 md:gap-4 lg:gap-6">
@@ -321,7 +273,73 @@ const Navbar = () => {
                     </motion.a>
                   ))}
                   
-                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  {isAuthenticated ? (
+                    <>
+                      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => navigate("/dashboard")}
+                          className="text-foreground/80 dark:text-foreground/90 hover:text-foreground dark:hover:text-foreground hover:bg-accent/50 dark:hover:bg-accent/50 text-xs md:text-sm px-2 md:px-4"
+                        >
+                          Dashboard
+                        </Button>
+                      </motion.div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <motion.button
+                            className="flex items-center gap-2 px-2 md:px-3 py-1.5 rounded-lg hover:bg-accent/50 dark:hover:bg-accent/50 transition-colors"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            <UserAvatar user={user} size="md" />
+                            <span className="text-xs md:text-sm text-foreground/80 dark:text-foreground/90 hidden md:inline">
+                              {user?.username || user?.email?.split('@')[0] || user?.role || 'User'}
+                            </span>
+                            <ChevronDown className="w-3 h-3 hidden md:block" />
+                          </motion.button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-56 backdrop-blur-xl bg-card dark:bg-card border border-border shadow-xl">
+                          <div className="px-2 py-1.5">
+                            <p className="text-sm font-medium text-foreground">{user?.username || user?.email || user?.role || 'User'}</p>
+                            <p className="text-xs text-muted-foreground truncate">{user?.email || `ID: ${user?.id?.slice(0, 8) || 'N/A'}...`}</p>
+                          </div>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onClick={() => navigate("/dashboard/account")}
+                            className="cursor-pointer hover:bg-accent/50 dark:hover:bg-accent/50"
+                          >
+                            <User className="w-4 h-4 mr-2" />
+                            Account Settings
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => navigate("/dashboard")}
+                            className="cursor-pointer hover:bg-accent/50 dark:hover:bg-accent/50"
+                          >
+                            <Zap className="w-4 h-4 mr-2" />
+                            Dashboard
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onClick={async () => {
+                              try {
+                                await logout();
+                                toast.success("Logged out successfully");
+                              } catch (error: any) {
+                                toast.error(error.message || "Error logging out");
+                              }
+                            }}
+                            className="cursor-pointer text-destructive hover:bg-destructive/10 hover:text-destructive"
+                          >
+                            <LogOut className="w-4 h-4 mr-2" />
+                            Logout
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </>
+                  ) : (
+                    <>
+                      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -332,7 +350,7 @@ const Navbar = () => {
                     </Button>
                   </motion.div>
                   
-                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
                     <Button
                       variant="default"
                       size="sm"
@@ -342,6 +360,8 @@ const Navbar = () => {
                       Start Creating
                     </Button>
                   </motion.div>
+                    </>
+                  )}
                 </div>
 
                 {/* Mobile Menu Button */}
@@ -452,6 +472,57 @@ const Navbar = () => {
                 ))}
                 
                 <div className="pt-4 border-t border-border space-y-2">
+                  {isAuthenticated ? (
+                    <>
+                      <div className="px-3 py-2 mb-2">
+                        <p className="text-sm font-medium text-foreground">{user?.username || user?.email || user?.role || 'User'}</p>
+                        <p className="text-xs text-muted-foreground truncate">{user?.email || `ID: ${user?.id?.slice(0, 8) || 'N/A'}...`}</p>
+                      </div>
+                      <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-center text-foreground hover:bg-accent/50 dark:hover:bg-accent/50"
+                          onClick={() => {
+                            setIsOpen(false);
+                            navigate("/dashboard");
+                          }}
+                        >
+                          Dashboard
+                        </Button>
+                      </motion.div>
+                      <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-center text-foreground hover:bg-accent/50 dark:hover:bg-accent/50"
+                          onClick={() => {
+                            setIsOpen(false);
+                            navigate("/dashboard/account");
+                          }}
+                        >
+                          Account Settings
+                        </Button>
+                      </motion.div>
+                      <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-center text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/20"
+                          onClick={async () => {
+                            setIsOpen(false);
+                            try {
+                              await logout();
+                              toast.success("Logged out successfully");
+                            } catch (error: any) {
+                              toast.error(error.message || "Error logging out");
+                            }
+                          }}
+                        >
+                          <LogOut className="w-4 h-4 mr-2" />
+                          Logout
+                        </Button>
+                      </motion.div>
+                    </>
+                  ) : (
+                    <>
                   <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                     <Button
                       variant="ghost"
@@ -476,6 +547,8 @@ const Navbar = () => {
                       Start Creating
                     </Button>
                   </motion.div>
+                    </>
+                  )}
                 </div>
               </div>
             </motion.div>

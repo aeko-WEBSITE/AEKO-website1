@@ -20,18 +20,18 @@ import {
   Store,
   Briefcase,
 } from "lucide-react";
-import logoDark from "@/assets/ChatGPT Image Dec 25, 2025, 03_45_44 PM.png";
-// import logoLight from "@/assets/ak-logo.png"; // Uncomment when you add the AK logo file
 import { Button } from "@/components/ui/button";
+import Logo from "@/components/Logo";
+import UserAvatar from "@/components/UserAvatar";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { authAPI } from "@/lib/api";
 import { toast } from "sonner";
 import { useTheme } from "@/hooks/use-theme";
+import { useAuth } from "@/hooks/use-auth";
 
 const navItems = [
   { path: "/dashboard", icon: Home, label: "Dashboard" },
@@ -51,6 +51,7 @@ const DashboardLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
+  const { user, logout } = useAuth();
 
   const isToolsActive = location.pathname.startsWith("/dashboard/tools-old");
   // Auto-open dropdown if on tools page
@@ -75,11 +76,13 @@ const DashboardLayout = () => {
     }
   }, [isToolsActive]);
 
-  const handleLogout = () => {
-    // Clear auth state (localStorage) and redirect to landing page
-    authAPI.logout();
-    toast.success("You have been logged out");
-    navigate("/");
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast.success("You have been logged out");
+    } catch (error: any) {
+      toast.error(error.message || "Error during logout");
+    }
   };
 
   return (
@@ -91,12 +94,12 @@ const DashboardLayout = () => {
             sidebarOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
-          {/* Subtle Animated Border - Theme Aware */}
+          {/* Subtle Animated Border - Purple accent */}
           <motion.div
-            className="absolute inset-0 rounded-r-2xl pointer-events-none dark:opacity-40 opacity-20"
+            className="absolute inset-0 rounded-r-2xl pointer-events-none opacity-60"
             style={{
               padding: '1px',
-              background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(14, 165, 233, 0.3), rgba(34, 197, 94, 0.3), rgba(236, 72, 153, 0.3))',
+              background: 'linear-gradient(135deg, rgba(126, 34, 206, 0.5), rgba(139, 92, 246, 0.5), rgba(168, 85, 247, 0.4))',
               backgroundSize: '200% 200%',
               WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
               WebkitMaskComposite: 'xor',
@@ -112,46 +115,17 @@ const DashboardLayout = () => {
             }}
           />
           
-          <div className="flex flex-col h-full dark:bg-card bg-white border-r border-border rounded-r-2xl relative z-10 backdrop-blur-sm">
-            {/* Subtle Gradient Overlay - Theme Aware */}
-            <div className="absolute inset-0 dark:bg-gradient-to-br dark:from-primary/5 dark:via-transparent dark:to-transparent bg-gradient-to-br from-indigo-50/30 via-blue-50/20 to-purple-50/30 rounded-r-2xl pointer-events-none" />
+          <div className="flex flex-col h-full rounded-r-2xl relative z-10 overflow-hidden sidebar-header-match border-r border-purple-600/40 dark:border-purple-500/30 bg-gradient-to-b from-purple-700 via-purple-800 to-purple-950 dark:from-purple-800 dark:via-purple-900 dark:to-purple-950 backdrop-blur-xl shadow-[4px_0_24px_-4px_rgba(126,34,206,0.25)]">
+            {/* Subtle purple gradient overlay for depth */}
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-violet-950/20 pointer-events-none rounded-r-2xl" />
             <div className="relative z-10 flex flex-col h-full">
             {/* Logo */}
-            <div className="flex items-center justify-center py-3 sm:py-4 md:py-5 border-b border-border relative">
+            <div className="flex items-center justify-center py-3 sm:py-4 md:py-5 border-b border-purple-500/30 dark:border-purple-400/20 relative">
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Link to="/" className="flex items-center justify-center">
-                    <div className="relative w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center">
-                      {/* Subtle Animated Border */}
-                      <motion.div
-                        className="absolute inset-0 rounded-full opacity-30 dark:opacity-50"
-                        style={{
-                          padding: '2px',
-                          background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.4), rgba(14, 165, 233, 0.4), rgba(34, 197, 94, 0.4))',
-                          backgroundSize: '200% 200%',
-                          WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                          WebkitMaskComposite: 'xor',
-                          maskComposite: 'exclude',
-                        }}
-                        animate={{
-                          backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
-                        }}
-                        transition={{
-                          duration: 3,
-                          repeat: Infinity,
-                          ease: 'linear',
-                        }}
-                      />
-                      {/* Logo Container */}
-                      <div className="relative w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden bg-transparent flex items-center justify-center">
-                        <img 
-                          src={logoDark} 
-                          alt="AEKO" 
-                          className="w-full h-full object-contain" 
-                        />
-                      </div>
-                    </div>
-                  </Link>
+                  <div>
+                    <Logo size="md" href="/" />
+                  </div>
                 </TooltipTrigger>
                 <TooltipContent side="right">
                   <p>AEKO.AI</p>
@@ -605,7 +579,7 @@ const DashboardLayout = () => {
             </nav>
 
             {/* Bottom Actions */}
-            <div className="px-1.5 sm:px-2 pb-2 sm:pb-3 space-y-1 border-t border-border pt-2 sm:pt-3 mt-auto">
+            <div className="px-1.5 sm:px-2 pb-2 sm:pb-3 space-y-1 border-t border-purple-500/30 dark:border-purple-400/20 pt-2 sm:pt-3 mt-auto">
               {/* Theme Toggle */}
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -662,9 +636,7 @@ const DashboardLayout = () => {
                       to="/dashboard/account"
                       className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent/50 dark:hover:bg-accent/50 transition-all"
                     >
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-medium text-sm">
-                        A
-                      </div>
+                      <UserAvatar user={user} size="md" />
                       {/* Click Animation Effect - Theme Aware */}
                       <motion.div
                         className="absolute inset-0 rounded-full bg-primary/20 dark:bg-primary/30 blur-xl"

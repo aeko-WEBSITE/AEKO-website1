@@ -10,14 +10,9 @@ import {
   Globe,
   Sparkles,
   MessageSquare,
-  ShoppingCart,
-  Headphones,
-  Briefcase,
   Zap,
   CheckCircle2,
   Ticket,
-  Clock,
-  FileCheck,
   ArrowRight,
   ArrowDown,
   ArrowDownRight,
@@ -42,20 +37,17 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 const CreateAgentSection = () => {
   const [agentDescription, setAgentDescription] = useState("");
-  const [agentName, setAgentName] = useState("");
   const [selectedModel, setSelectedModel] = useState("GPT-4 Turbo");
   const [webSearchEnabled, setWebSearchEnabled] = useState(false);
   const [isModelOpen, setIsModelOpen] = useState(false);
   const [isModeOpen, setIsModeOpen] = useState(false);
-  const [selectedMode, setSelectedMode] = useState("AI Agent");
+  const [selectedMode, setSelectedMode] = useState("Support Agent");
 
   const models = [
     "GPT-4 Turbo",
@@ -67,96 +59,96 @@ const CreateAgentSection = () => {
   ];
 
   const modes = [
-    "AI Agent",
-    "Image to Agent",
-    "Text to Agent",
+    "Support Agent",
+    "Booking Agent",
+    "Image/Video Agent",
+    "Data Analysis Agent",
+    "Lead Management Agent",
+    "Sales Agent",
+    "Content Creation Agent",
   ];
 
-  const useCases = [
-    {
-      title: "Customer Support Agent",
-      description: "Autonomous resolution for order tracking and logistics.",
-      example: "Customer: Status of order #AE-992? It was due yesterday.\nAgent: Package is at the Vasai hub; out for delivery by 6 PM today.",
-      icon: Headphones,
-      color: "from-green-500 to-emerald-500",
-    },
-    {
-      title: "E-commerce Assistant",
-      description: "Scale personalized shopping and custom order workflows.",
-      example: "Customer: Is the Midnight Hoodie in Size L available for ₹1,499?\nAgent: Yes, 4 units left. Would you like to proceed to checkout?",
-      icon: ShoppingCart,
-      color: "from-primary to-primary/80",
-    },
-    {
-      title: "Travel Booking Agent",
-      description: "Real-time API integration for flight and hotel management.",
-      example: "Customer: My flight is delayed. Rebook me on the next available.\nAgent: Rebooked on Indigo 6E-2134 at 12:45 PM. Seat 12F confirmed.",
-      icon: Briefcase,
-      color: "from-blue-500 to-cyan-500",
-    },
-    {
-      title: "Business Intelligence",
-      description: "Convert unstructured conversation into actionable data insights.",
-      example: "Admin: Why are returns increasing for the Summer Collection?\nAgent: 65% of tickets cite sizing inconsistencies across those SKUs.",
-      icon: Zap,
-      color: "from-orange-500 to-red-500",
-    },
-  ];
-
-  const features = [
+  const whatItDoesFeatures = [
     {
       icon: MessageSquare,
       title: "Handle customer inquiries 24/7",
-      description: "Round-the-clock support with instant responses",
-      color: "from-blue-500 to-cyan-500",
-    },
-    {
-      icon: ShoppingCart,
-      title: "Process orders and bookings automatically",
-      description: "Seamless order management and booking systems",
-      color: "from-primary to-primary/80",
+      description: "Round-the-clock support with instant responses. Talk to your agent on any channel—DMs and group chats.",
     },
     {
       icon: Zap,
       title: "Analyze sentiment and resolve issues",
-      description: "Real-time sentiment analysis and issue resolution",
-      color: "from-orange-500 to-red-500",
+      description: "Real-time sentiment analysis and issue resolution. Your data stays private by default.",
     },
     {
       icon: Globe,
       title: "Integrate with your existing tools",
-      description: "Connect with your favorite business tools",
-      color: "from-green-500 to-emerald-500",
+      description: "Connect with your favorite business tools and APIs. Works with the apps you already use.",
     },
     {
       icon: Sparkles,
       title: "Learn from your business data",
-      description: "AI-powered insights from your data",
-      color: "from-primary to-primary/80",
+      description: "AI-powered insights and personalization from your data. Becomes uniquely yours over time.",
     },
     {
       icon: Rocket,
       title: "Scale with your business needs",
-      description: "Grow seamlessly as your business expands",
-      color: "from-pink-500 to-rose-500",
+      description: "Grow seamlessly as your business expands. Full access or sandboxed—your choice.",
     },
     {
       icon: Ticket,
       title: "Support ticket creation",
-      description: "Automated ticket generation and tracking",
-      color: "from-yellow-500 to-orange-500",
+      description: "Automated ticket generation and tracking. Extend with community skills or build your own.",
+    },
+  ];
+
+  const integrations = [
+    "WhatsApp", "Telegram", "Discord", "Slack", "Signal", "iMessage",
+    "Claude", "GPT", "Spotify", "Hue", "Obsidian", "X Twitter",
+    "Browser", "Gmail", "GitHub",
+  ];
+
+  const bestWorkingAgents = [
+    {
+      title: "Support Agent",
+      subtitle: "Customer Support AI",
+      bestFor: "eCommerce, SaaS, startups",
+      features: ["24/7 auto replies", "FAQ answering", "Order tracking", "Refund handling", "Escalate to human agent", "Multi-language"],
+      summary: "Replace 3 support staff with 1 AI agent",
     },
     {
-      icon: Clock,
-      title: "Reminder tool",
-      description: "Never miss important deadlines",
-      color: "from-teal-500 to-cyan-500",
+      title: "Booking Agent",
+      subtitle: "Appointment Scheduler",
+      bestFor: "Clinics, salons, consultants, agencies",
+      features: ["Book meetings automatically", "Calendar integration (Google/Outlook)", "Send reminders", "Reschedule / cancel", "Time-zone detection"],
+      summary: "Very high demand globally.",
     },
     {
-      icon: FileCheck,
-      title: "Docs convert tool",
-      description: "Transform documents effortlessly",
-      color: "from-primary to-primary/80",
+      title: "Lead Management Agent",
+      subtitle: null,
+      bestFor: "Agencies, real estate, B2B companies",
+      features: ["Capture leads from website", "Qualify using questions", "Score leads (Hot/Warm/Cold)", "Send to CRM", "Follow-up automatically"],
+      summary: "Powerful for B2B market.",
+    },
+    {
+      title: "Sales Agent",
+      subtitle: null,
+      bestFor: "SaaS, service providers",
+      features: ["Product recommendation", "Handle objections", "Upsell / cross-sell", "Close deals via chat", "Generate invoices"],
+      summary: "AI Closer Agent",
+    },
+    {
+      title: "Content Creation Agent",
+      subtitle: null,
+      bestFor: "Marketers, founders, agencies",
+      features: ["Blog writing", "Social media posts", "Ad copy", "Email campaigns", "SEO optimization"],
+      summary: "Offer different tone settings (professional, bold, casual).",
+    },
+    {
+      title: "Data Analysis Agent",
+      subtitle: null,
+      bestFor: "Business owners, enterprises",
+      features: ["Upload Excel/CSV", "Generate insights", "Create reports", "Predict trends", "Dashboard summary"],
+      summary: "Makes your platform look enterprise-level.",
     },
   ];
 
@@ -203,6 +195,10 @@ const CreateAgentSection = () => {
             </h2>
           </motion.div>
 
+          {/* Left / Center (playground) / Right */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+            <div className="hidden lg:block lg:col-span-2 min-h-[200px]" aria-label="Left content area" />
+            <div className="lg:col-span-8">
           {/* Main Card - Modern Design */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -250,73 +246,69 @@ const CreateAgentSection = () => {
                 
                 <div className="absolute inset-0 dark:inset-[4px] rounded-3xl bg-card/95 dark:bg-card/30 backdrop-blur-xl border dark:border-none border-border/60 group-hover/card:border-primary/20 transition-all duration-300" style={{ borderRadius: '22px' }} />
                 
-                <div className="relative z-10">
-                  <div className="mb-6">
+                <div className="relative z-10 px-1">
+                  {/* Textarea – full width within card, consistent padding */}
+                  <div className="mb-5">
                     <textarea
                       value={agentDescription}
                       onChange={(e) => setAgentDescription(e.target.value)}
                       placeholder="Describe agent personality (e.g., 'Handle Shopify support tickets')"
                       rows={4}
-                      className="w-full px-4 py-3 rounded-xl bg-background/80 backdrop-blur-sm border border-border/50 text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-300 resize-none relative z-10 hover:border-primary/30 hover:shadow-md"
+                      className="w-full min-h-[104px] px-4 py-3.5 rounded-xl bg-black/95 text-foreground placeholder:text-muted-foreground/60 border border-white/10 focus:outline-none focus:ring-2 focus:ring-primary/60 focus:border-primary/60 transition-all duration-300 resize-none text-sm leading-relaxed"
                     />
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-border/50">
-                    <DropdownMenu open={isModeOpen} onOpenChange={setIsModeOpen}>
-                      <DropdownMenuTrigger asChild>
-                        <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary/50 hover:bg-secondary/70 border border-border/50 text-foreground text-sm transition-all duration-300 hover:border-primary/30 hover:shadow-md hover:scale-105 active:scale-100 group">
-                          <Bot className="w-4 h-4 transition-transform duration-300 group-hover:rotate-12" />
-                          <span>{selectedMode}</span>
-                          <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform duration-300 group-data-[state=open]:rotate-180" />
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="start">
-                        {modes.map((mode) => (
-                          <DropdownMenuItem key={mode} onClick={() => { setSelectedMode(mode); setIsModeOpen(false); }} className="cursor-pointer">{mode}</DropdownMenuItem>
-                        ))}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                  {/* Controls row – left group aligned, Deploy right; same height */}
+                  <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-border/50">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <DropdownMenu open={isModeOpen} onOpenChange={setIsModeOpen}>
+                        <DropdownMenuTrigger asChild>
+                          <button className="flex items-center gap-2 h-10 px-4 rounded-lg bg-secondary/50 hover:bg-secondary/70 border border-border/50 text-foreground text-sm transition-all duration-300 hover:border-primary/30 hover:shadow-sm group">
+                            <Bot className="w-4 h-4 shrink-0" />
+                            <span>{selectedMode}</span>
+                            <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0 group-data-[state=open]:rotate-180 transition-transform" />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="start">
+                          {modes.map((mode) => (
+                            <DropdownMenuItem key={mode} onClick={() => { setSelectedMode(mode); setIsModeOpen(false); }} className="cursor-pointer">{mode}</DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
 
-                    <DropdownMenu open={isModelOpen} onOpenChange={setIsModelOpen}>
-                      <DropdownMenuTrigger asChild>
-                        <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary/50 hover:bg-secondary/70 border border-border/50 text-foreground text-sm transition-all duration-300 hover:border-primary/30 hover:shadow-md hover:scale-105 active:scale-100 group">
-                          <Sparkles className="w-4 h-4 transition-transform duration-300 group-hover:rotate-12" />
-                          <span>{selectedModel}</span>
-                          <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform duration-300 group-data-[state=open]:rotate-180" />
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="start">
-                        {models.map((model) => (
-                          <DropdownMenuItem key={model} onClick={() => { setSelectedModel(model); setIsModelOpen(false); }} className="cursor-pointer">{model}</DropdownMenuItem>
-                        ))}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                      <DropdownMenu open={isModelOpen} onOpenChange={setIsModelOpen}>
+                        <DropdownMenuTrigger asChild>
+                          <button className="flex items-center gap-2 h-10 px-4 rounded-lg bg-secondary/50 hover:bg-secondary/70 border border-border/50 text-foreground text-sm transition-all duration-300 hover:border-primary/30 hover:shadow-sm group">
+                            <Sparkles className="w-4 h-4 shrink-0" />
+                            <span>{selectedModel}</span>
+                            <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0 group-data-[state=open]:rotate-180 transition-transform" />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="start">
+                          {models.map((model) => (
+                            <DropdownMenuItem key={model} onClick={() => { setSelectedModel(model); setIsModelOpen(false); }} className="cursor-pointer">{model}</DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
 
-                    <div className="h-6 w-px bg-border/50" />
+                      <div className="h-5 w-px bg-border/50 shrink-0 hidden sm:block" />
 
-                    <button
-                      onClick={() => setWebSearchEnabled(!webSearchEnabled)}
-                      className={`flex items-center justify-center w-10 h-10 rounded-lg border transition-all duration-300 hover:shadow-md hover:scale-110 active:scale-100 group ${webSearchEnabled ? "bg-primary/10 border-primary/50 text-primary hover:bg-primary/20" : "bg-secondary/50 border-border/50 text-foreground hover:bg-secondary/70"}`}
-                      title="Web Search"
-                    >
-                      <Globe className={`w-4 h-4 transition-transform duration-300 ${webSearchEnabled ? 'rotate-12' : 'group-hover:rotate-12'}`} />
-                    </button>
+                      <button
+                        onClick={() => setWebSearchEnabled(!webSearchEnabled)}
+                        className={`flex items-center justify-center h-10 w-10 rounded-lg border transition-all duration-300 hover:shadow-sm shrink-0 ${webSearchEnabled ? "bg-primary/10 border-primary/50 text-primary" : "bg-secondary/50 border-border/50 text-foreground hover:bg-secondary/70"}`}
+                        title="Web Search"
+                      >
+                        <Globe className="w-4 h-4" />
+                      </button>
 
-                    <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary/50 hover:bg-secondary/70 border border-border/50 text-foreground text-sm transition-all duration-300 hover:border-primary/30 hover:shadow-md hover:scale-105 active:scale-100 group">
-                      <FileText className="w-4 h-4 transition-transform duration-300 group-hover:scale-110" />
-                      <span>Upload File</span>
-                    </button>
+                      <button className="flex items-center gap-2 h-10 px-4 rounded-lg bg-secondary/50 hover:bg-secondary/70 border border-border/50 text-foreground text-sm transition-all duration-300 hover:border-primary/30 hover:shadow-sm shrink-0">
+                        <FileText className="w-4 h-4 shrink-0" />
+                        <span className="whitespace-nowrap">Upload File</span>
+                      </button>
+                    </div>
 
-                    <input
-                      type="text"
-                      value={agentName}
-                      onChange={(e) => setAgentName(e.target.value)}
-                      placeholder="Agent Name"
-                      className="px-4 py-2 rounded-lg bg-secondary/50 border border-border/50 text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-300 text-sm min-w-[120px] hover:border-primary/30 hover:shadow-md"
-                    />
-                    
-                    <Button variant="hero" size="lg" className="ml-auto gap-2 px-6 transition-all duration-300 hover:scale-105 active:scale-100 disabled:opacity-50 disabled:cursor-not-allowed group" disabled={!agentDescription.trim() || !agentName.trim()}>
-                      <Rocket className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
+                    <Button variant="hero" size="default" className="h-10 gap-2 px-5 shrink-0 transition-all duration-300 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed" disabled={!agentDescription.trim()}>
+                      <Rocket className="w-4 h-4 shrink-0" />
                       Deploy
                     </Button>
                   </div>
@@ -333,6 +325,9 @@ const CreateAgentSection = () => {
               , and <span className="gradient-text font-bold">videos</span> — powered by the world's best models.
             </p>
           </motion.div>
+            </div>
+            <div className="hidden lg:block lg:col-span-2 min-h-[200px]" aria-label="Right content area" />
+          </div>
 
           {/* Automate 80%+ Section */}
           <motion.div initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.4 }} className="mt-20 max-w-7xl mx-auto">
@@ -386,98 +381,116 @@ const CreateAgentSection = () => {
             </div>
           </motion.div>
 
-          {/* Launch AI Agents Section - Professional Refined Design */}
-          <motion.div initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.6 }} className="mt-24 max-w-6xl mx-auto px-4">
-            <div className="text-center mb-12">
-              <h3 className="text-3xl md:text-4xl font-bold text-foreground mb-4 tracking-tight">Launch AI Agents in Minutes</h3>
-              <p className="text-muted-foreground max-w-2xl mx-auto text-lg font-medium">Deploy specialized agents tailored to your business workflows without writing code.</p>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {useCases.map((useCase, index) => {
-                const Icon = useCase.icon;
-                return (
-                  <motion.div key={useCase.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: index * 0.1 }}>
-                    <Accordion type="single" collapsible className="w-full">
-                      <AccordionItem value={`item-${index}`} className="border border-border/60 rounded-2xl bg-card/50 dark:bg-zinc-900/40 backdrop-blur-sm overflow-hidden transition-all hover:border-primary/40 shadow-sm">
-                        <AccordionTrigger className="hover:no-underline px-6 py-5 group">
-                          <div className="flex items-center gap-4 text-left">
-                            <div className={`absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b ${useCase.color}`} />
-                            <div className={`p-2.5 rounded-xl bg-gradient-to-br ${useCase.color} flex-shrink-0 shadow-lg`}><Icon className="w-5 h-5 text-white" /></div>
-                            <div>
-                              <h4 className="text-base font-bold text-foreground group-hover:text-primary transition-colors">{useCase.title}</h4>
-                              <p className="text-sm text-muted-foreground line-clamp-1 font-normal">{useCase.description}</p>
-                            </div>
-                          </div>
-                        </AccordionTrigger>
-                        <AccordionContent className="px-6 pb-6 pt-2">
-                          <div className="rounded-xl bg-muted/30 dark:bg-black/40 border border-border/40 p-4 space-y-4">
-                            <div className="flex items-center gap-2 mb-2">
-                              <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-                              <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Live Simulation</span>
-                            </div>
-                            <div className="space-y-3">
-                              {useCase.example.split('\n').map((line, lineIndex) => {
-                                const isCustomer = line.startsWith('Customer:') || line.startsWith('Admin:');
-                                return (
-                                  <div key={lineIndex} className={`flex ${isCustomer ? 'justify-start' : 'justify-end'}`}>
-                                    <div className={`max-w-[85%] px-4 py-2.5 rounded-2xl text-sm ${isCustomer ? 'bg-white dark:bg-zinc-800 border border-border/50 text-foreground rounded-tl-none shadow-sm' : 'bg-primary text-primary-foreground rounded-tr-none shadow-md'}`}>
-                                      <span className="block text-[10px] opacity-70 mb-1 font-bold">{isCustomer ? 'USER' : 'AI AGENT'}</span>
-                                      {line.replace(/^(Customer:|Agent:|Admin:)\s*/, '')}
-                                    </div>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        </AccordionContent>
-                      </AccordionItem>
-                    </Accordion>
-                  </motion.div>
-                );
-              })}
-            </div>
-          </motion.div>
-
-          {/* Capabilities Grid - Features */}
+          {/* What It Does + Works With Everything - Reference UI */}
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.7 }} className="mt-24">
-            <div className="relative rounded-3xl p-8 lg:p-10 dark:p-10 dark:lg:p-12 shadow-2xl overflow-hidden border-2 border-border/60 dark:border-white" style={{ borderRadius: '24px' }}>
-              <motion.div
-                className="absolute inset-0 rounded-3xl pointer-events-none hidden dark:block"
-                style={{
-                  padding: '4px',
-                  background: 'linear-gradient(135deg, #7C3AED, #3B82F6, #22D3EE, #10B981, #F59E0B, #EC4899, #7C3AED)',
-                  backgroundSize: '300% 300%',
-                  WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                  WebkitMaskComposite: 'xor',
-                  maskComposite: 'exclude',
-                }}
-                animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
-                transition={{ duration: 5, repeat: Infinity, ease: 'linear' }}
-              />
-              <div className="absolute inset-0 dark:inset-[4px] rounded-3xl bg-card/95 dark:bg-[#121212] backdrop-blur-2xl" style={{ borderRadius: '22px' }} />
-              <div className="relative z-10">
-                <div className="text-center mb-12">
-                  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 dark:bg-primary/20 border border-primary/20 dark:border-primary/30 mb-4">
-                    <Sparkles className="w-4 h-4 text-primary" /><span className="text-xs font-semibold text-primary uppercase tracking-wider">Capabilities</span>
-                  </div>
-                  <h4 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-foreground mb-4 tracking-tight">What Your Custom Agent Can Do</h4>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 lg:gap-4">
-                  {features.map((feature, index) => {
-                    const Icon = feature.icon;
-                    return (
-                      <motion.div key={index} className="group" initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: 0.8 + index * 0.05 }}>
-                        <div className="relative h-full p-4 rounded-xl bg-background/80 dark:bg-white/5 border border-border/50 dark:border-white/10 hover:border-primary/40 transition-all duration-300 hover:-translate-y-1 overflow-hidden shadow-sm">
-                          <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-[0.08] dark:group-hover:opacity-[0.12] transition-opacity duration-500`} />
-                          <div className="relative z-10 flex flex-col items-center gap-3 text-center h-full">
-                            <div className={`relative w-14 h-14 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}><Icon className="w-7 h-7 text-white" /></div>
-                            <h5 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors leading-snug line-clamp-2">{feature.title}</h5>
+            <div className="relative rounded-2xl p-8 lg:p-10 overflow-hidden bg-card/80 dark:bg-[#0a0a0a] border border-border/50 dark:border-white/10">
+              {/* Subtle dot pattern */}
+              <div className="absolute inset-0 pointer-events-none opacity-30">
+                <div className="absolute top-1/4 left-1/4 w-2 h-2 rounded-full bg-purple-500/40 blur-sm" />
+              <div className="absolute top-1/3 right-1/3 w-2 h-2 rounded-full bg-sky-400/30 blur-sm" />
+              <div className="absolute bottom-1/4 right-1/4 w-2 h-2 rounded-full bg-purple-500/30 blur-sm" />
+              </div>
+              <div className="relative z-10 space-y-14">
+                {/* What It Does */}
+                <div>
+                  <h4 className="text-2xl md:text-3xl font-bold text-foreground mb-8 flex items-center gap-2">
+                    <span className="text-purple-500">&gt;</span> What It Does
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-5">
+                    {whatItDoesFeatures.map((feature, index) => {
+                      const Icon = feature.icon;
+                      return (
+                        <motion.div
+                          key={index}
+                          initial={{ opacity: 0, y: 16 }}
+                          whileInView={{ opacity: 1, y: 0 }}
+                          viewport={{ once: true }}
+                          transition={{ duration: 0.4, delay: index * 0.06 }}
+                          className="group rounded-xl p-5 bg-background/60 dark:bg-white/[0.06] border border-border/50 dark:border-white/10 hover:border-purple-500/30 transition-all duration-300"
+                        >
+                          <div className="flex flex-col h-full">
+                            <div className="mb-3 flex justify-center">
+                              <div className="rounded-lg p-2.5 border-2 border-purple-500/80 text-purple-500 dark:border-purple-500 dark:text-purple-500 group-hover:border-sky-400 group-hover:text-sky-400 transition-colors">
+                                <Icon className="w-6 h-6" strokeWidth={2} />
+                              </div>
+                            </div>
+                            <h5 className="text-base font-bold text-foreground mb-2 text-center">{feature.title}</h5>
+                            <p className="text-sm text-muted-foreground leading-relaxed text-center flex-1">{feature.description}</p>
                           </div>
-                        </div>
-                      </motion.div>
-                    );
-                  })}
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Best working bot - title visible, extra detail in dropdown */}
+                <div>
+                  <h4 className="text-2xl md:text-3xl font-bold text-foreground mb-8 flex items-center gap-2">
+                    <span className="text-purple-500">&gt;</span> Best working bot
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-5">
+                    {bestWorkingAgents.map((agent, index) => (
+                      <Collapsible key={index} className="group/card">
+                        <motion.div
+                          initial={{ opacity: 0, y: 16 }}
+                          whileInView={{ opacity: 1, y: 0 }}
+                          viewport={{ once: true }}
+                          transition={{ duration: 0.4, delay: index * 0.05 }}
+                          className="rounded-xl border border-border/50 dark:border-white/10 hover:border-purple-500/30 transition-all duration-300 overflow-hidden bg-background/60 dark:bg-white/[0.06]"
+                        >
+                          <CollapsibleTrigger className="w-full rounded-xl p-5 text-left flex items-center gap-3 hover:bg-white/5 dark:hover:bg-white/5 transition-colors">
+                            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-sm font-bold text-white">
+                              {index + 1}
+                            </div>
+                            <h5 className="text-base font-bold text-foreground dark:text-white flex-1">{agent.title}</h5>
+                            <ChevronDown className="w-5 h-5 text-muted-foreground dark:text-white/60 flex-shrink-0 transition-transform duration-200 group-data-[state=open]/card:rotate-180" />
+                          </CollapsibleTrigger>
+                          <CollapsibleContent>
+                            <div className="px-5 pb-5 pt-0 space-y-3 border-t border-border/50 dark:border-white/10">
+                              {agent.subtitle && (
+                                <p className="text-xs text-muted-foreground dark:text-white/60">({agent.subtitle})</p>
+                              )}
+                              <p className="text-xs text-muted-foreground dark:text-white/70">
+                                <span className="font-medium text-foreground dark:text-white/90">Best for:</span> {agent.bestFor}
+                              </p>
+                              <ul className="space-y-1.5">
+                                {agent.features.map((f, i) => (
+                                  <li key={i} className="text-xs text-muted-foreground dark:text-white/70 flex items-start gap-2">
+                                    <span className="text-purple-500 mt-0.5">•</span>
+                                    <span>{f}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                              <p className="text-xs font-medium text-foreground dark:text-white/90 pt-2 border-t border-border/50 dark:border-white/10">
+                                {agent.summary}
+                              </p>
+                            </div>
+                          </CollapsibleContent>
+                        </motion.div>
+                      </Collapsible>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Works With Everything */}
+                <div>
+                  <h4 className="text-2xl md:text-3xl font-bold text-foreground mb-6 flex items-center gap-2">
+                    <span className="text-purple-500">&gt;</span> Works With Everything
+                  </h4>
+                  <div className="flex flex-wrap gap-2 lg:gap-3">
+                    {integrations.map((name, index) => (
+                      <motion.span
+                        key={name}
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.3, delay: index * 0.02 }}
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-background/60 dark:bg-white/[0.06] border border-border/50 dark:border-white/10 text-sm font-medium text-foreground hover:border-purple-500/30 hover:text-sky-400/90 transition-colors"
+                      >
+                        {name}
+                      </motion.span>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
