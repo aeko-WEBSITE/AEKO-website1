@@ -155,6 +155,13 @@ const ImageToolsFeaturesSection = () => {
 
   return (
     <section className="relative py-14 md:py-16 w-full overflow-x-clip bg-background">
+      <div className="absolute inset-0" style={{
+            backgroundImage: `
+              linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px)
+            `,
+            backgroundSize: "50px 50px",
+          }} ></div>
       {/* Animated mesh and sparkles */}
       <motion.div
         className="pointer-events-none absolute inset-0 z-0"

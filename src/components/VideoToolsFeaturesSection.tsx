@@ -65,6 +65,13 @@ const VideoCard = ({ card, index }) => {
 const VideoToolsFeaturesSection = () => {
   return (
     <section className="py-14 lg:py-18 relative overflow-x-clip w-full bg-background">
+      <div className="absolute inset-0" style={{
+            backgroundImage: `
+              linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px)
+            `,
+            backgroundSize: "50px 50px",
+          }} ></div>
       <div className="container mx-auto relative z-10 px-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left Panel */}
