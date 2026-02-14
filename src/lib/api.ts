@@ -9,7 +9,7 @@ const getApiBaseUrl = (): string => {
   if (import.meta.env.DEV) {
     return ''; // same-origin so Vite proxies /api to backend (e.g. port 5000)
   }
-  return 'https://demo.liquidata.dev';
+  // return 'https://demo.liquidata.dev';
 };
 
 const API_BASE_URL = getApiBaseUrl();
