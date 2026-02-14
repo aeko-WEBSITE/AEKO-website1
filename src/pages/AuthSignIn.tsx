@@ -324,7 +324,7 @@ const AuthSignIn = () => {
           transition={{ duration: 0.5, delay: 0.4 }}
           className="mt-auto pt-8"
         >
-          <p className="text-foreground text-sm mb-4 font-medium">Soon Available on iOS and Android</p>
+          <p className="text-foreground text-sm mb-4 font-medium">Soon Available now on iOS and Android</p>
           <div className="flex gap-3">
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex-1">
               <Button
@@ -437,29 +437,29 @@ export default AuthSignIn;
 
 
 
-import { useState, useRef } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import { Mail, Apple, Chrome } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { toast } from "sonner";
-import { useAuth } from "@/hooks/use-auth";
-import Logo from "@/components/Logo";
+// import { useState, useRef } from "react";
+// import { useNavigate, Link } from "react-router-dom";
+// import { motion, AnimatePresence } from "framer-motion";
+// import { Mail, Apple, Chrome } from "lucide-react";
+// import { Button } from "@/components/ui/button";
+// import { Input } from "@/components/ui/input";
+// import { toast } from "sonner";
+// import { useAuth } from "@/hooks/use-auth";
+// import Logo from "@/components/Logo";
 
-// Video Configuration
-const VIDEO_PLAYLIST = [
-  {
-    src: "/feeds/video19.mp4",
-    title: "AI-Powered Intelligence",
-    description: "Experience the next generation of neural processing. Our agents analyze data in real-time."
-  },
-  {
-    src: "/feeds/video20.mp4",
-    title: "Seamless Integration",
-    description: "Connect your entire workflow with a single click. Automate complex tasks with precision."
-  }
-];
+// // Video Configuration
+// const VIDEO_PLAYLIST = [
+//   {
+//     src: "/feeds/video19.mp4",
+//     title: "AI-Powered Intelligence",
+//     description: "Experience the next generation of neural processing. Our agents analyze data in real-time."
+//   },
+//   {
+//     src: "/feeds/video20.mp4",
+//     title: "Seamless Integration",
+//     description: "Connect your entire workflow with a single click. Automate complex tasks with precision."
+//   }
+// ];
 
 // const AuthSignIn = () => {
 //   const navigate = useNavigate();
