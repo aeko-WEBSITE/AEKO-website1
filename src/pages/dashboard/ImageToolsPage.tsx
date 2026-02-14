@@ -26,8 +26,6 @@ import {
   Check,
   Menu,
   Maximize2,
-  Sun,
-  Moon,
   Type,
   ArrowLeftRight,
   Eraser,
@@ -125,7 +123,6 @@ interface Task {
 }
 
 const ImageToolsPage = () => {
-  const [isDarkMode, setIsDarkMode] = useState(true);
   const [toolMode, setToolMode] = useState<ToolMode>("text2image");
   const [selectedModel, setSelectedModel] = useState("flux-2-dev");
   const [selectedStyle, setSelectedStyle] = useState("dynamic");
@@ -146,15 +143,6 @@ const ImageToolsPage = () => {
   const [modelPickerOpen, setModelPickerOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Toggle Theme
-  const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode);
-    if (isDarkMode) {
-      document.documentElement.classList.remove("dark");
-    } else {
-      document.documentElement.classList.add("dark");
-    }
-  };
 
   // Get current date
   const getCurrentDate = () => {
@@ -445,34 +433,34 @@ const ImageToolsPage = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen w-full bg-white dark:bg-[#0a0a0a] text-zinc-900 dark:text-zinc-100 overflow-hidden selection:bg-primary/30 transition-colors duration-200">
-      {/* TOP NAVIGATION BAR – dark grey modern header, compact height */}
-      <div className="flex-shrink-0 min-h-[52px] py-2 border-b border-black bg-[#1a1a1e] flex items-center justify-between px-4 sm:px-6 z-50">
+    <div className="flex flex-col h-screen w-full bg-background text-foreground overflow-hidden selection:bg-primary/30 transition-colors duration-200">
+      {/* TOP NAVIGATION BAR – theme-aware header */}
+      <div className="flex-shrink-0 min-h-[52px] py-2 border-b border-border bg-card flex items-center justify-between px-4 sm:px-6 z-50">
         <div className="flex items-center gap-3 min-w-0">
           <Button
             variant="ghost"
             size="icon"
-            className="h-9 w-9 lg:hidden hover:bg-white/10 shrink-0 text-white"
+            className="h-9 w-9 lg:hidden hover:bg-accent shrink-0"
             onClick={() => setSidebarOpen(!sidebarOpen)}
           >
             <Menu className="w-5 h-5" />
           </Button>
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-full bg-[#5F3DC4] flex items-center justify-center shrink-0 shadow-lg shadow-[#5F3DC4]/30">
-              <ImageIcon className="w-5 h-5 text-white" strokeWidth={2} />
+            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center shrink-0 shadow-lg shadow-primary/30">
+              <ImageIcon className="w-5 h-5 text-primary-foreground" strokeWidth={2} />
             </div>
             <div className="min-w-0">
-              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white truncate">
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground truncate">
                 Image generation tool
               </h1>
-              <p className="text-sm text-zinc-400 dark:text-zinc-500 truncate">
+              <p className="text-sm text-muted-foreground truncate">
                 Create images with AI
               </p>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-0.5 p-1 rounded-xl bg-[#2C2C30] border border-black flex-wrap justify-end max-w-full">
+        <div className="flex items-center gap-0.5 p-1 rounded-xl bg-secondary border border-border flex-wrap justify-end max-w-full">
           {headerModes.map((mode) => {
             const isActive = toolMode === mode.id;
             const Icon = mode.icon;
@@ -485,7 +473,7 @@ const ImageToolsPage = () => {
                   "inline-flex items-center gap-2 px-3 sm:px-4 py-2.5 rounded-lg text-sm font-semibold transition-all whitespace-nowrap",
                   isActive
                     ? "bg-gradient-to-r from-[#FF6B47] to-[#FF9A4D] text-white shadow-md"
-                    : "bg-transparent text-zinc-400 hover:text-zinc-300 hover:bg-white/5"
+                    : "bg-transparent text-muted-foreground hover:text-foreground hover:bg-accent"
                 )}
               >
                 <Icon className="w-4 h-4 shrink-0" strokeWidth={2} />
@@ -510,15 +498,15 @@ const ImageToolsPage = () => {
           )}
         </AnimatePresence>
 
-        {/* LEFT SIDEBAR – pure black background, sub-borders unchanged */}
+        {/* LEFT SIDEBAR – theme-aware sidebar */}
         <div className={cn(
-          "w-72 sm:w-80 flex-shrink-0 border-r border-white/10 bg-black overflow-y-auto fixed lg:static inset-y-0 left-0 z-50 lg:z-auto transform transition-all duration-300 ease-in-out shadow-xl lg:shadow-none",
+          "w-72 sm:w-80 flex-shrink-0 border-r border-border bg-card overflow-y-auto fixed lg:static inset-y-0 left-0 z-50 lg:z-auto transform transition-all duration-300 ease-in-out shadow-xl lg:shadow-none",
           sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}>
           <div className="pt-2 px-4 pb-4 sm:pt-3 sm:px-5 sm:pb-5 space-y-5">
-            <div className="flex items-center justify-between lg:hidden pb-3 border-b border-white/10">
-              <span className="text-sm font-bold text-white">Studio Settings</span>
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-white" onClick={() => setSidebarOpen(false)}>
+            <div className="flex items-center justify-between lg:hidden pb-3 border-b border-border">
+              <span className="text-sm font-bold text-foreground">Studio Settings</span>
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setSidebarOpen(false)}>
                 <X className="w-4 h-4" />
               </Button>
             </div>
@@ -530,27 +518,27 @@ const ImageToolsPage = () => {
                   <PopoverTrigger asChild>
                     <button
                       type="button"
-                      className="w-full h-12 rounded-[10px] bg-gradient-to-r from-purple-950/70 via-[#251e32] to-indigo-950/60 border-0 flex items-center justify-between gap-2 px-4 text-left hover:from-purple-900/60 hover:via-[#2a2340] hover:to-indigo-900/50 transition-all"
+                      className="w-full h-12 rounded-[10px] bg-secondary border border-border flex items-center justify-between gap-2 px-4 text-left hover:bg-accent transition-all"
                     >
-                      <span className="font-semibold text-base text-white truncate">
+                      <span className="font-semibold text-base text-foreground truncate">
                         {imageModels.find((m) => m.id === selectedModel)?.name ?? selectedModel}
                       </span>
                       {imageModels.find((m) => m.id === selectedModel)?.badge && (
-                        <Badge className="text-[9px] h-5 bg-white/10 text-white border-0 shrink-0">
+                        <Badge className="text-[9px] h-5 bg-primary/10 text-primary border-0 shrink-0">
                           {imageModels.find((m) => m.id === selectedModel)?.badge}
                         </Badge>
                       )}
-                      <ChevronDown className="w-4 h-4 text-white/80 shrink-0" />
+                      <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
                     </button>
                   </PopoverTrigger>
                 <PopoverContent
                   align="start"
                   side="right"
                   sideOffset={8}
-                  className="w-[320px] sm:w-[360px] p-0 rounded-xl border border-white/10 bg-[#1c1b22] shadow-xl overflow-hidden"
+                  className="w-[320px] sm:w-[360px] p-0 rounded-xl border border-border bg-card shadow-xl overflow-hidden"
                 >
-                  <div className="p-3 border-b border-white/10 bg-[#252329]">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Choose model</span>
+                  <div className="p-3 border-b border-border bg-secondary">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Choose model</span>
                   </div>
                   <div className="max-h-[320px] overflow-y-auto p-2 space-y-1.5">
                     {imageModels.map((model) => {
@@ -566,21 +554,21 @@ const ImageToolsPage = () => {
                           className={cn(
                             "w-full rounded-xl p-3 text-left transition-all border",
                             isSelected
-                              ? "bg-purple-500/20 border-purple-400/50 shadow-sm"
-                              : "bg-[#252329] border-transparent hover:bg-white/5 hover:border-white/10"
+                              ? "bg-primary/10 border-primary/50 shadow-sm"
+                              : "bg-secondary border-transparent hover:bg-accent hover:border-border"
                           )}
                         >
                           <div className="flex items-start justify-between gap-2">
                             <div className="min-w-0 flex-1">
                               <div className="flex items-center gap-2 flex-wrap">
-                                <span className="font-semibold text-sm text-white">{model.name}</span>
+                                <span className="font-semibold text-sm text-foreground">{model.name}</span>
                                 {model.badge && (
-                                  <Badge className="text-[9px] h-4 bg-white/10 text-white border-0">{model.badge}</Badge>
+                                  <Badge className="text-[9px] h-4 bg-primary/10 text-primary border-0">{model.badge}</Badge>
                                 )}
                               </div>
-                              <p className="text-xs text-zinc-400 mt-0.5 line-clamp-2">{model.description}</p>
+                              <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{model.description}</p>
                             </div>
-                            {isSelected && <Check className="w-4 h-4 text-purple-400 shrink-0 mt-0.5" />}
+                            {isSelected && <Check className="w-4 h-4 text-primary shrink-0 mt-0.5" />}
                           </div>
                         </button>
                       );
@@ -593,22 +581,22 @@ const ImageToolsPage = () => {
 
             {/* Reference Image Upload – section with sub-border */}
             {(toolMode !== "text2image") && (
-              <div className="rounded-xl border border-white/10 bg-[#1c1b22] p-4 space-y-3">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Source Image</label>
+              <div className="rounded-xl border border-border bg-card p-4 space-y-3">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Source Image</label>
                 {uploadedImage ? (
-                  <div className="relative group rounded-lg overflow-hidden border border-white/15 bg-[#252329] shadow-inner">
+                  <div className="relative group rounded-lg overflow-hidden border border-border bg-secondary shadow-inner">
                     <img src={uploadedImage} alt="Ref" className="w-full h-auto max-h-[180px] object-cover opacity-80 group-hover:opacity-100 transition-all" />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-2 transition-all">
+                    <div className="absolute inset-0 bg-black/40 dark:bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-2 transition-all">
                       <Button onClick={() => fileInputRef.current?.click()} size="icon" variant="secondary" className="h-8 w-8 rounded-full shadow-md"><Edit2 className="w-3 h-3" /></Button>
                       <Button onClick={handleRemoveImage} size="icon" variant="destructive" className="h-8 w-8 rounded-full shadow-md"><X className="w-3 h-3" /></Button>
                     </div>
                   </div>
                 ) : (
-                  <label className="flex flex-col items-center justify-center border border-dashed border-white/15 rounded-lg p-8 cursor-pointer hover:border-purple-400/50 hover:bg-white/5 transition-all group bg-[#252329]">
-                    <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                      <Upload className="w-5 h-5 text-zinc-400" />
+                  <label className="flex flex-col items-center justify-center border border-dashed border-border rounded-lg p-8 cursor-pointer hover:border-primary hover:bg-accent transition-all group bg-secondary">
+                    <div className="w-10 h-10 rounded-full bg-accent border border-border flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                      <Upload className="w-5 h-5 text-muted-foreground" />
                     </div>
-                    <span className="text-xs font-bold text-zinc-400">Upload base image</span>
+                    <span className="text-xs font-bold text-muted-foreground">Upload base image</span>
                     <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
                   </label>
                 )}
@@ -616,18 +604,18 @@ const ImageToolsPage = () => {
             )}
 
             {/* Style – dropdown with icon, subtle border */}
-            <div className="rounded-xl border border-white/10 bg-[#1c1b22] p-4 space-y-3">
+            <div className="rounded-xl border border-border bg-card p-4 space-y-3">
               <div className="flex items-center gap-2">
-                <FlaskConical className="w-3.5 h-3.5 text-white/70" />
-                <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Style</label>
+                <FlaskConical className="w-3.5 h-3.5 text-muted-foreground" />
+                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Style</label>
               </div>
               <Select value={selectedStyle} onValueChange={(v) => setSelectedStyle(v)}>
-                <SelectTrigger className="h-11 rounded-lg bg-[#252329] border border-white/10 text-white font-medium text-base focus:ring-2 focus:ring-white/20">
+                <SelectTrigger className="h-11 rounded-lg bg-secondary border border-border text-foreground font-medium text-base focus:ring-2 focus:ring-primary/20">
                   <SelectValue placeholder="Select style" />
                 </SelectTrigger>
-                <SelectContent className="bg-[#1c1b22] border-white/10">
+                <SelectContent className="bg-card border-border">
                   {styles.map((s) => (
-                    <SelectItem key={s.id} value={s.id} className="focus:bg-white/10 text-white">
+                    <SelectItem key={s.id} value={s.id} className="focus:bg-accent text-foreground">
                       {s.name}
                     </SelectItem>
                   ))}
@@ -637,10 +625,10 @@ const ImageToolsPage = () => {
 
             {/* Content dimension – section with gradient border on selected */}
             {toolMode === "text2image" && (
-              <div className="rounded-xl border border-white/10 bg-[#1c1b22] p-4 space-y-3">
+              <div className="rounded-xl border border-border bg-card p-4 space-y-3">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-sm font-medium text-white">Content dimension</span>
-                  <button type="button" className="p-0.5 rounded-full text-white/60 hover:text-white/90" aria-label="Help">
+                  <span className="text-sm font-medium text-foreground">Content dimension</span>
+                  <button type="button" className="p-0.5 rounded-full text-muted-foreground hover:text-foreground" aria-label="Help">
                     <HelpCircle className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -653,15 +641,15 @@ const ImageToolsPage = () => {
                         type="button"
                         onClick={() => setAspectRatio(ratio.value)}
                         className={cn(
-                          "h-12 flex flex-col items-center justify-center gap-1 rounded-lg transition-all font-bold text-[9px] text-white relative overflow-hidden",
+                          "h-12 flex flex-col items-center justify-center gap-1 rounded-lg transition-all font-bold text-[9px] text-foreground relative overflow-hidden",
                           isSelected
-                            ? "shadow-[0_0_0_1px_rgba(168,85,247,0.5),0_0_14px_rgba(168,85,247,0.35)]"
-                            : "border border-white/10 bg-[#252329] hover:border-white/20"
+                            ? "shadow-[0_0_0_1px_rgba(168,85,247,0.5),0_0_14px_rgba(168,85,247,0.35)] dark:shadow-[0_0_0_1px_rgba(168,85,247,0.5),0_0_14px_rgba(168,85,247,0.35)]"
+                            : "border border-border bg-secondary hover:bg-accent hover:border-primary/50"
                         )}
                       >
                         {isSelected ? (
                           <span className="absolute inset-0 rounded-lg p-[2px] bg-gradient-to-r from-purple-400 via-fuchsia-400 to-blue-500">
-                            <span className="flex h-full w-full flex-col items-center justify-center gap-1 rounded-[5px] bg-[#1c1b22] text-white">
+                            <span className="flex h-full w-full flex-col items-center justify-center gap-1 rounded-[5px] bg-card text-foreground">
                               <span className="text-sm">{ratio.icon}</span>
                               <span>{ratio.label}</span>
                             </span>
@@ -681,10 +669,10 @@ const ImageToolsPage = () => {
 
             {/* Number of images – gradient border on selected, help icon */}
             {toolMode === "text2image" && (
-              <div className="rounded-xl border border-white/10 bg-[#1c1b22] p-4 space-y-3">
+              <div className="rounded-xl border border-border bg-card p-4 space-y-3">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-sm font-medium text-white">Number of images</span>
-                  <button type="button" className="p-0.5 rounded-full text-white/60 hover:text-white/90" aria-label="Help">
+                  <span className="text-sm font-medium text-foreground">Number of images</span>
+                  <button type="button" className="p-0.5 rounded-full text-muted-foreground hover:text-foreground" aria-label="Help">
                     <HelpCircle className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -697,15 +685,15 @@ const ImageToolsPage = () => {
                         type="button"
                         onClick={() => setNumImages(n)}
                         className={cn(
-                          "h-10 min-w-10 px-4 rounded-lg font-bold text-sm text-white transition-all relative",
+                          "h-10 min-w-10 px-4 rounded-lg font-bold text-sm text-foreground transition-all relative",
                           isSelected
-                            ? "shadow-[0_0_0_1px_rgba(168,85,247,0.5),0_0_14px_rgba(168,85,247,0.35)]"
-                            : "border border-white/10 bg-[#252329] hover:border-white/20"
+                            ? "shadow-[0_0_0_1px_rgba(168,85,247,0.5),0_0_14px_rgba(168,85,247,0.35)] dark:shadow-[0_0_0_1px_rgba(168,85,247,0.5),0_0_14px_rgba(168,85,247,0.35)]"
+                            : "border border-border bg-secondary hover:bg-accent hover:border-primary/50"
                         )}
                       >
                         {isSelected ? (
                           <span className="absolute inset-0 rounded-lg p-[2px] bg-gradient-to-r from-purple-400 via-fuchsia-400 to-blue-500">
-                            <span className="flex h-full w-full items-center justify-center rounded-[5px] bg-[#1c1b22]">
+                            <span className="flex h-full w-full items-center justify-center rounded-[5px] bg-card">
                               {n}
                             </span>
                           </span>
@@ -721,40 +709,40 @@ const ImageToolsPage = () => {
 
             {/* Advanced settings – dropdown, clear sub-border */}
             <Collapsible>
-              <div className="rounded-xl border border-white/10 bg-[#1c1b22] overflow-hidden">
-                <CollapsibleTrigger className="group flex w-full items-center justify-between p-4 text-left hover:bg-white/5 transition-colors">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Advanced settings</span>
-                  <ChevronDown className="w-4 h-4 text-white/60 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+              <div className="rounded-xl border border-border bg-card overflow-hidden">
+                <CollapsibleTrigger className="group flex w-full items-center justify-between p-4 text-left hover:bg-accent transition-colors">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Advanced settings</span>
+                  <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
                 </CollapsibleTrigger>
                 <CollapsibleContent>
-                  <div className="px-4 pb-4 pt-0 space-y-3 border-t border-white/10">
+                  <div className="px-4 pb-4 pt-0 space-y-3 border-t border-border">
                     <div className="space-y-1.5 pt-3">
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Seed (optional)</label>
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Seed (optional)</label>
                       <Input
                         type="number"
                         placeholder="Random"
-                        className="h-9 text-sm text-white bg-[#252329] border border-white/10 placeholder:text-zinc-500"
+                        className="h-9 text-sm bg-secondary border border-border placeholder:text-muted-foreground"
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Steps</label>
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Steps</label>
                       <Input
                         type="number"
                         defaultValue="28"
                         min={1}
                         max={50}
-                        className="h-9 text-sm text-white bg-[#252329] border border-white/10"
+                        className="h-9 text-sm bg-secondary border border-border"
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Guidance scale</label>
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Guidance scale</label>
                       <Input
                         type="number"
                         defaultValue="7.5"
                         min={1}
                         max={20}
                         step={0.5}
-                        className="h-9 text-sm text-white bg-[#252329] border border-white/10"
+                        className="h-9 text-sm bg-secondary border border-border"
                       />
                     </div>
                   </div>
@@ -763,11 +751,11 @@ const ImageToolsPage = () => {
             </Collapsible>
 
             {/* Enhance & Reset – single row with icons */}
-            <div className="rounded-xl border border-white/10 bg-[#1c1b22] p-3">
+            <div className="rounded-xl border border-border bg-card p-3">
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  className="flex-1 flex items-center justify-center gap-2 h-9 rounded-lg border border-white/10 bg-[#252329] text-zinc-400 hover:bg-white/10 hover:text-white hover:border-white/20 transition-all"
+                  className="flex-1 flex items-center justify-center gap-2 h-9 rounded-lg border border-border bg-secondary text-muted-foreground hover:bg-accent hover:text-foreground hover:border-primary/50 transition-all"
                   title="Enhance"
                 >
                   <Wand2 className="w-4 h-4 shrink-0" />
@@ -775,7 +763,7 @@ const ImageToolsPage = () => {
                 </button>
                 <button
                   type="button"
-                  className="flex-1 flex items-center justify-center gap-2 h-9 rounded-lg border border-white/10 bg-[#252329] text-zinc-400 hover:bg-white/10 hover:text-white hover:border-white/20 transition-all"
+                  className="flex-1 flex items-center justify-center gap-2 h-9 rounded-lg border border-border bg-secondary text-muted-foreground hover:bg-accent hover:text-foreground hover:border-primary/50 transition-all"
                   title="Reset"
                 >
                   <RefreshCw className="w-4 h-4 shrink-0" />
@@ -786,23 +774,23 @@ const ImageToolsPage = () => {
           </div>
         </div>
 
-        {/* MAIN CONTENT AREA – output area with dark grid background (reference UI) */}
-        <div className="flex-1 flex flex-col bg-[#0B0C14] relative transition-colors duration-300">
+        {/* MAIN CONTENT AREA – output area with theme-aware grid background */}
+        <div className="flex-1 flex flex-col bg-background relative transition-colors duration-300">
           {/* Generated output at top – more space for larger images */}
           <div className="flex-1 overflow-y-auto custom-scrollbar min-h-0 relative">
             {/* Subtle grid background */}
-            <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
+            <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.02)_1px,transparent_1px)] dark:bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
             <div className="relative z-10 p-5 sm:p-8 max-w-7xl mx-auto min-h-full">
               {generatedImages.length === 0 && !isGenerating ? (
                 <div className="min-h-[40vh] flex flex-col items-center justify-center text-center py-12">
                   <div className="relative w-24 h-24 mb-6">
-                    <div className="absolute inset-0 rounded-2xl bg-white/5 border border-white/10 shadow-[0_0_24px_rgba(255,255,255,0.06)]" />
+                    <div className="absolute inset-0 rounded-2xl bg-muted border border-border shadow-lg" />
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <Sparkles className="w-10 h-10 text-white/40" />
+                      <Sparkles className="w-10 h-10 text-muted-foreground" />
                     </div>
                   </div>
-                  <h3 className="text-lg font-bold text-zinc-200 mb-2">Ready to Create</h3>
-                  <p className="text-sm text-zinc-500 max-w-sm">
+                  <h3 className="text-lg font-bold text-foreground mb-2">Ready to Create</h3>
+                  <p className="text-sm text-muted-foreground max-w-sm">
                     Enter your prompt in the sidebar and click generate to watch your imagination come to life.
                   </p>
                 </div>
@@ -810,11 +798,11 @@ const ImageToolsPage = () => {
                 <div className="space-y-12">
                   <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-10">
                     <div className="space-y-6">
-                      <div className="flex items-center justify-between border-b border-white/5 pb-4">
-                        <h2 className="text-sm font-bold uppercase tracking-widest text-zinc-500">Creations Gallery</h2>
+                      <div className="flex items-center justify-between border-b border-border pb-4">
+                        <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Creations Gallery</h2>
                         <div className="flex gap-2">
-                            <Button variant="outline" size="sm" className="h-8 bg-white/5 border-white/10 text-zinc-300 hover:bg-white/10 hover:text-white shadow-sm">Grid View</Button>
-                            <Button variant="outline" size="sm" className="h-8 bg-white/5 border-white/10 text-zinc-300 hover:bg-white/10 hover:text-white shadow-sm">History</Button>
+                            <Button variant="outline" size="sm" className="h-8 bg-secondary border-border text-muted-foreground hover:bg-accent hover:text-foreground shadow-sm">Grid View</Button>
+                            <Button variant="outline" size="sm" className="h-8 bg-secondary border-border text-muted-foreground hover:bg-accent hover:text-foreground shadow-sm">History</Button>
                         </div>
                       </div>
                       
@@ -827,17 +815,17 @@ const ImageToolsPage = () => {
                             animate={{ opacity: 1, scale: 1 }}
                             className={cn(
                               "relative flex-shrink-0 w-[340px] sm:w-[480px] lg:w-[560px] group rounded-2xl overflow-hidden border-2 transition-all cursor-pointer snap-center shadow-xl",
-                              selectedImage?.id === image.id ? "border-primary shadow-2xl shadow-primary/10" : "border-transparent border-white/5 hover:border-white/20"
+                              selectedImage?.id === image.id ? "border-primary shadow-2xl shadow-primary/10" : "border-transparent border-border hover:border-primary/50"
                             )}
                             onClick={() => setSelectedImage(image)}
                           >
                             <img src={image.imageUrl} alt="Generated" className="w-full aspect-[4/5] object-cover" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-5">
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 dark:from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-5">
                               <div className="flex gap-2 justify-end">
-                                  <Button size="icon" variant="secondary" className="h-9 w-9 rounded-full shadow-lg" onClick={(e) => { e.stopPropagation(); handleDownloadImage(image); }}>
+                                  <Button size="icon" variant="secondary" className="h-9 w-9 rounded-full shadow-lg bg-background hover:bg-accent" onClick={(e) => { e.stopPropagation(); handleDownloadImage(image); }}>
                                     <Download className="w-4 h-4" />
                                   </Button>
-                                  <Button size="icon" variant="secondary" className="h-9 w-9 rounded-full shadow-lg"><Share2 className="w-4 h-4" /></Button>
+                                  <Button size="icon" variant="secondary" className="h-9 w-9 rounded-full shadow-lg bg-background hover:bg-accent"><Share2 className="w-4 h-4" /></Button>
                               </div>
                             </div>
                           </motion.div>
@@ -848,15 +836,15 @@ const ImageToolsPage = () => {
                       {tasks.filter(t => t.status !== "completed" && t.status !== "failed").length > 0 && (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           {tasks.filter(t => t.status !== "completed" && t.status !== "failed").map(task => (
-                              <div key={task.id} className="p-5 rounded-2xl bg-zinc-100 dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 space-y-4 shadow-md">
+                              <div key={task.id} className="p-5 rounded-2xl bg-card border border-border space-y-4 shadow-md">
                                 <div className="flex justify-between items-center">
                                   <div className="flex items-center gap-2">
                                       <Loader2 className="w-3 h-3 animate-spin text-primary" />
-                                      <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Rendering Frame</span>
+                                      <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Rendering Frame</span>
                                   </div>
-                                  <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100">{Math.round(task.progress)}%</span>
+                                  <span className="text-xs font-bold text-foreground">{Math.round(task.progress)}%</span>
                                 </div>
-                                <Progress value={task.progress} className="h-1.5 bg-white dark:bg-zinc-800 shadow-inner" />
+                                <Progress value={task.progress} className="h-1.5 bg-secondary shadow-inner" />
                               </div>
                           ))}
                         </div>
@@ -866,33 +854,33 @@ const ImageToolsPage = () => {
                     {/* Inspector Panel */}
                     <AnimatePresence>
                       {selectedImage && (
-                        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
-                          <div className="p-6 rounded-2xl bg-zinc-100 dark:bg-zinc-900/40 border border-zinc-200 dark:border-white/10 backdrop-blur-md sticky top-0 shadow-xl space-y-6">
-                              <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-500 flex items-center gap-2">
+                          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
+                          <div className="p-6 rounded-2xl bg-card border border-border backdrop-blur-md sticky top-0 shadow-xl space-y-6">
+                              <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
                                 <Info className="w-4 h-4 text-primary" />
                                 Creation Stats
                               </h3>
-                              <div className="p-4 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-white/5 shadow-inner">
-                                <p className="text-[11px] font-bold text-zinc-400 uppercase mb-2">Prompt</p>
-                                <p className="text-xs leading-relaxed text-zinc-600 dark:text-zinc-300 italic">"{selectedImage.prompt}"</p>
+                              <div className="p-4 rounded-xl bg-secondary border border-border shadow-inner">
+                                <p className="text-[11px] font-bold text-muted-foreground uppercase mb-2">Prompt</p>
+                                <p className="text-xs leading-relaxed text-foreground italic">"{selectedImage.prompt}"</p>
                               </div>
-                              <Separator className="bg-zinc-300 dark:bg-white/5" />
+                              <Separator className="bg-border" />
                               <div className="grid grid-cols-2 gap-3">
-                                  <div className="p-3 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-white/5 text-center">
-                                    <p className="text-[9px] font-bold text-zinc-400 uppercase mb-1">Model</p>
-                                    <p className="text-[10px] font-bold truncate">{selectedImage.model}</p>
+                                  <div className="p-3 bg-secondary rounded-xl border border-border text-center">
+                                    <p className="text-[9px] font-bold text-muted-foreground uppercase mb-1">Model</p>
+                                    <p className="text-[10px] font-bold text-foreground truncate">{selectedImage.model}</p>
                                   </div>
-                                  <div className="p-3 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-white/5 text-center">
-                                    <p className="text-[9px] font-bold text-zinc-400 uppercase mb-1">Aspect</p>
-                                    <p className="text-[10px] font-bold">{selectedImage.aspectRatio}</p>
+                                  <div className="p-3 bg-secondary rounded-xl border border-border text-center">
+                                    <p className="text-[9px] font-bold text-muted-foreground uppercase mb-1">Aspect</p>
+                                    <p className="text-[10px] font-bold text-foreground">{selectedImage.aspectRatio}</p>
                                   </div>
                               </div>
                               <Button 
-                                className="w-full bg-zinc-900 text-white dark:bg-white dark:text-black hover:opacity-90 font-bold h-11 shadow-lg"
+                                className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-bold h-11 shadow-lg"
                                 onClick={() => handleDownloadImage(selectedImage)}
                               >
-                                  <Download className="w-4 h-4 mr-2" />
-                                  Download Result
+                                <Download className="w-4 h-4 mr-2" />
+                                Download Result
                               </Button>
                           </div>
                         </motion.div>
@@ -905,23 +893,23 @@ const ImageToolsPage = () => {
           </div>
 
           {/* Prompt area at bottom – compact so output area gets more space */}
-          <div className="flex-shrink-0 p-3 sm:p-4 border-t border-white/5 bg-[#050509]">
+          <div className="flex-shrink-0 p-3 sm:p-4 border-t border-border bg-card">
             <div className="w-full min-h-0">
-              <div className="rounded-xl bg-[#0B0C14] border border-white/10 shadow-[0_12px_32px_rgba(0,0,0,0.6)] overflow-hidden">
+              <div className="rounded-xl bg-secondary border border-border shadow-lg overflow-hidden">
                 <div className="px-4 pt-4 pb-2">
                   <Textarea
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
                     placeholder="Describe your imagination in detail..."
-                    className="min-h-[72px] max-h-[96px] w-full bg-transparent border-0 text-sm placeholder:text-zinc-500 focus-visible:ring-0 resize-none p-0 text-zinc-100 rounded-none"
+                    className="min-h-[72px] max-h-[96px] w-full bg-transparent border-0 text-sm placeholder:text-muted-foreground focus-visible:ring-0 resize-none p-0 text-foreground rounded-none"
                     onKeyDown={(e) => e.key === "Enter" && e.ctrlKey && handleGenerate()}
                   />
                 </div>
-                <div className="flex justify-end px-4 py-2 border-t border-white/10 bg-[#10121C]">
+                <div className="flex justify-end px-4 py-2 border-t border-border bg-card">
                   <Button
                     onClick={handleGenerate}
                     disabled={!prompt.trim() || isGenerating}
-                    className="h-9 sm:h-10 px-5 sm:px-6 rounded-full text-sm font-semibold text-white bg-gradient-to-r from-[#FF6B47] via-[#FF6B47] to-[#FF9A4D] shadow-[0_8px_30px_rgba(0,0,0,0.6)] disabled:opacity-60 disabled:cursor-not-allowed active:scale-95 transition-transform"
+                    className="h-9 sm:h-10 px-5 sm:px-6 rounded-full text-sm font-semibold text-white bg-gradient-to-r from-[#FF6B47] via-[#FF6B47] to-[#FF9A4D] shadow-lg disabled:opacity-60 disabled:cursor-not-allowed active:scale-95 transition-transform"
                   >
                     {isGenerating ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
