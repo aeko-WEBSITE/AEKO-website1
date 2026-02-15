@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   User,
@@ -11,11 +11,15 @@ import {
   Eye,
   EyeOff,
   Check,
+  Loader2,
+  Wallet,
+  History,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
 import UserAvatar from "@/components/UserAvatar";
+import { profileAPI } from "@/lib/api";
 
 // Use more granular breakpoints for responsiveness
 const ACCOUNT_INPUT =
@@ -25,7 +29,98 @@ const AccountPage = () => {
   const { user, isAuthenticated } = useAuth();
   const [showApiKey, setShowApiKey] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [profile, setProfile] = useState<any>(null);
+  const [walletBalance, setWalletBalance] = useState<number | null>(null);
+  const [walletHistory, setWalletHistory] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [walletLoading, setWalletLoading] = useState(false);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  
+  // Password change state
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [changingPassword, setChangingPassword] = useState(false);
 
+  // Fetch profile data
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchProfile();
+      fetchWalletBalance();
+      fetchWalletHistory();
+    }
+  }, [isAuthenticated]);
+
+  const fetchProfile = async () => {
+    try {
+      setLoading(true);
+      const data = await profileAPI.getProfile();
+      setProfile(data);
+    } catch (error: any) {
+      console.error("Failed to fetch profile:", error);
+      // Don't show error toast for profile, just use context user
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchWalletBalance = async () => {
+    try {
+      setWalletLoading(true);
+      const data = await profileAPI.getWalletBalance();
+      setWalletBalance(data.balance || data.credits || 0);
+    } catch (error: any) {
+      console.error("Failed to fetch wallet balance:", error);
+      toast.error("Failed to load wallet balance");
+    } finally {
+      setWalletLoading(false);
+    }
+  };
+
+  const fetchWalletHistory = async () => {
+    try {
+      setHistoryLoading(true);
+      const data = await profileAPI.getWalletHistory({ page: 1, limit: 10, sortOrder: 'desc' });
+      setWalletHistory(Array.isArray(data) ? data : (data.transactions || data.history || []));
+    } catch (error: any) {
+      console.error("Failed to fetch wallet history:", error);
+      toast.error("Failed to load transaction history");
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!currentPassword || !newPassword) {
+      toast.error("Please fill in all password fields");
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      toast.error("New password must be at least 6 characters");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      toast.error("New passwords do not match");
+      return;
+    }
+
+    try {
+      setChangingPassword(true);
+      await profileAPI.changePassword(currentPassword, newPassword);
+      toast.success("Password changed successfully!");
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to change password");
+    } finally {
+      setChangingPassword(false);
+    }
+  };
 
   const copyApiKey = () => {
     navigator.clipboard.writeText("ak_live_xxxxxxxxxxxxxxxxxxxx");
@@ -155,29 +250,16 @@ const AccountPage = () => {
                     />
                   </div>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm text-muted-foreground mb-2">
-                      Role
-                    </label>
-                    <input
-                      type="text"
-                      value={user?.role || 'User'}
-                      readOnly
-                      className={`${ACCOUNT_INPUT} capitalize bg-secondary/20 cursor-not-allowed`}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm text-muted-foreground mb-2">
-                      User ID
-                    </label>
-                    <input
-                      type="text"
-                      value={user?.id || 'N/A'}
-                      readOnly
-                      className={`${ACCOUNT_INPUT} font-mono text-xs bg-secondary/20 cursor-not-allowed`}
-                    />
-                  </div>
+                <div>
+                  <label className="block text-sm text-muted-foreground mb-2">
+                    Role
+                  </label>
+                  <input
+                    type="text"
+                    value={user?.role || 'User'}
+                    readOnly
+                    className={`${ACCOUNT_INPUT} capitalize bg-secondary/20 cursor-not-allowed`}
+                  />
                 </div>
                 <div>
                   <label className="block text-sm text-muted-foreground mb-2">
@@ -261,10 +343,19 @@ const AccountPage = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
               <div className="p-4 rounded-xl bg-secondary/30 text-center">
-                <div className="text-2xl font-bold text-foreground">2,450</div>
-                <div className="text-sm text-muted-foreground">
-                  Credits Remaining
-                </div>
+                {walletLoading ? (
+                  <Loader2 className="w-6 h-6 animate-spin mx-auto text-muted-foreground" />
+                ) : (
+                  <>
+                    <div className="text-2xl font-bold text-foreground">
+                      {walletBalance !== null ? walletBalance.toLocaleString() : '0'}
+                    </div>
+                    <div className="text-sm text-muted-foreground flex items-center justify-center gap-1">
+                      <Wallet className="w-3 h-3" />
+                      Credits Remaining
+                    </div>
+                  </>
+                )}
               </div>
               <div className="p-4 rounded-xl bg-secondary/30 text-center">
                 <div className="text-2xl font-bold text-foreground">87,432</div>
@@ -322,55 +413,93 @@ const AccountPage = () => {
             </div>
           </motion.div>
 
-          {/* Billing History */}
+          {/* Wallet Transaction History */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
             className="glass-card rounded-2xl p-4 sm:p-6"
           >
-            <h2 className="text-lg font-semibold text-foreground mb-6">
-              Billing History
-            </h2>
-            <div className="space-y-3">
-              {[
-                { date: "Dec 15, 2024", amount: "$45.00", status: "Paid", plan: "Standard Plan" },
-                { date: "Nov 15, 2024", amount: "$45.00", status: "Paid", plan: "Standard Plan" },
-                { date: "Oct 15, 2024", amount: "$45.00", status: "Paid", plan: "Standard Plan" },
-                { date: "Sep 15, 2024", amount: "$29.00", status: "Paid", plan: "Basic Plan" },
-              ].map((invoice, idx) => (
-                <div
-                  key={idx}
-                  className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-xl bg-secondary/30 hover:bg-secondary/40 transition-colors cursor-pointer gap-2"
-                >
-                  <div className="flex items-center gap-4">
-                    <CreditCard className="w-5 h-5 text-muted-foreground" />
-                    <div>
-                      <div className="text-sm font-medium text-foreground">
-                        {invoice.date}
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                <History className="w-5 h-5" />
+                Transaction History
+              </h2>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={fetchWalletHistory}
+                disabled={historyLoading}
+              >
+                {historyLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  "Refresh"
+                )}
+              </Button>
+            </div>
+            {historyLoading && walletHistory.length === 0 ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+              </div>
+            ) : walletHistory.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <History className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                <p>No transactions yet</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {walletHistory.map((transaction: any, idx: number) => {
+                  const date = transaction.createdAt 
+                    ? new Date(transaction.createdAt).toLocaleDateString()
+                    : transaction.date || 'N/A';
+                  const amount = transaction.amount || transaction.credits || 0;
+                  const type = transaction.type || transaction.action || 'transaction';
+                  const isCredit = type.includes('credit') || amount > 0;
+                  
+                  return (
+                    <div
+                      key={transaction.id || transaction._id || idx}
+                      className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-xl bg-secondary/30 hover:bg-secondary/40 transition-colors gap-2"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                          isCredit ? 'bg-green-500/20' : 'bg-red-500/20'
+                        }`}>
+                          {isCredit ? (
+                            <CreditCard className="w-5 h-5 text-green-400" />
+                          ) : (
+                            <CreditCard className="w-5 h-5 text-red-400" />
+                          )}
+                        </div>
+                        <div>
+                          <div className="text-sm font-medium text-foreground">
+                            {transaction.remark || transaction.description || type}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {date}
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-xs text-muted-foreground">
-                        {invoice.plan}
+                      <div className="flex items-center gap-4 sm:mt-0 mt-2">
+                        <span className={`text-sm font-medium ${
+                          isCredit ? 'text-green-400' : 'text-red-400'
+                        }`}>
+                          {isCredit ? '+' : '-'}{Math.abs(amount).toLocaleString()}
+                        </span>
+                        <span className={`px-2 py-0.5 rounded-full text-xs ${
+                          isCredit 
+                            ? 'bg-green-500/20 text-green-400' 
+                            : 'bg-red-500/20 text-red-400'
+                        }`}>
+                          {type}
+                        </span>
                       </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-4 sm:mt-0 mt-2">
-                    <span className="text-sm font-medium text-foreground">
-                      {invoice.amount}
-                    </span>
-                    <span className="px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 text-xs">
-                      {invoice.status}
-                    </span>
-                    <button
-                      className="p-1 rounded hover:bg-secondary/60 transition-colors"
-                      aria-label="Download Invoice"
-                    >
-                      <Download className="w-4 h-4 text-muted-foreground hover:text-foreground transition-colors" />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
+                  );
+                })}
+              </div>
+            )}
           </motion.div>
         </div>
 
@@ -390,35 +519,61 @@ const AccountPage = () => {
             <form
               className="space-y-4"
               autoComplete="off"
-              onSubmit={(e) => {
-                e.preventDefault();
-              }}
+              onSubmit={handleChangePassword}
             >
               <div>
                 <label className="block text-sm text-muted-foreground mb-2">
                   Current Password
                 </label>
-                <input type="password" className={ACCOUNT_INPUT} />
+                <input 
+                  type="password" 
+                  className={ACCOUNT_INPUT}
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  required
+                />
               </div>
               <div>
                 <label className="block text-sm text-muted-foreground mb-2">
                   New Password
                 </label>
-                <input type="password" className={ACCOUNT_INPUT} />
+                <input 
+                  type="password" 
+                  className={ACCOUNT_INPUT}
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  minLength={6}
+                  required
+                />
               </div>
               <div>
                 <label className="block text-sm text-muted-foreground mb-2">
                   Confirm New Password
                 </label>
-                <input type="password" className={ACCOUNT_INPUT} />
+                <input 
+                  type="password" 
+                  className={ACCOUNT_INPUT}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  minLength={6}
+                  required
+                />
               </div>
               <Button
                 variant="outline"
                 size="sm"
                 className="w-full"
                 type="submit"
+                disabled={changingPassword}
               >
-                Update Password
+                {changingPassword ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Updating...
+                  </>
+                ) : (
+                  "Update Password"
+                )}
               </Button>
             </form>
             <div className="mt-6 pt-6 border-t border-border/50 space-y-4">

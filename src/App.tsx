@@ -19,6 +19,9 @@ import ImageToolsPage from "./pages/dashboard/ImageToolsPage";
 import VideoToolsPage from "./pages/dashboard/VideoToolsPage";
 import AgentStorePage from "./pages/dashboard/AgentStorePage";
 import ToolsPage from "./pages/dashboard/ToolsPage";
+import AdminLogin from "./pages/admin/AdminLogin";
+import AdminConfigPage from "./pages/admin/AdminConfigPage";
+import AdminWalletPage from "./pages/admin/AdminWalletPage";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +50,10 @@ function App() {
                 <Route path="support" element={<SupportPage />} />
                 <Route path="agent-store" element={<AgentStorePage />} />
               </Route>
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin/dashboard" element={<AdminConfigPage />} />
+              <Route path="/admin/configs" element={<AdminConfigPage />} />
+              <Route path="/admin/wallet" element={<AdminWalletPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AuthProvider>

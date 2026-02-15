@@ -873,3 +873,410 @@ export const moduleAPI = {
     }
   },
 };
+
+// Profile API
+export const profileAPI = {
+  /**
+   * Get my profile
+   * GET /api/profile/me
+   * @returns Promise with user profile data
+   */
+  getProfile: async () => {
+    try {
+      const response = await apiRequest('/api/profile/me', {
+        method: 'GET',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || errorData.error || `Server error: ${response.status}`);
+      }
+
+      return response.json();
+    } catch (error: any) {
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        throw new Error('Cannot connect to backend. Make sure the backend server is running.');
+      }
+      throw error;
+    }
+  },
+
+  /**
+   * Change my password
+   * POST /api/profile/change-password
+   * @param currentPassword - Current password
+   * @param newPassword - New password (must be ≥ 6 characters)
+   * @returns Promise with success message
+   */
+  changePassword: async (currentPassword: string, newPassword: string) => {
+    try {
+      const response = await apiRequest('/api/profile/change-password', {
+        method: 'POST',
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || errorData.error || `Server error: ${response.status}`);
+      }
+
+      return response.json();
+    } catch (error: any) {
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        throw new Error('Cannot connect to backend. Make sure the backend server is running.');
+      }
+      throw error;
+    }
+  },
+
+  /**
+   * Get my wallet balance
+   * GET /api/profile/wallet/balance
+   * @returns Promise with wallet balance
+   */
+  getWalletBalance: async () => {
+    try {
+      const response = await apiRequest('/api/profile/wallet/balance', {
+        method: 'GET',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || errorData.error || `Server error: ${response.status}`);
+      }
+
+      return response.json();
+    } catch (error: any) {
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        throw new Error('Cannot connect to backend. Make sure the backend server is running.');
+      }
+      throw error;
+    }
+  },
+
+  /**
+   * Get my wallet transaction history
+   * GET /api/profile/wallet/history
+   * @param params - Query parameters (page, limit, type, fromDate, toDate, sortOrder)
+   * @returns Promise with transaction history
+   */
+  getWalletHistory: async (params?: {
+    page?: number;
+    limit?: number;
+    type?: string;
+    fromDate?: string;
+    toDate?: string;
+    sortOrder?: 'asc' | 'desc';
+  }) => {
+    try {
+      const queryParams = new URLSearchParams();
+      if (params?.page) queryParams.append('page', params.page.toString());
+      if (params?.limit) queryParams.append('limit', params.limit.toString());
+      if (params?.type) queryParams.append('type', params.type);
+      if (params?.fromDate) queryParams.append('fromDate', params.fromDate);
+      if (params?.toDate) queryParams.append('toDate', params.toDate);
+      if (params?.sortOrder) queryParams.append('sortOrder', params.sortOrder);
+
+      const queryString = queryParams.toString();
+      const endpoint = `/api/profile/wallet/history${queryString ? `?${queryString}` : ''}`;
+
+      const response = await apiRequest(endpoint, {
+        method: 'GET',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || errorData.error || `Server error: ${response.status}`);
+      }
+
+      return response.json();
+    } catch (error: any) {
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        throw new Error('Cannot connect to backend. Make sure the backend server is running.');
+      }
+      throw error;
+    }
+  },
+};
+
+// Admin API
+export const adminAPI = {
+  /**
+   * Admin login
+   * POST /admin/auth/login
+   * @param email - Admin email
+   * @param password - Admin password
+   * @returns Promise with accessToken, refreshToken, and admin data
+   */
+  login: async (email: string, password: string) => {
+    try {
+      const response = await apiRequest('/admin/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || errorData.error || `Server error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      if (data.accessToken) {
+        localStorage.setItem('adminAccessToken', data.accessToken);
+        if (data.refreshToken) {
+          localStorage.setItem('adminRefreshToken', data.refreshToken);
+        }
+        if (data.admin) {
+          localStorage.setItem('admin', JSON.stringify(data.admin));
+        }
+      }
+      return data;
+    } catch (error: any) {
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        throw new Error('Cannot connect to backend. Make sure the backend server is running.');
+      }
+      throw error;
+    }
+  },
+
+  /**
+   * Get all configurations (Admin)
+   * GET /api/configs
+   * @returns Promise with all configurations
+   */
+  getConfigs: async () => {
+    try {
+      const response = await apiRequest('/api/configs', {
+        method: 'GET',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || errorData.error || `Server error: ${response.status}`);
+      }
+
+      return response.json();
+    } catch (error: any) {
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        throw new Error('Cannot connect to backend. Make sure the backend server is running.');
+      }
+      throw error;
+    }
+  },
+
+  /**
+   * Get a config value by key (any authenticated user)
+   * GET /api/configs/{key}
+   * @param key - Config key
+   * @returns Promise with config value
+   */
+  getConfig: async (key: string) => {
+    try {
+      const response = await apiRequest(`/api/configs/${key}`, {
+        method: 'GET',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || errorData.error || `Server error: ${response.status}`);
+      }
+
+      return response.json();
+    } catch (error: any) {
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        throw new Error('Cannot connect to backend. Make sure the backend server is running.');
+      }
+      throw error;
+    }
+  },
+
+  /**
+   * Create a configuration (Admin)
+   * POST /api/configs
+   * @param key - Config key
+   * @param value - Config value
+   * @returns Promise with created config
+   */
+  createConfig: async (key: string, value: any) => {
+    try {
+      const response = await apiRequest('/api/configs', {
+        method: 'POST',
+        body: JSON.stringify({ key, value }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || errorData.error || `Server error: ${response.status}`);
+      }
+
+      return response.json();
+    } catch (error: any) {
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        throw new Error('Cannot connect to backend. Make sure the backend server is running.');
+      }
+      throw error;
+    }
+  },
+
+  /**
+   * Update a configuration (Admin)
+   * PATCH /api/configs/{key}
+   * @param key - Config key
+   * @param value - New config value
+   * @returns Promise with updated config
+   */
+  updateConfig: async (key: string, value: any) => {
+    try {
+      const response = await apiRequest(`/api/configs/${key}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ value }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || errorData.error || `Server error: ${response.status}`);
+      }
+
+      return response.json();
+    } catch (error: any) {
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        throw new Error('Cannot connect to backend. Make sure the backend server is running.');
+      }
+      throw error;
+    }
+  },
+
+  /**
+   * Delete a configuration (Admin)
+   * DELETE /api/configs/{key}
+   * @param key - Config key
+   * @returns Promise with success message
+   */
+  deleteConfig: async (key: string) => {
+    try {
+      const response = await apiRequest(`/api/configs/${key}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || errorData.error || `Server error: ${response.status}`);
+      }
+
+      return response.json();
+    } catch (error: any) {
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        throw new Error('Cannot connect to backend. Make sure the backend server is running.');
+      }
+      throw error;
+    }
+  },
+
+  /**
+   * Credit or Debit user wallet (Admin)
+   * POST /api/wallet/admin/action
+   * @param userId - User ID
+   * @param amount - Amount to credit/debit
+   * @param action - 'credit' or 'debit'
+   * @param remark - Transaction remark
+   * @param metadata - Optional metadata object
+   * @returns Promise with transaction result
+   */
+  walletAction: async (data: {
+    userId: string;
+    amount: number;
+    action: 'credit' | 'debit';
+    remark: string;
+    metadata?: Record<string, any>;
+  }) => {
+    try {
+      const response = await apiRequest('/api/wallet/admin/action', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || errorData.error || `Server error: ${response.status}`);
+      }
+
+      return response.json();
+    } catch (error: any) {
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        throw new Error('Cannot connect to backend. Make sure the backend server is running.');
+      }
+      throw error;
+    }
+  },
+
+  /**
+   * Get wallet history for any user (Admin)
+   * GET /api/wallet/admin/history/{userId}
+   * @param userId - User ID
+   * @param params - Query parameters (page, limit, type, fromDate, toDate, sortOrder)
+   * @returns Promise with transaction history
+   */
+  getWalletHistory: async (userId: string, params?: {
+    page?: number;
+    limit?: number;
+    type?: string;
+    fromDate?: string;
+    toDate?: string;
+    sortOrder?: 'asc' | 'desc';
+  }) => {
+    try {
+      const queryParams = new URLSearchParams();
+      if (params?.page) queryParams.append('page', params.page.toString());
+      if (params?.limit) queryParams.append('limit', params.limit.toString());
+      if (params?.type) queryParams.append('type', params.type);
+      if (params?.fromDate) queryParams.append('fromDate', params.fromDate);
+      if (params?.toDate) queryParams.append('toDate', params.toDate);
+      if (params?.sortOrder) queryParams.append('sortOrder', params.sortOrder);
+
+      const queryString = queryParams.toString();
+      const endpoint = `/api/wallet/admin/history/${userId}${queryString ? `?${queryString}` : ''}`;
+
+      const response = await apiRequest(endpoint, {
+        method: 'GET',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || errorData.error || `Server error: ${response.status}`);
+      }
+
+      return response.json();
+    } catch (error: any) {
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        throw new Error('Cannot connect to backend. Make sure the backend server is running.');
+      }
+      throw error;
+    }
+  },
+
+  /**
+   * Get wallet balance for any user (Admin)
+   * GET /api/wallet/admin/balance/{userId}
+   * @param userId - User ID
+   * @returns Promise with wallet balance
+   */
+  getWalletBalance: async (userId: string) => {
+    try {
+      const response = await apiRequest(`/api/wallet/admin/balance/${userId}`, {
+        method: 'GET',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || errorData.error || `Server error: ${response.status}`);
+      }
+
+      return response.json();
+    } catch (error: any) {
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        throw new Error('Cannot connect to backend. Make sure the backend server is running.');
+      }
+      throw error;
+    }
+  },
+};
