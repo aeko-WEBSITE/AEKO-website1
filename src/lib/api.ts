@@ -403,7 +403,7 @@ export const authAPI = {
   },
 };
 
-// LLM API
+// LLM API (Sarvam AI via backend)
 export const llmAPI = {
   chat: async (
     message: string,
@@ -436,6 +436,88 @@ export const llmAPI = {
       }
       throw error;
     }
+  },
+
+  /** Sarvam AI chat completions (used by Agent LLM page). Returns OpenAI-compatible shape. */
+  chatCompletions: async (data: {
+    prompt: string;
+    model?: string;
+    temperature?: number;
+    reasoning_effort?: string;
+    stream?: boolean;
+  }) => {
+    try {
+      const response = await apiRequest('/api/llm/chat-completions', {
+        method: 'POST',
+        body: JSON.stringify({
+          prompt: data.prompt,
+          model: data.model ?? 'sarvam-m',
+          temperature: data.temperature ?? 0.7,
+          reasoning_effort: data.reasoning_effort ?? 'high',
+          stream: data.stream ?? false,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || errorData.error || `Server error: ${response.status}`);
+      }
+
+      return response.json();
+    } catch (error: any) {
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        throw new Error('Cannot connect to backend. Make sure the backend server is running on port 5000.');
+      }
+      throw error;
+    }
+  },
+};
+
+// Sarvam chat backend (POST /api/chat) - API key stays on backend
+const SARVAM_CHAT_BASE = (import.meta.env.VITE_SARVAM_CHAT_URL || '').trim() || 'http://localhost:3000';
+
+/** WebSocket URL for voice agent (STT/TTS streaming). Derive from chat base. */
+export const SARVAM_VOICE_WS_URL = SARVAM_CHAT_BASE.replace(/^http/, 'ws').replace(/\/$/, '') || 'ws://localhost:3000';
+
+export const sarvamChatAPI = {
+  chat: async (messages: { role: string; content: string }[]) => {
+    const response = await fetch(`${SARVAM_CHAT_BASE}/api/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages }),
+      mode: 'cors',
+      credentials: 'omit',
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(data.message || `Server error: ${response.status}`);
+    }
+    if (!data.success || data.reply === undefined) {
+      throw new Error(data.message || 'Invalid response from chat API');
+    }
+    return data.reply as string;
+  },
+};
+
+// Video API (ModelsLab Text2Video - key on backend)
+export const videoAPI = {
+  generateVideo: async (body: { prompt: string; negative_prompt?: string }) => {
+    const response = await apiRequest('/api/video/generate-video', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error((data as { error?: string }).error || 'Video generation failed');
+    return data as { request_id?: string; [k: string]: unknown };
+  },
+  getVideoStatus: async (request_id: string) => {
+    const response = await apiRequest('/api/video/video-status', {
+      method: 'POST',
+      body: JSON.stringify({ request_id }),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error((data as { error?: string }).error || 'Status check failed');
+    return data as { status?: string; output?: string[]; [k: string]: unknown };
   },
 };
 

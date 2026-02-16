@@ -37,6 +37,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { videoAPI } from "@/lib/api";
+import { toast } from "sonner";
 
 const videoModes = [
   { id: "text-to-video", label: "Text to Video", icon: Video, color: "from-orange-500 to-red-500" },
@@ -72,11 +74,46 @@ const VideoToolsPage = () => {
   const handleGenerate = async () => {
     if (!prompt.trim() || isLoading) return;
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setGeneratedVideo("https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4");
+    setGeneratedVideo(null);
+    try {
+      const createData = await videoAPI.generateVideo({
+        prompt: prompt.trim(),
+        negative_prompt: "",
+      });
+      const requestId = createData.request_id;
+      if (!requestId) {
+        toast.error("Could not start video generation");
+        setIsLoading(false);
+        return;
+      }
+      let videoUrl: string | null = null;
+      const maxAttempts = 60;
+      let attempts = 0;
+      while (!videoUrl && attempts < maxAttempts) {
+        await new Promise((r) => setTimeout(r, 5000));
+        const statusData = await videoAPI.getVideoStatus(requestId);
+        if (statusData.status === "success" && statusData.output?.[0]) {
+          videoUrl = statusData.output[0];
+          break;
+        }
+        if (statusData.status === "failed") {
+          toast.error("Video generation failed");
+          break;
+        }
+        attempts += 1;
+      }
+      if (videoUrl) {
+        setGeneratedVideo(videoUrl);
+        toast.success("Video ready");
+      } else if (!videoUrl && attempts >= maxAttempts) {
+        toast.error("Generation timed out");
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Video generation failed";
+      toast.error(msg);
+    } finally {
       setIsLoading(false);
-    }, 3000);
+    }
   };
 
   return (

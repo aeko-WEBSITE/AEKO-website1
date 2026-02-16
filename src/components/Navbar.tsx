@@ -103,7 +103,7 @@ const Navbar = () => {
   ];
 
   const navLinks = [
-    { name: "Pricing", href: "#pricing" },
+    { name: "Pricing", path: "/pricing" },
     { name: "API", href: "#developers" },
   ];
 
@@ -261,17 +261,29 @@ const Navbar = () => {
                     </DropdownMenuContent>
                   </DropdownMenu>
 
-                  {navLinks.map((link) => (
-                    <motion.a
-                      key={link.name}
-                      href={link.href}
-                      className="text-xs md:text-sm text-foreground/80 dark:text-foreground/90 hover:text-foreground dark:hover:text-foreground transition-colors duration-200 px-2 md:px-3 py-1.5 rounded-lg hover:bg-accent/50 dark:hover:bg-accent/50"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      {link.name}
-                    </motion.a>
-                  ))}
+                  {navLinks.map((link) =>
+                    link.path ? (
+                      <motion.button
+                        key={link.name}
+                        onClick={() => navigate(link.path!)}
+                        className="text-xs md:text-sm text-foreground/80 dark:text-foreground/90 hover:text-foreground dark:hover:text-foreground transition-colors duration-200 px-2 md:px-3 py-1.5 rounded-lg hover:bg-accent/50 dark:hover:bg-accent/50"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        {link.name}
+                      </motion.button>
+                    ) : (
+                      <motion.a
+                        key={link.name}
+                        href={link.href}
+                        className="text-xs md:text-sm text-foreground/80 dark:text-foreground/90 hover:text-foreground dark:hover:text-foreground transition-colors duration-200 px-2 md:px-3 py-1.5 rounded-lg hover:bg-accent/50 dark:hover:bg-accent/50"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        {link.name}
+                      </motion.a>
+                    )
+                  )}
                   
                   {isAuthenticated ? (
                     <>
@@ -458,18 +470,33 @@ const Navbar = () => {
                   </div>
                 </div>
 
-                {navLinks.map((link) => (
-                  <motion.a
-                    key={link.name}
-                    href={link.href}
-                    onClick={() => setIsOpen(false)}
-                    className="block px-3 py-2.5 rounded-lg text-sm text-foreground/80 hover:text-foreground hover:bg-accent/50 dark:hover:bg-accent/50 transition-colors"
-                    whileHover={{ x: 4 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    {link.name}
-                  </motion.a>
-                ))}
+                {navLinks.map((link) =>
+                  link.path ? (
+                    <motion.button
+                      key={link.name}
+                      onClick={() => {
+                        setIsOpen(false);
+                        navigate(link.path!);
+                      }}
+                      className="block w-full text-left px-3 py-2.5 rounded-lg text-sm text-foreground/80 hover:text-foreground hover:bg-accent/50 dark:hover:bg-accent/50 transition-colors"
+                      whileHover={{ x: 4 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      {link.name}
+                    </motion.button>
+                  ) : (
+                    <motion.a
+                      key={link.name}
+                      href={link.href}
+                      onClick={() => setIsOpen(false)}
+                      className="block px-3 py-2.5 rounded-lg text-sm text-foreground/80 hover:text-foreground hover:bg-accent/50 dark:hover:bg-accent/50 transition-colors"
+                      whileHover={{ x: 4 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      {link.name}
+                    </motion.a>
+                  )
+                )}
                 
                 <div className="pt-4 border-t border-border space-y-2">
                   {isAuthenticated ? (

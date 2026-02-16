@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -28,7 +28,7 @@ import {
   ArrowRight,
   Globe,
 } from "lucide-react";
-import { moduleAPI } from "@/lib/api";
+import { sarvamChatAPI, SARVAM_VOICE_WS_URL } from "@/lib/api";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import logo from "@/assets/aeko-logo.png";
@@ -66,6 +66,11 @@ const AgentLLMPage = () => {
   const [agentMood, setAgentMood] = useState("Professional");
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const voiceSocketRef = useRef<WebSocket | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const mediaStreamRef = useRef<MediaStream | null>(null);
+  const ttsChunksRef = useRef<string[]>([]);
+  const [isVoiceActive, setIsVoiceActive] = useState(false);
   const navigate = useNavigate();
 
   const agentMoods = [
@@ -111,22 +116,17 @@ const AgentLLMPage = () => {
 
     try {
       const startTime = Date.now();
-      const response = await moduleAPI.chatCompletions({
-        prompt: currentInput,
-        model: "ModelsLab/Llama-3.1-8b-Uncensored-Dare",
-        stream: false,
-      });
+      const conversationHistory = [
+        ...messages.map((m) => ({ role: m.role, content: m.content })),
+        { role: "user" as const, content: currentInput },
+      ];
+      const reply = await sarvamChatAPI.chat(conversationHistory);
       const responseTime = ((Date.now() - startTime) / 1000).toFixed(1);
-      
-      let content = "I'm sorry, I couldn't generate a response.";
-      if (typeof response === 'string') content = response;
-      else if (response.choices?.[0]) content = response.choices[0].message?.content || response.choices[0].text || content;
-      else if (response.message) content = typeof response.message === 'string' ? response.message : response.message.content || content;
 
       const assistantMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: content,
+        content: reply || "I'm sorry, I couldn't generate a response.",
         timestamp: new Date(),
         responseTime: `${responseTime}s`,
       };
@@ -151,6 +151,106 @@ const AgentLLMPage = () => {
       handleSend();
     }
   };
+
+  const stopVoice = useCallback(() => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      mediaRecorderRef.current.stop();
+      mediaRecorderRef.current = null;
+    }
+    mediaStreamRef.current?.getTracks().forEach((t) => t.stop());
+    mediaStreamRef.current = null;
+    voiceSocketRef.current?.close();
+    voiceSocketRef.current = null;
+    setIsVoiceActive(false);
+  }, []);
+
+  const handleMicClick = useCallback(async () => {
+    if (isVoiceActive) {
+      stopVoice();
+      return;
+    }
+
+    try {
+      const socket = new WebSocket(SARVAM_VOICE_WS_URL);
+      voiceSocketRef.current = socket;
+
+      socket.onopen = async () => {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          mediaStreamRef.current = stream;
+          const mediaRecorder = new MediaRecorder(stream);
+          mediaRecorderRef.current = mediaRecorder;
+
+          mediaRecorder.ondataavailable = (e) => {
+            if (e.data.size > 0 && socket.readyState === WebSocket.OPEN) {
+              socket.send(e.data);
+            }
+          };
+          mediaRecorder.start(250);
+          setIsVoiceActive(true);
+          toast.success("Voice on — speak now");
+        } catch (err: any) {
+          toast.error(err?.message || "Microphone access denied");
+          socket.close();
+        }
+      };
+
+      socket.onmessage = (event) => {
+        try {
+          if (typeof event.data !== "string") return;
+          const data = JSON.parse(event.data);
+          if (data.type === "stt") {
+            setInput((prev) => (data.text ? data.text : prev));
+          }
+          if (data.type === "tts_start") {
+            setMessages((prev) => [
+              ...prev,
+              {
+                id: Date.now().toString(),
+                role: "assistant",
+                content: data.text || "",
+                timestamp: new Date(),
+              },
+            ]);
+            ttsChunksRef.current = [];
+          }
+          if (data.type === "tts_chunk" && data.chunk) {
+            ttsChunksRef.current.push(data.chunk);
+          }
+          if (data.type === "tts_end") {
+            const chunks = ttsChunksRef.current;
+            if (chunks.length > 0) {
+              const base64 = chunks.join("");
+              const audio = new Audio("data:audio/mp3;base64," + base64);
+              audio.play().catch(() => {});
+            }
+            ttsChunksRef.current = [];
+          }
+          if (data.type === "error") {
+            toast.error(data.message || "Voice error");
+            stopVoice();
+          }
+        } catch (_) {}
+      };
+
+      socket.onerror = () => {
+        toast.error("Voice connection error. Is the backend running on port 3000?");
+        stopVoice();
+      };
+      socket.onclose = () => {
+        stopVoice();
+      };
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to start voice");
+      setIsVoiceActive(false);
+    }
+  }, [isVoiceActive, stopVoice]);
+
+  useEffect(() => {
+    return () => {
+      stopVoice();
+    };
+  }, [stopVoice]);
 
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -410,9 +510,18 @@ const AgentLLMPage = () => {
                     {/* Right Group */}
                     {/* Right Group */}
                     <div className="flex items-center gap-1 sm:gap-2 px-1">
-                      {/* Mic Button */}
-                      <button 
-                        className="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400 active:scale-95 transition-all duration-200" aria-label="Voice Input" title="Voice">
+                      {/* Mic Button - Voice agent (STT -> LLM -> TTS) */}
+                      <button
+                        type="button"
+                        onClick={handleMicClick}
+                        className={`p-2 rounded-lg transition-all duration-200 active:scale-95 ${
+                          isVoiceActive
+                            ? "bg-red-500/20 text-red-500 dark:text-red-400 hover:bg-red-500/30"
+                            : "text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400"
+                        }`}
+                        aria-label="Voice Input"
+                        title={isVoiceActive ? "Stop voice" : "Start voice"}
+                      >
                         <Mic className="w-5 h-5" />
                       </button>
 

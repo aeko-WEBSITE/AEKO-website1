@@ -5,7 +5,6 @@ import {
   Home,
   Compass,
   User,
-  Wrench,
   HelpCircle,
   Menu,
   X,
@@ -53,10 +52,6 @@ const DashboardLayout = () => {
   const { theme, toggleTheme } = useTheme();
   const { user, logout } = useAuth();
 
-  const isToolsActive = location.pathname.startsWith("/dashboard/tools-old");
-  // Auto-open dropdown if on tools page
-  const [toolsDropdownOpen, setToolsDropdownOpen] = useState(isToolsActive);
-
   // Handle window resize
   useEffect(() => {
     const handleResize = () => {
@@ -68,13 +63,6 @@ const DashboardLayout = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-
-  // Update dropdown state when location changes
-  useEffect(() => {
-    if (isToolsActive) {
-      setToolsDropdownOpen(true);
-    }
-  }, [isToolsActive]);
 
   const handleLogout = async () => {
     try {
@@ -289,113 +277,77 @@ const DashboardLayout = () => {
                 );
               })}
 
-              {/* 3. AI Tools with Dropdown */}
-              <div>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <motion.button
-                      onClick={() => setToolsDropdownOpen(!toolsDropdownOpen)}
-                      whileHover={{ scale: 1.15, rotate: 5 }}
-                      whileTap={{ scale: 0.85, rotate: -5 }}
-                      className={`relative flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full transition-all ${
-                        isToolsActive
-                          ? "gradient-active-nav text-foreground"
-                          : "text-muted-foreground hover:text-foreground hover:bg-accent/50 dark:hover:bg-accent/50"
-                      }`}
-                    >
-                      <Wrench className="w-4 h-4 sm:w-5 sm:h-5 stroke-2 text-foreground/70 dark:text-foreground/70 font-medium hover:text-foreground dark:hover:text-foreground" />
-                      {/* Click Animation Effect - Theme Aware */}
-                      <motion.div
-                        className="absolute inset-0 rounded-full bg-primary/20 dark:bg-primary/30 blur-xl"
-                        initial={{ scale: 0, opacity: 0 }}
-                        whileTap={{ 
-                          scale: [0, 2, 2.5, 0],
-                          opacity: [0, 1, 0.8, 0]
-                        }}
-                        transition={{ duration: 0.6, ease: "easeOut" }}
-                      />
-                      {/* Secondary Ring on Click */}
-                      <motion.div
-                        className="absolute inset-0 rounded-full border-2 border-primary/50"
-                        initial={{ scale: 1, opacity: 0 }}
-                        whileTap={{ 
-                          scale: [1, 2, 2.5],
-                          opacity: [0, 0.9, 0]
-                        }}
-                        transition={{ duration: 0.5, ease: "easeOut" }}
-                      />
-                    </motion.button>
-                  </TooltipTrigger>
-                  <TooltipContent side="right">
-                    <p>AI Tools</p>
-                  </TooltipContent>
-                </Tooltip>
-                <AnimatePresence>
-                  {toolsDropdownOpen && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      className="overflow-hidden mt-1"
-                    >
-                      <div className="pl-0 mt-1 space-y-1">
-                        {toolsSubItems.map((item) => {
-                          const Icon = item.icon;
-                          const isActive = location.pathname === item.path;
-                          return (
-                            <Tooltip key={item.path}>
-                              <TooltipTrigger asChild>
-                                <Link
-                                  to={item.path}
-                                  onClick={() => {
-                                    setSidebarOpen(false);
-                                  }}
-                                  className={`flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full transition-all ${
-                                    isActive
-                                      ? "gradient-active-nav text-foreground"
-                                      : "text-muted-foreground hover:text-foreground hover:bg-accent/50 dark:hover:bg-accent/50"
-                                  }`}
-                                >
-                                  <motion.div
-                                    whileHover={{ scale: 1.15, rotate: 5 }}
-                                    whileTap={{ scale: 0.85, rotate: -5 }}
-                                    className="relative"
-                                  >
-                                    <Icon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-2 text-foreground/70 dark:text-foreground/70 font-medium hover:text-foreground dark:hover:text-foreground ${isActive ? 'text-primary dark:text-primary font-semibold' : ''}`} />
-                                    {/* Bright Click Animation Effect */}
-                                    <motion.div
-                                      className="absolute inset-0 rounded-full bg-white blur-xl"
-                                      initial={{ scale: 0, opacity: 0 }}
-                                      whileTap={{ 
-                                        scale: [0, 2, 2.5, 0],
-                                        opacity: [0, 1, 0.8, 0]
-                                      }}
-                                      transition={{ duration: 0.6, ease: "easeOut" }}
-                                    />
-                                    {/* Secondary Bright Ring on Click */}
-                                    <motion.div
-                                      className="absolute inset-0 rounded-full border-2 border-white"
-                                      initial={{ scale: 1, opacity: 0 }}
-                                      whileTap={{ 
-                                        scale: [1, 2, 2.5],
-                                        opacity: [0, 0.9, 0]
-                                      }}
-                                      transition={{ duration: 0.5, ease: "easeOut" }}
-                                    />
-                                  </motion.div>
-                                </Link>
-                              </TooltipTrigger>
-                              <TooltipContent side="right">
-                                <p>{item.label}</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          );
-                        })}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+              {/* 3. Agent LLM, Image, Video - direct sidebar items */}
+              {toolsSubItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = location.pathname === item.path;
+                return (
+                  <Tooltip key={item.path}>
+                    <TooltipTrigger asChild>
+                      <Link
+                        to={item.path}
+                        onClick={() => setSidebarOpen(false)}
+                        className={`flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full transition-all ${
+                          isActive
+                            ? "gradient-active-nav text-foreground"
+                            : "text-muted-foreground hover:text-foreground hover:bg-accent/50 dark:hover:bg-accent/50"
+                        }`}
+                      >
+                        <motion.div
+                          whileHover={{ scale: 1.15, rotate: 5 }}
+                          whileTap={{ scale: 0.85, rotate: -5 }}
+                          className="relative"
+                          animate={isActive ? {
+                            scale: [1, 1.2, 1],
+                            rotate: [0, 5, -5, 0],
+                          } : {}}
+                          transition={{
+                            duration: 0.3,
+                            ease: 'easeInOut',
+                          }}
+                        >
+                          <Icon className={`w-4 h-4 sm:w-5 sm:h-5 stroke-2 transition-all ${isActive ? 'text-primary dark:text-primary font-semibold' : 'text-foreground/70 dark:text-foreground/70 font-medium hover:text-foreground dark:hover:text-foreground'}`} />
+                          {isActive && (
+                            <motion.div
+                              className="absolute inset-0 rounded-full bg-primary/20 dark:bg-primary/30 blur-md"
+                              animate={{
+                                opacity: [0.3, 0.6, 0.3],
+                                scale: [1, 1.2, 1],
+                              }}
+                              transition={{
+                                duration: 2,
+                                repeat: Infinity,
+                                ease: 'easeInOut',
+                              }}
+                            />
+                          )}
+                          <motion.div
+                            className="absolute inset-0 rounded-full bg-primary/20 dark:bg-primary/30 blur-xl"
+                            initial={{ scale: 0, opacity: 0 }}
+                            whileTap={{ 
+                              scale: [0, 2, 2.5, 0],
+                              opacity: [0, 1, 0.8, 0]
+                            }}
+                            transition={{ duration: 0.6, ease: "easeOut" }}
+                          />
+                          <motion.div
+                            className="absolute inset-0 rounded-full border-2 border-primary/50"
+                            initial={{ scale: 1, opacity: 0 }}
+                            whileTap={{ 
+                              scale: [1, 2, 2.5],
+                              opacity: [0, 0.9, 0]
+                            }}
+                            transition={{ duration: 0.5, ease: "easeOut" }}
+                          />
+                        </motion.div>
+                      </Link>
+                    </TooltipTrigger>
+                    <TooltipContent side="right">
+                      <p>{item.label}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                );
+              })}
 
               {/* 4. Agent Store */}
               <Tooltip>
