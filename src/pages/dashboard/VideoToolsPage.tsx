@@ -37,7 +37,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { videoAPI } from "@/lib/api";
+import { moduleAPI } from "@/lib/api";
 import { toast } from "sonner";
 
 const videoModes = [
@@ -47,10 +47,10 @@ const videoModes = [
 ];
 
 const videoModels = [
+  { id: "cogvideox", name: "CogVideoX", icon: Film, description: "High quality video generation" },
   { id: "runway", name: "Runway Gen-2", icon: Film, description: "Cinematic quality videos" },
   { id: "pika", name: "Pika Labs", icon: Zap, description: "Fast generation" },
   { id: "stability", name: "Stable Video", icon: Video, description: "Stable and consistent" },
-  { id: "google", name: "Google", icon: Video, description: "Fast and reliable generation" },
 ];
 
 const quantityOptions = [
@@ -61,7 +61,7 @@ const quantityOptions = [
 
 const VideoToolsPage = () => {
   const [activeMode, setActiveMode] = useState("text-to-video");
-  const [selectedModel, setSelectedModel] = useState(videoModels[0]);
+  const [selectedModel, setSelectedModel] = useState(videoModels.find(m => m.id === "cogvideox") || videoModels[0]);
   const [isModelOpen, setIsModelOpen] = useState(false);
   const [prompt, setPrompt] = useState("");
   const [enhancePrompt, setEnhancePrompt] = useState(false);
@@ -76,41 +76,58 @@ const VideoToolsPage = () => {
     setIsLoading(true);
     setGeneratedVideo(null);
     try {
-      const createData = await videoAPI.generateVideo({
+      // Use the new apimodule text-to-video API
+      const response = await moduleAPI.textToVideo({
         prompt: prompt.trim(),
-        negative_prompt: "",
+        model_id: selectedModel.id === "cogvideox" ? "cogvideox" : selectedModel.id,
+        num_frames: 25,
+        width: 512,
+        height: 512,
+        num_inference_steps: 20,
+        guidance_scale: 7,
+        fps: 16,
       });
-      const requestId = createData.request_id;
-      if (!requestId) {
-        toast.error("Could not start video generation");
-        setIsLoading(false);
+
+      // Extract video URL from response
+      // The response might have different formats:
+      // 1. Direct video URL in response.video or response.url
+      // 2. Base64 video in response.video or response.data
+      // 3. ID for polling in response.id
+      let videoUrl: string | null = null;
+
+      // Try to extract video URL from various possible response formats
+      if (response.video) {
+        videoUrl = typeof response.video === 'string' ? response.video : response.video.url || response.video.data;
+      } else if (response.url) {
+        videoUrl = response.url;
+      } else if (response.data) {
+        // If it's base64, convert to data URL
+        const base64Data = typeof response.data === 'string' ? response.data : response.data.video;
+        if (base64Data && base64Data.startsWith('data:')) {
+          videoUrl = base64Data;
+        } else if (base64Data) {
+          videoUrl = `data:video/mp4;base64,${base64Data}`;
+        }
+      } else if (response.id) {
+        // If response has an ID, we might need to poll for the result
+        // For now, show a message that polling is not yet implemented
+        toast.info("Video generation started. Polling for results...");
+        // TODO: Implement polling if the API requires it
         return;
       }
-      let videoUrl: string | null = null;
-      const maxAttempts = 60;
-      let attempts = 0;
-      while (!videoUrl && attempts < maxAttempts) {
-        await new Promise((r) => setTimeout(r, 5000));
-        const statusData = await videoAPI.getVideoStatus(requestId);
-        if (statusData.status === "success" && statusData.output?.[0]) {
-          videoUrl = statusData.output[0];
-          break;
-        }
-        if (statusData.status === "failed") {
-          toast.error("Video generation failed");
-          break;
-        }
-        attempts += 1;
-      }
+
       if (videoUrl) {
         setGeneratedVideo(videoUrl);
-        toast.success("Video ready");
-      } else if (!videoUrl && attempts >= maxAttempts) {
-        toast.error("Generation timed out");
+        toast.success("Video generated successfully!");
+      } else {
+        // If we can't extract a video URL, show the response for debugging
+        console.log("Video generation response:", response);
+        toast.error("Video generated but couldn't extract video URL. Check console for details.");
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Video generation failed";
       toast.error(msg);
+      console.error("Video generation error:", err);
     } finally {
       setIsLoading(false);
     }
