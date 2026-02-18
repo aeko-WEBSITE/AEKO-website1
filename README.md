@@ -17,14 +17,9 @@ AI-powered creative platform for generating images, videos, and content.
    ```
    Frontend runs on `http://localhost:8080`
 
-3. **Configure API URL (optional):**
-   Create a `.env` file in the root directory:
-   ```env
-   VITE_API_URL=http://localhost:5000
-   ```
-   If not set, defaults to `http://localhost:5000`
+3. **API URL:** In development, the app uses the Vite proxy: requests to `/api` go to `http://localhost:5000`. Do **not** set `VITE_API_URL` in `.env` unless you want to point to a different backend.
 
-### Backend Setup
+### Backend Setup (required for Agent LLM and auth)
 
 1. **Navigate to backend directory:**
    ```bash
@@ -36,21 +31,28 @@ AI-powered creative platform for generating images, videos, and content.
    npm install
    ```
 
-3. **Configure environment variables:**
-   Create a `.env` file in the `backend` directory:
+3. **Configure environment variables:**  
+   Create a `.env` file in the `backend` directory (copy from below). At minimum you need `SARVAM_API_KEY` for the Agent LLM page.
    ```env
    MONGODB_URI=your_mongodb_atlas_connection_string
    JWT_SECRET=your_jwt_secret_key
-   MODELSLAB_API_KEY=your_modelslab_api_key
+   SARVAM_API_KEY=your_sarvam_api_key
    PORT=5000
    NODE_ENV=development
    ```
 
-4. **Run backend server:**
+4. **Run backend server (must be running for frontend to connect):**
    ```bash
    npm run dev
    ```
-   Backend runs on `http://localhost:5000`
+   Backend runs on **http://localhost:5000**. Keep this terminal open.
+
+### Local connection checklist
+
+- **Frontend:** `npm run dev` → open **http://localhost:8080**
+- **Backend:** `cd backend && npm run dev` → must be running on **http://localhost:5000**
+- If the app says "Cannot connect to backend", start the backend first, then refresh the frontend.
+- Test backend: open **http://localhost:5000/api/health** in the browser; you should see `{"success":true,"message":"Backend connected",...}`.
 
 ## 📁 Project Structure
 

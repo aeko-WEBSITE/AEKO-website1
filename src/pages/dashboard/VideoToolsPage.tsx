@@ -37,6 +37,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { moduleAPI } from "@/lib/api";
+import { toast } from "sonner";
 
 const videoModes = [
   { id: "text-to-video", label: "Text to Video", icon: Video, color: "from-orange-500 to-red-500" },
@@ -45,10 +47,10 @@ const videoModes = [
 ];
 
 const videoModels = [
+  { id: "cogvideox", name: "CogVideoX", icon: Film, description: "High quality video generation" },
   { id: "runway", name: "Runway Gen-2", icon: Film, description: "Cinematic quality videos" },
   { id: "pika", name: "Pika Labs", icon: Zap, description: "Fast generation" },
   { id: "stability", name: "Stable Video", icon: Video, description: "Stable and consistent" },
-  { id: "google", name: "Google", icon: Video, description: "Fast and reliable generation" },
 ];
 
 const quantityOptions = [
@@ -59,7 +61,7 @@ const quantityOptions = [
 
 const VideoToolsPage = () => {
   const [activeMode, setActiveMode] = useState("text-to-video");
-  const [selectedModel, setSelectedModel] = useState(videoModels[0]);
+  const [selectedModel, setSelectedModel] = useState(videoModels.find(m => m.id === "cogvideox") || videoModels[0]);
   const [isModelOpen, setIsModelOpen] = useState(false);
   const [prompt, setPrompt] = useState("");
   const [enhancePrompt, setEnhancePrompt] = useState(false);
@@ -72,11 +74,63 @@ const VideoToolsPage = () => {
   const handleGenerate = async () => {
     if (!prompt.trim() || isLoading) return;
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setGeneratedVideo("https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4");
+    setGeneratedVideo(null);
+    try {
+      // Use the new apimodule text-to-video API
+      const response = await moduleAPI.textToVideo({
+        prompt: prompt.trim(),
+        model_id: selectedModel.id === "cogvideox" ? "cogvideox" : selectedModel.id,
+        num_frames: 25,
+        width: 512,
+        height: 512,
+        num_inference_steps: 20,
+        guidance_scale: 7,
+        fps: 16,
+      });
+
+      // Extract video URL from response
+      // The response might have different formats:
+      // 1. Direct video URL in response.video or response.url
+      // 2. Base64 video in response.video or response.data
+      // 3. ID for polling in response.id
+      let videoUrl: string | null = null;
+
+      // Try to extract video URL from various possible response formats
+      if (response.video) {
+        videoUrl = typeof response.video === 'string' ? response.video : response.video.url || response.video.data;
+      } else if (response.url) {
+        videoUrl = response.url;
+      } else if (response.data) {
+        // If it's base64, convert to data URL
+        const base64Data = typeof response.data === 'string' ? response.data : response.data.video;
+        if (base64Data && base64Data.startsWith('data:')) {
+          videoUrl = base64Data;
+        } else if (base64Data) {
+          videoUrl = `data:video/mp4;base64,${base64Data}`;
+        }
+      } else if (response.id) {
+        // If response has an ID, we might need to poll for the result
+        // For now, show a message that polling is not yet implemented
+        toast.info("Video generation started. Polling for results...");
+        // TODO: Implement polling if the API requires it
+        return;
+      }
+
+      if (videoUrl) {
+        setGeneratedVideo(videoUrl);
+        toast.success("Video generated successfully!");
+      } else {
+        // If we can't extract a video URL, show the response for debugging
+        console.log("Video generation response:", response);
+        toast.error("Video generated but couldn't extract video URL. Check console for details.");
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Video generation failed";
+      toast.error(msg);
+      console.error("Video generation error:", err);
+    } finally {
       setIsLoading(false);
-    }, 3000);
+    }
   };
 
   return (

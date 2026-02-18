@@ -5,6 +5,7 @@ import connectDB from './config/database.js';
 import authRoutes from './routes/authRoutes.js';
 import llmRoutes from './routes/llmRoutes.js';
 import crawlRoutes from './routes/crawlRoutes.js';
+import videoRoutes from './routes/videoRoutes.js';
 
 // Load environment variables
 dotenv.config();
@@ -19,10 +20,15 @@ app.use(cors({
   origin: [
     'https://aeko-ivory.vercel.app',
     'http://localhost:8080',
+    'http://localhost:5173',
     'http://localhost:3000',
-    'http://127.0.0.1:8080'
-  ],
-  credentials: true
+    'http://127.0.0.1:8080',
+    'http://127.0.0.1:5173',
+    'http://127.0.0.1:3000',
+  ].concat(process.env.NODE_ENV !== 'production' ? [/^http:\/\/localhost(:\d+)?$/, /^http:\/\/127\.0\.0\.1(:\d+)?$/] : []),
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -36,10 +42,20 @@ app.get('/', (req, res) => {
   });
 });
 
+// Health check under /api so frontend proxy can reach it
+app.get('/api/health', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Backend connected',
+    timestamp: new Date().toISOString(),
+  });
+});
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/llm', llmRoutes);
 app.use('/api/crawl', crawlRoutes);
+app.use('/api/video', videoRoutes);
 
 // 404 handler
 app.use((req, res) => {

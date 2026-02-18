@@ -91,8 +91,8 @@ backend/
 - `GET /api/auth/me` - Get current user (protected)
   Headers: `Authorization: Bearer <token>`
 
-### LLM (ModelsLab Integration)
-- `POST /api/llm/chat` - Chat with LLM (protected)
+### LLM (Sarvam AI Integration)
+- `POST /api/llm/chat` - Chat with Sarvam AI
   ```json
   {
     "message": "Write a PHP function to make API call",
@@ -102,7 +102,18 @@ backend/
     "top_p": 0.9
   }
   ```
-  Headers: `Authorization: Bearer <token>`
+
+- `POST /api/llm/chat-completions` - Sarvam AI chat completions (OpenAI-compatible; used by Agent LLM page)
+  ```json
+  {
+    "prompt": "Tell me about Indian classical music.",
+    "model": "sarvam-m",
+    "temperature": 0.7,
+    "reasoning_effort": "high",
+    "stream": false
+  }
+  ```
+  Returns: `{ "choices": [{ "message": { "content": "..." } }] }`
 
 ## Environment Variables
 
@@ -110,7 +121,7 @@ backend/
 |----------|-------------|----------|
 | `MONGODB_URI` | MongoDB Atlas connection string | Yes |
 | `JWT_SECRET` | Secret key for JWT tokens | Yes |
-| `MODELSLAB_API_KEY` | ModelsLab API key | Yes |
+| `SARVAM_API_KEY` | Sarvam AI API subscription key | Yes (for LLM) |
 | `PORT` | Server port | No (default: 5000) |
 | `NODE_ENV` | Environment (development/production) | No |
 
