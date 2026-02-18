@@ -249,7 +249,7 @@ const ImageToolsPage = () => {
     }
 
     if (
-      (toolMode === "image2image" || toolMode === "image-editing" || toolMode === "bg-removal") &&
+      (toolMode === "image2image" || toolMode === "bg-removal" || toolMode === "upscale") &&
       !uploadedImage && !uploadedImageFile
     ) {
       toast.error("Please upload an image first");

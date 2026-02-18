@@ -31,7 +31,7 @@ import {
 import { moduleAPI } from "@/lib/api";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import logo from "@/assets/aeko-logo.png";
+import logo from "@/assets/logo_dark.jpeg";
 
 interface ChatMessage {
   id: string;

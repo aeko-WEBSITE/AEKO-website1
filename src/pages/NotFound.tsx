@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { Home, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import logo from "@/assets/aeko-logo.png";
+import logo from "@/assets/logo_dark.jpeg";
 
 const NotFound = () => {
   const location = useLocation();

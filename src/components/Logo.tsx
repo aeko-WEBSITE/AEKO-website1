@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import logo from "@/assets/aeko-logo.png";
+import logoDark from "@/assets/logo_light.jpeg";
+import logoLight from "@/assets/logo_dark.jpeg";
 
 interface LogoProps {
   size?: "sm" | "md" | "lg";
@@ -51,12 +52,20 @@ const Logo = ({ size = "md", showText = false, className = "", href = "/" }: Log
             }}
           />
           {/* Logo Container */}
-          <div className={`relative ${sizeClasses[size]} rounded-full overflow-hidden bg-white dark:bg-white/95 shadow-md ring-2 ring-black/10 dark:ring-white/20 flex items-center justify-center p-0.5`}>
-            <img 
-              src={logo} 
-              alt="AEKO" 
-              className="w-full h-full object-contain object-center" 
-            />
+          <div className={`relative ${sizeClasses[size]} rounded-full overflow-hidden bg-white dark:bg-white/95 shadow-md ring-2 ring-black/10 dark:ring-white/20 flex items-center justify-center p-0`}>
+
+          <img
+            src={logoDark}
+            alt="AEKO"
+            className="w-full h-full object-cover object-center block dark:hidden"
+          />
+
+          <img
+            src={logoLight}
+            alt="AEKO"
+            className="w-full h-full object-cover object-center hidden dark:block"
+          />
+
           </div>
         </div>
         {showText && (
