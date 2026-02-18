@@ -1377,7 +1377,7 @@ export const adminAPI = {
   /**
    * Admin login
    * POST /admin/auth/login
-   * @param identifier - Admin identifier (email or username)
+   * @param identifier - Admin identifier (username or email - backend accepts both)
    * @param password - Admin password
    * @returns Promise with accessToken, refreshToken, and admin data
    */
@@ -1784,6 +1784,78 @@ export const adminAPI = {
     try {
       const response = await adminApiRequest('/api/packages/admin/all', {
         method: 'GET',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || errorData.error || `Server error: ${response.status}`);
+      }
+
+      return response.json();
+    } catch (error: any) {
+      if (error?.name === 'TypeError' && error?.message?.includes('fetch')) {
+        throw new Error('Cannot connect to backend. Make sure the backend server is running.');
+      }
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error(error?.message || error?.toString() || 'An unexpected error occurred');
+    }
+  },
+};
+
+// Package API (Public)
+export const packageAPI = {
+  /**
+   * List all active packages (Public)
+   * GET /api/packages
+   * @returns Promise with array of active packages
+   */
+  getAll: async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/packages`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': '*/*',
+        },
+        mode: 'cors',
+        credentials: 'omit',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || errorData.error || `Server error: ${response.status}`);
+      }
+
+      return response.json();
+    } catch (error: any) {
+      if (error?.name === 'TypeError' && error?.message?.includes('fetch')) {
+        throw new Error('Cannot connect to backend. Make sure the backend server is running.');
+      }
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error(error?.message || error?.toString() || 'An unexpected error occurred');
+    }
+  },
+
+  /**
+   * Get a package by ID (Public)
+   * GET /api/packages/{id}
+   * @param id - Package ID
+   * @returns Promise with package data
+   */
+  getById: async (id: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/packages/${id}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': '*/*',
+        },
+        mode: 'cors',
+        credentials: 'omit',
       });
 
       if (!response.ok) {
@@ -2228,9 +2300,15 @@ export const paymentAPI = {
     razorpay_signature: string;
   }) => {
     try {
+      // Convert to camelCase for backend
+      const requestData = {
+        razorpayOrderId: data.razorpay_order_id,
+        razorpayPaymentId: data.razorpay_payment_id,
+        razorpaySignature: data.razorpay_signature,
+      };
       const response = await apiRequest('/api/payment/verify', {
         method: 'POST',
-        body: JSON.stringify(data),
+        body: JSON.stringify(requestData),
       });
 
       if (!response.ok) {

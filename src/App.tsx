@@ -28,6 +28,7 @@ import AdminWalletPage from "./pages/admin/AdminWalletPage";
 import AdminPackagesPage from "./pages/admin/AdminPackagesPage";
 import AdminUsersPage from "./pages/admin/AdminUsersPage";
 import AdminTokensPage from "./pages/admin/AdminTokensPage";
+import PaymentPage from "./pages/PaymentPage";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +43,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/pricing" element={<PricingPage />} />
+              <Route path="/payment" element={<PaymentPage />} />
               <Route path="/auth/sign-in" element={<AuthSignIn />} />
               <Route path="/dashboard" element={<DashboardLayout />}>
                 <Route index element={<DashboardHome />} />

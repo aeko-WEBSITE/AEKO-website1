@@ -25,9 +25,12 @@ import {
 } from "@/components/ui/alert-dialog";
 
 interface Token {
-  _id?: string;
+  tokenId?: string;
+  _id?: string; // Fallback for compatibility
   token?: string;
   userId?: string;
+  username?: string;
+  email?: string;
   user?: {
     email?: string;
     username?: string;
@@ -35,13 +38,19 @@ interface Token {
   createdAt?: string;
   expiresAt?: string;
   lastUsedAt?: string;
-  deviceInfo?: string;
-  ipAddress?: string;
+  deviceInfo?: {
+    userAgent?: string;
+    ipAddress?: string;
+    lastUsed?: string;
+  };
+  deviceInfoString?: string; // Legacy support
+  ipAddress?: string; // Legacy support
 }
 
 const AdminTokensPage = () => {
   const [tokens, setTokens] = useState<Token[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [revokingTokenId, setRevokingTokenId] = useState<string | null>(null);
   const [isRevokeDialogOpen, setIsRevokeDialogOpen] = useState(false);
 
@@ -52,10 +61,21 @@ const AdminTokensPage = () => {
   const fetchTokens = async () => {
     try {
       setLoading(true);
+      setError(null);
       const data = await adminTokensAPI.getAll();
-      setTokens(Array.isArray(data) ? data : (data.tokens || data.data || []));
+      // Handle different response formats
+      let tokensList: Token[] = [];
+      if (Array.isArray(data)) {
+        tokensList = data;
+      } else if (data && typeof data === 'object') {
+        tokensList = data.tokens || data.data || data.results || [];
+      }
+      setTokens(tokensList);
     } catch (error: any) {
-      toast.error(error.message || "Failed to fetch tokens");
+      console.error("Error fetching tokens:", error);
+      const errorMessage = error?.message || "Failed to fetch tokens";
+      setError(errorMessage);
+      toast.error(errorMessage);
       setTokens([]);
     } finally {
       setLoading(false);
@@ -84,10 +104,10 @@ const AdminTokensPage = () => {
     }
   };
 
-  const maskToken = (token?: string) => {
-    if (!token) return "N/A";
-    if (token.length <= 20) return token;
-    return `${token.substring(0, 8)}...${token.substring(token.length - 8)}`;
+  const maskToken = (tokenId?: string) => {
+    if (!tokenId) return "N/A";
+    if (tokenId.length <= 20) return tokenId;
+    return `${tokenId.substring(0, 8)}...${tokenId.substring(tokenId.length - 8)}`;
   };
 
   return (
@@ -103,16 +123,38 @@ const AdminTokensPage = () => {
         </div>
       </div>
 
-      {/* Info Alert */}
-      <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 flex items-start gap-3">
-        <AlertCircle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
-        <div className="flex-1">
-          <p className="text-sm text-yellow-800 dark:text-yellow-200">
-            <strong>Warning:</strong> Revoking a token will immediately log out the user from that session.
-            Use this feature carefully.
-          </p>
+      {/* Error Message */}
+      {error && (
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <p className="text-sm text-red-800 dark:text-red-200">
+              <strong>Error:</strong> {error}
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={fetchTokens}
+              className="mt-2"
+            >
+              Retry
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* Info Alert */}
+      {!error && (
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <p className="text-sm text-yellow-800 dark:text-yellow-200">
+              <strong>Warning:</strong> Revoking a token will immediately log out the user from that session.
+              Use this feature carefully.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Tokens Table */}
       {loading ? (
@@ -140,57 +182,74 @@ const AdminTokensPage = () => {
                   </TableCell>
                 </TableRow>
               ) : (
-                tokens.map((token) => (
-                  <TableRow key={token._id}>
-                    <TableCell>
-                      <code className="text-xs bg-secondary px-2 py-1 rounded">
-                        {maskToken(token.token)}
-                      </code>
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">
-                          {token.user?.username || token.user?.email || "Unknown"}
+                tokens.map((token, index) => {
+                  const tokenId = token.tokenId || token._id;
+                  const username = token.username || token.user?.username || "Unknown";
+                  const email = token.email || token.user?.email;
+                  const lastUsed = token.lastUsedAt || token.deviceInfo?.lastUsed;
+                  const ipAddress = token.deviceInfo?.ipAddress || token.ipAddress;
+                  const userAgent = token.deviceInfo?.userAgent;
+                  
+                  return (
+                    <TableRow key={tokenId || `token-${index}`}>
+                      <TableCell>
+                        <code className="text-xs bg-secondary px-2 py-1 rounded">
+                          {maskToken(tokenId)}
+                        </code>
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          <div className="font-medium">{username}</div>
+                          {email && (
+                            <div className="text-xs text-muted-foreground">{email}</div>
+                          )}
                         </div>
-                        {token.user?.email && token.user?.username && (
-                          <div className="text-xs text-muted-foreground">{token.user.email}</div>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {formatDate(token.createdAt)}
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {formatDate(token.lastUsedAt)}
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-xs space-y-1">
-                        {token.deviceInfo && (
-                          <div className="text-muted-foreground">{token.deviceInfo}</div>
-                        )}
-                        {token.ipAddress && (
-                          <Badge variant="outline" className="text-xs">
-                            {token.ipAddress}
-                          </Badge>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setRevokingTokenId(token._id || null);
-                          setIsRevokeDialogOpen(true);
-                        }}
-                        className="text-destructive hover:text-destructive"
-                      >
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        Revoke
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {formatDate(token.createdAt)}
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {formatDate(lastUsed)}
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-xs space-y-1">
+                          {userAgent && (
+                            <div className="text-muted-foreground truncate max-w-[200px]" title={userAgent}>
+                              {userAgent || "N/A"}
+                            </div>
+                          )}
+                          {ipAddress && (
+                            <Badge variant="outline" className="text-xs">
+                              {ipAddress}
+                            </Badge>
+                          )}
+                          {!userAgent && !ipAddress && (
+                            <span className="text-muted-foreground">N/A</span>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            if (tokenId) {
+                              setRevokingTokenId(tokenId);
+                              setIsRevokeDialogOpen(true);
+                            } else {
+                              toast.error("Token ID is missing. Cannot revoke this token.");
+                            }
+                          }}
+                          disabled={!tokenId}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Revoke
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
               )}
             </TableBody>
           </Table>
@@ -215,7 +274,11 @@ const AdminTokensPage = () => {
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => revokingTokenId && handleRevoke(revokingTokenId)}
+              onClick={() => {
+                if (revokingTokenId) {
+                  handleRevoke(revokingTokenId);
+                }
+              }}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Revoke Token

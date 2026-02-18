@@ -1,42 +1,42 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, Sparkles, Shield, Zap, HeadphonesIcon, Star, ChevronRight } from "lucide-react";
+import { Check, Sparkles, Shield, Zap, HeadphonesIcon, Edit, Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Link, useNavigate } from "react-router-dom";
+import { packageAPI, paymentAPI, adminAPI, authAPI } from "@/lib/api";
+import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
-/* Reference UI: dark blue-grey #111729, card #1D212A, blue #3366FF, green #28A745 */
-const COLORS = {
-  bg: "#111729",
-  card: "#1D212A",
-  cardBorder: "#23272E",
-  blue: "#3366FF",
-  green: "#28A745",
-  greyButton: "#333741",
-  textMuted: "#94A3B8",
-} as const;
+interface Package {
+  _id: string;
+  name: string;
+  description?: string;
+  price: number;
+  credits: number;
+  features?: string[];
+  duration?: number;
+  isActive?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
 
-const PRICE_OPTIONS = [9, 19, 40, 80, 129] as const;
-const TIER_LABELS: Record<number, string> = {
-  9: "Starter",
-  19: "Growth",
-  40: "Pro",
-  80: "Business",
-  129: "Elite",
-};
-
-const pricingPlans: Record<
-  number,
-  { agents: number; tokens: string; images: number; videos?: number; parallelTasks?: number }
-> = {
-  9: { agents: 2, tokens: "9M", images: 5, videos: 5, parallelTasks: 1 },
-  19: { agents: 3, tokens: "20M", images: 10, videos: 10, parallelTasks: 2 },
-  40: { agents: 4, tokens: "44M", images: 15, videos: 15, parallelTasks: 3 },
-  80: { agents: 7, tokens: "95M", images: 20, videos: 20, parallelTasks: 5 },
-  129: { agents: 10, tokens: "160M", images: 25, videos: 25, parallelTasks: 10 },
-};
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
 
 const freeFeatures = [
   "1 Basic AI Agent with image tool integration",
@@ -68,7 +68,27 @@ const sharedProFeatures = [
   "300+ templates & effects",
 ];
 
-/** Full feature list per tier when slider is on that price (overrides dynamic + shared) */
+// Static pricing data (fallback when no packages available)
+const PRICE_OPTIONS = [9, 19, 40, 80, 129] as const;
+const TIER_LABELS: Record<number, string> = {
+  9: "Starter",
+  19: "Growth",
+  40: "Pro",
+  80: "Business",
+  129: "Elite",
+};
+
+const pricingPlans: Record<
+  number,
+  { agents: number; tokens: string; images: number; videos?: number; parallelTasks?: number }
+> = {
+  9: { agents: 2, tokens: "9M", images: 5, videos: 5, parallelTasks: 1 },
+  19: { agents: 3, tokens: "20M", images: 10, videos: 10, parallelTasks: 2 },
+  40: { agents: 4, tokens: "44M", images: 15, videos: 15, parallelTasks: 3 },
+  80: { agents: 7, tokens: "95M", images: 20, videos: 20, parallelTasks: 5 },
+  129: { agents: 10, tokens: "160M", images: 25, videos: 25, parallelTasks: 10 },
+};
+
 const tierFeatureOverrides: Partial<Record<number, string[]>> = {
   9: [
     "Custom AI Agents with image tool integration",
@@ -103,10 +123,178 @@ const tierFeatureOverrides: Partial<Record<number, string[]>> = {
 
 const PricingPage = () => {
   const navigate = useNavigate();
-  const [billingPeriod, setBillingPeriod] = useState<"monthly" | "yearly">("monthly");
+  const [packages, setPackages] = useState<Package[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingPackage, setEditingPackage] = useState<Package | null>(null);
   const [sliderIndex, setSliderIndex] = useState(0);
-  const selectedPrice = PRICE_OPTIONS[sliderIndex];
+  const [billingPeriod, setBillingPeriod] = useState<"monthly" | "yearly">("monthly");
+  const [useStaticPricing, setUseStaticPricing] = useState(false);
+
+  // Form state
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+    price: "",
+    credits: "",
+    features: "",
+    duration: "",
+    isActive: true,
+  });
+
+  // Check if user is admin
+  useEffect(() => {
+    const adminToken = localStorage.getItem("adminAccessToken");
+    setIsAdmin(!!adminToken);
+  }, []);
+
+  // Fetch packages
+  useEffect(() => {
+    fetchPackages();
+  }, []);
+
+  const fetchPackages = async () => {
+    try {
+      setLoading(true);
+      const data = await packageAPI.getAll();
+      // Handle both array and object with packages property
+      const packagesList = Array.isArray(data) ? data : (data.packages || []);
+      // Filter active packages and ensure they have required fields
+      const validPackages = packagesList
+        .filter((pkg: Package) => pkg && pkg.isActive !== false && pkg._id && pkg.name && pkg.price !== undefined && pkg.credits !== undefined)
+        .map((pkg: Package) => ({
+          ...pkg,
+          credits: pkg.credits || 0,
+          price: pkg.price || 0,
+          features: pkg.features || [],
+        }))
+        .sort((a: Package, b: Package) => a.price - b.price); // Sort by price
+      setPackages(validPackages);
+      setUseStaticPricing(validPackages.length === 0);
+      
+      // Reset slider if packages changed
+      if (validPackages.length > 0 && sliderIndex >= validPackages.length) {
+        setSliderIndex(0);
+      }
+    } catch (error: any) {
+      console.error("Error fetching packages:", error);
+      toast.error(error.message || "Failed to load packages");
+      setPackages([]);
+      setUseStaticPricing(true); // Use static pricing on error
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Get selected package based on slider
+  const selectedPackage = packages.length > 0 && sliderIndex < packages.length 
+    ? packages[sliderIndex] 
+    : null;
+
+  // Static pricing data
+  const selectedPrice = PRICE_OPTIONS[sliderIndex] || PRICE_OPTIONS[0];
   const planFeatures = pricingPlans[selectedPrice];
+  const staticFeatures = tierFeatureOverrides[selectedPrice];
+
+  const handleBuyPackage = (pkg?: Package) => {
+    if (!pkg) {
+      // For static pricing, show message
+      toast.info("Packages are being set up. Please contact support or check back later.");
+      return;
+    }
+
+    // Check if user is authenticated
+    if (!authAPI.isAuthenticated()) {
+      toast.error("Please sign in to purchase a package");
+      navigate("/auth/sign-in", { state: { returnTo: `/payment?packageId=${pkg._id}` } });
+      return;
+    }
+
+    // Navigate to payment page with package ID
+    navigate(`/payment?packageId=${pkg._id}`);
+  };
+
+  const handleUpdatePackage = async () => {
+    if (!editingPackage) return;
+
+    try {
+      const featuresArray = formData.features
+        .split("\n")
+        .map((f) => f.trim())
+        .filter((f) => f.length > 0);
+
+      await adminAPI.updatePackage(editingPackage._id, {
+        name: formData.name,
+        description: formData.description || undefined,
+        price: parseFloat(formData.price),
+        credits: parseInt(formData.credits),
+        features: featuresArray.length > 0 ? featuresArray : undefined,
+        duration: formData.duration ? parseInt(formData.duration) : undefined,
+        isActive: formData.isActive,
+      });
+
+      toast.success("Package updated successfully");
+      setIsEditing(false);
+      setEditingPackage(null);
+      resetForm();
+      fetchPackages();
+    } catch (error: any) {
+      toast.error(error.message || "Failed to update package");
+    }
+  };
+
+  const handleDeletePackage = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this package?")) return;
+
+    try {
+      await adminAPI.deletePackage(id);
+      toast.success("Package deleted successfully");
+      fetchPackages();
+    } catch (error: any) {
+      toast.error(error.message || "Failed to delete package");
+    }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      description: "",
+      price: "",
+      credits: "",
+      features: "",
+      duration: "",
+      isActive: true,
+    });
+  };
+
+  const openEditDialog = (pkg: Package) => {
+    setEditingPackage(pkg);
+    setFormData({
+      name: pkg.name || "",
+      description: pkg.description || "",
+      price: (pkg.price || 0).toString(),
+      credits: (pkg.credits || 0).toString(),
+      features: pkg.features?.join("\n") || "",
+      duration: pkg.duration?.toString() || "",
+      isActive: pkg.isActive !== false,
+    });
+    setIsEditing(true);
+  };
+
+  if (loading) {
+    return (
+      <main className="min-h-screen overflow-x-hidden w-full relative text-white">
+        <div className="fixed inset-0 pointer-events-none z-0" style={{
+          background: "linear-gradient(135deg, #0f0f23 0%, #1a1a3e 30%, #2d1b4e 55%, #3b2a5c 75%, #4c2d5e 90%, #5c3a5a 100%)",
+        }} />
+        <div className="relative z-10 flex flex-col min-h-screen items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-violet-400" />
+          <p className="mt-4 text-violet-200">Loading packages...</p>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen overflow-x-hidden w-full relative text-white">
@@ -148,7 +336,7 @@ const PricingPage = () => {
               <p className="text-violet-200/90 text-sm sm:text-base mb-5 max-w-md mx-auto">
                 Choose the right plan for your team. Upgrade or downgrade anytime.
               </p>
-              <div className="inline-flex items-center rounded-full bg-white/10 backdrop-blur-sm border border-violet-400/20 p-0.5">
+              <div className="inline-flex items-center rounded-full bg-white/10 backdrop-blur-sm border border-violet-400/20 p-0.5 mb-4">
                 <button
                   type="button"
                   onClick={() => setBillingPeriod("monthly")}
@@ -186,7 +374,7 @@ const PricingPage = () => {
               >
                 <h2 className="text-lg font-bold text-white mb-1">Free</h2>
                 <div className="flex items-baseline gap-1 mb-4">
-                  <span className="text-2xl font-bold text-white">$0</span>
+                  <span className="text-2xl font-bold text-white">₹0</span>
                   <span className="text-sm text-violet-200/70">/ month</span>
                 </div>
                 <Button
@@ -225,84 +413,170 @@ const PricingPage = () => {
                   </span>
                 </div>
                 <h2 className="text-lg font-bold text-white mb-1">Pay-As-You-Go</h2>
-                <div className="flex items-baseline gap-1 mb-1">
-                  <span className="text-2xl font-bold text-white">${selectedPrice}</span>
-                  <span className="text-sm text-violet-200/70">/ month</span>
-                </div>
-                <AnimatePresence mode="wait">
-                  <motion.p
-                    key={selectedPrice}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="text-xs font-medium text-violet-300 mb-3"
-                  >
-                    {TIER_LABELS[selectedPrice]}
-                  </motion.p>
-                </AnimatePresence>
-                <div className="mb-3">
-                  <Slider
-                    value={[sliderIndex]}
-                    onValueChange={([v]) => setSliderIndex(v)}
-                    min={0}
-                    max={4}
-                    step={1}
-                    className="py-2 [&_[data-orientation=horizontal]]:max-w-full"
-                  />
-                  <div className="flex justify-between mt-0.5 text-[10px] text-violet-300/60">
-                    <span>$9</span>
-                    <span>$129</span>
-                  </div>
-                </div>
-                <Button
-                  onClick={() => navigate("/auth/sign-in")}
-                  className="w-full rounded-xl h-10 bg-gradient-to-r from-violet-500 via-fuchsia-500 to-violet-600 text-white font-semibold hover:opacity-95 shadow-lg shadow-violet-500/25 mb-4 text-sm"
-                >
-                  Buy Now
-                </Button>
-                <ul className="space-y-2 flex-1 min-h-0 overflow-y-auto pr-1">
-                  {tierFeatureOverrides[selectedPrice] ? (
-                    tierFeatureOverrides[selectedPrice]!.map((text, i) => (
-                      <motion.li
-                        key={`${selectedPrice}-${i}`}
-                        initial={{ opacity: 0, x: -4 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.2 }}
-                        className="flex items-start gap-2 text-xs sm:text-sm text-violet-100/90"
+                {selectedPackage ? (
+                  <>
+                    <div className="flex items-baseline gap-1 mb-1">
+                      <span className="text-2xl font-bold text-white">₹{selectedPackage.price}</span>
+                      <span className="text-sm text-violet-200/70">/ {selectedPackage.duration ? `${selectedPackage.duration} days` : "month"}</span>
+                    </div>
+                    <AnimatePresence mode="wait">
+                      <motion.p
+                        key={selectedPackage._id}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="text-xs font-medium text-violet-300 mb-3"
                       >
-                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                        <span>{text}</span>
-                      </motion.li>
-                    ))
-                  ) : (
-                    <>
-                      {[
-                        `${planFeatures.agents} Custom AI Agents`,
-                        `${planFeatures.tokens} Token Pool`,
-                        `Up to ${planFeatures.images} images/month`,
-                        `Up to ${planFeatures.videos ?? planFeatures.images} videos/month`,
-                        `${planFeatures.parallelTasks ?? 3} parallel tasks`,
-                      ].map((text, i) => (
-                        <motion.li
-                          key={`${selectedPrice}-${i}`}
-                          initial={{ opacity: 0, x: -4 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ duration: 0.2 }}
-                          className="flex items-start gap-2 text-xs sm:text-sm text-violet-100/90"
+                        {selectedPackage.name}
+                      </motion.p>
+                    </AnimatePresence>
+                    {packages.length > 1 && (
+                      <div className="mb-3">
+                        <Slider
+                          value={[sliderIndex]}
+                          onValueChange={([v]) => setSliderIndex(Math.min(v, packages.length - 1))}
+                          min={0}
+                          max={packages.length - 1}
+                          step={1}
+                          className="py-2 [&_[data-orientation=horizontal]]:max-w-full"
+                        />
+                        <div className="flex justify-between mt-0.5 text-[10px] text-violet-300/60">
+                          <span>₹{packages[0]?.price || 0}</span>
+                          <span>₹{packages[packages.length - 1]?.price || 0}</span>
+                        </div>
+                      </div>
+                    )}
+                    <Button
+                      onClick={() => handleBuyPackage(selectedPackage)}
+                      className="w-full rounded-xl h-10 bg-gradient-to-r from-violet-500 via-fuchsia-500 to-violet-600 text-white font-semibold hover:opacity-95 shadow-lg shadow-violet-500/25 mb-4 text-sm"
+                    >
+                      Buy Now
+                    </Button>
+                    {isAdmin && (
+                      <div className="flex gap-1 mb-2 justify-end">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => openEditDialog(selectedPackage)}
+                          className="h-6 w-6 p-0 text-violet-300 hover:text-violet-100"
                         >
-                          <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                          <span>{text}</span>
-                        </motion.li>
-                      ))}
-                      {sharedProFeatures.map((f) => (
-                        <li key={f} className="flex items-start gap-2 text-xs sm:text-sm text-violet-100/90">
-                          <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                          <span>{f}</span>
-                        </li>
-                      ))}
-                    </>
-                  )}
-                </ul>
+                          <Edit className="w-3 h-3" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleDeletePackage(selectedPackage._id)}
+                          className="h-6 w-6 p-0 text-red-300 hover:text-red-100"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    )}
+                    <ul className="space-y-2 flex-1 min-h-0 overflow-y-auto pr-1">
+                      {selectedPackage.features && selectedPackage.features.length > 0 ? (
+                        selectedPackage.features.map((feature, i) => (
+                          <motion.li
+                            key={`${selectedPackage._id}-${i}`}
+                            initial={{ opacity: 0, x: -4 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="flex items-start gap-2 text-xs sm:text-sm text-violet-100/90"
+                          >
+                            <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                            <span>{feature}</span>
+                          </motion.li>
+                        ))
+                      ) : (
+                        <li className="text-xs text-violet-300/60">No features listed</li>
+                      )}
+                    </ul>
+                  </>
+                ) : useStaticPricing ? (
+                  <>
+                    <div className="flex items-baseline gap-1 mb-1">
+                      <span className="text-2xl font-bold text-white">₹{selectedPrice}</span>
+                      <span className="text-sm text-violet-200/70">/ month</span>
+                    </div>
+                    <AnimatePresence mode="wait">
+                      <motion.p
+                        key={selectedPrice}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="text-xs font-medium text-violet-300 mb-3"
+                      >
+                        {TIER_LABELS[selectedPrice]}
+                      </motion.p>
+                    </AnimatePresence>
+                    <div className="mb-3">
+                      <Slider
+                        value={[sliderIndex]}
+                        onValueChange={([v]) => setSliderIndex(Math.min(v, PRICE_OPTIONS.length - 1))}
+                        min={0}
+                        max={PRICE_OPTIONS.length - 1}
+                        step={1}
+                        className="py-2 [&_[data-orientation=horizontal]]:max-w-full"
+                      />
+                      <div className="flex justify-between mt-0.5 text-[10px] text-violet-300/60">
+                        <span>₹{PRICE_OPTIONS[0]}</span>
+                        <span>₹{PRICE_OPTIONS[PRICE_OPTIONS.length - 1]}</span>
+                      </div>
+                    </div>
+                    <Button
+                      onClick={() => handleBuyPackage()}
+                      className="w-full rounded-xl h-10 bg-gradient-to-r from-violet-500 via-fuchsia-500 to-violet-600 text-white font-semibold hover:opacity-95 shadow-lg shadow-violet-500/25 mb-4 text-sm"
+                    >
+                      Buy Now
+                    </Button>
+                    <ul className="space-y-2 flex-1 min-h-0 overflow-y-auto pr-1">
+                      {staticFeatures ? (
+                        staticFeatures.map((text, i) => (
+                          <motion.li
+                            key={`${selectedPrice}-${i}`}
+                            initial={{ opacity: 0, x: -4 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="flex items-start gap-2 text-xs sm:text-sm text-violet-100/90"
+                          >
+                            <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                            <span>{text}</span>
+                          </motion.li>
+                        ))
+                      ) : (
+                        <>
+                          {[
+                            `${planFeatures.agents} Custom AI Agents`,
+                            `${planFeatures.tokens} Token Pool`,
+                            `Up to ${planFeatures.images} images/month`,
+                            `Up to ${planFeatures.videos ?? planFeatures.images} videos/month`,
+                            `${planFeatures.parallelTasks ?? 3} parallel tasks`,
+                          ].map((text, i) => (
+                            <motion.li
+                              key={`${selectedPrice}-${i}`}
+                              initial={{ opacity: 0, x: -4 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ duration: 0.2 }}
+                              className="flex items-start gap-2 text-xs sm:text-sm text-violet-100/90"
+                            >
+                              <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                              <span>{text}</span>
+                            </motion.li>
+                          ))}
+                          {sharedProFeatures.map((f) => (
+                            <li key={f} className="flex items-start gap-2 text-xs sm:text-sm text-violet-100/90">
+                              <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                              <span>{f}</span>
+                            </li>
+                          ))}
+                        </>
+                      )}
+                    </ul>
+                  </>
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-violet-300/60 text-sm">Loading packages...</p>
+                  </div>
+                )}
               </motion.div>
 
               {/* Right: Enterprise */}
@@ -336,6 +610,109 @@ const PricingPage = () => {
             </div>
           </div>
         </section>
+
+        {/* Edit Package Dialog */}
+        <Dialog open={isEditing} onOpenChange={setIsEditing}>
+          <DialogContent className="bg-black border-violet-400/20 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Edit Package</DialogTitle>
+              <DialogDescription className="text-violet-200/70">
+                Update package details
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 mt-4">
+              <div>
+                <Label htmlFor="edit-name">Package Name *</Label>
+                <Input
+                  id="edit-name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="bg-black/50 border-violet-400/20 text-white"
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-description">Description</Label>
+                <Textarea
+                  id="edit-description"
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  className="bg-black/50 border-violet-400/20 text-white"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="edit-price">Price (₹) *</Label>
+                  <Input
+                    id="edit-price"
+                    type="number"
+                    value={formData.price}
+                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                    className="bg-black/50 border-violet-400/20 text-white"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit-credits">Credits *</Label>
+                  <Input
+                    id="edit-credits"
+                    type="number"
+                    value={formData.credits}
+                    onChange={(e) => setFormData({ ...formData, credits: e.target.value })}
+                    className="bg-black/50 border-violet-400/20 text-white"
+                  />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="edit-features">Features (one per line)</Label>
+                <Textarea
+                  id="edit-features"
+                  value={formData.features}
+                  onChange={(e) => setFormData({ ...formData, features: e.target.value })}
+                  className="bg-black/50 border-violet-400/20 text-white min-h-[120px]"
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-duration">Duration (days, optional)</Label>
+                <Input
+                  id="edit-duration"
+                  type="number"
+                  value={formData.duration}
+                  onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
+                  className="bg-black/50 border-violet-400/20 text-white"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="edit-isActive"
+                  checked={formData.isActive}
+                  onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                  className="w-4 h-4"
+                />
+                <Label htmlFor="edit-isActive">Active (visible on pricing page)</Label>
+              </div>
+              <div className="flex gap-2 pt-4">
+                <Button
+                  onClick={handleUpdatePackage}
+                  className="flex-1 bg-violet-500 hover:bg-violet-600"
+                  disabled={!formData.name || !formData.price || !formData.credits}
+                >
+                  Update Package
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setIsEditing(false);
+                    setEditingPackage(null);
+                    resetForm();
+                  }}
+                  className="flex-1 border-violet-400/20 text-violet-200"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Pricing page footer - benefits & trust */}
         <footer className="relative z-10 border-t border-violet-400/15 bg-black/20 backdrop-blur-sm">
