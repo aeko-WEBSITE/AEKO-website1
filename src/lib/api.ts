@@ -1,16 +1,13 @@
 // API Base URL configuration
-// In dev: use '' so Vite proxy (vite.config proxy /api -> localhost:5000) is used for crawl/auth/llm.
-// Otherwise: VITE_API_URL if set, else demo server.
+// In dev: use '' so Vite proxy (vite.config proxy /api -> localhost:5000) is used.
+// In production: VITE_API_URL if set (your deployed backend), else '' so /api hits same origin (Vercel serverless).
 const getApiBaseUrl = (): string => {
   const env = import.meta.env;
   if (env.VITE_API_URL !== undefined && env.VITE_API_URL !== '') {
     return env.VITE_API_URL;
   }
-  if (import.meta.env.DEV) {
-    return ''; // same-origin so Vite proxies /api to backend (e.g. port 5000)
-  }
-  // Default to demo server if not configured
-  return 'https://demo.liquidata.dev';
+  // Same-origin: dev → Vite proxy to backend; production (e.g. Vercel) → Vercel /api serverless
+  return '';
 };
 
 const API_BASE_URL = getApiBaseUrl();

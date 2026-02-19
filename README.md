@@ -164,18 +164,28 @@ NODE_ENV=development
 
 ## 🚢 Deployment
 
-### Frontend (Vercel)
-1. Connect your GitHub repository
-2. Set build command: `npm run build`
-3. Set output directory: `dist`
-4. Add environment variable: `VITE_API_URL=your_backend_url`
+### Vercel (frontend + Agent chat)
 
-### Backend (Render/Railway)
-1. Connect your GitHub repository
-2. Set root directory: `backend`
-3. Set build command: `npm install`
-4. Set start command: `npm start`
-5. Add all environment variables from `.env`
+The repo includes a **Vercel serverless function** at `api/llm/chat-completions.js`, so the **Agent chat** works on Vercel without a separate backend.
+
+1. Deploy the repo to Vercel (connect GitHub, build command `npm run build`, output `dist`).
+2. In Vercel → **Project → Settings → Environment Variables**, add:
+   - **Name:** `SARVAM_API_KEY`
+   - **Value:** your Sarvam API key
+   - Apply to **Production** (and Preview if you want).
+3. Redeploy. The Agent page will call `/api/llm/chat-completions` on the same domain, handled by the serverless function.
+
+**Optional:** If you deploy the full backend elsewhere (Railway, Render, etc.), set **`VITE_API_URL`** on Vercel to that backend URL (no trailing slash). Then auth, image, video, and payment will use the external backend; if `VITE_API_URL` is not set, only the Agent chat (via the serverless function) works on Vercel.
+
+### Full backend (Railway, Render, etc.)
+
+For auth, image, video, and payment in production, deploy the **backend** folder:
+
+- Root directory: `backend`
+- Build: `npm install`
+- Start: `npm start` or `node src/app.js`
+- Add env vars from `backend/.env.example` (e.g. `MONGODB_URI`, `JWT_SECRET`, `SARVAM_API_KEY`, `MODELSLAB_API_KEY`).
+- Then set **`VITE_API_URL`** on Vercel to your backend URL so the frontend uses it.
 
 ## 📚 Documentation
 
