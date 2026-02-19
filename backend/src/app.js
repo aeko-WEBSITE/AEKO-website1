@@ -6,6 +6,7 @@ import authRoutes from './routes/authRoutes.js';
 import llmRoutes from './routes/llmRoutes.js';
 import crawlRoutes from './routes/crawlRoutes.js';
 import videoRoutes from './routes/videoRoutes.js';
+import imageRoutes from './routes/imageRoutes.js';
 
 // Load environment variables
 dotenv.config();
@@ -56,6 +57,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/llm', llmRoutes);
 app.use('/api/crawl', crawlRoutes);
 app.use('/api/video', videoRoutes);
+app.use('/api/image', imageRoutes);
 
 // 404 handler
 app.use((req, res) => {

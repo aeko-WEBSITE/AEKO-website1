@@ -169,6 +169,10 @@ const AgentLLMPage = () => {
       stopVoice();
       return;
     }
+    if (!SARVAM_VOICE_WS_URL) {
+      toast.error("Voice is not configured. Set VITE_SARVAM_CHAT_URL for voice.");
+      return;
+    }
 
     try {
       const socket = new WebSocket(SARVAM_VOICE_WS_URL);

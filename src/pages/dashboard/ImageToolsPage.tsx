@@ -41,7 +41,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { moduleAPI } from "@/lib/api";
+import { moduleAPI, imageAPI } from "@/lib/api";
 import { toast } from "sonner";
 import {
   Popover,
@@ -199,8 +199,17 @@ const ImageToolsPage = () => {
     }
   };
 
-  // Helper function to extract image from response
+  // Helper function to extract image from response (backend returns image_url, output, proxy_links)
   const extractImageFromResponse = (response: any): string | null => {
+    if (response.image_url && typeof response.image_url === "string") {
+      return response.image_url.startsWith("data:") ? response.image_url : response.image_url;
+    }
+    if (response.output?.[0] && typeof response.output[0] === "string") {
+      return response.output[0].startsWith("data:") ? response.output[0] : response.output[0];
+    }
+    if (response.proxy_links?.[0] && typeof response.proxy_links[0] === "string") {
+      return response.proxy_links[0];
+    }
     if (response.image_base64) {
       return response.image_base64.startsWith("data:")
         ? response.image_base64
@@ -310,28 +319,14 @@ const ImageToolsPage = () => {
         const width = ratio?.value === "1:1" ? 1024 : ratio?.value === "2:3" ? 768 : ratio?.value === "16:9" ? 1024 : 1024;
         const height = ratio?.value === "1:1" ? 1024 : ratio?.value === "2:3" ? 1152 : ratio?.value === "16:9" ? 576 : 1024;
 
-        const response = await moduleAPI.imageGen({
+        const response = await imageAPI.text2img({
           prompt: task.prompt,
-          model_id: selectedModel,
+          model_id: "z-image-turbo",
           width,
           height,
         });
 
         imageUrl = extractImageFromResponse(response);
-        
-        if (!imageUrl && response.id) {
-          let attempts = 0;
-          const maxAttempts = 30;
-          while (attempts < maxAttempts && !imageUrl) {
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            try {
-              const result = await moduleAPI.fetchImageResult(response.id);
-              imageUrl = extractImageFromResponse(result);
-              if (imageUrl) break;
-            } catch (error) {}
-            attempts++;
-          }
-        }
       } else if (toolMode === "image2image" || toolMode === "upscale") {
         let fileToSend: File | undefined;
         let initImageBase64: string | undefined;
@@ -408,7 +403,7 @@ const ImageToolsPage = () => {
         toast.success("Creation complete!");
         setIsGenerating(false);
       } else {
-        throw new Error("Failed to extract image");
+        throw new Error("No image in response. Try again or use a different prompt.");
       }
     } catch (error: any) {
       setTasks((prev) =>
@@ -416,20 +411,40 @@ const ImageToolsPage = () => {
           t.id === task.id ? { ...t, status: "failed", progress: 0 } : t
         )
       );
-      toast.error(error.message || "Generation failed");
+      toast.error(error?.message || "Generation failed. Ensure MODELSLAB_API_KEY is set in the backend.");
       setIsGenerating(false);
     }
   };
 
-  // Download image
-  const handleDownloadImage = (image: GeneratedImage) => {
-    const link = document.createElement("a");
-    link.href = image.imageUrl;
-    link.download = `creation-${image.id}.png`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    toast.success("Downloaded!");
+  // Download image (fetch as blob so external URLs don't open in same tab)
+  const handleDownloadImage = async (image: GeneratedImage, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    try {
+      const url = image.imageUrl;
+      const filename = `creation-${image.id}.png`;
+      if (url.startsWith("data:")) {
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        const res = await fetch(url, { mode: "cors" });
+        const blob = await res.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(blobUrl);
+      }
+      toast.success("Downloaded!");
+    } catch (err) {
+      toast.error("Download failed. Try right‑click → Save image.");
+    }
   };
 
   return (
@@ -795,98 +810,74 @@ const ImageToolsPage = () => {
                   </p>
                 </div>
               ) : (
-                <div className="space-y-12">
-                  <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-10">
-                    <div className="space-y-6">
-                      <div className="flex items-center justify-between border-b border-border pb-4">
-                        <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Creations Gallery</h2>
-                        <div className="flex gap-2">
-                            <Button variant="outline" size="sm" className="h-8 bg-secondary border-border text-muted-foreground hover:bg-accent hover:text-foreground shadow-sm">Grid View</Button>
-                            <Button variant="outline" size="sm" className="h-8 bg-secondary border-border text-muted-foreground hover:bg-accent hover:text-foreground shadow-sm">History</Button>
-                        </div>
-                      </div>
-                      
-                      {/* Horizontal Gallery – larger cards so images look bigger */}
-                      <div className="flex gap-6 overflow-x-auto pb-6 snap-x no-scrollbar">
+                <div className="space-y-6">
+                  {/* Centered main image in output area */}
+                  <div className="flex flex-col items-center justify-center min-h-[50vh]">
+                    {selectedImage && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.98 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="relative rounded-2xl overflow-hidden border border-border bg-card shadow-xl max-w-3xl w-full"
+                      >
+                        <img
+                          src={selectedImage.imageUrl}
+                          alt="Generated"
+                          className="w-full h-auto max-h-[70vh] object-contain block"
+                        />
+                        <button
+                          type="button"
+                          onClick={(e) => handleDownloadImage(selectedImage, e)}
+                          className="absolute top-3 right-3 p-2 rounded-full bg-black/50 hover:bg-black/70 text-white transition-colors"
+                          title="Download"
+                          aria-label="Download"
+                        >
+                          <Download className="w-4 h-4" />
+                        </button>
+                      </motion.div>
+                    )}
+
+                    {/* Thumbnail strip to switch image */}
+                    {generatedImages.length > 1 && (
+                      <div className="flex gap-3 overflow-x-auto py-4 no-scrollbar justify-center flex-wrap">
                         {generatedImages.map((image) => (
-                          <motion.div
+                          <button
                             key={image.id}
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            className={cn(
-                              "relative flex-shrink-0 w-[340px] sm:w-[480px] lg:w-[560px] group rounded-2xl overflow-hidden border-2 transition-all cursor-pointer snap-center shadow-xl",
-                              selectedImage?.id === image.id ? "border-primary shadow-2xl shadow-primary/10" : "border-transparent border-border hover:border-primary/50"
-                            )}
+                            type="button"
                             onClick={() => setSelectedImage(image)}
+                            className={cn(
+                              "flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all",
+                              selectedImage?.id === image.id ? "border-primary ring-2 ring-primary/30" : "border-border hover:border-primary/50"
+                            )}
                           >
-                            <img src={image.imageUrl} alt="Generated" className="w-full aspect-[4/5] object-cover" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 dark:from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-5">
-                              <div className="flex gap-2 justify-end">
-                                  <Button size="icon" variant="secondary" className="h-9 w-9 rounded-full shadow-lg bg-background hover:bg-accent" onClick={(e) => { e.stopPropagation(); handleDownloadImage(image); }}>
-                                    <Download className="w-4 h-4" />
-                                  </Button>
-                                  <Button size="icon" variant="secondary" className="h-9 w-9 rounded-full shadow-lg bg-background hover:bg-accent"><Share2 className="w-4 h-4" /></Button>
-                              </div>
-                            </div>
-                          </motion.div>
+                            <img src={image.imageUrl} alt="" className="w-full h-full object-cover" />
+                          </button>
                         ))}
                       </div>
+                    )}
 
-                      {/* Rendering Progress */}
-                      {tasks.filter(t => t.status !== "completed" && t.status !== "failed").length > 0 && (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          {tasks.filter(t => t.status !== "completed" && t.status !== "failed").map(task => (
-                              <div key={task.id} className="p-5 rounded-2xl bg-card border border-border space-y-4 shadow-md">
-                                <div className="flex justify-between items-center">
-                                  <div className="flex items-center gap-2">
-                                      <Loader2 className="w-3 h-3 animate-spin text-primary" />
-                                      <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Rendering Frame</span>
-                                  </div>
-                                  <span className="text-xs font-bold text-foreground">{Math.round(task.progress)}%</span>
-                                </div>
-                                <Progress value={task.progress} className="h-1.5 bg-secondary shadow-inner" />
-                              </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Inspector Panel */}
-                    <AnimatePresence>
-                      {selectedImage && (
-                          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
-                          <div className="p-6 rounded-2xl bg-card border border-border backdrop-blur-md sticky top-0 shadow-xl space-y-6">
-                              <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
-                                <Info className="w-4 h-4 text-primary" />
-                                Creation Stats
-                              </h3>
-                              <div className="p-4 rounded-xl bg-secondary border border-border shadow-inner">
-                                <p className="text-[11px] font-bold text-muted-foreground uppercase mb-2">Prompt</p>
-                                <p className="text-xs leading-relaxed text-foreground italic">"{selectedImage.prompt}"</p>
-                              </div>
-                              <Separator className="bg-border" />
-                              <div className="grid grid-cols-2 gap-3">
-                                  <div className="p-3 bg-secondary rounded-xl border border-border text-center">
-                                    <p className="text-[9px] font-bold text-muted-foreground uppercase mb-1">Model</p>
-                                    <p className="text-[10px] font-bold text-foreground truncate">{selectedImage.model}</p>
-                                  </div>
-                                  <div className="p-3 bg-secondary rounded-xl border border-border text-center">
-                                    <p className="text-[9px] font-bold text-muted-foreground uppercase mb-1">Aspect</p>
-                                    <p className="text-[10px] font-bold text-foreground">{selectedImage.aspectRatio}</p>
-                                  </div>
-                              </div>
-                              <Button 
-                                className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-bold h-11 shadow-lg"
-                                onClick={() => handleDownloadImage(selectedImage)}
-                              >
-                                <Download className="w-4 h-4 mr-2" />
-                                Download Result
-                              </Button>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                    {/* Prompt line + small download when one image */}
+                    {selectedImage && generatedImages.length === 1 && (
+                      <p className="text-sm text-muted-foreground text-center max-w-xl mt-2 line-clamp-2">"{selectedImage.prompt}"</p>
+                    )}
                   </div>
+
+                  {/* Rendering Progress */}
+                  {tasks.filter(t => t.status !== "completed" && t.status !== "failed").length > 0 && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto">
+                      {tasks.filter(t => t.status !== "completed" && t.status !== "failed").map(task => (
+                        <div key={task.id} className="p-5 rounded-2xl bg-card border border-border space-y-4 shadow-md">
+                          <div className="flex justify-between items-center">
+                            <div className="flex items-center gap-2">
+                              <Loader2 className="w-3 h-3 animate-spin text-primary" />
+                              <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Rendering</span>
+                            </div>
+                            <span className="text-xs font-bold text-foreground">{Math.round(task.progress)}%</span>
+                          </div>
+                          <Progress value={task.progress} className="h-1.5 bg-secondary shadow-inner" />
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>

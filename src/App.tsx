@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
+import AboutUsPage from "./pages/AboutUsPage";
 import PricingPage from "./pages/PricingPage";
 import NotFound from "./pages/NotFound";
 import DashboardLayout from "./components/dashboard/DashboardLayout";
@@ -42,6 +43,7 @@ function App() {
           <AuthProvider>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/about" element={<AboutUsPage />} />
               <Route path="/pricing" element={<PricingPage />} />
               <Route path="/payment" element={<PaymentPage />} />
               <Route path="/auth/sign-in" element={<AuthSignIn />} />

@@ -2,6 +2,21 @@ import fetch from 'node-fetch';
 
 const SARVAM_API_URL = 'https://api.sarvam.ai/v1/chat/completions';
 
+function stripThinkBlocks(text) {
+  if (typeof text !== 'string') return text;
+  return text.replace(/<think>[\s\S]*?<\/think>/gi, '').replace(/<think>[\s\S]*/gi, '').trim();
+}
+
+const AGENT_SYSTEM_PROMPT = `You are AEKO AI, a capable and professional AI assistant. Respond like a top-tier global assistant (e.g. GPT-level): clear, helpful, concise, and appropriate for any user worldwide.
+
+Rules:
+- Be direct and natural. Do not expose internal reasoning, <think> blocks, or meta-commentary to the user.
+- Answer in the same language the user uses unless they ask otherwise.
+- Be helpful for general knowledge, coding, writing, analysis, and casual conversation.
+- Keep responses focused. Use short paragraphs or lists when it helps.
+- If you are unsure, say so briefly and offer to clarify.
+- Do not repeat the user's message back at length; get to the point.`;
+
 // POST /api/llm/chat - uses Sarvam AI
 export const llmChat = async (req, res) => {
   try {
@@ -103,10 +118,11 @@ export const chatCompletions = async (req, res) => {
 
     let messages;
     if (hasMessages) {
-      messages = reqMessages;
+      const rest = reqMessages.filter(m => m.role !== 'system');
+      messages = [{ role: 'system', content: AGENT_SYSTEM_PROMPT }, ...rest];
     } else {
       messages = [
-        { role: 'system', content: 'You are a helpful assistant.' },
+        { role: 'system', content: AGENT_SYSTEM_PROMPT },
         { role: 'user', content: prompt.trim() },
       ];
     }
@@ -155,6 +171,9 @@ export const chatCompletions = async (req, res) => {
     }
 
     const data = await response.json().catch(() => null);
+    if (data?.choices?.[0]?.message?.content) {
+      data.choices[0].message.content = stripThinkBlocks(data.choices[0].message.content);
+    }
     return res.status(200).json(data);
   } catch (error) {
     console.error('Sarvam chat-completions error:', error);

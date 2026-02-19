@@ -583,29 +583,35 @@ export const llmAPI = {
   },
 };
 
-// Sarvam chat backend (POST /api/chat) - API key stays on backend
-const SARVAM_CHAT_BASE = (import.meta.env.VITE_SARVAM_CHAT_URL || '').trim() || 'http://localhost:3000';
+// Sarvam chat – use main backend (same origin / proxy) so no separate server on 3000
+const SARVAM_CHAT_BASE = (import.meta.env.VITE_SARVAM_CHAT_URL || '').trim();
 
-/** WebSocket URL for voice agent (STT/TTS streaming). Derive from chat base. */
-export const SARVAM_VOICE_WS_URL = SARVAM_CHAT_BASE.replace(/^http/, 'ws').replace(/\/$/, '') || 'ws://localhost:3000';
+/** WebSocket URL for voice agent. Only set if using a separate chat server. */
+export const SARVAM_VOICE_WS_URL = SARVAM_CHAT_BASE ? SARVAM_CHAT_BASE.replace(/^http/, 'ws').replace(/\/$/, '') : '';
+
+function stripThinkBlocks(text: string): string {
+  if (typeof text !== 'string') return text;
+  return text.replace(/<think>[\s\S]*?<\/think>/gi, '').replace(/<think>[\s\S]*/gi, '').trim();
+}
 
 export const sarvamChatAPI = {
   chat: async (messages: { role: string; content: string }[]) => {
-    const response = await fetch(`${SARVAM_CHAT_BASE}/api/chat`, {
+    const response = await apiRequest('/api/llm/chat-completions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages }),
-      mode: 'cors',
-      credentials: 'omit',
+      body: JSON.stringify({ messages, stream: false }),
     });
-    const data = await response.json().catch(() => ({}));
+    const data = await response.json().catch(() => ({})) as {
+      choices?: Array<{ message?: { content?: string } }>;
+      message?: string;
+    };
     if (!response.ok) {
-      throw new Error(data.message || `Server error: ${response.status}`);
+      throw new Error((data as { message?: string }).message || `Server error: ${response.status}`);
     }
-    if (!data.success || data.reply === undefined) {
-      throw new Error(data.message || 'Invalid response from chat API');
+    let reply = data.choices?.[0]?.message?.content;
+    if (reply === undefined) {
+      throw new Error((data as { message?: string }).message || 'Invalid response from chat API');
     }
-    return data.reply as string;
+    return stripThinkBlocks(reply);
   },
 };
 
@@ -628,6 +634,31 @@ export const videoAPI = {
     const data = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error((data as { error?: string }).error || 'Status check failed');
     return data as { status?: string; output?: string[]; [k: string]: unknown };
+  },
+};
+
+// Image API (backend text2img – z-image-turbo via ModelsLab)
+export const imageAPI = {
+  text2img: async (params: {
+    prompt: string;
+    model_id?: string;
+    width?: number;
+    height?: number;
+    negative_prompt?: string;
+  }) => {
+    const response = await apiRequest('/api/image/text2img', {
+      method: 'POST',
+      body: JSON.stringify({
+        prompt: params.prompt,
+        model_id: params.model_id ?? 'z-image-turbo',
+        width: params.width ?? 1024,
+        height: params.height ?? 1024,
+        negative_prompt: params.negative_prompt ?? '',
+      }),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error((data as { error?: string }).error || 'Image generation failed');
+    return data as { status?: string; output?: string[]; proxy_links?: string[]; image_url?: string; [k: string]: unknown };
   },
 };
 
