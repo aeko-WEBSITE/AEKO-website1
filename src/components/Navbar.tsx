@@ -203,18 +203,29 @@ const Navbar = () => {
                   {/* The width of this container prevents the logo from pushing nav links */}
                   <div className="relative w-24 md:w-28 h-10 flex items-center">
                     <motion.img 
-                      src={AkoLogo} 
-                      alt="AKO.ai Logo" 
-                      animate={{
-                        scale: (isExpanded || isOpen) ? 1.5 : 1.2, 
-                        x: (isExpanded || isOpen) ? 0 : 2 
-                      }}
-                      transition={{ 
-                        duration: 0.4, 
-                        ease: [0.4, 0, 0.2, 1] // Matches your navbar expansion ease
-                      }}
-                      className="absolute left-0 h-auto w-full max-w-[130px] origin-left object-contain" 
-                    />
+                    src={AkoLogo} 
+                    alt="AKO.ai Logo" 
+                    animate={{
+                      scale: (isExpanded || isOpen) ? 1.5 : 1.3, 
+                      x: (isExpanded || isOpen) ? 1 : 0,
+                      // Adds a subtle breathing glow effect
+                      filter: [
+                        "drop-shadow(1px 1px 0 white) drop-shadow(-1px -1px 0 white) drop-shadow(0 0 8px rgba(255,255,255,0.4))",
+                        "drop-shadow(1px 1px 0 white) drop-shadow(-1px -1px 0 white) drop-shadow(0 0 15px rgba(255,255,255,0.7))",
+                        "drop-shadow(1px 1px 0 white) drop-shadow(-1px -1px 0 white) drop-shadow(0 0 8px rgba(255,255,255,0.4))"
+                      ]
+                    }}
+                    transition={{ 
+                      duration: 4, // Slow, elegant pulse
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                      // Ensure the scale/x transition remains snappy while the filter pulses
+                      filter: { duration: 3, repeat: Infinity, ease: "easeInOut" },
+                      scale: { duration: 0.4, ease: [0.4, 0, 0.2, 1] },
+                      x: { duration: 0.4, ease: [0.4, 0, 0.2, 1] }
+                    }}
+                    className="absolute left-0 h-auto w-full max-w-[130px] origin-left object-contain" 
+                  />
                   </div>
                 </motion.div>
 
