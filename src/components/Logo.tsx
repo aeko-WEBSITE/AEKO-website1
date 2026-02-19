@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import logoDark from "@/assets/logo_light.jpeg";
-import logoLight from "@/assets/logo_dark.jpeg";
+import logoAsset from "@/assets/logo.png"; 
 
 interface LogoProps {
   size?: "sm" | "md" | "lg";
@@ -11,86 +10,51 @@ interface LogoProps {
 }
 
 const Logo = ({ size = "md", showText = false, className = "", href = "/" }: LogoProps) => {
+  // Significantly increased width and height values
   const sizeClasses = {
-    sm: "w-6 h-6 md:w-7 md:h-7",
-    md: "w-8 h-8 md:w-9 md:h-9",
-    lg: "w-12 h-12 md:w-14 md:h-14",
-  };
-
-  const containerSizeClasses = {
-    sm: "w-7 h-7 md:w-8 md:h-8",
-    md: "w-8 h-8 md:w-9 md:h-9",
-    lg: "w-12 h-12 md:w-14 md:h-14",
+    sm: "w-8 h-8 md:w-8 md:h-8",
+    md: "w-10 h-10 md:w-10 md:h-10", // Medium is now much larger
+    lg: "w-12 h-12 md:w-12 md:h-12", // Large is now a hero size
   };
 
   return (
     <motion.div
-      className={`flex items-center gap-2 flex-shrink-0 ${className}`}
+      className={`flex items-center gap-3 flex-shrink-0 ${className}`}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
     >
-      <Link to={href} className="flex items-center gap-2">
-        <div className={`relative ${containerSizeClasses[size]} flex items-center justify-center`}>
-          {/* Animated Border */}
-          <motion.div
-            className="absolute inset-0 rounded-full"
-            style={{
-              padding: '2px',
-              background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.8), rgba(59, 130, 246, 0.8), rgba(34, 211, 238, 0.8), rgba(236, 72, 153, 0.8))',
-              backgroundSize: '200% 200%',
-              WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-              WebkitMaskComposite: 'xor',
-              maskComposite: 'exclude',
-            }}
-            animate={{
-              backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
-            }}
-            transition={{
-              duration: 3,
-              repeat: Infinity,
-              ease: 'linear',
-            }}
-          />
-          {/* Logo Container */}
-          <div className={`relative ${sizeClasses[size]} rounded-full overflow-hidden bg-white dark:bg-white/95 shadow-md ring-2 ring-black/10 dark:ring-white/20 flex items-center justify-center p-0`}>
+      <Link to={href} className="flex items-center gap-3">
+        <div className={`relative ${sizeClasses[size]} flex items-center justify-center`}>
+          
 
-          <img
-            src={logoDark}
-            alt="AEKO"
-            className="w-full h-full object-cover object-center block dark:hidden"
-          />
-
-          <img
-            src={logoLight}
-            alt="AEKO"
-            className="w-full h-full object-cover object-center hidden dark:block"
-          />
-
+          {/* Logo Container - Purely transparent */}
+          <div className="relative w-full h-full flex items-center justify-center">
+            <img
+              src={logoAsset}
+              alt="AEKO"
+              // scale-150 makes the logo much bigger relative to the border
+              className="w-full h-full object-contain scale-150 drop-shadow-xl"
+            />
           </div>
         </div>
+
         {showText && (
-          <div className="flex items-baseline gap-0.5">
-            <span className="text-sm md:text-base font-bold text-foreground">AEKO.</span>
-            <motion.span
-              className="text-sm md:text-base font-bold"
-              style={{
-                background: 'linear-gradient(135deg, #7C3AED, #3B82F6, #22D3EE, #22C55E, #FACC15, #EC4899, #7C3AED)',
-                backgroundSize: '200% 200%',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}
-              animate={{
-                backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
-              }}
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                ease: 'linear',
-              }}
-            >
-              AI
-            </motion.span>
+          <div className="flex flex-col leading-tight">
+            <span className="text-xl md:text-2xl font-black tracking-tighter text-foreground">
+              AEKO.
+              <motion.span
+                style={{
+                  background: 'linear-gradient(135deg, #7C3AED, #3B82F6, #22D3EE, #EC4899)',
+                  backgroundSize: '200% 200%',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                }}
+                animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
+                transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
+              >
+                AI
+              </motion.span>
+            </span>
           </div>
         )}
       </Link>
@@ -99,4 +63,3 @@ const Logo = ({ size = "md", showText = false, className = "", href = "/" }: Log
 };
 
 export default Logo;
-

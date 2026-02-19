@@ -13,7 +13,7 @@ import {
 import { useTheme } from "@/hooks/use-theme";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
-import Logo from "@/components/Logo";
+import AkoLogo from "@/assets/ako.png"; // Import it as a variable
 import UserAvatar from "@/components/UserAvatar";
 
 const Navbar = () => {
@@ -194,7 +194,29 @@ const Navbar = () => {
             <div className="relative px-3 sm:px-4 md:px-6 py-1.5 md:py-2 z-10">
               <div className="flex items-center justify-between gap-2 sm:gap-4 md:gap-6 lg:gap-8">
                 {/* Left Side - Logo */}
-                <Logo size="md" href="/" />
+                <motion.div 
+                  className="flex items-center cursor-pointer relative z-20"
+                  onClick={() => navigate("/")}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  {/* The width of this container prevents the logo from pushing nav links */}
+                  <div className="relative w-24 md:w-28 h-10 flex items-center">
+                    <motion.img 
+                      src={AkoLogo} 
+                      alt="AKO.ai Logo" 
+                      animate={{
+                        scale: (isExpanded || isOpen) ? 1.5 : 1.2, 
+                        x: (isExpanded || isOpen) ? 0 : 2 
+                      }}
+                      transition={{ 
+                        duration: 0.4, 
+                        ease: [0.4, 0, 0.2, 1] // Matches your navbar expansion ease
+                      }}
+                      className="absolute left-0 h-auto w-full max-w-[130px] origin-left object-contain" 
+                    />
+                  </div>
+                </motion.div>
 
                 {/* Right Side - All Nav Links + CTA */}
                 <div className="hidden sm:flex items-center gap-2 md:gap-4 lg:gap-6">

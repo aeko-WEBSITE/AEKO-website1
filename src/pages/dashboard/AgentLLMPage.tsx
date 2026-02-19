@@ -31,7 +31,7 @@ import {
 import { sarvamChatAPI, SARVAM_VOICE_WS_URL } from "@/lib/api";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import logo from "@/assets/logo_dark.jpeg";
+import logo from "@/assets/logo.png";
 
 interface ChatMessage {
   id: string;
