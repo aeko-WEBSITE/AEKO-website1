@@ -32,10 +32,10 @@ import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { useNavigate } from "react-router-dom";
 
 const filters = [
-  { id: "styles", label: "Styles", icon: Sparkles },
+  { id: "All", label: "All", icon: Sparkles },
+  { id: "agents", label: "Agents", icon: Bot },
   { id: "images", label: "Images", icon: Image },
   { id: "videos", label: "Videos", icon: Video },
-  { id: "agents", label: "Agents", icon: Bot },
 ];
 
 const sortOptions = [
@@ -274,7 +274,7 @@ const agentCategories = [
 
 const FeedPage = () => {
   const navigate = useNavigate();
-  const [activeFilter, setActiveFilter] = useState("styles");
+  const [activeFilter, setActiveFilter] = useState("All");
   const [activeSort, setActiveSort] = useState("top");
   
   const [items, setItems] = useState<FeedItem[]>(() =>
@@ -308,7 +308,7 @@ const FeedPage = () => {
   const loadMoreRef = useInfiniteScroll(loadMore);
 
   const filteredItems = items.filter((item) => {
-    if (activeFilter === "styles") return true;
+    if (activeFilter === "All") return true;
     if (activeFilter === "images") return item.type === "image";
     if (activeFilter === "videos") return item.type === "video";
     if (activeFilter === "agents") return false; // Agents filter shows agent sections, not feed items
@@ -492,7 +492,98 @@ const FeedPage = () => {
         </div>
       </header>
 
-      {/* Professional Agents Section - Show only when agents filter is active */}
+      {/* Explore Agents Section - Show only when All filter is active */}
+      {activeFilter === "All" && (
+        <div className="px-4 lg:px-6 py-8">
+          <motion.section
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+            className="relative"
+          >
+            {/* Section Header */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-4">
+                <motion.div
+                  className="w-14 h-14 rounded-2xl bg-primary/20 border-2 border-primary/30 flex items-center justify-center shadow-lg"
+                  whileHover={{ scale: 1.1, rotate: 5 }}
+                >
+                  <Bot className="w-7 h-7 text-primary" />
+                </motion.div>
+                <div>
+                  <h2 className="text-lg md:text-xl font-bold text-foreground mb-0.5">Explore Agents</h2>
+                  <p className="text-xs text-muted-foreground">Discover and interact with powerful AI agents</p>
+                </div>
+              </div>
+              <motion.button
+                onClick={() => navigate("/dashboard/agent-store")}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-all shadow-md shadow-primary/20"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                View All
+                <ArrowRight className="w-4 h-4" />
+              </motion.button>
+            </div>
+
+            {/* Agents Grid - Professional Cards */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
+              {mockAgents.slice(0, 6).map((agent, index) => (
+                <motion.div
+                  key={agent.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  whileHover={{ scale: 1.05, y: -5 }}
+                  className="relative group cursor-pointer"
+                  onClick={() => navigate("/dashboard/agent-store")}
+                >
+                  {/* Card with Glass Morphism */}
+                  <div className="relative rounded-2xl p-4 backdrop-blur-xl bg-card border-2 border-border hover:border-primary/50 transition-all duration-300 shadow-lg hover:shadow-2xl hover:shadow-primary/20 overflow-hidden">
+                    {/* Gradient Overlay on Hover */}
+                    <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    
+                    {/* Agent Icon */}
+                    <div className="relative mb-3">
+                      <div className="w-12 h-12 rounded-xl bg-primary/30 border-2 border-primary/40 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                        <Bot className="w-6 h-6 text-primary" />
+                      </div>
+                    </div>
+                    
+                    {/* Agent Info */}
+                    <div className="relative z-10">
+                      <h3 className="text-sm font-bold text-foreground mb-2 line-clamp-1 group-hover:text-primary transition-colors">
+                        {agent.name}
+                      </h3>
+                      <p className="text-xs text-muted-foreground dark:text-white/60 line-clamp-2 mb-3 leading-relaxed">
+                        {agent.description}
+                      </p>
+                      
+                      {/* Footer */}
+                      <div className="flex items-center justify-between pt-3 border-t border-border dark:border-white/10">
+                        <span className="text-xs px-2 py-1 rounded-lg bg-green-500/20 text-green-400 font-semibold border border-green-500/30">
+                          {agent.pricing}
+                        </span>
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground dark:text-white/50">
+                          <Zap className="w-3 h-3 text-yellow-500 dark:text-yellow-400" />
+                          <span className="font-semibold">{agent.interactions}</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Shine Effect */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.section>
+        </div>
+      )}
+
+      {/* Professional Agents Section - Show all sections when agents filter is active */}
       {activeFilter === "agents" && (
         <div className="px-4 lg:px-6 py-8 space-y-8">
           {/* Section 1: Explore Agents - Professional Design */}
@@ -581,8 +672,6 @@ const FeedPage = () => {
               ))}
             </div>
           </motion.section>
-
-      
 
         {/* Section 3: Agent Categories - Professional Design */}
         <motion.section
@@ -785,8 +874,8 @@ const FeedPage = () => {
         </div>
       )}
 
-      {/* Professional Masonry Grid - Hide when agents filter is active */}
-      {activeFilter !== "agents" && (
+      {/* Professional Masonry Grid - Show when All, images, or videos filter is active */}
+      {(activeFilter === "All" || activeFilter === "images" || activeFilter === "videos") && (
       <motion.main
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
