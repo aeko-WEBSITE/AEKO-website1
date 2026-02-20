@@ -263,6 +263,7 @@ export const authAPI = {
     try {
       const response = await apiRequest('/auth/logout', {
         method: 'POST',
+        body: JSON.stringify({}), // Send empty JSON body to avoid "Body cannot be empty" error
       });
 
       if (!response.ok) {
@@ -296,6 +297,7 @@ export const authAPI = {
     try {
       const response = await apiRequest('/auth/logout-all', {
         method: 'POST',
+        body: JSON.stringify({}), // Send empty JSON body to avoid "Body cannot be empty" error
       });
 
       if (!response.ok) {
