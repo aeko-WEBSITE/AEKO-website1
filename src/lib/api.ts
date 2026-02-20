@@ -1,24 +1,35 @@
 // API Base URL configuration
 // In dev: use '' so Vite proxy (vite.config proxy /api -> localhost:5000) is used.
-// In production: VITE_API_URL if set (your deployed backend), else '' so /api hits same origin (Vercel serverless).
+// In production: VITE_API_URL if set (your deployed backend), else '' so /api hits same origin (Vercel)
 const getApiBaseUrl = (): string => {
   const env = import.meta.env;
   if (env.VITE_API_URL !== undefined && env.VITE_API_URL !== '') {
-    return env.VITE_API_URL;
+    // Remove trailing slash if present
+    const url = env.VITE_API_URL.trim().replace(/\/$/, '');
+    // Prevent using demo server for auth endpoints - use same origin instead
+    if (url.includes('demo.liquidata.dev')) {
+      console.warn('Warning: VITE_API_URL is set to demo server. Auth endpoints will use same-origin instead.');
+      // Return empty string to use same-origin for auth
+      return '';
+    }
+    return url;
   }
-  // Same-origin: dev → Vite proxy to backend; production (e.g. Vercel) → Vercel /api serverless
+  // In development, empty string uses Vite proxy
+  // In production, empty string uses same-origin (Vercel URL)
   return '';
 };
 
 const API_BASE_URL = getApiBaseUrl();
 
 // Apimodule Base URL configuration (can be different from main API)
+// This is ONLY for apimodule endpoints (image gen, video gen, etc.), NOT for auth
 const getApimoduleBaseUrl = (): string => {
   const env = import.meta.env;
   if (env.VITE_APIMODULE_URL !== undefined && env.VITE_APIMODULE_URL !== '') {
     return env.VITE_APIMODULE_URL;
   }
-  // Default to demo server if not configured
+  // Only default to demo server for apimodule endpoints, not for auth
+  // Auth endpoints should use API_BASE_URL which uses VITE_API_URL or same-origin
   return 'https://demo.liquidata.dev';
 };
 
@@ -47,7 +58,9 @@ const refreshTokenInternal = async (): Promise<boolean> => {
       return false;
     }
 
-    const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+    // Use /api/auth/refresh when using same-origin (Vercel)
+    const refreshEndpoint = API_BASE_URL ? '/auth/refresh' : '/api/auth/refresh';
+    const response = await fetch(`${API_BASE_URL}${refreshEndpoint}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -97,7 +110,14 @@ const apiRequest = async (
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  let response = await fetch(`${API_BASE_URL}${endpoint}`, {
+  // If API_BASE_URL is empty (same-origin) and endpoint doesn't start with /api, add /api prefix
+  // This ensures auth endpoints work on Vercel when using same-origin
+  let fullEndpoint = endpoint;
+  if (!API_BASE_URL && !endpoint.startsWith('/api')) {
+    fullEndpoint = `/api${endpoint}`;
+  }
+
+  let response = await fetch(`${API_BASE_URL}${fullEndpoint}`, {
     ...options,
     headers,
     mode: 'cors',
@@ -105,7 +125,10 @@ const apiRequest = async (
   });
 
   // If 401 and retry is enabled, try to refresh token and retry once
-  if (response.status === 401 && retryOn401 && endpoint !== '/auth/refresh' && endpoint !== '/auth/login' && endpoint !== '/auth/register') {
+  // Check both with and without /api prefix
+  const isAuthEndpoint = endpoint === '/auth/refresh' || endpoint === '/auth/login' || endpoint === '/auth/register' ||
+                         endpoint === '/api/auth/refresh' || endpoint === '/api/auth/login' || endpoint === '/api/auth/register';
+  if (response.status === 401 && retryOn401 && !isAuthEndpoint) {
     const refreshed = await refreshTokenInternal();
     if (refreshed) {
       // Retry the request with new token
@@ -1430,7 +1453,9 @@ export const adminAPI = {
   login: async (identifier: string, password: string) => {
     try {
       // Admin login doesn't need token, use regular fetch
-      const response = await fetch(`${API_BASE_URL}/admin/auth/login`, {
+      // Use /api/admin/auth/login when using same-origin (Vercel)
+      const adminLoginEndpoint = API_BASE_URL ? '/admin/auth/login' : '/api/admin/auth/login';
+      const response = await fetch(`${API_BASE_URL}${adminLoginEndpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
