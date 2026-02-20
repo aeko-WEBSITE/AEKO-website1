@@ -1,21 +1,18 @@
 // API Base URL configuration
 // In dev: use '' so Vite proxy (vite.config proxy /api -> localhost:5000) is used.
-// In production: VITE_API_URL if set (your deployed backend), else '' so /api hits same origin (Vercel)
+// In production: VITE_API_URL if set, else defaults to https://demo.liquidata.dev for auth
 const getApiBaseUrl = (): string => {
   const env = import.meta.env;
   if (env.VITE_API_URL !== undefined && env.VITE_API_URL !== '') {
     // Remove trailing slash if present
     const url = env.VITE_API_URL.trim().replace(/\/$/, '');
-    // Prevent using demo server for auth endpoints - use same origin instead
-    if (url.includes('demo.liquidata.dev')) {
-      console.warn('Warning: VITE_API_URL is set to demo server. Auth endpoints will use same-origin instead.');
-      // Return empty string to use same-origin for auth
-      return '';
-    }
     return url;
   }
   // In development, empty string uses Vite proxy
-  // In production, empty string uses same-origin (Vercel URL)
+  // In production, default to demo.liquidata.dev for auth endpoints
+  if (import.meta.env.PROD) {
+    return 'https://demo.liquidata.dev';
+  }
   return '';
 };
 
@@ -58,8 +55,8 @@ const refreshTokenInternal = async (): Promise<boolean> => {
       return false;
     }
 
-    // Use /api/auth/refresh when using same-origin (Vercel)
-    const refreshEndpoint = API_BASE_URL ? '/auth/refresh' : '/api/auth/refresh';
+    // Use /api/auth/refresh when using same-origin in dev, otherwise use /auth/refresh
+    const refreshEndpoint = (!API_BASE_URL && !import.meta.env.PROD) ? '/api/auth/refresh' : '/auth/refresh';
     const response = await fetch(`${API_BASE_URL}${refreshEndpoint}`, {
       method: 'POST',
       headers: {
@@ -110,10 +107,10 @@ const apiRequest = async (
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  // If API_BASE_URL is empty (same-origin) and endpoint doesn't start with /api, add /api prefix
-  // This ensures auth endpoints work on Vercel when using same-origin
+  // If API_BASE_URL is empty (same-origin in dev) and endpoint doesn't start with /api, add /api prefix
+  // This ensures auth endpoints work with Vite proxy in development
   let fullEndpoint = endpoint;
-  if (!API_BASE_URL && !endpoint.startsWith('/api')) {
+  if (!API_BASE_URL && !endpoint.startsWith('/api') && !import.meta.env.PROD) {
     fullEndpoint = `/api${endpoint}`;
   }
 
@@ -1453,8 +1450,8 @@ export const adminAPI = {
   login: async (identifier: string, password: string) => {
     try {
       // Admin login doesn't need token, use regular fetch
-      // Use /api/admin/auth/login when using same-origin (Vercel)
-      const adminLoginEndpoint = API_BASE_URL ? '/admin/auth/login' : '/api/admin/auth/login';
+      // Use /api/admin/auth/login when using same-origin in dev, otherwise use /admin/auth/login
+      const adminLoginEndpoint = (!API_BASE_URL && !import.meta.env.PROD) ? '/api/admin/auth/login' : '/admin/auth/login';
       const response = await fetch(`${API_BASE_URL}${adminLoginEndpoint}`, {
         method: 'POST',
         headers: {

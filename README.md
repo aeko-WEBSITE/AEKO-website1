@@ -150,7 +150,13 @@ The frontend communicates with the backend through the API client in `src/lib/ap
 
 ### Frontend (.env)
 ```env
+# For local development, use localhost backend
 VITE_API_URL=http://localhost:5000
+
+# For production, you can use demo server for auth:
+# VITE_API_URL=https://demo.liquidata.dev
+
+# Or leave unset to use demo.liquidata.dev as default in production
 ```
 
 ### Backend (backend/.env)
