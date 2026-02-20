@@ -73,6 +73,7 @@ import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import { crawlAPI } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 
 interface Agent {
   id: string;
@@ -88,6 +89,7 @@ interface Agent {
 }
 
 const AgentStorePage = () => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [websiteUrl, setWebsiteUrl] = useState("");
@@ -526,12 +528,30 @@ const AgentStorePage = () => {
       <div className="mb-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
           <div className="flex items-center gap-3 sm:gap-4">
-            <div className="relative flex-shrink-0">
-              <div className="absolute inset-0 bg-gradient-to-r from-primary to-purple-500 rounded-lg blur opacity-50" />
-              <div className="relative bg-gradient-to-br from-background to-muted border border-border/50 rounded-lg p-2 sm:p-2.5 shadow-lg">
-                <BrainCircuit className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
-              </div>
-            </div>
+            <motion.div
+              className="relative flex-shrink-0 w-10 h-10 flex items-center justify-center cursor-pointer"
+              onClick={() => navigate("/")}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <motion.img 
+                src="/logo.png" 
+                alt="AKO.ai Logo" 
+                className="h-auto w-full max-w-[120px] object-contain"
+                animate={{
+                  filter: [
+                    "drop-shadow(0 0 8px rgba(255,255,255,0.4))",
+                    "drop-shadow(0 0 15px rgba(255,255,255,0.7))",
+                    "drop-shadow(0 0 8px rgba(255,255,255,0.4))"
+                  ]
+                }}
+                transition={{ 
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              />
+            </motion.div>
             <div className="min-w-0">
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground tracking-tight truncate">
                 Agent Store

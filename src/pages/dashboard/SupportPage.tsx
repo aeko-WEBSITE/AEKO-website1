@@ -12,6 +12,7 @@ import {
   Twitter
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 const faqs = [
   {
@@ -79,6 +80,7 @@ const socialLinks = [
 ];
 
 const SupportPage = () => {
+  const navigate = useNavigate();
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [feedbackMessage, setFeedbackMessage] = useState("");
 
@@ -88,14 +90,40 @@ const SupportPage = () => {
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col items-center text-center space-y-2"
+        className="flex flex-col items-center text-center space-y-4"
       >
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground">
-          Help & Support
-        </h1>
-        <p className="text-base sm:text-lg text-muted-foreground max-w-2xl">
-          Find answers, explore resources, or get in touch with our team.
-        </p>
+        <motion.div
+          className="relative w-16 h-16 flex items-center justify-center cursor-pointer"
+          onClick={() => navigate("/")}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <motion.img 
+            src="/logo.png" 
+            alt="AKO.ai Logo" 
+            className="h-auto w-full max-w-[160px] object-contain"
+            animate={{
+              filter: [
+                "drop-shadow(0 0 8px rgba(255,255,255,0.4))",
+                "drop-shadow(0 0 15px rgba(255,255,255,0.7))",
+                "drop-shadow(0 0 8px rgba(255,255,255,0.4))"
+              ]
+            }}
+            transition={{ 
+              duration: 4,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          />
+        </motion.div>
+        <div>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground">
+            Help & Support
+          </h1>
+          <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mt-2">
+            Find answers, explore resources, or get in touch with our team.
+          </p>
+        </div>
       </motion.div>
 
       {/* Quick Links */}

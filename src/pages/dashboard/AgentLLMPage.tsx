@@ -31,7 +31,6 @@ import {
 import { sarvamChatAPI, SARVAM_VOICE_WS_URL } from "@/lib/api";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import logo from "@/assets/logo.png";
 
 interface ChatMessage {
   id: string;
@@ -289,9 +288,30 @@ const AgentLLMPage = () => {
             <div className="max-w-5xl mx-auto flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-3">
-                  <div className="relative w-10 h-10 rounded-full overflow-hidden bg-white dark:bg-slate-900 shadow-md ring-2 ring-black/10 dark:ring-white/20 flex items-center justify-center p-1">
-                    <img src={logo} alt="AEKO" className="w-full h-full object-contain object-center" />
-                  </div>
+                  <motion.div
+                    className="relative w-10 h-10 flex items-center justify-center cursor-pointer"
+                    onClick={() => navigate("/")}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <motion.img 
+                      src="/logo.png" 
+                      alt="AKO.ai Logo" 
+                      className="h-auto w-full max-w-[120px] object-contain"
+                      animate={{
+                        filter: [
+                          "drop-shadow(0 0 8px rgba(255,255,255,0.4))",
+                          "drop-shadow(0 0 15px rgba(255,255,255,0.7))",
+                          "drop-shadow(0 0 8px rgba(255,255,255,0.4))"
+                        ]
+                      }}
+                      transition={{ 
+                        duration: 4,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }}
+                    />
+                  </motion.div>
                   <div>
                     <div className="flex items-baseline gap-1">
                       <span className="text-lg font-bold text-gray-900 dark:text-white tracking-tight transition-colors duration-300">AEKO</span>

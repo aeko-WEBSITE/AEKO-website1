@@ -435,10 +435,28 @@ const FeedPage = () => {
           {/* Left: Logo/Icon and Sort Options */}
           <div className="flex items-center gap-4">
             <motion.div
-              whileHover={{ scale: 1.1, rotate: 15 }}
-              className="p-2 rounded-lg bg-primary/20 border border-primary/30"
+              whileHover={{ scale: 1.1 }}
+              className="relative w-10 h-10 flex items-center justify-center"
+              onClick={() => navigate("/")}
+              style={{ cursor: "pointer" }}
             >
-              <Compass className="w-5 h-5 text-primary" />
+              <motion.img 
+                src="/logo.png" 
+                alt="AKO.ai Logo" 
+                className="h-auto w-full max-w-[120px] object-contain"
+                animate={{
+                  filter: [
+                    "drop-shadow(0 0 8px rgba(255,255,255,0.4))",
+                    "drop-shadow(0 0 15px rgba(255,255,255,0.7))",
+                    "drop-shadow(0 0 8px rgba(255,255,255,0.4))"
+                  ]
+                }}
+                transition={{ 
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              />
             </motion.div>
             
             {/* Sort Options - Professional Consistent Styling */}

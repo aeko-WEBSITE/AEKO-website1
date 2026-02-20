@@ -31,6 +31,7 @@ import {
   Eraser,
   Wand2,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -123,6 +124,7 @@ interface Task {
 }
 
 const ImageToolsPage = () => {
+  const navigate = useNavigate();
   const [toolMode, setToolMode] = useState<ToolMode>("text2image");
   const [selectedModel, setSelectedModel] = useState("flux-2-dev");
   const [selectedStyle, setSelectedStyle] = useState("dynamic");
@@ -461,9 +463,30 @@ const ImageToolsPage = () => {
             <Menu className="w-5 h-5" />
           </Button>
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center shrink-0 shadow-lg shadow-primary/30">
-              <ImageIcon className="w-5 h-5 text-primary-foreground" strokeWidth={2} />
-            </div>
+            <motion.div
+              className="relative w-10 h-10 flex items-center justify-center shrink-0 cursor-pointer"
+              onClick={() => navigate("/")}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <motion.img 
+                src="/logo.png" 
+                alt="AKO.ai Logo" 
+                className="h-auto w-full max-w-[120px] object-contain"
+                animate={{
+                  filter: [
+                    "drop-shadow(0 0 8px rgba(255,255,255,0.4))",
+                    "drop-shadow(0 0 15px rgba(255,255,255,0.7))",
+                    "drop-shadow(0 0 8px rgba(255,255,255,0.4))"
+                  ]
+                }}
+                transition={{ 
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              />
+            </motion.div>
             <div className="min-w-0">
               <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground truncate">
                 Image generation tool

@@ -39,6 +39,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { moduleAPI } from "@/lib/api";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 const videoModes = [
   { id: "text-to-video", label: "Text to Video", icon: Video, color: "from-orange-500 to-red-500" },
@@ -60,6 +61,7 @@ const quantityOptions = [
 ];
 
 const VideoToolsPage = () => {
+  const navigate = useNavigate();
   const [activeMode, setActiveMode] = useState("text-to-video");
   const [selectedModel, setSelectedModel] = useState(videoModels.find(m => m.id === "cogvideox") || videoModels[0]);
   const [isModelOpen, setIsModelOpen] = useState(false);
@@ -144,10 +146,28 @@ const VideoToolsPage = () => {
         <div className="flex items-center justify-between w-full max-w-[1920px] mx-auto">
           <div className="flex items-center gap-3">
             <motion.div
-              className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-lg border border-border"
-              whileHover={{ scale: 1.05 }}
+              className="relative w-10 h-10 flex items-center justify-center cursor-pointer"
+              onClick={() => navigate("/")}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
             >
-              <Video className="w-5 h-5 text-primary-foreground" />
+              <motion.img 
+                src="/logo.png" 
+                alt="AKO.ai Logo" 
+                className="h-auto w-full max-w-[120px] object-contain"
+                animate={{
+                  filter: [
+                    "drop-shadow(0 0 8px rgba(255,255,255,0.4))",
+                    "drop-shadow(0 0 15px rgba(255,255,255,0.7))",
+                    "drop-shadow(0 0 8px rgba(255,255,255,0.4))"
+                  ]
+                }}
+                transition={{ 
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              />
             </motion.div>
             <div>
               <h1 className="text-lg font-bold tracking-tight text-foreground">AI Video Playground</h1>
