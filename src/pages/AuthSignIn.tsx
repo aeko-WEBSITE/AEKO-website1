@@ -135,26 +135,48 @@ const AuthSignIn = () => {
       return;
     }
 
-    if (isSignUp && !username) {
-      toast.error("Please enter a username");
-      return;
+    if (isSignUp) {
+      if (!username) {
+        toast.error("Please enter a username");
+        return;
+      }
+      if (username.length < 3) {
+        toast.error("Username must be at least 3 characters");
+        return;
+      }
+      if (password.length < 6) {
+        toast.error("Password must be at least 6 characters");
+        return;
+      }
     }
 
     setIsLoading(true);
     try {
       if (isSignUp) {
-        // Register
+        // Register - backend expects: { username, email, password }
         await register(email, username, password);
         toast.success("Account created successfully!");
-        navigate("/dashboard");
+        setTimeout(() => {
+          navigate("/dashboard");
+        }, 100);
       } else {
-        // Login
+        // Login - backend expects: { identifier, password }
         await login(email, password);
         toast.success("Logged in successfully!");
-        navigate("/dashboard");
+        setTimeout(() => {
+          navigate("/dashboard");
+        }, 100);
       }
     } catch (error: any) {
-      toast.error(error.message || "Authentication failed. Please try again.");
+      console.error("Auth error:", error);
+      // Handle validation errors array
+      if (error?.message && Array.isArray(error.message)) {
+        const errorMessages = error.message.join(", ");
+        toast.error(errorMessages);
+      } else {
+        const errorMessage = error?.message || error?.error || "Authentication failed. Please try again.";
+        toast.error(errorMessage);
+      }
     } finally {
       setIsLoading(false);
     }

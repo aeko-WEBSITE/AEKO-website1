@@ -164,14 +164,22 @@ export const authAPI = {
    */
   register: async (email: string, username: string, password: string) => {
     try {
+      // Backend expects: { username, email, password } (not name)
       const response = await apiRequest('/auth/register', {
         method: 'POST',
-        body: JSON.stringify({ email, username, password }),
+        body: JSON.stringify({ username, email, password }),
       });
 
       // Accept both 200 and 201 status codes for registration
       if (!response.ok && response.status !== 201) {
         const errorData = await response.json().catch(() => ({}));
+        // Handle validation errors array
+        if (Array.isArray(errorData.message)) {
+          const errorMessage = errorData.message.join(", ");
+          const error = new Error(errorMessage);
+          (error as any).message = errorData.message; // Keep array for detailed handling
+          throw error;
+        }
         throw new Error(errorData.message || errorData.error || `Server error: ${response.status}`);
       }
 
@@ -209,6 +217,7 @@ export const authAPI = {
    */
   login: async (identifier: string, password: string) => {
     try {
+      // Backend expects: { identifier, password } (not email)
       const response = await apiRequest('/auth/login', {
         method: 'POST',
         body: JSON.stringify({ identifier, password }),
@@ -216,6 +225,13 @@ export const authAPI = {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        // Handle validation errors array
+        if (Array.isArray(errorData.message)) {
+          const errorMessage = errorData.message.join(", ");
+          const error = new Error(errorMessage);
+          (error as any).message = errorData.message; // Keep array for detailed handling
+          throw error;
+        }
         throw new Error(errorData.message || errorData.error || `Server error: ${response.status}`);
       }
 
