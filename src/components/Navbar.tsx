@@ -105,7 +105,7 @@ const Navbar = () => {
   const navLinks = [
     { name: "About us", path: "/about" },
     { name: "Pricing", path: "/pricing" },
-    { name: "API", href: "#developers" },
+    { name: "API", href: "/#developers" },
   ];
 
   return (

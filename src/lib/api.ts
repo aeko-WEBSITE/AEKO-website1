@@ -1,6 +1,6 @@
 // API Base URL configuration
 // In dev: use '' so Vite proxy (vite.config proxy /api -> localhost:5000) is used.
-// In production: VITE_API_URL if set, else defaults to https://demo.liquidata.dev for auth
+// In production: VITE_API_URL must be set via environment variable
 const getApiBaseUrl = (): string => {
   const env = import.meta.env;
   if (env.VITE_API_URL !== undefined && env.VITE_API_URL !== '') {
@@ -9,9 +9,9 @@ const getApiBaseUrl = (): string => {
     return url;
   }
   // In development, empty string uses Vite proxy
-  // In production, default to demo.liquidata.dev for auth endpoints
+  // In production, VITE_API_URL must be set - no default URL
   if (import.meta.env.PROD) {
-    return 'https://demo.liquidata.dev';
+    console.warn('VITE_API_URL is not set in production. Auth endpoints may not work correctly. Please set VITE_API_URL in your environment variables.');
   }
   return '';
 };
@@ -20,14 +20,17 @@ const API_BASE_URL = getApiBaseUrl();
 
 // Apimodule Base URL configuration (can be different from main API)
 // This is ONLY for apimodule endpoints (image gen, video gen, etc.), NOT for auth
+// Must be set via VITE_APIMODULE_URL environment variable
 const getApimoduleBaseUrl = (): string => {
   const env = import.meta.env;
   if (env.VITE_APIMODULE_URL !== undefined && env.VITE_APIMODULE_URL !== '') {
-    return env.VITE_APIMODULE_URL;
+    return env.VITE_APIMODULE_URL.trim().replace(/\/$/, '');
   }
-  // Only default to demo server for apimodule endpoints, not for auth
-  // Auth endpoints should use API_BASE_URL which uses VITE_API_URL or same-origin
-  return 'https://demo.liquidata.dev';
+  // No default - must be set via environment variable
+  if (import.meta.env.PROD) {
+    console.warn('VITE_APIMODULE_URL is not set in production. Apimodule endpoints may not work correctly.');
+  }
+  return '';
 };
 
 const APIMODULE_BASE_URL = getApimoduleBaseUrl();
