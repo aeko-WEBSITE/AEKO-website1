@@ -1,5 +1,5 @@
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
-import { Menu, X, MessageSquare, Image, Video, Sparkles, Bot, Plug, Film, Mic, Zap, ChevronDown, User, LogOut } from "lucide-react";
+import { Menu, X, MessageSquare, Image, Video, Sparkles, Bot, Plug, Film, Mic, Zap, ChevronDown, User, LogOut, Sun, Moon } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,12 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useTheme } from "@/hooks/use-theme";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
@@ -21,7 +27,7 @@ const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const navigate = useNavigate();
-  const { theme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
   const { scrollY } = useScroll();
   const { user, isAuthenticated, logout } = useAuth();
 
@@ -235,12 +241,12 @@ const Navbar = () => {
                   <DropdownMenu onOpenChange={(open) => setIsExpanded(open)}>
                     <DropdownMenuTrigger asChild>
                       <motion.button
-                        className="text-xs md:text-sm text-foreground/80 dark:text-foreground/90 hover:text-foreground dark:hover:text-foreground transition-colors duration-200 flex items-center gap-1.5 px-2 md:px-3 py-1.5 rounded-lg hover:bg-accent/50 dark:hover:bg-accent/50"
+                        className="text-xs md:text-sm text-white hover:text-white/90 transition-colors duration-200 flex items-center gap-1.5 px-2 md:px-3 py-1.5 rounded-lg hover:bg-white/10"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
                         Models
-                        <ChevronDown className="w-3 h-3 md:w-3.5 md:h-3.5" />
+                        <ChevronDown className="w-3 h-3 md:w-3.5 md:h-3.5 text-white" />
                       </motion.button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start" className="w-56 md:w-64 backdrop-blur-xl bg-card dark:bg-card border border-border shadow-xl">
@@ -267,12 +273,12 @@ const Navbar = () => {
                   <DropdownMenu onOpenChange={(open) => setIsExpanded(open)}>
                     <DropdownMenuTrigger asChild>
                       <motion.button
-                        className="text-xs sm:text-sm dark:text-white/90 dark:hover:text-white text-foreground/80 hover:text-foreground transition-colors duration-200 flex items-center gap-1.5 px-2 sm:px-3 py-1 rounded-lg dark:hover:bg-white/5 hover:bg-accent/50"
+                        className="text-xs sm:text-sm text-white hover:text-white/90 transition-colors duration-200 flex items-center gap-1.5 px-2 sm:px-3 py-1 rounded-lg hover:bg-white/10"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
                         Features
-                        <ChevronDown className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                        <ChevronDown className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-white" />
                       </motion.button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start" className="w-56 md:w-64 backdrop-blur-xl bg-card dark:bg-card border border-border shadow-xl">
@@ -300,7 +306,7 @@ const Navbar = () => {
                       <motion.button
                         key={link.name}
                         onClick={() => navigate(link.path!)}
-                        className="text-xs md:text-sm text-foreground/80 dark:text-foreground/90 hover:text-foreground dark:hover:text-foreground transition-colors duration-200 px-2 md:px-3 py-1.5 rounded-lg hover:bg-accent/50 dark:hover:bg-accent/50"
+                        className="text-xs md:text-sm text-white hover:text-white/90 transition-colors duration-200 px-2 md:px-3 py-1.5 rounded-lg hover:bg-white/10"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
@@ -310,7 +316,7 @@ const Navbar = () => {
                       <motion.a
                         key={link.name}
                         href={link.href}
-                        className="text-xs md:text-sm text-foreground/80 dark:text-foreground/90 hover:text-foreground dark:hover:text-foreground transition-colors duration-200 px-2 md:px-3 py-1.5 rounded-lg hover:bg-accent/50 dark:hover:bg-accent/50"
+                        className="text-xs md:text-sm text-white hover:text-white/90 transition-colors duration-200 px-2 md:px-3 py-1.5 rounded-lg hover:bg-white/10"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
@@ -319,6 +325,50 @@ const Navbar = () => {
                     )
                   )}
                   
+                  {/* Theme Toggle - Desktop */}
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <motion.button
+                          onClick={toggleTheme}
+                          whileHover={{ scale: 1.15, rotate: 5 }}
+                          whileTap={{ scale: 0.85, rotate: -5 }}
+                          className="relative flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full text-white hover:text-white/90 hover:bg-white/10 transition-all"
+                          title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+                        >
+                          {theme === "dark" ? (
+                            <Sun className="w-4 h-4 sm:w-5 sm:h-5 stroke-2 text-white" />
+                          ) : (
+                            <Moon className="w-4 h-4 sm:w-5 sm:h-5 stroke-2 text-white" />
+                          )}
+                          {/* Bright Click Animation Effect */}
+                          <motion.div
+                            className="absolute inset-0 rounded-full bg-white blur-xl"
+                            initial={{ scale: 0, opacity: 0 }}
+                            whileTap={{ 
+                              scale: [0, 2, 2.5, 0],
+                              opacity: [0, 1, 0.8, 0]
+                            }}
+                            transition={{ duration: 0.6, ease: "easeOut" }}
+                          />
+                          {/* Secondary Bright Ring on Click */}
+                          <motion.div
+                            className="absolute inset-0 rounded-full border-2 border-white"
+                            initial={{ scale: 1, opacity: 0 }}
+                            whileTap={{ 
+                              scale: [1, 2, 2.5],
+                              opacity: [0, 0.9, 0]
+                            }}
+                            transition={{ duration: 0.5, ease: "easeOut" }}
+                          />
+                        </motion.button>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom">
+                        <p>{theme === "dark" ? "Light Mode" : "Dark Mode"}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  
                   {isAuthenticated ? (
                     <>
                       <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
@@ -326,7 +376,7 @@ const Navbar = () => {
                           variant="ghost"
                           size="sm"
                           onClick={() => navigate("/dashboard")}
-                          className="text-foreground/80 dark:text-foreground/90 hover:text-foreground dark:hover:text-foreground hover:bg-accent/50 dark:hover:bg-accent/50 text-xs md:text-sm px-2 md:px-4"
+                          className="text-white hover:text-white/90 hover:bg-white/10 text-xs md:text-sm px-2 md:px-4"
                         >
                           Dashboard
                         </Button>
@@ -334,15 +384,15 @@ const Navbar = () => {
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <motion.button
-                            className="flex items-center gap-2 px-2 md:px-3 py-1.5 rounded-lg hover:bg-accent/50 dark:hover:bg-accent/50 transition-colors"
+                            className="flex items-center gap-2 px-2 md:px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors"
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                           >
                             <UserAvatar user={user} size="md" />
-                            <span className="text-xs md:text-sm text-foreground/80 dark:text-foreground/90 hidden md:inline">
+                            <span className="text-xs md:text-sm text-white hidden md:inline">
                               {user?.username || user?.email?.split('@')[0] || user?.role || 'User'}
                             </span>
-                            <ChevronDown className="w-3 h-3 hidden md:block" />
+                            <ChevronDown className="w-3 h-3 hidden md:block text-white" />
                           </motion.button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-56 backdrop-blur-xl bg-card dark:bg-card border border-border shadow-xl">
@@ -390,7 +440,7 @@ const Navbar = () => {
                       variant="ghost"
                       size="sm"
                       onClick={() => navigate("/auth/sign-in")}
-                      className="text-foreground/80 dark:text-foreground/90 hover:text-foreground dark:hover:text-foreground hover:bg-accent/50 dark:hover:bg-accent/50 text-xs md:text-sm px-2 md:px-4"
+                      className="text-white hover:text-white/90 hover:bg-white/10 text-xs md:text-sm px-2 md:px-4"
                     >
                       Sign In
                     </Button>
@@ -401,7 +451,7 @@ const Navbar = () => {
                       variant="default"
                       size="sm"
                       onClick={() => navigate("/auth/sign-in")}
-                      className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold shadow-lg text-xs md:text-sm px-2 md:px-4"
+                      className="bg-white text-purple-900 hover:bg-white/90 font-semibold shadow-lg text-xs md:text-sm px-2 md:px-4"
                     >
                       Start Creating
                     </Button>
@@ -413,11 +463,11 @@ const Navbar = () => {
                 {/* Mobile Menu Button */}
                 <motion.button
                   onClick={() => setIsOpen(!isOpen)}
-                  className="sm:hidden p-2 text-foreground dark:text-foreground rounded-lg hover:bg-accent/50 dark:hover:bg-accent/50 transition-colors"
+                  className="sm:hidden p-2 text-white rounded-lg hover:bg-white/10 transition-colors"
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                 >
-                  {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                  {isOpen ? <X className="w-5 h-5 text-white" /> : <Menu className="w-5 h-5 text-white" />}
                 </motion.button>
               </div>
             </div>
@@ -446,7 +496,7 @@ const Navbar = () => {
               <div className="relative z-10 px-4 sm:px-6 py-4 sm:py-6 space-y-3 sm:space-y-4 max-h-[85vh] overflow-y-auto">
                 {/* Mobile Models Menu */}
                 <div>
-                  <div className="text-sm font-semibold text-foreground mb-3 px-2">Models</div>
+                  <div className="text-sm font-semibold text-white mb-3 px-2">Models</div>
                   <div className="space-y-1">
                     {modelsMenuItems.map((item) => {
                       const Icon = item.icon;
@@ -459,14 +509,14 @@ const Navbar = () => {
                             setIsOpen(false);
                             navigate(item.path);
                           }}
-                          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-foreground/80 hover:text-foreground hover:bg-accent/50 dark:hover:bg-accent/50 transition-colors"
+                          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white hover:text-white/90 hover:bg-white/10 transition-colors"
                           whileHover={{ x: 4 }}
                           whileTap={{ scale: 0.98 }}
                         >
-                          <Icon className="w-4 h-4" />
+                          <Icon className="w-4 h-4 text-white" />
                           <div className="flex flex-col">
-                            <span className="font-medium">{item.name}</span>
-                            <span className="text-xs text-muted-foreground dark:text-white/50">{item.description}</span>
+                            <span className="font-medium text-white">{item.name}</span>
+                            <span className="text-xs text-white/70">{item.description}</span>
                           </div>
                         </motion.a>
                       );
@@ -476,7 +526,7 @@ const Navbar = () => {
 
                 {/* Mobile Features Menu */}
                 <div>
-                  <div className="text-sm font-semibold text-foreground mb-3 px-2">Features</div>
+                  <div className="text-sm font-semibold text-white mb-3 px-2">Features</div>
                   <div className="space-y-1">
                     {featuresMenuItems.map((item) => {
                       const Icon = item.icon;
@@ -489,14 +539,14 @@ const Navbar = () => {
                             setIsOpen(false);
                             navigate(item.path);
                           }}
-                          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-foreground/80 hover:text-foreground hover:bg-accent/50 dark:hover:bg-accent/50 transition-colors"
+                          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white hover:text-white/90 hover:bg-white/10 transition-colors"
                           whileHover={{ x: 4 }}
                           whileTap={{ scale: 0.98 }}
                         >
-                          <Icon className="w-4 h-4" />
+                          <Icon className="w-4 h-4 text-white" />
                           <div className="flex flex-col">
-                            <span className="font-medium">{item.name}</span>
-                            <span className="text-xs text-muted-foreground dark:text-white/50">{item.description}</span>
+                            <span className="font-medium text-white">{item.name}</span>
+                            <span className="text-xs text-white/70">{item.description}</span>
                           </div>
                         </motion.a>
                       );
@@ -512,7 +562,7 @@ const Navbar = () => {
                         setIsOpen(false);
                         navigate(link.path!);
                       }}
-                      className="block w-full text-left px-3 py-2.5 rounded-lg text-sm text-foreground/80 hover:text-foreground hover:bg-accent/50 dark:hover:bg-accent/50 transition-colors"
+                      className="block w-full text-left px-3 py-2.5 rounded-lg text-sm text-white hover:text-white/90 hover:bg-white/10 transition-colors"
                       whileHover={{ x: 4 }}
                       whileTap={{ scale: 0.98 }}
                     >
@@ -523,7 +573,7 @@ const Navbar = () => {
                       key={link.name}
                       href={link.href}
                       onClick={() => setIsOpen(false)}
-                      className="block px-3 py-2.5 rounded-lg text-sm text-foreground/80 hover:text-foreground hover:bg-accent/50 dark:hover:bg-accent/50 transition-colors"
+                      className="block px-3 py-2.5 rounded-lg text-sm text-white hover:text-white/90 hover:bg-white/10 transition-colors"
                       whileHover={{ x: 4 }}
                       whileTap={{ scale: 0.98 }}
                     >
@@ -532,17 +582,57 @@ const Navbar = () => {
                   )
                 )}
                 
-                <div className="pt-4 border-t border-border space-y-2">
+                {/* Mobile Theme Toggle */}
+                <div className="pt-4 border-t border-white/20">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <motion.button
+                          onClick={toggleTheme}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          className="relative flex items-center justify-center w-full py-3 rounded-lg text-white hover:text-white/90 hover:bg-white/10 transition-all"
+                        >
+                          <div className="flex items-center gap-3">
+                            {theme === "dark" ? (
+                              <Sun className="w-5 h-5 stroke-2 text-white" />
+                            ) : (
+                              <Moon className="w-5 h-5 stroke-2 text-white" />
+                            )}
+                            <span className="font-medium">
+                              {theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
+                            </span>
+                          </div>
+                          {/* Bright Click Animation Effect */}
+                          <motion.div
+                            className="absolute inset-0 rounded-lg bg-white blur-xl"
+                            initial={{ scale: 0, opacity: 0 }}
+                            whileTap={{ 
+                              scale: [0, 2, 2.5, 0],
+                              opacity: [0, 1, 0.8, 0]
+                            }}
+                            transition={{ duration: 0.6, ease: "easeOut" }}
+                          />
+                        </motion.button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{theme === "dark" ? "Light Mode" : "Dark Mode"}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                
+                <div className="pt-4 border-t border-white/20 space-y-2">
                   {isAuthenticated ? (
                     <>
                       <div className="px-3 py-2 mb-2">
-                        <p className="text-sm font-medium text-foreground">{user?.username || user?.email || user?.role || 'User'}</p>
-                        <p className="text-xs text-muted-foreground truncate">{user?.email || `ID: ${user?.id?.slice(0, 8) || 'N/A'}...`}</p>
+                        <p className="text-sm font-medium text-white">{user?.username || user?.email || user?.role || 'User'}</p>
+                        <p className="text-xs text-white/70 truncate">{user?.email || `ID: ${user?.id?.slice(0, 8) || 'N/A'}...`}</p>
                       </div>
                       <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                         <Button
                           variant="ghost"
-                          className="w-full justify-center text-foreground hover:bg-accent/50 dark:hover:bg-accent/50"
+                          className="w-full justify-center text-white hover:text-white/90 hover:bg-white/10"
                           onClick={() => {
                             setIsOpen(false);
                             navigate("/dashboard");
@@ -554,7 +644,7 @@ const Navbar = () => {
                       <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                         <Button
                           variant="ghost"
-                          className="w-full justify-center text-foreground hover:bg-accent/50 dark:hover:bg-accent/50"
+                          className="w-full justify-center text-white hover:text-white/90 hover:bg-white/10"
                           onClick={() => {
                             setIsOpen(false);
                             navigate("/dashboard/account");
@@ -566,7 +656,7 @@ const Navbar = () => {
                       <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                         <Button
                           variant="outline"
-                          className="w-full justify-center text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/20"
+                          className="w-full justify-center text-white hover:bg-white/10 hover:text-white border-white/20"
                           onClick={async () => {
                             setIsOpen(false);
                             try {
@@ -577,7 +667,7 @@ const Navbar = () => {
                             }
                           }}
                         >
-                          <LogOut className="w-4 h-4 mr-2" />
+                          <LogOut className="w-4 h-4 mr-2 text-white" />
                           Logout
                         </Button>
                       </motion.div>
@@ -587,7 +677,7 @@ const Navbar = () => {
                   <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                     <Button
                       variant="ghost"
-                      className="w-full justify-center text-foreground hover:bg-accent/50 dark:hover:bg-accent/50"
+                      className="w-full justify-center text-white hover:text-white/90 hover:bg-white/10"
                       onClick={() => {
                         setIsOpen(false);
                         navigate("/auth/sign-in");
@@ -599,7 +689,7 @@ const Navbar = () => {
                   <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                     <Button
                       variant="default"
-                      className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-semibold"
+                      className="w-full bg-white text-purple-900 hover:bg-white/90 font-semibold"
                       onClick={() => {
                         setIsOpen(false);
                         navigate("/auth/sign-in");
