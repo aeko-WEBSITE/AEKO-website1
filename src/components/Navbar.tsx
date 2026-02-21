@@ -19,7 +19,8 @@ import {
 import { useTheme } from "@/hooks/use-theme";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
-import AkoLogo from "@/assets/ako.png"; // Import it as a variable
+import AkoLogo from "@/assets/ako.png"; 
+import AkoLogoDark from "@/assets/ako_dark.png";
 import UserAvatar from "@/components/UserAvatar";
 
 const Navbar = () => {
@@ -206,32 +207,25 @@ const Navbar = () => {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  {/* The width of this container prevents the logo from pushing nav links */}
-                  <div className="relative w-24 md:w-28 h-10 flex items-center">
-                    <motion.img 
-                    src={AkoLogo} 
-                    alt="AKO.ai Logo" 
-                    animate={{
-                      scale: (isExpanded || isOpen) ? 1.5 : 1.3, 
-                      x: (isExpanded || isOpen) ? 1 : 0,
-                      // Adds a subtle breathing glow effect
-                      filter: [
-                        "drop-shadow(1px 1px 0 white) drop-shadow(-1px -1px 0 white) drop-shadow(0 0 8px rgba(255,255,255,0.4))",
-                        "drop-shadow(1px 1px 0 white) drop-shadow(-1px -1px 0 white) drop-shadow(0 0 15px rgba(255,255,255,0.7))",
-                        "drop-shadow(1px 1px 0 white) drop-shadow(-1px -1px 0 white) drop-shadow(0 0 8px rgba(255,255,255,0.4))"
-                      ]
-                    }}
-                    transition={{ 
-                      duration: 4, // Slow, elegant pulse
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                      // Ensure the scale/x transition remains snappy while the filter pulses
-                      filter: { duration: 3, repeat: Infinity, ease: "easeInOut" },
-                      scale: { duration: 0.4, ease: [0.4, 0, 0.2, 1] },
-                      x: { duration: 0.4, ease: [0.4, 0, 0.2, 1] }
-                    }}
-                    className="absolute left-0 h-auto w-full max-w-[130px] origin-left object-contain" 
-                  />
+                  <div className="relative w-24 md:w-28 h-10 flex items-center overflow-visible">
+                    <AnimatePresence mode="wait">
+                      <motion.img 
+                        key={theme}
+                        src={theme === "dark" ? AkoLogoDark : AkoLogo} 
+                        alt="AKO.ai Logo" 
+                        animate={{
+                          opacity: 1,
+                          scale: (isExpanded || isOpen) ? 1.5 : 1.3, 
+                          x: (isExpanded || isOpen) ? 1 : 0,
+                        }}
+                        style={{
+                          filter: theme === "dark" 
+                            ? "drop-shadow(0 0 1px #fff) drop-shadow(0 0 5px rgba(255,255,255,0.8))" 
+                            : "drop-shadow(0 0 1px #000) drop-shadow(0 0 5px rgba(0,0,0,0.3))",
+                        }}
+                        className="absolute left-0 h-auto w-full max-w-[130px] origin-left object-contain" 
+                      />
+                    </AnimatePresence>
                   </div>
                 </motion.div>
 
