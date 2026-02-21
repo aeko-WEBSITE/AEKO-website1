@@ -18,6 +18,16 @@ import ImageToolsPage from "./pages/dashboard/ImageToolsPage";
 import VideoToolsPage from "./pages/dashboard/VideoToolsPage";
 import AgentStorePage from "./pages/dashboard/AgentStorePage";
 import ToolsPage from "./pages/dashboard/ToolsPage";
+import AdminLogin from "./pages/admin/AdminLogin";
+import AdminLayout from "./components/admin/AdminLayout";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminConfigPage from "./pages/admin/AdminConfigPage";
+import AdminWalletPage from "./pages/admin/AdminWalletPage";
+import AdminPackagesPage from "./pages/admin/AdminPackagesPage";
+import AdminUsersPage from "./pages/admin/AdminUsersPage";
+import AdminTokensPage from "./pages/admin/AdminTokensPage";
+import PaymentPage from "./pages/PaymentPage";
+import OllamaChatPage from "./pages/OllamaChatPage";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +40,7 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+              <Route path="/ollamachat" element={<OllamaChatPage />} />
             <Route path="/auth/sign-in" element={<AuthSignIn />} />
             <Route path="/dashboard" element={<DashboardLayout />}>
               <Route index element={<DashboardHome />} />
