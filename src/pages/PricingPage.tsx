@@ -49,10 +49,10 @@ const enterpriseFeatures = [
 
 /**
  * PricingPage Component
- * 
+ *
  * IMPORTANT: This component ONLY displays packages fetched from the backend API.
  * NO static packages or hardcoded pricing plans are used.
- * 
+ *
  * Data Flow:
  * 1. Fetches packages from GET /api/packages (public endpoint)
  * 2. Filters for isActive = true packages

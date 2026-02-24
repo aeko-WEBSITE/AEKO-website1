@@ -125,30 +125,6 @@ const AboutUsPage = () => {
       
       <div className="relative z-10">
         <Navbar />
-        {/* Hero Image Section */}
-         <div className="relative w-full px-4 pt-10 pb-20 overflow-visible flex justify-center">
-          <div className="relative max-w-6xl w-full">
-            
-            {/* Glow effect behind the robot */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-primary/10 blur-[120px] pointer-events-none" />
-
-            <div className="relative rounded-3xl border border-white/10 overflow-hidden bg-[#050505]">
-              <img 
-                src="/bg_about_us.jpeg" 
-                alt="One AI Agent to Run Your Business"
-                className="w-full h-auto display-block" // h-auto ensures the bottom isn't cut
-              />
-
-                {/* Subtle Blending Gradients */}
-                {/* 1. Very soft bottom fade so the icons remain clear */}
-              <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-background to-transparent" />
-              
-              {/* 2. Side vignettes to focus on the center */}
-                <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-background to-transparent opacity-40" />
-               <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-background to-transparent opacity-40" />
-             </div>
-            </div>
-          </div>
         {/* Hero Section */}
         <section className="pt-32 pb-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
            
@@ -271,6 +247,32 @@ const AboutUsPage = () => {
                 </motion.li>
               ))}
             </motion.ul>
+          </div>
+        </section>
+
+        {/* One AI Agent visual - below Why AKOBOT, background reduced and merged with page */}
+        <section className="relative w-full px-4 py-12 overflow-hidden">
+          <div className="relative max-w-5xl mx-auto flex justify-center">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl h-full bg-primary/5 blur-[100px] pointer-events-none" />
+            <div className="relative w-full rounded-2xl overflow-hidden">
+              <img
+                src="/bg_about_us.jpeg"
+                alt="One AI Agent to Run Your Business"
+                className="w-full h-auto object-contain"
+              />
+              {/* Strong edge gradients - reduce visible image background and merge with page */}
+              <div className="absolute inset-x-0 top-0 h-[35%] bg-gradient-to-b from-background via-background/60 to-transparent pointer-events-none" />
+              <div className="absolute inset-x-0 bottom-0 h-[38%] bg-gradient-to-t from-background via-background/60 to-transparent pointer-events-none" />
+              <div className="absolute inset-y-0 left-0 w-[28%] bg-gradient-to-r from-background via-background/70 to-transparent pointer-events-none" />
+              <div className="absolute inset-y-0 right-0 w-[28%] bg-gradient-to-l from-background via-background/70 to-transparent pointer-events-none" />
+              {/* Radial vignette: fade starry background into page background, keep center (robot) clear */}
+              <div
+                className="absolute inset-0 pointer-events-none rounded-2xl"
+                style={{
+                  background: "radial-gradient(ellipse 75% 70% at 50% 50%, transparent 35%, var(--background) 85%)",
+                }}
+              />
+            </div>
           </div>
         </section>
 

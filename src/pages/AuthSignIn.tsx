@@ -1,132 +1,35 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mail, Lock, User, Apple, Chrome, Send, Bot, MessageCircle } from "lucide-react";
+import { Mail, Lock, User, Apple, Chrome } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
 import Logo from "@/components/Logo";
+import SignInDemoChatWidget from "@/components/SignInDemoChatWidget";
+import { SIGNIN_DEMO_WIDGETS } from "@/config/signInDemoWidgets";
+
+// Order: Support → Sales → Data → Lead → Image → Content (loop every 7s)
+const SIGNIN_WIDGET_ORDER = [0, 1, 5, 2, 3, 4];
+const WIDGET_ROTATE_MS = 7000;
 
 const AuthSignIn = () => {
   const navigate = useNavigate();
-  const { login, register, refreshUser } = useAuth();
+  const { login, register } = useAuth();
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
-  // Sequential message animation state for 6 agents grid
-  const [visibleMessages, setVisibleMessages] = useState<Record<string, number>>({});
-  
-  // AI Agents Data
-  const aiAgents = [
-    {
-      id: "support",
-      name: "AKOBOT AI Support",
-      initial: "S",
-      color: "from-pink-500 to-rose-500",
-      bgColor: "bg-pink-500/20",
-      borderColor: "border-pink-500/30",
-      messages: [
-        { role: "assistant", content: "Hello, how can I assist you?", time: "06:18 PM" },
-        { role: "user", content: "Can you raise a ticket for me?", time: "06:18 PM" },
-      ],
-    },
-    {
-      id: "sales",
-      name: "Sales Agent",
-      initial: "A",
-      color: "from-purple-400 to-purple-600",
-      bgColor: "bg-purple-500/20",
-      borderColor: "border-purple-500/30",
-      messages: [
-        { role: "assistant", content: "Hello, how's your day?", time: "06:18 PM" },
-        { role: "user", content: "Great!", time: "06:18 PM" },
-      ],
-    },
-    {
-      id: "lead",
-      name: "Lead Agent",
-      initial: "L",
-      color: "from-purple-600 to-purple-800",
-      bgColor: "bg-purple-700/20",
-      borderColor: "border-purple-700/30",
-      messages: [
-        { role: "assistant", content: "How's your day?", time: "06:18 PM" },
-        { role: "user", content: "Great! Can you give me today's leads you fetched?", time: "06:18 PM" },
-        { role: "assistant", content: "Here's the list of 10 websites related to our product use case.", time: "06:18 PM" },
-      ],
-    },
-    {
-      id: "image",
-      name: "Image Creation Agent",
-      initial: "I",
-      color: "from-green-500 to-emerald-500",
-      bgColor: "bg-green-500/20",
-      borderColor: "border-green-500/30",
-      messages: [
-        { role: "assistant", content: "How's your day?", time: "06:18 PM" },
-        { role: "user", content: "Good! Can you generate 50 images for me related to 3D comic Marvel characters and post them to my mail?", time: "06:18 PM" },
-        { role: "assistant", content: "Done, I'll do it.", time: "06:18 PM" },
-      ],
-    },
-    {
-      id: "content",
-      name: "Content Creation Agent",
-      initial: "C",
-      color: "from-orange-500 to-amber-500",
-      bgColor: "bg-orange-500/20",
-      borderColor: "border-orange-500/30",
-      messages: [
-        { role: "assistant", content: "How's your day?", time: "06:18 PM" },
-        { role: "user", content: "Hi, I'm good. Can you give me today's report?", time: "06:18 PM" },
-        { role: "assistant", content: "Sure, and I'll give you a PDF of the report. Can you share the mail to the following 30 members?", time: "06:18 PM" },
-        { role: "user", content: "Share.", time: "06:18 PM" },
-      ],
-    },
-    {
-      id: "analytics",
-      name: "Data Analytics Agent",
-      initial: "D",
-      color: "from-purple-700 to-indigo-800",
-      bgColor: "bg-purple-800/20",
-      borderColor: "border-purple-800/30",
-      messages: [
-        { role: "assistant", content: "How's it going?", time: "06:18 PM" },
-        { role: "user", content: "Good! Can you pull yesterday's metrics?", time: "06:18 PM" },
-        { role: "assistant", content: "Here are your key metrics and the summary dashboard.", time: "06:18 PM" },
-      ],
-    },
-  ];
+  const [currentWidgetIndex, setCurrentWidgetIndex] = useState(0);
 
-  // Initialize sequential message animations - First agent completes, then next starts
   useEffect(() => {
-    const baseDelay = 1000; // Initial delay before first message
-    const messageInterval = 800; // Time between messages in same agent
-    const agentInterval = 400; // Small gap between agents
-    
-    let totalDelay = baseDelay;
-    
-    aiAgents.forEach((agent, agentIndex) => {
-      // Each agent's messages appear sequentially
-      agent.messages.forEach((_, messageIndex) => {
-        const messageDelay = totalDelay + (messageIndex * messageInterval);
-        
-        setTimeout(() => {
-          setVisibleMessages((prev) => ({
-            ...prev,
-            [`${agent.id}-${messageIndex}`]: messageIndex + 1,
-          }));
-        }, messageDelay);
-      });
-      
-      // Update total delay for next agent (after all messages of current agent)
-      totalDelay += (agent.messages.length * messageInterval) + agentInterval;
-    });
+    const interval = setInterval(() => {
+      setCurrentWidgetIndex((prev) => (prev + 1) % SIGNIN_WIDGET_ORDER.length);
+    }, WIDGET_ROTATE_MS);
+    return () => clearInterval(interval);
   }, []);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -184,9 +87,9 @@ const AuthSignIn = () => {
 
 
   return (
-    <div className="min-h-screen flex bg-background">
+    <div className="h-screen max-h-screen min-h-0 flex overflow-hidden bg-background">
       {/* Left Panel - Login/Signup UI */}
-      <div className="w-full lg:w-[480px] bg-card flex flex-col p-8 lg:p-8 relative z-10 overflow-hidden border-r border-border">
+      <div className="w-full lg:w-[480px] flex-shrink-0 bg-card flex flex-col p-8 lg:p-8 relative z-10 overflow-y-auto overflow-x-hidden border-r border-border min-h-0">
         {/* Animated Background Glow Effects */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <motion.div
@@ -432,242 +335,122 @@ const AuthSignIn = () => {
         </div>
       </div>
 
-      {/* Right Panel - AI Agents in Action Grid */}
-      <div className="hidden lg:flex flex-1 relative overflow-hidden bg-gradient-to-br from-[#0a0a0f] via-[#1a1a2e] to-[#16213e]">
-        {/* Enhanced Animated Stars Background */}
-        <div className="absolute inset-0 overflow-hidden">
-          {Array.from({ length: 120 }).map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute rounded-full bg-white"
-              style={{
-                width: Math.random() * 2.5 + 0.5,
-                height: Math.random() * 2.5 + 0.5,
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-              }}
-              animate={{
-                opacity: [0.1, 0.9, 0.1],
-                scale: [1, 1.5, 1],
-              }}
-              transition={{
-                duration: Math.random() * 5 + 4,
-                repeat: Infinity,
-                delay: Math.random() * 3,
-                ease: "easeInOut",
-              }}
-            />
-          ))}
-        </div>
-
-        {/* Animated Nebula/Cloud Effects */}
-        <div className="absolute inset-0 overflow-hidden">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute rounded-full blur-3xl opacity-20"
-              style={{
-                width: `${200 + Math.random() * 300}px`,
-                height: `${200 + Math.random() * 300}px`,
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                background: i === 0 
-                  ? 'radial-gradient(circle, rgba(139, 92, 246, 0.3), transparent)'
-                  : i === 1
-                  ? 'radial-gradient(circle, rgba(59, 130, 246, 0.2), transparent)'
-                  : 'radial-gradient(circle, rgba(236, 72, 153, 0.2), transparent)',
-              }}
-              animate={{
-                x: [0, Math.random() * 200 - 100, 0],
-                y: [0, Math.random() * 200 - 100, 0],
-                scale: [1, 1.2, 1],
-              }}
-              transition={{
-                duration: Math.random() * 20 + 15,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: i * 2,
-              }}
-            />
-          ))}
-        </div>
-
-        {/* Enhanced Gradient Overlays */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/40 pointer-events-none" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/20 pointer-events-none" />
-        
-        {/* Subtle Grid Pattern */}
-        <div 
-          className="absolute inset-0 opacity-5 pointer-events-none"
-          style={{
-            backgroundImage: `
-              linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px)
-            `,
-            backgroundSize: '50px 50px',
-          }}
-        />
-
-        {/* Animated Light Rays */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <motion.div
-              key={`ray-${i}`}
-              className="absolute w-px h-full bg-gradient-to-b from-transparent via-primary/20 to-transparent"
-              style={{
-                left: `${20 + i * 25}%`,
-                transform: `rotate(${15 + i * 10}deg)`,
-                transformOrigin: 'top center',
-              }}
-              animate={{
-                opacity: [0.1, 0.3, 0.1],
-                scaleY: [0.8, 1.2, 0.8],
-              }}
-              transition={{
-                duration: 4 + i,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: i * 0.5,
-              }}
-            />
-          ))}
-        </div>
-
-        {/* Floating Particles */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {Array.from({ length: 15 }).map((_, i) => (
-            <motion.div
-              key={`particle-${i}`}
-              className="absolute w-1 h-1 rounded-full bg-primary/40"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-              }}
-              animate={{
-                y: [0, -30, 0],
-                x: [0, Math.random() * 20 - 10, 0],
-                opacity: [0.2, 0.6, 0.2],
-                scale: [1, 1.5, 1],
-              }}
-              transition={{
-                duration: 3 + Math.random() * 2,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: Math.random() * 2,
-              }}
-            />
-          ))}
-        </div>
-
-        {/* Agents Grid Container */}
-        <div className="relative z-10 flex flex-col h-full w-full p-6">
-          {/* Header */}
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="mb-4"
-          >
-            <h2 className="text-xl font-bold text-white mb-1">AI agents in action</h2>
-            <p className="text-xs text-gray-400">Experience our AI agents working in real-time</p>
-          </motion.div>
-
-          {/* Agents Grid - 2 rows x 3 columns */}
-          <div className="flex-1 grid grid-cols-3 grid-rows-2 gap-3 overflow-hidden">
-            {aiAgents.map((agent, index) => (
+      {/* Right Panel - modern pro UI: starry bg, orbit diagram, single widget in center */}
+      <div className="hidden lg:flex flex-1 min-w-0 min-h-0 relative overflow-hidden flex flex-col bg-[#0a0a0b]">
+        {/* Subtle animated starfield */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          {(() => {
+            const stars = Array.from({ length: 60 }, (_, i) => {
+              const seed = (i * 9301 + 49297) % 233280;
+              return { id: i, left: (seed % 100) / 100 * 100, top: ((seed * 31 % 233280) % 100) / 100 * 100, size: (seed % 2) + 1, delay: (seed % 3000) / 1000, duration: 2 + (seed % 2000) / 1000 };
+            });
+            return stars.map((s) => (
               <motion.div
-                key={agent.id}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.4, delay: index * 0.1 }}
-                className="relative flex flex-col bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl overflow-hidden hover:border-white/20 transition-all"
-              >
-                {/* Agent Header */}
-                <div className="flex items-center justify-between p-3 border-b border-white/10 bg-white/5">
-                  <div className="flex items-center gap-2">
-                    {/* Avatar */}
-                    <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${agent.color} flex items-center justify-center text-white font-bold text-sm shadow-lg`}>
-                      {agent.initial}
-                    </div>
-                    <div>
-                      <h3 className="text-xs font-semibold text-white leading-tight">{agent.name}</h3>
-                    </div>
-                  </div>
-                  {/* Status Badge */}
-                  <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-green-500/20 border border-green-500/30">
-                    <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                    <span className="text-[10px] font-medium text-green-400">Always Available</span>
-                  </div>
-                </div>
+                key={s.id}
+                className="absolute rounded-full bg-white"
+                style={{ left: `${s.left}%`, top: `${s.top}%`, width: s.size, height: s.size, minWidth: s.size, minHeight: s.size }}
+                animate={{ opacity: [0.2, 0.6, 0.2] }}
+                transition={{ duration: s.duration, repeat: Infinity, delay: s.delay, ease: "easeInOut" }}
+              />
+            ));
+          })()}
+        </div>
+        {/* Ambient glow */}
+        <div className="absolute inset-0 pointer-events-none">
+          <motion.div
+            className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full bg-violet-500/[0.06] blur-[140px]"
+            animate={{ opacity: [0.5, 0.9, 0.5] }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <motion.div
+            className="absolute bottom-1/3 right-1/4 w-[320px] h-[320px] rounded-full bg-primary/[0.06] blur-[100px]"
+            animate={{ opacity: [0.4, 0.8, 0.4] }}
+            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+          />
+        </div>
 
-                {/* Chat Messages */}
-                <div className="flex-1 overflow-y-auto p-3 space-y-2 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
-                  <AnimatePresence>
-                    {agent.messages.map((message, msgIndex) => {
-                      const messageKey = `${agent.id}-${msgIndex}`;
-                      const isVisible = visibleMessages[messageKey] !== undefined;
-                      
-                      return (
-                        <motion.div
-                          key={msgIndex}
-                          initial={{ opacity: 0, y: 15, scale: 0.9 }}
-                          animate={isVisible ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 15, scale: 0.9 }}
-                          exit={{ opacity: 0, scale: 0.85 }}
-                          transition={{ 
-                            duration: 0.5, 
-                            ease: [0.34, 1.56, 0.64, 1], // Bouncy ease
-                          }}
-                          className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
-                        >
-                          <motion.div
-                            initial={{ scale: 0.85 }}
-                            animate={isVisible ? { scale: 1 } : { scale: 0.85 }}
-                            transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
-                            className={`max-w-[85%] rounded-lg px-2.5 py-1.5 backdrop-blur-md ${
-                              message.role === "user"
-                                ? "bg-primary/50 border border-primary/60 text-white shadow-xl shadow-primary/30"
-                                : "bg-gray-700/70 border border-gray-600/50 text-gray-200 shadow-lg"
-                            }`}
-                          >
-                            <motion.p 
-                              initial={{ opacity: 0 }}
-                              animate={isVisible ? { opacity: 1 } : { opacity: 0 }}
-                              transition={{ duration: 0.4, delay: 0.15, ease: "easeOut" }}
-                              className="text-[10px] leading-relaxed whitespace-pre-wrap"
-                            >
-                              {isVisible ? message.content : ''}
-                            </motion.p>
-                            <motion.p 
-                              initial={{ opacity: 0, y: 2 }}
-                              animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 2 }}
-                              transition={{ duration: 0.3, delay: 0.25, ease: "easeOut" }}
-                              className="text-[9px] text-gray-400 mt-0.5"
-                            >
-                              {isVisible ? message.time : ''}
-                            </motion.p>
-                          </motion.div>
-                        </motion.div>
-                      );
-                    })}
-                  </AnimatePresence>
-                </div>
+        {/* Orbit diagram: dotted ring + nodes (refined, modern) */}
+        <div className="absolute inset-0 pointer-events-none flex items-center justify-center z-[1]">
+          <svg className="w-full h-full max-w-[min(100%,1600px)] max-h-[min(100%,1200px)]" viewBox="0 0 400 400" preserveAspectRatio="xMidYMid meet">
+            {/* Outer dotted ring - large orbit */}
+            <circle cx="200" cy="200" r="192" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="1" strokeDasharray="5 8" />
+            {/* Inner subtle ring */}
+            <circle cx="200" cy="200" r="176" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="1" />
+            {/* 6 orbit nodes */}
+            {[
+              { label: "Reports", angle: 0 },
+              { label: "Manage Leads", angle: 60 },
+              { label: "Customers", angle: 120 },
+              { label: "Sales", angle: 180 },
+              { label: "Automation", angle: 240 },
+              { label: "Marketing", angle: 300 },
+            ].map(({ label, angle }) => {
+              const rad = (angle * Math.PI) / 180;
+              const r = 192;
+              const x = 200 + r * Math.sin(rad);
+              const y = 200 - r * Math.cos(rad);
+              return (
+                <g key={label}>
+                  <circle cx={x} cy={y} r="14" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.2)" strokeWidth="1.2" />
+                  <text x={x} y={y + 4.5} textAnchor="middle" fill="rgba(255,255,255,0.65)" fontSize="8" fontWeight="600" letterSpacing="0.02em">{label}</text>
+                </g>
+              );
+            })}
+          </svg>
+        </div>
 
-                {/* Input Field */}
-                <div className="p-2 border-t border-white/10 bg-white/5">
-                  <div className="flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-lg px-2 py-1.5">
-                    <MessageCircle className="w-3 h-3 text-gray-400" />
-                    <input
-                      type="text"
-                      placeholder={`Ask ${agent.name.split(' ')[0]}...`}
-                      className="flex-1 bg-transparent border-0 text-[10px] text-white placeholder:text-gray-500 focus:outline-none focus:ring-0"
-                      readOnly
-                    />
-                    <Send className="w-3 h-3 text-gray-400" />
-                  </div>
-                </div>
-              </motion.div>
-            ))}
+        <div className="relative z-10 w-full flex-1 flex flex-col items-center justify-center min-h-0 px-6 py-8">
+          <div className="flex flex-col items-center w-full max-w-xl flex-1 min-h-0 justify-center">
+            <motion.div
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="flex items-center gap-2 mb-3 flex-shrink-0"
+            >
+              <span className="h-px w-8 bg-white/20 rounded-full" />
+              <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-white/50">Live demo</span>
+              <span className="h-px w-8 bg-white/20 rounded-full" />
+            </motion.div>
+            <motion.p
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.05 }}
+              className="text-center text-base font-semibold text-white/90 mb-5 flex-shrink-0"
+            >
+              AI agents in action
+            </motion.p>
+            <div className="w-full flex-1 flex flex-col items-center justify-center min-h-0 max-h-[540px]">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={SIGNIN_DEMO_WIDGETS[SIGNIN_WIDGET_ORDER[currentWidgetIndex]].id}
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.98 }}
+                  transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+                  className="w-full h-full min-h-[420px] max-h-[500px] rounded-2xl overflow-hidden border border-white/[0.08] bg-white/[0.03] shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_24px_48px_-12px_rgba(0,0,0,0.6)] backdrop-blur-xl"
+                >
+                  <SignInDemoChatWidget
+                    config={SIGNIN_DEMO_WIDGETS[SIGNIN_WIDGET_ORDER[currentWidgetIndex]]}
+                    compact
+                    loopDelayMs={7000}
+                  />
+                </motion.div>
+              </AnimatePresence>
+            </div>
+            {/* Refined step indicator */}
+            <div className="flex items-center gap-2 mt-5 flex-shrink-0">
+              {SIGNIN_WIDGET_ORDER.map((_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  aria-label={`Show agent ${i + 1}`}
+                  className={`rounded-full transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30 ${
+                    i === currentWidgetIndex ? "h-2 w-8 bg-white/90" : "h-2 w-2 bg-white/35 hover:bg-white/50"
+                  }`}
+                  onClick={() => setCurrentWidgetIndex(i)}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </div>
