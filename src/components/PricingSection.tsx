@@ -1,8 +1,30 @@
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Check, X, Sparkles, Zap, Crown } from "lucide-react";
+import { Check, X, Sparkles, Zap, Crown, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { paymentAPI, packageAPI, authAPI } from "@/lib/api";
+import { toast } from "sonner";
 
-const plans = [
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
+
+interface Package {
+  _id: string;
+  name: string;
+  description?: string;
+  price: number;
+  credits: number;
+  features?: string[];
+  duration?: number;
+  isActive?: boolean;
+}
+
+// Static plans as fallback
+const staticPlans = [
   {
     name: "Starter",
     icon: Zap,
@@ -24,6 +46,7 @@ const plans = [
     ],
     cta: "Start Free",
     highlighted: false,
+    packageId: null as string | null,
   },
   {
     name: "Standard",
@@ -46,6 +69,7 @@ const plans = [
     ],
     cta: "Upgrade Now",
     highlighted: true,
+    packageId: null as string | null,
   },
   {
     name: "Pro",
@@ -68,10 +92,139 @@ const plans = [
     ],
     cta: "Go Pro",
     highlighted: false,
+    packageId: null as string | null,
   },
 ];
 
 const PricingSection = () => {
+  const navigate = useNavigate();
+  const [packages, setPackages] = useState<Package[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [processing, setProcessing] = useState<string | null>(null);
+  const [plans, setPlans] = useState(staticPlans);
+
+  // Load Razorpay script
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    document.body.appendChild(script);
+
+    return () => {
+      if (document.body.contains(script)) {
+        document.body.removeChild(script);
+      }
+    };
+  }, []);
+
+  // Fetch packages from backend
+  useEffect(() => {
+    fetchPackages();
+  }, []);
+
+  const fetchPackages = async () => {
+    try {
+      setLoading(true);
+      const data = await packageAPI.getAll();
+      const packagesList = Array.isArray(data) ? data : (data.packages || []);
+      const validPackages = packagesList
+        .filter((pkg: Package) => pkg && pkg.isActive !== false && pkg._id && pkg.name && pkg.price !== undefined)
+        .sort((a: Package, b: Package) => a.price - b.price);
+      
+      setPackages(validPackages);
+      
+      // Map packages to plans (take first 3 packages or use static)
+      if (validPackages.length >= 3) {
+        const mappedPlans = validPackages.slice(0, 3).map((pkg, index) => ({
+          name: pkg.name,
+          icon: staticPlans[index]?.icon || Zap,
+          price: `₹${pkg.price}`,
+          period: pkg.duration ? `/${pkg.duration} days` : "/month",
+          description: pkg.description || staticPlans[index]?.description || "",
+          features: pkg.features?.map(f => ({ name: f, included: true })) || staticPlans[index]?.features || [],
+          cta: "Buy Now",
+          highlighted: index === 1, // Middle plan is highlighted
+          packageId: pkg._id,
+        }));
+        setPlans(mappedPlans);
+      }
+    } catch (error: any) {
+      console.error("Error fetching packages:", error);
+      // Keep static plans on error
+      setPlans(staticPlans);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePayment = async (packageId: string | null, planName: string) => {
+    if (!packageId) {
+      toast.info("This plan is not available for purchase. Please contact support.");
+      return;
+    }
+
+    // Check if user is authenticated
+    if (!authAPI.isAuthenticated()) {
+      toast.error("Please sign in to purchase a package");
+      navigate("/auth/sign-in", { state: { returnTo: `/payment?packageId=${packageId}` } });
+      return;
+    }
+
+    try {
+      setProcessing(packageId);
+      const orderData = await paymentAPI.createOrder(packageId);
+
+      if (!window.Razorpay) {
+        toast.error("Payment gateway not loaded. Please refresh the page.");
+        setProcessing(null);
+        return;
+      }
+
+      const options = {
+        key: orderData.keyId,
+        amount: orderData.amount,
+        currency: orderData.currency || "INR",
+        order_id: orderData.orderId,
+        name: "AEKO.AI",
+        description: `Purchase ${planName}`,
+        handler: async (response: any) => {
+          try {
+            await paymentAPI.verify({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            });
+            toast.success("Payment successful! Credits have been added to your wallet.");
+            setProcessing(null);
+            // Optionally navigate to dashboard
+            navigate("/dashboard");
+          } catch (error: any) {
+            toast.error(error.message || "Payment verification failed");
+            setProcessing(null);
+          }
+        },
+        prefill: {
+          name: authAPI.getCurrentUser()?.username || "",
+          email: authAPI.getCurrentUser()?.email || "",
+        },
+        theme: {
+          color: "#7c3aed",
+        },
+        modal: {
+          ondismiss: () => {
+            setProcessing(null);
+          },
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (error: any) {
+      toast.error(error.message || "Failed to initiate payment");
+      setProcessing(null);
+    }
+  };
+
   return (
     <section id="pricing" className="py-24 lg:py-32 relative overflow-hidden">
       {/* Background */}
@@ -177,8 +330,17 @@ const PricingSection = () => {
                   variant={plan.highlighted ? "hero" : "outline"}
                   className="w-full"
                   size="lg"
+                  onClick={() => handlePayment(plan.packageId || null, plan.name)}
+                  disabled={processing === plan.packageId || loading}
                 >
-                  {plan.cta}
+                  {processing === plan.packageId ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    plan.cta
+                  )}
                 </Button>
               </motion.div>
             );

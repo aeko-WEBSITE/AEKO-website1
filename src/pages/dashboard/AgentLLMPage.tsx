@@ -28,7 +28,7 @@ import {
   ArrowRight,
   Globe,
 } from "lucide-react";
-import { sarvamChatAPI, SARVAM_VOICE_WS_URL } from "@/lib/api";
+import { providerAPI, SARVAM_VOICE_WS_URL } from "@/lib/api";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
@@ -55,6 +55,15 @@ const availableAgents = [
   { id: "4", name: "Standard Agent" },
 ];
 
+interface ModelInfo {
+  name: string;
+  model: string;
+  modified_at?: string;
+  size?: string;
+  digest?: string;
+  details?: any;
+}
+
 const AgentLLMPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -63,6 +72,9 @@ const AgentLLMPage = () => {
   const [selectedContentType, setSelectedContentType] = useState("design");
   const [selectedAgent, setSelectedAgent] = useState<string>("4"); // Default to Standard
   const [agentMood, setAgentMood] = useState("Professional");
+  const [availableModels, setAvailableModels] = useState<ModelInfo[]>([]);
+  const [selectedModel, setSelectedModel] = useState<string>("");
+  const [loadingModels, setLoadingModels] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const voiceSocketRef = useRef<WebSocket | null>(null);
@@ -98,6 +110,79 @@ const AgentLLMPage = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isLoading]);
 
+  // Fetch available models on mount
+  useEffect(() => {
+    fetchModels();
+  }, []);
+
+  const fetchModels = async () => {
+    try {
+      setLoadingModels(true);
+      const data = await providerAPI.getModels();
+      // Handle different response formats
+      let models: ModelInfo[] = [];
+      
+      if (Array.isArray(data)) {
+        // Check if array contains objects or strings
+        if (data.length > 0 && typeof data[0] === 'object') {
+          // Array of model objects
+          models = data.map((item: any) => ({
+            name: item.name || item.model || 'Unknown',
+            model: item.model || item.name || '',
+            modified_at: item.modified_at,
+            size: item.size,
+            digest: item.digest,
+            details: item.details,
+          }));
+        } else {
+          // Array of strings
+          models = data.map((model: string) => ({
+            name: model,
+            model: model,
+          }));
+        }
+      } else if (data && typeof data === 'object') {
+        // If it's an object, try to extract models array
+        const modelsArray = (data as any).models || (data as any).data || Object.values(data);
+        if (Array.isArray(modelsArray)) {
+          if (modelsArray.length > 0 && typeof modelsArray[0] === 'object') {
+            models = modelsArray.map((item: any) => ({
+              name: item.name || item.model || 'Unknown',
+              model: item.model || item.name || '',
+              modified_at: item.modified_at,
+              size: item.size,
+              digest: item.digest,
+              details: item.details,
+            }));
+          } else {
+            models = modelsArray.map((model: string) => ({
+              name: model,
+              model: model,
+            }));
+          }
+        }
+      }
+      
+      setAvailableModels(models);
+      // Set default model if available
+      if (models.length > 0 && !selectedModel) {
+        setSelectedModel(models[0].model);
+      }
+    } catch (error: any) {
+      console.error("Error fetching models:", error);
+      toast.error(error.message || "Failed to load available models");
+      // Set a default fallback model
+      const fallbackModel: ModelInfo = {
+        name: "gpt-oss:120b",
+        model: "gpt-oss:120b",
+      };
+      setAvailableModels([fallbackModel]);
+      setSelectedModel("gpt-oss:120b");
+    } finally {
+      setLoadingModels(false);
+    }
+  };
+
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
 
@@ -115,30 +200,61 @@ const AgentLLMPage = () => {
 
     try {
       const startTime = Date.now();
-      const conversationHistory = [
-        ...messages.map((m) => ({ role: m.role, content: m.content })),
-        { role: "user" as const, content: currentInput },
-      ];
-      const reply = await sarvamChatAPI.chat(conversationHistory);
+      
+      // Convert conversation history to a prompt string
+      // Include previous messages for context
+      let prompt = currentInput;
+      if (messages.length > 0) {
+        const conversationContext = messages
+          .map((m) => `${m.role === "user" ? "User" : "Assistant"}: ${m.content}`)
+          .join("\n\n");
+        prompt = `${conversationContext}\n\nUser: ${currentInput}\n\nAssistant:`;
+      }
+
+      // Use the providerAPI with the selected model
+      const modelToUse = selectedModel || availableModels[0]?.model || "gpt-oss:120b";
+      // Ensure model is a string
+      const modelString = typeof modelToUse === 'string' ? modelToUse : (modelToUse as any)?.model || "gpt-oss:120b";
+      const response = await providerAPI.chatCompletion({
+        prompt: prompt,
+        model: modelString,
+      });
+
+      // Handle response - it can be a string or JSON object
+      let reply: string;
+      if (typeof response === "string") {
+        reply = response;
+      } else if (response && typeof response === "object") {
+        // If it's JSON, try to extract the text from common response formats
+        reply = (response as any).text || 
+                (response as any).content || 
+                (response as any).message || 
+                JSON.stringify(response);
+      } else {
+        reply = "I'm sorry, I couldn't generate a response.";
+      }
+
       const responseTime = ((Date.now() - startTime) / 1000).toFixed(1);
 
       const assistantMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: reply || "I'm sorry, I couldn't generate a response.",
+        content: reply.trim(),
         timestamp: new Date(),
         responseTime: `${responseTime}s`,
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (error: any) {
+      console.error("Chat error:", error);
       const errorMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: `Error: ${error.message || "Failed to get response."}`,
+        content: `Error: ${error.message || "Failed to get response. Please check if the API server is running and VITE_APIMODULE_URL is configured. Make sure models are available via /v1/provider/list."}`,
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMessage]);
+      toast.error(error.message || "Failed to get response");
     } finally {
       setIsLoading(false);
     }
@@ -321,6 +437,23 @@ const AgentLLMPage = () => {
                 </div>
               </div>
               <div className="flex items-center gap-2">
+                {availableModels.length > 0 && (
+                  <div className="relative group">
+                    <select
+                      value={selectedModel}
+                      onChange={(e) => setSelectedModel(e.target.value)}
+                      disabled={loadingModels}
+                      className="appearance-none bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 text-xs font-medium px-4 py-2 pr-8 rounded-lg border border-gray-200 dark:border-white/5 focus:outline-none cursor-pointer hover:bg-gray-200 dark:hover:bg-white/10 transition-colors duration-300"
+                    >
+                      {availableModels.map((modelInfo, index) => (
+                        <option key={`${modelInfo.model}-${index}`} value={modelInfo.model}>
+                          {modelInfo.name}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-500 dark:text-gray-400 pointer-events-none transition-colors duration-300" />
+                  </div>
+                )}
                 <button className="px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 text-sm transition-colors border border-gray-200 dark:border-white/5 flex items-center gap-2">
                   <Bot className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
                   <span className="font-medium">
@@ -376,7 +509,7 @@ const AgentLLMPage = () => {
                     {message.role === "assistant" && (
                       <div className="flex-shrink-0 mt-1">
                         <div className="w-9 h-9 rounded-full overflow-hidden bg-gradient-to-tr from-gray-100 to-gray-200 dark:from-[#1a1b26] dark:to-[#242636] border border-gray-300 dark:border-white/10 flex items-center justify-center shadow-lg transition-colors duration-300">
-                          <img src={logo} alt="AI" className="w-full h-full object-cover object-center scale-[1.65]" />
+                          <img src="/logo.png" alt="AI" className="w-full h-full object-cover object-center scale-[1.65]" />
                         </div>
                       </div>
                     )}
@@ -400,7 +533,7 @@ const AgentLLMPage = () => {
                 {isLoading && (
                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-4">
                         <div className="w-9 h-9 rounded-lg overflow-hidden bg-white dark:bg-white/95 shadow-md ring-2 ring-black/10 dark:ring-white/20 flex items-center justify-center transition-colors duration-300 p-1">
-                          <img src={logo} alt="AI" className="w-full h-full object-contain object-center" />
+                          <img src="/logo.png" alt="AI" className="w-full h-full object-contain object-center" />
                      </div>
                      <div className="flex items-center gap-1.5 px-1 h-9">
                         <div className="w-1.5 h-1.5 bg-purple-600 dark:bg-purple-500 rounded-full animate-bounce transition-colors duration-300" />

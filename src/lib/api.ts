@@ -776,8 +776,8 @@ export const moduleAPI = {
         }
       }
 
-      // Accept both 200 and 201 status codes
-      if (!response.ok && response.status !== 201) {
+      // Accept both 200 and 201 status codes (response.ok is true for 200-299, including 201)
+      if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(
           Array.isArray(errorData.message) 
@@ -863,8 +863,8 @@ export const moduleAPI = {
         }
       }
 
-      // Accept both 200 and 201 status codes
-      if (!response.ok && response.status !== 201) {
+      // Accept both 200 and 201 status codes (response.ok is true for 200-299, including 201)
+      if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(
           Array.isArray(errorData.message) 
@@ -2428,6 +2428,148 @@ export const paymentAPI = {
 
       return response.json();
     } catch (error: any) {
+      if (error?.name === 'TypeError' && error?.message?.includes('fetch')) {
+        throw new Error('Cannot connect to backend. Make sure the backend server is running.');
+      }
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error(error?.message || error?.toString() || 'An unexpected error occurred');
+    }
+  },
+};
+
+// Provider API Base URL - Using Liquidata demo server
+const PROVIDER_API_BASE_URL = 'https://demo.liquidata.dev';
+
+// Provider API - For model listing and chat completions
+export const providerAPI = {
+  /**
+   * Get all available models on cloud
+   * GET /v1/provider/list
+   * @returns Promise with list of available models
+   */
+  getModels: async () => {
+    try {
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+        'Accept': '*/*',
+      };
+
+      let response = await fetch(`${PROVIDER_API_BASE_URL}/v1/provider/list`, {
+        method: 'GET',
+        headers,
+        mode: 'cors',
+        credentials: 'omit',
+      });
+
+      // If 401, try with authentication
+      if (response.status === 401) {
+        const token = getAuthToken();
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+          response = await fetch(`${PROVIDER_API_BASE_URL}/v1/provider/list`, {
+            method: 'GET',
+            headers,
+            mode: 'cors',
+            credentials: 'omit',
+          });
+        }
+      }
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          Array.isArray(errorData.message) 
+            ? errorData.message.join(', ') 
+            : errorData.message || errorData.error || `Server error: ${response.status}`
+        );
+      }
+
+      return response.json();
+    } catch (error: any) {
+      if (error?.name === 'TypeError' && (error?.message?.includes('fetch') || error?.message?.includes('CORS'))) {
+        throw new Error('CORS error: Cannot connect to API. The API server may not allow cross-origin requests from this domain.');
+      }
+      if (error?.name === 'TypeError' && error?.message?.includes('fetch')) {
+        throw new Error('Cannot connect to backend. Make sure the backend server is running.');
+      }
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error(error?.message || error?.toString() || 'An unexpected error occurred');
+    }
+  },
+
+  /**
+   * Get chat completion from a model
+   * POST /v1/provider/chatcompletion
+   * @param data - Request payload with prompt and model
+   * @returns Promise with chat completion response
+   */
+  chatCompletion: async (data: {
+    prompt: string;
+    model: string;
+  }) => {
+    try {
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+        'Accept': '*/*',
+      };
+
+      let response = await fetch(`${PROVIDER_API_BASE_URL}/v1/provider/chatcompletion`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          prompt: data.prompt,
+          model: data.model,
+        }),
+        mode: 'cors',
+        credentials: 'omit',
+      });
+
+      // If 401, try with authentication
+      if (response.status === 401) {
+        const token = getAuthToken();
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+          response = await fetch(`${PROVIDER_API_BASE_URL}/v1/provider/chatcompletion`, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({
+              prompt: data.prompt,
+              model: data.model,
+            }),
+            mode: 'cors',
+            credentials: 'omit',
+          });
+        }
+      }
+
+      // Accept both 200 and 201 status codes
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          Array.isArray(errorData.message) 
+            ? errorData.message.join(', ') 
+            : errorData.message || errorData.error || `Server error: ${response.status}`
+        );
+      }
+
+      // Check content type - API might return text/plain or JSON
+      const contentType = response.headers.get('content-type') || '';
+      
+      if (contentType.includes('application/json')) {
+        return response.json();
+      } else {
+        // Plain text response - return as string
+        const text = await response.text();
+        return text;
+      }
+    } catch (error: any) {
+      if (error?.name === 'TypeError' && (error?.message?.includes('fetch') || error?.message?.includes('CORS'))) {
+        throw new Error('CORS error: Cannot connect to API. The API server may not allow cross-origin requests from this domain.');
+      }
       if (error?.name === 'TypeError' && error?.message?.includes('fetch')) {
         throw new Error('Cannot connect to backend. Make sure the backend server is running.');
       }
