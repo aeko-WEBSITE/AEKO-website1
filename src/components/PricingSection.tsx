@@ -16,98 +16,57 @@ interface Package {
   _id: string;
   name: string;
   description?: string;
-  price: number;
-  credits: number;
-  features?: string[];
-  duration?: number;
+  includedCredits: number;
+  actualPrice?: number;
+  currentPrice: number;
+  offer?: string | null;
   isActive?: boolean;
+  sortOrder?: number;
 }
 
-// Static plans as fallback
-const staticPlans = [
-  {
-    name: "Starter",
-    icon: Zap,
-    price: "$12",
-    period: "/month",
-    description: "Perfect for getting started",
-    features: [
-      { name: "400 AI Credits", included: true },
-      { name: "GPT-3.5 Access", included: true },
-      { name: "10,000 LLM Questions/mo", included: true },
-      { name: "15 File Uploads/day", included: true },
-      { name: "Standard Image Quality", included: true },
-      { name: "Basic Video Generation", included: true },
-      { name: "1 Basic Chatbot", included: true },
-      { name: "Standard Speed", included: true },
-      { name: "Basic Integrations", included: true },
-      { name: "Rate Limit: 5/min", included: true },
-      { name: "No Watermark", included: true },
-    ],
-    cta: "Start Free",
-    highlighted: false,
-    packageId: null as string | null,
-  },
-  {
-    name: "Standard",
-    icon: Sparkles,
-    price: "$45",
-    period: "/month",
-    description: "For creators who need more power",
-    features: [
-      { name: "4,999 AI Credits", included: true },
-      { name: "GPT-4.1+ Access", included: true },
-      { name: "100,000 LLM Questions/mo", included: true },
-      { name: "15+ File Uploads/day", included: true },
-      { name: "Advanced Image Models", included: true },
-      { name: "All Video Models", included: true },
-      { name: "Custom Chatbot", included: true },
-      { name: "Faster Speed", included: true },
-      { name: "API Access", included: true },
-      { name: "Rate Limit: 10/min", included: true },
-      { name: "No Watermark", included: true },
-    ],
-    cta: "Upgrade Now",
-    highlighted: true,
-    packageId: null as string | null,
-  },
-  {
-    name: "Pro",
-    icon: Crown,
-    price: "$149",
-    period: "/month",
-    description: "Unlimited power for teams",
-    features: [
-      { name: "Unlimited Low-Res + 80 HD Images", included: true },
-      { name: "Multiple GPTs + Other LLMs", included: true },
-      { name: "Unlimited LLM (Fair Use)", included: true },
-      { name: "Configurable Uploads", included: true },
-      { name: "Unlimited Low-Res Images", included: true },
-      { name: "Unlimited Low-Quality Video", included: true },
-      { name: "Multiple Chatbots", included: true },
-      { name: "Priority Speed", included: true },
-      { name: "Advanced Integrations", included: true },
-      { name: "Rate Limit: 20/min", included: true },
-      { name: "No Watermark", included: true },
-    ],
-    cta: "Go Pro",
-    highlighted: false,
-    packageId: null as string | null,
-  },
-];
-
+/**
+ * PricingSection Component
+ * 
+ * IMPORTANT: This component ONLY displays packages fetched from the backend API.
+ * NO static packages or hardcoded pricing plans are used.
+ * 
+ * Data Flow:
+ * 1. Fetches packages from GET /api/packages (public endpoint)
+ * 2. Filters for isActive = true packages
+ * 3. Sorts by sortOrder (ascending)
+ * 4. Displays packages with offer badges, prices, and credits
+ * 5. Handles Razorpay payment flow when user clicks "Buy Now"
+ */
 const PricingSection = () => {
   const navigate = useNavigate();
   const [packages, setPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(false);
   const [processing, setProcessing] = useState<string | null>(null);
-  const [plans, setPlans] = useState(staticPlans);
+  const [plans, setPlans] = useState<any[]>([]);
+  const [razorpayLoaded, setRazorpayLoaded] = useState(false);
 
   // Load Razorpay script
   useEffect(() => {
+    // Check if Razorpay is already loaded
+    if (window.Razorpay) {
+      setRazorpayLoaded(true);
+      return;
+    }
+
     const script = document.createElement("script");
     script.src = "https://checkout.razorpay.com/v1/checkout.js";
     script.async = true;
+    
+    script.onload = () => {
+      console.log("Razorpay script loaded successfully");
+      setRazorpayLoaded(true);
+    };
+    
+    script.onerror = () => {
+      console.error("Failed to load Razorpay script");
+      toast.error("Failed to load payment gateway. Please refresh the page.");
+    };
+    
     document.body.appendChild(script);
 
     return () => {
@@ -125,90 +84,114 @@ const PricingSection = () => {
   const fetchPackages = async () => {
     try {
       setLoading(true);
-      console.log("Fetching packages...");
-      const data = await packageAPI.getAll();
-      console.log("Packages API response:", data);
       
-      // Handle different response formats
+      // Fetch packages from backend API - ONLY dynamic backend data, NO static packages
+      console.log("🔄 Fetching packages from backend API...");
+      const data = await packageAPI.getAll();
+      console.log("✅ Packages API response:", data);
+      
+      // Handle response - API should return array of packages (GET /api/packages)
       let packagesList: Package[] = [];
       if (Array.isArray(data)) {
         packagesList = data;
+        console.log(`📦 Received ${packagesList.length} packages from API`);
       } else if (data && typeof data === 'object') {
-        packagesList = (data as any).packages || (data as any).data || [];
-        // If it's an object with package properties directly
+        // Handle wrapped responses (if backend wraps in object)
+        packagesList = (data as any).packages || (data as any).data || (data as any).items || [];
+        // Single package object
         if (!Array.isArray(packagesList) && (data as any)._id) {
           packagesList = [data as Package];
         }
+        console.log(`📦 Extracted ${packagesList.length} packages from wrapped response`);
+      } else {
+        console.warn("⚠️ Unexpected response format from API:", typeof data);
       }
       
-      console.log("Parsed packages list:", packagesList);
-      
+      // Filter and validate packages from backend (only show isActive = true)
       const validPackages = packagesList
         .filter((pkg: any) => {
           const isValid = pkg && 
-                         pkg.isActive !== false && 
-                         pkg._id && 
-                         pkg.name && 
-                         (pkg.price !== undefined && pkg.price !== null);
+                 pkg._id && 
+                 pkg.name && 
+                 typeof pkg.currentPrice === 'number' && pkg.currentPrice >= 0 &&
+                 typeof pkg.includedCredits === 'number' && pkg.includedCredits >= 1 &&
+                 (pkg.isActive === undefined || pkg.isActive === true);
+          
           if (!isValid) {
-            console.log("Filtered out invalid package:", pkg);
+            console.warn("❌ Filtered out invalid package:", {
+              _id: pkg?._id,
+              name: pkg?.name,
+              isActive: pkg?.isActive,
+              currentPrice: pkg?.currentPrice,
+              includedCredits: pkg?.includedCredits,
+            });
           }
           return isValid;
         })
-        .sort((a: Package, b: Package) => a.price - b.price);
+        .sort((a: Package, b: Package) => {
+          // Sort by sortOrder (ascending) as per API spec, then by price
+          if (a.sortOrder !== undefined && b.sortOrder !== undefined) {
+            return a.sortOrder - b.sortOrder;
+          }
+          if (a.sortOrder !== undefined) return -1;
+          if (b.sortOrder !== undefined) return 1;
+          return (a.currentPrice || 0) - (b.currentPrice || 0);
+        });
       
-      console.log("Valid packages:", validPackages);
+      console.log(`✅ Valid packages after filtering: ${validPackages.length}`);
       setPackages(validPackages);
       
-      // Map packages to plans (use available packages, fill with static if needed)
+      // Map backend packages to display format - NO static fallback
       if (validPackages.length > 0) {
-        const mappedPlans = validPackages.slice(0, 3).map((pkg, index) => ({
-          name: pkg.name,
-          icon: staticPlans[index]?.icon || Zap,
-          price: `₹${pkg.price}`,
-          period: pkg.duration ? `/${pkg.duration} days` : "/month",
-          description: pkg.description || staticPlans[index]?.description || "",
-          features: (pkg.features && Array.isArray(pkg.features) && pkg.features.length > 0) 
-            ? pkg.features.map((f: string) => ({ name: f, included: true })) 
-            : staticPlans[index]?.features || [],
-          cta: "Buy Now",
-          highlighted: index === 1 && validPackages.length >= 2, // Middle plan is highlighted if we have at least 2
-          packageId: pkg._id,
-        }));
+        const mappedPlans = validPackages.map((pkg, index) => {
+          const creditsFormatted = pkg.includedCredits.toLocaleString('en-IN');
+          
+          // Choose icon based on index
+          let icon = Zap;
+          if (index === 1 || pkg.name.toLowerCase().includes('standard') || pkg.name.toLowerCase().includes('pro')) {
+            icon = Sparkles;
+          }
+          if (index === 2 || pkg.name.toLowerCase().includes('pro') || pkg.name.toLowerCase().includes('premium')) {
+            icon = Crown;
+          }
+          
+          return {
+            name: pkg.name,
+            icon: icon,
+            price: `₹${pkg.currentPrice.toLocaleString('en-IN')}`,
+            actualPrice: pkg.actualPrice,
+            currentPrice: pkg.currentPrice,
+            period: "/one-time",
+            description: pkg.description || `Get ${creditsFormatted} credits for your AI needs`,
+            credits: creditsFormatted,
+            offer: pkg.offer, // Show offer badge if offer field exists
+            features: [
+              { name: `${creditsFormatted} Credits`, included: true },
+              { name: "Instant Credit Addition", included: true },
+              { name: "No Expiry", included: true },
+              { name: "24/7 Support", included: true },
+            ],
+            cta: "Buy Now",
+            highlighted: index === Math.floor(validPackages.length / 2),
+            packageId: pkg._id, // Required for payment
+          };
+        });
         
-        // Fill remaining slots with static plans if we have less than 3 packages
-        while (mappedPlans.length < 3) {
-          const staticIndex = mappedPlans.length;
-          mappedPlans.push({
-            ...staticPlans[staticIndex],
-            cta: "Coming Soon",
-            packageId: null,
-          });
-        }
-        
-        console.log("Mapped plans:", mappedPlans);
+        console.log(`✅ Mapped ${mappedPlans.length} plans for display`);
         setPlans(mappedPlans);
       } else {
-        // No packages available, use static plans but navigate to pricing page
-        console.log("No valid packages found, using static plans");
-        setPlans(staticPlans.map(plan => ({
-          ...plan,
-          cta: plan.cta === "Start Free" ? "Start Free" : "View Pricing",
-        })));
+        console.warn("⚠️ No valid packages to display");
+        setPlans([]);
+        if (packagesList.length > 0) {
+          toast.error("Packages found but none are valid. Please check package configuration.");
+        } else {
+          console.log("ℹ️ No packages returned from API. Make sure packages exist in backend with isActive = true");
+        }
       }
     } catch (error: any) {
-      console.error("Error fetching packages:", error);
-      console.error("Error details:", {
-        message: error.message,
-        stack: error.stack,
-        name: error.name,
-      });
-      // Keep static plans on error, but allow navigation to pricing page
-      setPlans(staticPlans.map(plan => ({
-        ...plan,
-        cta: plan.cta === "Start Free" ? "Start Free" : "View Pricing",
-      })));
-      // Don't show error toast here as it might be expected (no packages configured yet)
+      console.error("❌ Error fetching packages:", error);
+      setPlans([]);
+      toast.error(`Failed to load packages: ${error.message || 'Unknown error'}`);
     } finally {
       setLoading(false);
     }
@@ -240,19 +223,35 @@ const PricingSection = () => {
         return;
       }
 
-      if (!window.Razorpay) {
-        toast.error("Payment gateway not loaded. Please refresh the page.");
+      // Check if Razorpay is loaded
+      if (!window.Razorpay || !razorpayLoaded) {
+        toast.error("Payment gateway is still loading. Please wait a moment and try again.");
         setProcessing(null);
         return;
       }
 
+      // Use Razorpay key from backend response, with fallback
+      const razorpayKey = orderData.keyId || "rzp_live_SHVupFMQeg2X3E=4glMkH0SBzhBi3u0VsvcxB5K";
+      
+      if (!razorpayKey) {
+        toast.error("Payment gateway key not configured. Please contact support.");
+        setProcessing(null);
+        return;
+      }
+      
+      console.log("Using Razorpay key:", razorpayKey.substring(0, 10) + "...");
+      
+      // Get current user info for prefill
+      const currentUser = authAPI.getCurrentUser();
+      
       const options = {
-        key: orderData.keyId,
+        key: razorpayKey,
         amount: orderData.amount,
         currency: orderData.currency || "INR",
         order_id: orderData.orderId,
         name: "AEKO.AI",
         description: `Purchase ${planName}`,
+        image: "/logo.png", // Optional: Add your logo
         handler: async (response: any) => {
           try {
             console.log("Payment response:", response);
@@ -274,8 +273,13 @@ const PricingSection = () => {
           }
         },
         prefill: {
-          name: authAPI.getCurrentUser()?.username || authAPI.getCurrentUser()?.name || "",
-          email: authAPI.getCurrentUser()?.email || "",
+          name: currentUser?.username || currentUser?.name || "",
+          email: currentUser?.email || "",
+          contact: currentUser?.phone || "",
+        },
+        notes: {
+          packageId: packageId,
+          packageName: planName,
         },
         theme: {
           color: "#7c3aed",
@@ -331,12 +335,36 @@ const PricingSection = () => {
         </motion.div>
 
         {/* Pricing Cards */}
-        <div className="grid md:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto">
-          {plans.map((plan, index) => {
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
+            <p className="text-sm text-muted-foreground">Loading packages...</p>
+          </div>
+        ) : plans.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-lg text-muted-foreground mb-2">
+              No packages available at the moment.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Please check back later or contact support.
+            </p>
+            {packages.length > 0 && (
+              <p className="text-xs text-muted-foreground mt-2">
+                Note: {packages.length} package(s) found but filtered out due to validation.
+              </p>
+            )}
+          </div>
+        ) : (
+          <div className={`grid gap-6 lg:gap-8 max-w-6xl mx-auto ${
+            plans.length === 1 ? 'grid-cols-1 max-w-md' :
+            plans.length === 2 ? 'grid-cols-1 md:grid-cols-2' :
+            'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+          }`}>
+            {plans.map((plan, index) => {
             const Icon = plan.icon;
             return (
               <motion.div
-                key={plan.name}
+                key={plan.packageId || `plan-${index}`}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -371,12 +399,34 @@ const PricingSection = () => {
                   </h3>
                 </div>
 
+                {/* Offer Badge */}
+                {plan.offer && (
+                  <div className="mb-3">
+                    <span className="inline-flex items-center gap-1 px-3 py-1 text-xs font-semibold bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full">
+                      <Sparkles className="w-3 h-3" />
+                      {plan.offer}
+                    </span>
+                  </div>
+                )}
+
                 {/* Price */}
                 <div className="mb-4">
-                  <span className="text-4xl font-bold text-foreground">
-                    {plan.price}
-                  </span>
-                  <span className="text-muted-foreground">{plan.period}</span>
+                  <div className="flex items-baseline gap-2 flex-wrap">
+                    {plan.actualPrice && plan.actualPrice > plan.currentPrice && (
+                      <span className="text-xl font-medium text-muted-foreground line-through">
+                        ₹{plan.actualPrice.toLocaleString('en-IN')}
+                      </span>
+                    )}
+                    <span className="text-4xl font-bold text-foreground">
+                      {plan.price}
+                    </span>
+                    <span className="text-muted-foreground">{plan.period}</span>
+                  </div>
+                  {plan.credits && (
+                    <div className="mt-2 text-sm text-muted-foreground">
+                      <span className="font-semibold text-foreground">{plan.credits}</span> Credits Included
+                    </div>
+                  )}
                 </div>
 
                 {/* Description */}
@@ -411,16 +461,21 @@ const PricingSection = () => {
                     if (plan.packageId) {
                       handlePayment(plan.packageId, plan.name);
                     } else {
-                      // For static plans or plans without packageId, navigate to pricing page
-                      navigate("/pricing");
+                      toast.error("Package not available");
                     }
                   }}
-                  disabled={processing === plan.packageId || loading}
+                  disabled={processing === plan.packageId || loading || !razorpayLoaded}
+                  title={!razorpayLoaded ? "Payment gateway is loading..." : ""}
                 >
                   {processing === plan.packageId ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                       Processing...
+                    </>
+                  ) : !razorpayLoaded ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Loading...
                     </>
                   ) : (
                     plan.cta
@@ -429,18 +484,21 @@ const PricingSection = () => {
               </motion.div>
             );
           })}
-        </div>
+          </div>
+        )}
 
         {/* Bottom note */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.5 }}
-          className="text-center text-sm text-muted-foreground mt-8"
-        >
-          All plans include a 7-day free trial. No credit card required.
-        </motion.p>
+        {plans.length > 0 && (
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.5 }}
+            className="text-center text-sm text-muted-foreground mt-8"
+          >
+            Credits never expire. Secure payment via Razorpay.
+          </motion.p>
+        )}
       </div>
     </section>
   );

@@ -1,33 +1,23 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Check, Sparkles, Shield, Zap, HeadphonesIcon, Edit, Trash2, Loader2 } from "lucide-react";
+import { motion } from "framer-motion";
+import { Check, Sparkles, Shield, Zap, HeadphonesIcon, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Link, useNavigate } from "react-router-dom";
-import { packageAPI, paymentAPI, adminAPI, authAPI } from "@/lib/api";
+import { packageAPI, paymentAPI, authAPI, isPaymentBackendMisconfigured } from "@/lib/api";
 import { toast } from "sonner";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 
 interface Package {
   _id: string;
   name: string;
   description?: string;
-  price: number;
-  credits: number;
-  features?: string[];
-  duration?: number;
+  includedCredits: number;
+  actualPrice?: number;
+  currentPrice: number;
+  offer?: string | null;
   isActive?: boolean;
+  sortOrder?: number;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -57,99 +47,60 @@ const enterpriseFeatures = [
   "Dedicated S3 storage",
 ];
 
-const sharedProFeatures = [
-  "All-in-one multi-model support",
-  "Text/Image/Video to video",
-  "AI avatar generator",
-  "AI short video generator",
-  "Reference to video",
-  "AI animation generator",
-  "Text/Image/Chat to image",
-  "300+ templates & effects",
-];
-
-// Static pricing data (fallback when no packages available)
-const PRICE_OPTIONS = [9, 19, 40, 80, 129] as const;
-const TIER_LABELS: Record<number, string> = {
-  9: "Starter",
-  19: "Growth",
-  40: "Pro",
-  80: "Business",
-  129: "Elite",
-};
-
-const pricingPlans: Record<
-  number,
-  { agents: number; tokens: string; images: number; videos?: number; parallelTasks?: number }
-> = {
-  9: { agents: 2, tokens: "9M", images: 5, videos: 5, parallelTasks: 1 },
-  19: { agents: 3, tokens: "20M", images: 10, videos: 10, parallelTasks: 2 },
-  40: { agents: 4, tokens: "44M", images: 15, videos: 15, parallelTasks: 3 },
-  80: { agents: 7, tokens: "95M", images: 20, videos: 20, parallelTasks: 5 },
-  129: { agents: 10, tokens: "160M", images: 25, videos: 25, parallelTasks: 10 },
-};
-
-const tierFeatureOverrides: Partial<Record<number, string[]>> = {
-  9: [
-    "Custom AI Agents with image tool integration",
-    "Access to integrate any 1 tool",
-    "9M Token Pool",
-    "LLM model option: GPT.nano",
-    "5 parallel generation",
-    "AI avatar generator",
-    "Experience high quality generation",
-    "AI short video generator",
-    "Add Team Members",
-    "24/7 standard support",
-    "99.9% uptime",
-    "No watermark",
-    "100+ templates & effects",
-  ],
-  19: [
-    "3 Custom AI Agents with image tool integration",
-    "20M Token Pool (get 5% extra)",
-    "Access to integrate any 2 tools",
-    "LLM model option: Sarvam, GPT.nano, GPT mini",
-    "10 parallel generation",
-    "All-in-one multi-model support",
-    "Experience high quality image generation",
-    "Experience high quality video generation",
-    "Add Team Members",
-    "24/7 standard support",
-    "99.9% uptime",
-    "No watermark",
-  ],
-};
-
+/**
+ * PricingPage Component
+ * 
+ * IMPORTANT: This component ONLY displays packages fetched from the backend API.
+ * NO static packages or hardcoded pricing plans are used.
+ * 
+ * Data Flow:
+ * 1. Fetches packages from GET /api/packages (public endpoint)
+ * 2. Filters for isActive = true packages
+ * 3. Sorts by sortOrder (ascending)
+ * 4. Displays packages with offer badges, prices, and credits
+ * 5. Handles Razorpay payment flow when user clicks "Buy Now"
+ */
 const PricingPage = () => {
   const navigate = useNavigate();
   const [packages, setPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editingPackage, setEditingPackage] = useState<Package | null>(null);
-  const [sliderIndex, setSliderIndex] = useState(0);
   const [billingPeriod, setBillingPeriod] = useState<"monthly" | "yearly">("monthly");
-  const [useStaticPricing, setUseStaticPricing] = useState(false);
+  const [processing, setProcessing] = useState<string | null>(null);
+  const [razorpayLoaded, setRazorpayLoaded] = useState(false);
 
-  // Form state
-  const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    price: "",
-    credits: "",
-    features: "",
-    duration: "",
-    isActive: true,
-  });
 
-  // Check if user is admin
+  // Load Razorpay script
   useEffect(() => {
-    const adminToken = localStorage.getItem("adminAccessToken");
-    setIsAdmin(!!adminToken);
+    if (window.Razorpay) {
+      setRazorpayLoaded(true);
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    
+    script.onload = () => {
+      console.log("Razorpay script loaded successfully");
+      setRazorpayLoaded(true);
+    };
+    
+    script.onerror = () => {
+      console.error("Failed to load Razorpay script");
+      toast.error("Failed to load payment gateway. Please refresh the page.");
+    };
+    
+    document.body.appendChild(script);
+
+    return () => {
+      if (document.body.contains(script)) {
+        document.body.removeChild(script);
+      }
+    };
   }, []);
 
-  // Fetch packages
+
+  // Fetch packages from backend
   useEffect(() => {
     fetchPackages();
   }, []);
@@ -157,130 +108,205 @@ const PricingPage = () => {
   const fetchPackages = async () => {
     try {
       setLoading(true);
-      const data = await packageAPI.getAll();
-      // Handle both array and object with packages property
-      const packagesList = Array.isArray(data) ? data : (data.packages || []);
-      // Filter active packages and ensure they have required fields
-      const validPackages = packagesList
-        .filter((pkg: Package) => pkg && pkg.isActive !== false && pkg._id && pkg.name && pkg.price !== undefined && pkg.credits !== undefined)
-        .map((pkg: Package) => ({
-          ...pkg,
-          credits: pkg.credits || 0,
-          price: pkg.price || 0,
-          features: pkg.features || [],
-        }))
-        .sort((a: Package, b: Package) => a.price - b.price); // Sort by price
-      setPackages(validPackages);
-      setUseStaticPricing(validPackages.length === 0);
+      console.log("🔄 Fetching packages from backend API...");
       
-      // Reset slider if packages changed
-      if (validPackages.length > 0 && sliderIndex >= validPackages.length) {
-        setSliderIndex(0);
+      // Fetch packages from backend API - ONLY dynamic backend data, NO static packages
+      const data = await packageAPI.getAll();
+      console.log("✅ Packages API response:", data);
+      
+      // Handle response - API should return array of packages
+      let packagesList: Package[] = [];
+      if (Array.isArray(data)) {
+        packagesList = data;
+      } else if (data && typeof data === 'object') {
+        packagesList = (data as any).packages || (data as any).data || (data as any).items || [];
+        if (!Array.isArray(packagesList) && (data as any)._id) {
+          packagesList = [data as Package];
+        }
       }
+      
+      // Filter and validate packages from backend (only show isActive = true)
+      const validPackages = packagesList
+        .filter((pkg: any) => {
+          return pkg && 
+                 pkg._id && 
+                 pkg.name && 
+                 typeof pkg.currentPrice === 'number' && pkg.currentPrice >= 0 &&
+                 typeof pkg.includedCredits === 'number' && pkg.includedCredits >= 1 &&
+                 (pkg.isActive === undefined || pkg.isActive === true);
+        })
+        .sort((a: Package, b: Package) => {
+          // Sort by sortOrder (ascending) as per API spec, then by price
+          if (a.sortOrder !== undefined && b.sortOrder !== undefined) {
+            return a.sortOrder - b.sortOrder;
+          }
+          if (a.sortOrder !== undefined) return -1;
+          if (b.sortOrder !== undefined) return 1;
+          return (a.currentPrice || 0) - (b.currentPrice || 0);
+        });
+      
+      console.log(`✅ Valid packages after filtering: ${validPackages.length}`);
+      setPackages(validPackages);
     } catch (error: any) {
-      console.error("Error fetching packages:", error);
-      toast.error(error.message || "Failed to load packages");
+      console.error("❌ Error fetching packages:", error);
+      toast.error(`Failed to load packages: ${error.message || 'Unknown error'}`);
       setPackages([]);
-      setUseStaticPricing(true); // Use static pricing on error
     } finally {
       setLoading(false);
     }
   };
 
-  // Get selected package based on slider
-  const selectedPackage = packages.length > 0 && sliderIndex < packages.length 
-    ? packages[sliderIndex] 
-    : null;
-
-  // Static pricing data
-  const selectedPrice = PRICE_OPTIONS[sliderIndex] || PRICE_OPTIONS[0];
-  const planFeatures = pricingPlans[selectedPrice];
-  const staticFeatures = tierFeatureOverrides[selectedPrice];
-
-  const handleBuyPackage = (pkg?: Package) => {
-    if (!pkg) {
-      // For static pricing, show message
-      toast.info("Packages are being set up. Please contact support or check back later.");
+  const handleBuyPackage = async (pkg: Package) => {
+    if (!pkg || !pkg._id) {
+      toast.error("Package not available");
       return;
     }
 
     // Check if user is authenticated
     if (!authAPI.isAuthenticated()) {
       toast.error("Please sign in to purchase a package");
-      navigate("/auth/sign-in", { state: { returnTo: `/payment?packageId=${pkg._id}` } });
+      navigate("/auth/sign-in", { state: { returnTo: `/pricing` } });
       return;
     }
 
-    // Navigate to payment page with package ID
-    navigate(`/payment?packageId=${pkg._id}`);
-  };
-
-  const handleUpdatePackage = async () => {
-    if (!editingPackage) return;
-
     try {
-      const featuresArray = formData.features
-        .split("\n")
-        .map((f) => f.trim())
-        .filter((f) => f.length > 0);
-
-      await adminAPI.updatePackage(editingPackage._id, {
-        name: formData.name,
-        description: formData.description || undefined,
-        price: parseFloat(formData.price),
-        credits: parseInt(formData.credits),
-        features: featuresArray.length > 0 ? featuresArray : undefined,
-        duration: formData.duration ? parseInt(formData.duration) : undefined,
-        isActive: formData.isActive,
+      setProcessing(pkg._id);
+      console.log("🔄 Creating order for package:", pkg._id);
+      console.log("📦 Package details:", {
+        _id: pkg._id,
+        name: pkg.name,
+        currentPrice: pkg.currentPrice,
+        includedCredits: pkg.includedCredits,
       });
+      
+      // Validate package before creating order
+      if (!pkg._id || typeof pkg._id !== 'string' || pkg._id.trim() === '') {
+        toast.error("Invalid package. Please try again.");
+        setProcessing(null);
+        return;
+      }
+      
+      const orderData = await paymentAPI.createOrder(pkg._id);
+      console.log("✅ Order data received:", orderData);
 
-      toast.success("Package updated successfully");
-      setIsEditing(false);
-      setEditingPackage(null);
-      resetForm();
-      fetchPackages();
+      // Validate order response - keyId might be optional if using fallback
+      if (!orderData || !orderData.orderId) {
+        console.error("❌ Invalid order data:", orderData);
+        toast.error("Invalid order data received from server. Missing orderId.");
+        setProcessing(null);
+        return;
+      }
+      
+      // Warn if keyId is missing (will use fallback)
+      if (!orderData.keyId) {
+        console.warn("⚠️ Response missing keyId, using fallback Razorpay key");
+      }
+
+      // Check if Razorpay is loaded
+      if (!window.Razorpay || !razorpayLoaded) {
+        toast.error("Payment gateway is still loading. Please wait a moment and try again.");
+        setProcessing(null);
+        return;
+      }
+
+      // Use Razorpay key from backend response, with fallback
+      // The fallback key should match your Razorpay account
+      const razorpayKey = orderData.keyId || orderData.key || "rzp_live_SHVupFMQeg2X3E=4glMkH0SBzhBi3u0VsvcxB5K";
+      
+      if (!razorpayKey) {
+        toast.error("Payment gateway key not configured. Please contact support.");
+        setProcessing(null);
+        return;
+      }
+      
+      console.log("Using Razorpay key:", razorpayKey.substring(0, 10) + "...");
+      
+      // Get current user info for prefill
+      const currentUser = authAPI.getCurrentUser();
+      
+      const options = {
+        key: razorpayKey,
+        amount: orderData.amount,
+        currency: orderData.currency || "INR",
+        order_id: orderData.orderId,
+        name: "AEKO.AI",
+        description: `Purchase ${pkg.name}`,
+        image: "/logo.png",
+        handler: async (response: any) => {
+          try {
+            console.log("Payment response:", response);
+            await paymentAPI.verify({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            });
+            toast.success("Payment successful! Credits have been added to your wallet.");
+            setProcessing(null);
+            // Navigate to dashboard after successful payment
+            setTimeout(() => {
+              navigate("/dashboard");
+            }, 1500);
+          } catch (error: any) {
+            console.error("Payment verification error:", error);
+            toast.error(error.message || "Payment verification failed");
+            setProcessing(null);
+          }
+        },
+        prefill: {
+          name: currentUser?.username || currentUser?.name || "",
+          email: currentUser?.email || "",
+          contact: currentUser?.phone || "",
+        },
+        notes: {
+          packageId: pkg._id,
+          packageName: pkg.name,
+        },
+        theme: {
+          color: "#7c3aed",
+        },
+        modal: {
+          ondismiss: () => {
+            console.log("Payment modal dismissed");
+            setProcessing(null);
+          },
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.on("payment.failed", (response: any) => {
+        console.error("Payment failed:", response);
+        toast.error(response.error?.description || "Payment failed");
+        setProcessing(null);
+      });
+      rzp.open();
     } catch (error: any) {
-      toast.error(error.message || "Failed to update package");
+      console.error("❌ Payment initiation error:", error);
+      console.error("Error details:", {
+        message: error.message,
+        name: error.name,
+        stack: error.stack,
+      });
+      
+      // Use server/API message when it explains the fix (e.g. VITE_API_URL misconfiguration)
+      let errorMessage = "Failed to initiate payment. Please try again.";
+      if (error.message?.includes("VITE_API_URL") || error.message?.includes("wrong server")) {
+        errorMessage = error.message;
+      } else if (error.message?.includes("401") || error.message?.includes("Unauthorized")) {
+        errorMessage = "Please sign in to purchase a package";
+        navigate("/auth/sign-in", { state: { returnTo: `/pricing` } });
+      } else if (error.message?.includes("404")) {
+        errorMessage = "Package not found. Please try another package.";
+      } else if (error.message?.includes("400") || error.message?.includes("Bad Request")) {
+        errorMessage = error.message || "Invalid package or payment configuration. Please contact support.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      toast.error(errorMessage);
+      setProcessing(null);
     }
   };
 
-  const handleDeletePackage = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this package?")) return;
-
-    try {
-      await adminAPI.deletePackage(id);
-      toast.success("Package deleted successfully");
-      fetchPackages();
-    } catch (error: any) {
-      toast.error(error.message || "Failed to delete package");
-    }
-  };
-
-  const resetForm = () => {
-    setFormData({
-      name: "",
-      description: "",
-      price: "",
-      credits: "",
-      features: "",
-      duration: "",
-      isActive: true,
-    });
-  };
-
-  const openEditDialog = (pkg: Package) => {
-    setEditingPackage(pkg);
-    setFormData({
-      name: pkg.name || "",
-      description: pkg.description || "",
-      price: (pkg.price || 0).toString(),
-      credits: (pkg.credits || 0).toString(),
-      features: pkg.features?.join("\n") || "",
-      duration: pkg.duration?.toString() || "",
-      isActive: pkg.isActive !== false,
-    });
-    setIsEditing(true);
-  };
 
   if (loading) {
     return (
@@ -320,6 +346,12 @@ const PricingPage = () => {
 
       <div className="relative z-10 flex flex-col min-h-screen">
         <Navbar />
+
+        {isPaymentBackendMisconfigured() && (
+          <div className="bg-amber-500/20 border border-amber-400/50 text-amber-100 px-4 py-3 text-center text-sm">
+            Payment needs your main backend. Set <code className="bg-black/30 px-1 rounded">VITE_MAIN_API_URL</code> in <code className="bg-black/30 px-1 rounded">.env</code> to your backend URL (e.g. <code className="bg-black/30 px-1 rounded">http://localhost:5000</code>). Keep <code className="bg-black/30 px-1 rounded">VITE_API_URL</code> for chat if needed. Restart the app after changing.
+          </div>
+        )}
 
         <section className="flex-1 pt-24 pb-12 px-4 sm:px-6 lg:px-8">
           <div className="mx-auto w-full max-w-5xl">
@@ -362,8 +394,8 @@ const PricingPage = () => {
               </div>
             </motion.div>
 
-            {/* 3-column layout: equal height cards, aligned content */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 items-stretch">
+            {/* List packages: Free + each package (Buy → Razorpay) + Enterprise */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 items-stretch">
               {/* Left: Free Plan */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -394,190 +426,83 @@ const PricingPage = () => {
                 </ul>
               </motion.div>
 
-              {/* Middle: Pay-As-You-Go (highlighted, dynamic) */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.35, delay: 0.1 }}
-                whileHover={{ scale: 1.02 }}
-                className="relative rounded-2xl p-5 sm:p-6 flex flex-col bg-black border-2 border-violet-400/40 shadow-2xl shadow-violet-500/20"
-                style={{
-                  boxShadow:
-                    "0 0 0 1px rgba(139, 92, 246, 0.3), 0 0 40px rgba(139, 92, 246, 0.12)",
-                }}
-              >
-                <div className="absolute -top-2.5 left-1/2 -translate-x-1/2">
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-medium bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white rounded-full shadow-lg">
-                    <Sparkles className="w-3 h-3" />
-                    Most Popular
-                  </span>
-                </div>
-                <h2 className="text-lg font-bold text-white mb-1">Pay-As-You-Go</h2>
-                {selectedPackage ? (
-                  <>
-                    <div className="flex items-baseline gap-1 mb-1">
-                      <span className="text-2xl font-bold text-white">₹{selectedPackage.price}</span>
-                      <span className="text-sm text-violet-200/70">/ {selectedPackage.duration ? `${selectedPackage.duration} days` : "month"}</span>
-                    </div>
-                    <AnimatePresence mode="wait">
-                      <motion.p
-                        key={selectedPackage._id}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="text-xs font-medium text-violet-300 mb-3"
-                      >
-                        {selectedPackage.name}
-                      </motion.p>
-                    </AnimatePresence>
-                    {packages.length > 1 && (
-                      <div className="mb-3">
-                        <Slider
-                          value={[sliderIndex]}
-                          onValueChange={([v]) => setSliderIndex(Math.min(v, packages.length - 1))}
-                          min={0}
-                          max={packages.length - 1}
-                          step={1}
-                          className="py-2 [&_[data-orientation=horizontal]]:max-w-full"
-                        />
-                        <div className="flex justify-between mt-0.5 text-[10px] text-violet-300/60">
-                          <span>₹{packages[0]?.price || 0}</span>
-                          <span>₹{packages[packages.length - 1]?.price || 0}</span>
-                        </div>
+              {/* Dynamic packages: click Buy → open Razorpay */}
+              {loading ? (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="rounded-2xl p-6 flex flex-col items-center justify-center bg-black border border-violet-400/15 min-h-[280px]"
+                >
+                  <Loader2 className="w-8 h-8 animate-spin text-violet-400 mb-3" />
+                  <p className="text-violet-300/80 text-sm">Loading packages...</p>
+                </motion.div>
+              ) : packages.length === 0 ? (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="rounded-2xl p-6 flex flex-col items-center justify-center bg-black border border-violet-400/15 min-h-[200px] col-span-1 sm:col-span-2"
+                >
+                  <p className="text-violet-300/80 text-sm mb-1">No packages available</p>
+                  <p className="text-violet-300/50 text-xs">Check back later or contact support</p>
+                </motion.div>
+              ) : (
+                packages.map((pkg, index) => (
+                  <motion.div
+                    key={pkg._id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, delay: 0.05 + index * 0.05 }}
+                    whileHover={{ scale: 1.02 }}
+                    className="relative rounded-2xl p-5 sm:p-6 flex flex-col bg-black border-2 border-violet-400/30 hover:border-violet-400/50 shadow-lg shadow-violet-500/10 transition-all"
+                  >
+                    {pkg.offer && (
+                      <div className="absolute -top-2.5 left-1/2 -translate-x-1/2">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full">
+                          <Sparkles className="w-3 h-3" />
+                          {pkg.offer}
+                        </span>
                       </div>
                     )}
-                    <Button
-                      onClick={() => handleBuyPackage(selectedPackage)}
-                      className="w-full rounded-xl h-10 bg-gradient-to-r from-violet-500 via-fuchsia-500 to-violet-600 text-white font-semibold hover:opacity-95 shadow-lg shadow-violet-500/25 mb-4 text-sm"
-                    >
-                      Buy Now
-                    </Button>
-                    {isAdmin && (
-                      <div className="flex gap-1 mb-2 justify-end">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => openEditDialog(selectedPackage)}
-                          className="h-6 w-6 p-0 text-violet-300 hover:text-violet-100"
-                        >
-                          <Edit className="w-3 h-3" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleDeletePackage(selectedPackage._id)}
-                          className="h-6 w-6 p-0 text-red-300 hover:text-red-100"
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </Button>
-                      </div>
-                    )}
-                    <ul className="space-y-2 flex-1 min-h-0 overflow-y-auto pr-1">
-                      {selectedPackage.features && selectedPackage.features.length > 0 ? (
-                        selectedPackage.features.map((feature, i) => (
-                          <motion.li
-                            key={`${selectedPackage._id}-${i}`}
-                            initial={{ opacity: 0, x: -4 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.2 }}
-                            className="flex items-start gap-2 text-xs sm:text-sm text-violet-100/90"
-                          >
-                            <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                            <span>{feature}</span>
-                          </motion.li>
-                        ))
-                      ) : (
-                        <li className="text-xs text-violet-300/60">No features listed</li>
+                    <h2 className="text-lg font-bold text-white mb-1">{pkg.name}</h2>
+                    <div className="flex items-baseline gap-2 flex-wrap mb-2">
+                      {pkg.actualPrice != null && pkg.actualPrice > pkg.currentPrice && (
+                        <span className="text-base font-medium text-violet-300/60 line-through">
+                          ₹{pkg.actualPrice.toLocaleString("en-IN")}
+                        </span>
                       )}
-                    </ul>
-                  </>
-                ) : useStaticPricing ? (
-                  <>
-                    <div className="flex items-baseline gap-1 mb-1">
-                      <span className="text-2xl font-bold text-white">₹{selectedPrice}</span>
-                      <span className="text-sm text-violet-200/70">/ month</span>
+                      <span className="text-2xl font-bold text-white">
+                        ₹{pkg.currentPrice.toLocaleString("en-IN")}
+                      </span>
+                      <span className="text-sm text-violet-200/70">one-time</span>
                     </div>
-                    <AnimatePresence mode="wait">
-                      <motion.p
-                        key={selectedPrice}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="text-xs font-medium text-violet-300 mb-3"
-                      >
-                        {TIER_LABELS[selectedPrice]}
-                      </motion.p>
-                    </AnimatePresence>
-                    <div className="mb-3">
-                      <Slider
-                        value={[sliderIndex]}
-                        onValueChange={([v]) => setSliderIndex(Math.min(v, PRICE_OPTIONS.length - 1))}
-                        min={0}
-                        max={PRICE_OPTIONS.length - 1}
-                        step={1}
-                        className="py-2 [&_[data-orientation=horizontal]]:max-w-full"
-                      />
-                      <div className="flex justify-between mt-0.5 text-[10px] text-violet-300/60">
-                        <span>₹{PRICE_OPTIONS[0]}</span>
-                        <span>₹{PRICE_OPTIONS[PRICE_OPTIONS.length - 1]}</span>
-                      </div>
-                    </div>
+                    {pkg.description && (
+                      <p className="text-xs text-violet-300/70 mb-3 line-clamp-2">{pkg.description}</p>
+                    )}
+                    <p className="text-xs text-violet-300/80 mb-4">
+                      <span className="font-semibold">{pkg.includedCredits.toLocaleString("en-IN")}</span> credits
+                    </p>
                     <Button
-                      onClick={() => handleBuyPackage()}
-                      className="w-full rounded-xl h-10 bg-gradient-to-r from-violet-500 via-fuchsia-500 to-violet-600 text-white font-semibold hover:opacity-95 shadow-lg shadow-violet-500/25 mb-4 text-sm"
+                      onClick={() => handleBuyPackage(pkg)}
+                      disabled={processing === pkg._id || !razorpayLoaded}
+                      className="w-full rounded-xl h-10 bg-gradient-to-r from-violet-500 via-fuchsia-500 to-violet-600 text-white font-semibold hover:opacity-95 shadow-lg shadow-violet-500/25 text-sm disabled:opacity-50 mt-auto"
                     >
-                      Buy Now
-                    </Button>
-                    <ul className="space-y-2 flex-1 min-h-0 overflow-y-auto pr-1">
-                      {staticFeatures ? (
-                        staticFeatures.map((text, i) => (
-                          <motion.li
-                            key={`${selectedPrice}-${i}`}
-                            initial={{ opacity: 0, x: -4 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.2 }}
-                            className="flex items-start gap-2 text-xs sm:text-sm text-violet-100/90"
-                          >
-                            <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                            <span>{text}</span>
-                          </motion.li>
-                        ))
-                      ) : (
+                      {processing === pkg._id ? (
                         <>
-                          {[
-                            `${planFeatures.agents} Custom AI Agents`,
-                            `${planFeatures.tokens} Token Pool`,
-                            `Up to ${planFeatures.images} images/month`,
-                            `Up to ${planFeatures.videos ?? planFeatures.images} videos/month`,
-                            `${planFeatures.parallelTasks ?? 3} parallel tasks`,
-                          ].map((text, i) => (
-                            <motion.li
-                              key={`${selectedPrice}-${i}`}
-                              initial={{ opacity: 0, x: -4 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ duration: 0.2 }}
-                              className="flex items-start gap-2 text-xs sm:text-sm text-violet-100/90"
-                            >
-                              <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                              <span>{text}</span>
-                            </motion.li>
-                          ))}
-                          {sharedProFeatures.map((f) => (
-                            <li key={f} className="flex items-start gap-2 text-xs sm:text-sm text-violet-100/90">
-                              <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                              <span>{f}</span>
-                            </li>
-                          ))}
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Opening Razorpay...
                         </>
+                      ) : !razorpayLoaded ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Loading...
+                        </>
+                      ) : (
+                        "Buy Now"
                       )}
-                    </ul>
-                  </>
-                ) : (
-                  <div className="text-center py-8">
-                    <p className="text-violet-300/60 text-sm">Loading packages...</p>
-                  </div>
-                )}
-              </motion.div>
+                    </Button>
+                  </motion.div>
+                ))
+              )}
 
               {/* Right: Enterprise */}
               <motion.div
@@ -611,108 +536,6 @@ const PricingPage = () => {
           </div>
         </section>
 
-        {/* Edit Package Dialog */}
-        <Dialog open={isEditing} onOpenChange={setIsEditing}>
-          <DialogContent className="bg-black border-violet-400/20 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Edit Package</DialogTitle>
-              <DialogDescription className="text-violet-200/70">
-                Update package details
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 mt-4">
-              <div>
-                <Label htmlFor="edit-name">Package Name *</Label>
-                <Input
-                  id="edit-name"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="bg-black/50 border-violet-400/20 text-white"
-                />
-              </div>
-              <div>
-                <Label htmlFor="edit-description">Description</Label>
-                <Textarea
-                  id="edit-description"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="bg-black/50 border-violet-400/20 text-white"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="edit-price">Price (₹) *</Label>
-                  <Input
-                    id="edit-price"
-                    type="number"
-                    value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                    className="bg-black/50 border-violet-400/20 text-white"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="edit-credits">Credits *</Label>
-                  <Input
-                    id="edit-credits"
-                    type="number"
-                    value={formData.credits}
-                    onChange={(e) => setFormData({ ...formData, credits: e.target.value })}
-                    className="bg-black/50 border-violet-400/20 text-white"
-                  />
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="edit-features">Features (one per line)</Label>
-                <Textarea
-                  id="edit-features"
-                  value={formData.features}
-                  onChange={(e) => setFormData({ ...formData, features: e.target.value })}
-                  className="bg-black/50 border-violet-400/20 text-white min-h-[120px]"
-                />
-              </div>
-              <div>
-                <Label htmlFor="edit-duration">Duration (days, optional)</Label>
-                <Input
-                  id="edit-duration"
-                  type="number"
-                  value={formData.duration}
-                  onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-                  className="bg-black/50 border-violet-400/20 text-white"
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="edit-isActive"
-                  checked={formData.isActive}
-                  onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                  className="w-4 h-4"
-                />
-                <Label htmlFor="edit-isActive">Active (visible on pricing page)</Label>
-              </div>
-              <div className="flex gap-2 pt-4">
-                <Button
-                  onClick={handleUpdatePackage}
-                  className="flex-1 bg-violet-500 hover:bg-violet-600"
-                  disabled={!formData.name || !formData.price || !formData.credits}
-                >
-                  Update Package
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setIsEditing(false);
-                    setEditingPackage(null);
-                    resetForm();
-                  }}
-                  className="flex-1 border-violet-400/20 text-violet-200"
-                >
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
 
         {/* Pricing page footer - benefits & trust */}
         <footer className="relative z-10 border-t border-violet-400/15 bg-black/20 backdrop-blur-sm">

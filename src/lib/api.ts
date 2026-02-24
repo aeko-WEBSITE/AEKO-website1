@@ -1,11 +1,23 @@
 // API Base URL configuration
 // In dev: use '' so Vite proxy (vite.config proxy /api -> localhost:5000) is used.
 // In production: VITE_API_URL must be set via environment variable
+// IMPORTANT: VITE_API_URL should point to your MAIN BACKEND server (not demo.liquidata.dev)
+// demo.liquidata.dev is ONLY for provider API (models/chat), not for payment/auth/packages
 const getApiBaseUrl = (): string => {
   const env = import.meta.env;
   if (env.VITE_API_URL !== undefined && env.VITE_API_URL !== '') {
     // Remove trailing slash if present
     const url = env.VITE_API_URL.trim().replace(/\/$/, '');
+    
+    // Validate: Warn if pointing to provider API instead of backend
+    if (url.includes('demo.liquidata.dev') || url.includes('liquidata.dev')) {
+      console.error('❌ ERROR: VITE_API_URL is set to Liquidata provider API server!');
+      console.error('❌ Payment, auth, and package APIs will fail.');
+      console.error('❌ VITE_API_URL should point to your MAIN BACKEND server (e.g., https://your-backend.com or http://localhost:5000)');
+      console.error('❌ Liquidata (demo.liquidata.dev) is ONLY for provider API (models/chat), not for backend operations.');
+      console.error('❌ Please update your .env file: VITE_API_URL=https://your-actual-backend-url.com');
+    }
+    
     return url;
   }
   // In development, empty string uses Vite proxy
@@ -17,6 +29,45 @@ const getApiBaseUrl = (): string => {
 };
 
 const API_BASE_URL = getApiBaseUrl();
+
+/** Base URL for payment/auth/packages. Set VITE_MAIN_API_URL when VITE_API_URL is the provider (e.g. Liquidata). */
+function getMainApiBaseUrl(): string {
+  const main = import.meta.env.VITE_MAIN_API_URL;
+  if (main !== undefined && main !== '') return String(main).trim().replace(/\/$/, '');
+  return API_BASE_URL;
+}
+
+/** True when main backend points to Liquidata; set VITE_MAIN_API_URL to your real backend for payment. */
+export const isPaymentBackendMisconfigured = (): boolean =>
+  !!(getMainApiBaseUrl() && (getMainApiBaseUrl().includes('demo.liquidata.dev') || getMainApiBaseUrl().includes('liquidata.dev')));
+
+/** Same as apiRequest but uses VITE_MAIN_API_URL (or VITE_API_URL) so payment works when chat uses a different server. */
+const mainApiRequest = async (endpoint: string, options: RequestInit = {}, retryOn401 = true): Promise<Response> => {
+  const base = getMainApiBaseUrl();
+  const token = getAuthToken();
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+    'Accept': '*/*',
+    ...options.headers,
+  };
+  if (token) (headers as Record<string, string>)['Authorization'] = `Bearer ${token}`;
+  let fullEndpoint = endpoint;
+  if (!base && !endpoint.startsWith('/api') && !import.meta.env.PROD) fullEndpoint = `/api${endpoint}`;
+  let response = await fetch(`${base}${fullEndpoint}`, { ...options, headers, mode: 'cors', credentials: 'omit' });
+  const isAuthEndpoint = endpoint === '/auth/refresh' || endpoint === '/auth/login' || endpoint === '/auth/register' ||
+    endpoint === '/api/auth/refresh' || endpoint === '/api/auth/login' || endpoint === '/api/auth/register';
+  if (response.status === 401 && retryOn401 && !isAuthEndpoint) {
+    const refreshed = await refreshTokenInternal();
+    if (refreshed) {
+      const newToken = getAuthToken();
+      if (newToken) {
+        (headers as Record<string, string>)['Authorization'] = `Bearer ${newToken}`;
+        response = await fetch(`${base}${fullEndpoint}`, { ...options, headers, mode: 'cors', credentials: 'omit' });
+      }
+    }
+  }
+  return response;
+};
 
 // Apimodule Base URL configuration (can be different from main API)
 // This is ONLY for apimodule endpoints (image gen, video gen, etc.), NOT for auth
@@ -93,12 +144,24 @@ const refreshTokenInternal = async (): Promise<boolean> => {
 };
 
 // API request helper with automatic token refresh on 401
+// NOTE: This should use your MAIN BACKEND server, not the provider API
 const apiRequest = async (
   endpoint: string,
   options: RequestInit = {},
   retryOn401: boolean = true
 ): Promise<Response> => {
   const token = getAuthToken();
+  
+  // Validate API_BASE_URL for critical endpoints (payment, auth, packages)
+  const isCriticalEndpoint = endpoint.includes('/payment/') || 
+                             endpoint.includes('/auth/') || 
+                             endpoint.includes('/packages') ||
+                             endpoint.includes('/admin/');
+  
+  if (isCriticalEndpoint && API_BASE_URL && (API_BASE_URL.includes('demo.liquidata.dev') || API_BASE_URL.includes('liquidata.dev'))) {
+    console.error(`❌ CRITICAL: ${endpoint} cannot use Liquidata provider server`);
+    console.error('❌ These endpoints require your main backend server');
+  }
   
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
@@ -148,12 +211,27 @@ const apiRequest = async (
   return response;
 };
 
-// Admin API request helper (uses admin token)
+// Admin API request helper (uses admin token, falls back to regular token)
 const adminApiRequest = async (
   endpoint: string,
   options: RequestInit = {}
 ): Promise<Response> => {
-  const token = getAdminAuthToken();
+  // Try admin token first, then fall back to regular access token
+  let token = getAdminAuthToken();
+  const tokenType = token ? 'admin' : 'user';
+  if (!token) {
+    token = getAuthToken();
+  }
+  
+  if (!token) {
+    console.error('No admin or user token found for admin API request');
+    throw new Error('Authentication required. Please log in as admin.');
+  }
+  
+  // Warn if API_BASE_URL points to Liquidata (should be backend)
+  if (API_BASE_URL.includes('liquidata.dev') && !API_BASE_URL.includes('api')) {
+    console.warn('⚠️ WARNING: VITE_API_URL appears to point to Liquidata server. Admin endpoints should use your backend API, not Liquidata. Please set VITE_API_URL to your backend URL (e.g., http://localhost:5000 for dev).');
+  }
   
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
@@ -161,16 +239,72 @@ const adminApiRequest = async (
     ...options.headers,
   };
 
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
+  headers['Authorization'] = `Bearer ${token}`;
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+  // Ensure endpoint starts with /api for backend routes
+  const fullEndpoint = endpoint.startsWith('/api') ? endpoint : `/api${endpoint}`;
+  const url = `${API_BASE_URL}${fullEndpoint}`;
+  
+  console.log('Admin API Request:', {
+    method: options.method || 'GET',
+    url,
+    endpoint: fullEndpoint,
+    apiBaseUrl: API_BASE_URL,
+    tokenType,
+    hasToken: !!token,
+    tokenPreview: token ? `${token.substring(0, 20)}...` : 'none'
+  });
+
+  const response = await fetch(url, {
     ...options,
     headers,
     mode: 'cors',
     credentials: 'omit',
   });
+
+  // Log response for debugging
+  if (!response.ok) {
+    let errorData: any = {};
+    try {
+      const errorText = await response.clone().text();
+      errorData = JSON.parse(errorText);
+    } catch {
+      // If parsing fails, use empty object
+    }
+    
+    console.error('Admin API Error:', {
+      status: response.status,
+      statusText: response.statusText,
+      url,
+      endpoint: fullEndpoint,
+      apiBaseUrl: API_BASE_URL,
+      error: errorData
+    });
+
+    // If 401, provide better error message and suggest re-login
+    if (response.status === 401) {
+      const message = errorData.message || 'Unauthorized. Your session may have expired.';
+      
+      // If token doesn't belong to device, suggest clearing and re-logging
+      if (message.includes('token does not belong to this device') || message.includes('Session invalid')) {
+        console.error('Token validation failed. This may indicate:');
+        console.error('1. Token was issued for a different device/session');
+        console.error('2. Backend session validation is strict');
+        console.error('3. Token format mismatch');
+        console.error('Solution: Clear localStorage and log in again as admin.');
+        
+        // Clear tokens to force re-login
+        localStorage.removeItem('adminAccessToken');
+        localStorage.removeItem('adminRefreshToken');
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        
+        throw new Error(`${message} Please log out and log in again as admin.`);
+      }
+      
+      throw new Error(message);
+    }
+  }
 
   return response;
 };
@@ -1475,15 +1609,28 @@ export const adminAPI = {
       }
 
       const data = await response.json();
+      
+      // Store admin tokens
       if (data.accessToken) {
         localStorage.setItem('adminAccessToken', data.accessToken);
-        if (data.refreshToken) {
-          localStorage.setItem('adminRefreshToken', data.refreshToken);
-        }
-        if (data.admin) {
-          localStorage.setItem('admin', JSON.stringify(data.admin));
-        }
+        // Also set as regular accessToken for user session compatibility
+        localStorage.setItem('accessToken', data.accessToken);
       }
+      if (data.refreshToken) {
+        localStorage.setItem('adminRefreshToken', data.refreshToken);
+        // Also set as regular refreshToken for user session compatibility
+        localStorage.setItem('refreshToken', data.refreshToken);
+      }
+      if (data.admin) {
+        localStorage.setItem('admin', JSON.stringify(data.admin));
+        // Also store admin as user for compatibility
+        localStorage.setItem('user', JSON.stringify(data.admin));
+      }
+      // If backend returns user data separately, store it
+      if (data.user) {
+        localStorage.setItem('user', JSON.stringify(data.user));
+      }
+      
       return data;
     } catch (error: any) {
       if (error.name === 'TypeError' && error.message.includes('fetch')) {
@@ -1749,16 +1896,26 @@ export const adminAPI = {
   createPackage: async (data: {
     name: string;
     description?: string;
-    price: number;
-    credits: number;
-    features?: string[];
-    duration?: number;
+    includedCredits: number;
+    actualPrice?: number;
+    currentPrice: number;
+    offer?: string | null;
     isActive?: boolean;
+    sortOrder?: number;
   }) => {
     try {
+      // Ensure includedCredits is an integer
+      const packageData = {
+        ...data,
+        includedCredits: Math.floor(data.includedCredits),
+        actualPrice: data.actualPrice !== undefined ? Number(data.actualPrice) : undefined,
+        currentPrice: Number(data.currentPrice),
+        sortOrder: data.sortOrder !== undefined ? Number(data.sortOrder) : undefined,
+      };
+      
       const response = await adminApiRequest('/api/packages', {
         method: 'POST',
-        body: JSON.stringify(data),
+        body: JSON.stringify(packageData),
       });
 
       if (!response.ok) {
@@ -1788,16 +1945,32 @@ export const adminAPI = {
   updatePackage: async (id: string, data: Partial<{
     name: string;
     description: string;
-    price: number;
-    credits: number;
-    features: string[];
-    duration: number;
+    includedCredits: number;
+    actualPrice: number;
+    currentPrice: number;
+    offer: string | null;
     isActive: boolean;
+    sortOrder: number;
   }>) => {
     try {
+      // Ensure includedCredits is an integer if provided
+      const packageData: any = { ...data };
+      if (packageData.includedCredits !== undefined) {
+        packageData.includedCredits = Math.floor(packageData.includedCredits);
+      }
+      if (packageData.actualPrice !== undefined) {
+        packageData.actualPrice = Number(packageData.actualPrice);
+      }
+      if (packageData.currentPrice !== undefined) {
+        packageData.currentPrice = Number(packageData.currentPrice);
+      }
+      if (packageData.sortOrder !== undefined) {
+        packageData.sortOrder = Number(packageData.sortOrder);
+      }
+      
       const response = await adminApiRequest(`/api/packages/${id}`, {
         method: 'PATCH',
-        body: JSON.stringify(data),
+        body: JSON.stringify(packageData),
       });
 
       if (!response.ok) {
@@ -1884,7 +2057,8 @@ export const packageAPI = {
    */
   getAll: async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/packages`, {
+      const base = getMainApiBaseUrl();
+      const response = await fetch(`${base}/api/packages`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -1919,7 +2093,8 @@ export const packageAPI = {
    */
   getById: async (id: string) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/packages/${id}`, {
+      const base = getMainApiBaseUrl();
+      const response = await fetch(`${base}/api/packages/${id}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -1987,13 +2162,19 @@ export const adminUsersAPI = {
   getAll: async (params?: {
     page?: number;
     limit?: number;
-    search?: string;
+    username?: string;
+    email?: string;
+    isActive?: boolean;
+    isBanned?: boolean;
   }) => {
     try {
       const queryParams = new URLSearchParams();
       if (params?.page) queryParams.append('page', params.page.toString());
       if (params?.limit) queryParams.append('limit', params.limit.toString());
-      if (params?.search) queryParams.append('search', params.search);
+      if (params?.username) queryParams.append('username', params.username);
+      if (params?.email) queryParams.append('email', params.email);
+      if (params?.isActive !== undefined) queryParams.append('isActive', params.isActive.toString());
+      if (params?.isBanned !== undefined) queryParams.append('isBanned', params.isBanned.toString());
 
       const queryString = queryParams.toString();
       const endpoint = `/api/admin/users${queryString ? `?${queryString}` : ''}`;
@@ -2337,17 +2518,84 @@ export const paymentAPI = {
    */
   createOrder: async (packageId: string) => {
     try {
-      const response = await apiRequest('/api/payment/create-order', {
+      const mainBase = getMainApiBaseUrl();
+      console.log("🔄 Creating payment order for package:", packageId);
+      console.log("📡 Payment API base (VITE_MAIN_API_URL or VITE_API_URL):", mainBase || '(using Vite proxy)');
+      
+      if (mainBase && (mainBase.includes('demo.liquidata.dev') || mainBase.includes('liquidata.dev'))) {
+        console.warn("⚠️ Payment base points to Liquidata. Set VITE_MAIN_API_URL in .env to your main backend URL for payment to work.");
+      }
+      
+      if (!packageId || typeof packageId !== 'string' || packageId.trim() === '') {
+        throw new Error('Invalid package ID');
+      }
+
+      const requestBody = { packageId: packageId.trim() };
+      console.log("📤 Request body:", requestBody);
+      console.log("📤 Request URL:", `${mainBase || ''}/api/payment/create-order`);
+      
+      const response = await mainApiRequest('/api/payment/create-order', {
         method: 'POST',
-        body: JSON.stringify({ packageId }),
+        body: JSON.stringify(requestBody),
       });
+
+      console.log("📥 Response status:", response.status, response.statusText);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || errorData.error || `Server error: ${response.status}`);
+        console.error("❌ Payment order creation failed:", {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData,
+          requestBody: requestBody,
+          url: `${getMainApiBaseUrl() || ''}/api/payment/create-order`,
+        });
+        
+        // Provide more specific error messages based on status code
+        let errorMessage = errorData.message || errorData.error || `Server error: ${response.status}`;
+        if (Array.isArray(errorMessage)) {
+          errorMessage = errorMessage.join(', ');
+        }
+        
+        // Add helpful context based on error
+        if (isPaymentBackendMisconfigured()) {
+          errorMessage =
+            'Payment cannot be processed: the app is pointing to the wrong server. Set VITE_API_URL in .env to your main backend URL (e.g. http://localhost:5000 or your deployed backend), not to demo.liquidata.dev. Then restart the app.';
+        } else if (response.status === 400) {
+          if (errorMessage.includes('package') || errorMessage.includes('Package')) {
+            errorMessage = `Package error: ${errorMessage}. Please check if the package exists and is active.`;
+          } else if (errorMessage.includes('payment') || errorMessage.includes('gateway')) {
+            errorMessage = `Payment gateway error: ${errorMessage}. Please contact support.`;
+          } else {
+            errorMessage = `Invalid request: ${errorMessage}. Please try again or contact support.`;
+          }
+        } else if (response.status === 404) {
+          errorMessage = "Package not found. Please select a different package.";
+        } else if (response.status === 401) {
+          errorMessage = "Please sign in to purchase a package.";
+        }
+        
+        throw new Error(errorMessage);
       }
 
-      return response.json();
+      const orderData = await response.json();
+      console.log("✅ Payment order created successfully:", {
+        orderId: orderData.orderId,
+        amount: orderData.amount,
+        currency: orderData.currency,
+        hasKeyId: !!orderData.keyId,
+      });
+      
+      // Validate response has required fields
+      if (!orderData.orderId) {
+        console.error("❌ Response missing orderId:", orderData);
+        throw new Error("Invalid response from server: missing orderId");
+      }
+      if (!orderData.keyId && !orderData.key) {
+        console.warn("⚠️ Response missing keyId, using fallback Razorpay key");
+      }
+      
+      return orderData;
     } catch (error: any) {
       if (error?.name === 'TypeError' && error?.message?.includes('fetch')) {
         throw new Error('Cannot connect to backend. Make sure the backend server is running.');
@@ -2377,7 +2625,7 @@ export const paymentAPI = {
         razorpayPaymentId: data.razorpay_payment_id,
         razorpaySignature: data.razorpay_signature,
       };
-      const response = await apiRequest('/api/payment/verify', {
+      const response = await mainApiRequest('/api/payment/verify', {
         method: 'POST',
         body: JSON.stringify(requestData),
       });

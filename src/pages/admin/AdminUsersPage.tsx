@@ -39,10 +39,23 @@ interface User {
   updatedAt?: string;
 }
 
+interface UserResponse {
+  users?: User[];
+  data?: User[];
+  total?: number;
+  page?: number;
+  limit?: number;
+  totalPages?: number;
+}
+
 const AdminUsersPage = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [usernameFilter, setUsernameFilter] = useState("");
+  const [emailFilter, setEmailFilter] = useState("");
+  const [emailSearch, setEmailSearch] = useState("");
+  const [isActiveFilter, setIsActiveFilter] = useState<boolean | undefined>(undefined);
+  const [isBannedFilter, setIsBannedFilter] = useState<boolean | undefined>(undefined);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
@@ -56,10 +69,12 @@ const AdminUsersPage = () => {
   const [newPassword, setNewPassword] = useState("");
   const [page, setPage] = useState(1);
   const [limit] = useState(20);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
 
   useEffect(() => {
     fetchUsers();
-  }, [page, searchQuery]);
+  }, [page, usernameFilter, emailFilter, isActiveFilter, isBannedFilter]);
 
   const fetchUsers = async () => {
     try {
@@ -67,15 +82,60 @@ const AdminUsersPage = () => {
       const data = await adminUsersAPI.getAll({
         page,
         limit,
-        search: searchQuery || undefined,
-      });
-      setUsers(Array.isArray(data) ? data : (data.users || data.data || []));
+        username: usernameFilter || undefined,
+        email: emailFilter || undefined,
+        isActive: isActiveFilter,
+        isBanned: isBannedFilter,
+      }) as UserResponse;
+      
+      const usersList = Array.isArray(data) ? data : (data.users || data.data || []);
+      setUsers(usersList);
+      setTotal(data.total || usersList.length);
+      setTotalPages(data.totalPages || Math.ceil((data.total || usersList.length) / limit));
     } catch (error: any) {
       toast.error(error.message || "Failed to fetch users");
       setUsers([]);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleEmailSearch = async () => {
+    if (!emailSearch.trim()) {
+      toast.error("Please enter an email address");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const user = await adminUsersAPI.search(emailSearch.trim());
+      if (user) {
+        setUsers([user]);
+        setTotal(1);
+        setTotalPages(1);
+      } else {
+        toast.error("User not found");
+        setUsers([]);
+      }
+    } catch (error: any) {
+      if (error.message?.includes("404") || error.message?.includes("not found")) {
+        toast.error("User not found");
+      } else {
+        toast.error(error.message || "Failed to search user");
+      }
+      setUsers([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleClearFilters = () => {
+    setUsernameFilter("");
+    setEmailFilter("");
+    setEmailSearch("");
+    setIsActiveFilter(undefined);
+    setIsBannedFilter(undefined);
+    setPage(1);
   };
 
   const handleCreate = () => {
@@ -196,17 +256,82 @@ const AdminUsersPage = () => {
         </Button>
       </div>
 
-      {/* Search */}
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Search users..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
+      {/* Search and Filters */}
+      <div className="flex flex-col gap-4">
+        {/* Email Search */}
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by email..."
+              value={emailSearch}
+              onChange={(e) => setEmailSearch(e.target.value)}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  handleEmailSearch();
+                }
+              }}
+              className="pl-10"
+            />
+          </div>
+          <Button onClick={handleEmailSearch} variant="outline" size="sm">
+            Search Email
+          </Button>
         </div>
+
+        {/* Filters */}
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="flex-1 min-w-[200px]">
+            <Input
+              placeholder="Filter by username..."
+              value={usernameFilter}
+              onChange={(e) => setUsernameFilter(e.target.value)}
+            />
+          </div>
+          <div className="flex-1 min-w-[200px]">
+            <Input
+              placeholder="Filter by email..."
+              value={emailFilter}
+              onChange={(e) => setEmailFilter(e.target.value)}
+            />
+          </div>
+          <Select
+            value={isActiveFilter === undefined ? "all" : isActiveFilter.toString()}
+            onValueChange={(value) => setIsActiveFilter(value === "all" ? undefined : value === "true")}
+          >
+            <SelectTrigger className="w-[150px]">
+              <SelectValue placeholder="Active Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="true">Active</SelectItem>
+              <SelectItem value="false">Inactive</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select
+            value={isBannedFilter === undefined ? "all" : isBannedFilter.toString()}
+            onValueChange={(value) => setIsBannedFilter(value === "all" ? undefined : value === "true")}
+          >
+            <SelectTrigger className="w-[150px]">
+              <SelectValue placeholder="Ban Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Users</SelectItem>
+              <SelectItem value="true">Banned</SelectItem>
+              <SelectItem value="false">Not Banned</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button onClick={handleClearFilters} variant="outline" size="sm">
+            Clear Filters
+          </Button>
+        </div>
+
+        {/* Pagination Info */}
+        {total > 0 && (
+          <div className="text-sm text-muted-foreground">
+            Showing {((page - 1) * limit) + 1} to {Math.min(page * limit, total)} of {total} users
+          </div>
+        )}
       </div>
 
       {/* Users Table */}
@@ -315,6 +440,33 @@ const AdminUsersPage = () => {
               )}
             </TableBody>
           </Table>
+        </div>
+      )}
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between">
+          <div className="text-sm text-muted-foreground">
+            Page {page} of {totalPages}
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1 || loading}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages || loading}
+            >
+              Next
+            </Button>
+          </div>
         </div>
       )}
 

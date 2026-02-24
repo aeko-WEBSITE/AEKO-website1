@@ -33,15 +33,26 @@ const AdminLayout = () => {
   useEffect(() => {
     // Check if admin is logged in
     const adminToken = localStorage.getItem("adminAccessToken");
-    if (!adminToken) {
+    const regularToken = localStorage.getItem("accessToken");
+    
+    // Redirect to login if no admin token (and no regular token as fallback)
+    if (!adminToken && !regularToken) {
       navigate("/admin/login");
+      return;
     }
+    
+    // If we have a token but it's invalid, the API calls will handle 401 errors
   }, [navigate]);
 
   const handleLogout = () => {
+    // Clear all admin tokens
     localStorage.removeItem("adminAccessToken");
     localStorage.removeItem("adminRefreshToken");
     localStorage.removeItem("admin");
+    // Also clear user tokens if they were set during admin login
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("user");
     toast.success("Logged out successfully");
     navigate("/admin/login");
   };

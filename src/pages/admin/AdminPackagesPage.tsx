@@ -28,11 +28,12 @@ interface PackageData {
   _id?: string;
   name: string;
   description?: string;
-  price: number;
-  credits: number;
-  features?: string[];
-  duration?: number;
+  includedCredits: number;
+  actualPrice?: number;
+  currentPrice: number;
+  offer?: string | null;
   isActive?: boolean;
+  sortOrder?: number;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -47,13 +48,13 @@ const AdminPackagesPage = () => {
   const [formData, setFormData] = useState<PackageData>({
     name: "",
     description: "",
-    price: 0,
-    credits: 0,
-    features: [],
-    duration: 30,
+    includedCredits: 0,
+    actualPrice: undefined,
+    currentPrice: 0,
+    offer: null,
     isActive: true,
+    sortOrder: 0,
   });
-  const [featureInput, setFeatureInput] = useState("");
 
   useEffect(() => {
     fetchPackages();
@@ -76,13 +77,13 @@ const AdminPackagesPage = () => {
     setFormData({
       name: "",
       description: "",
-      price: 0,
-      credits: 0,
-      features: [],
-      duration: 30,
+      includedCredits: 0,
+      actualPrice: undefined,
+      currentPrice: 0,
+      offer: null,
       isActive: true,
+      sortOrder: 0,
     });
-    setFeatureInput("");
     setIsCreateDialogOpen(true);
   };
 
@@ -91,11 +92,12 @@ const AdminPackagesPage = () => {
     setFormData({
       name: pkg.name,
       description: pkg.description || "",
-      price: pkg.price,
-      credits: pkg.credits,
-      features: pkg.features || [],
-      duration: pkg.duration || 30,
+      includedCredits: pkg.includedCredits || 0,
+      actualPrice: pkg.actualPrice,
+      currentPrice: pkg.currentPrice || 0,
+      offer: pkg.offer || null,
       isActive: pkg.isActive !== false,
+      sortOrder: pkg.sortOrder || 0,
     });
     setIsEditDialogOpen(true);
   };
@@ -113,8 +115,14 @@ const AdminPackagesPage = () => {
   };
 
   const handleSubmit = async () => {
-    if (!formData.name || formData.price <= 0 || formData.credits <= 0) {
-      toast.error("Please fill in all required fields");
+    if (!formData.name || formData.currentPrice <= 0 || formData.includedCredits < 1) {
+      toast.error("Please fill in all required fields. Credits must be at least 1 and price must be greater than 0.");
+      return;
+    }
+    
+    // Ensure includedCredits is an integer
+    if (!Number.isInteger(formData.includedCredits)) {
+      toast.error("Credits must be a whole number");
       return;
     }
 
@@ -135,22 +143,6 @@ const AdminPackagesPage = () => {
     }
   };
 
-  const addFeature = () => {
-    if (featureInput.trim()) {
-      setFormData({
-        ...formData,
-        features: [...(formData.features || []), featureInput.trim()],
-      });
-      setFeatureInput("");
-    }
-  };
-
-  const removeFeature = (index: number) => {
-    setFormData({
-      ...formData,
-      features: formData.features?.filter((_, i) => i !== index) || [],
-    });
-  };
 
   const filteredPackages = packages.filter((pkg) =>
     pkg.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -197,10 +189,11 @@ const AdminPackagesPage = () => {
             <TableHeader>
               <TableRow>
                 <TableHead>Name</TableHead>
-                <TableHead>Price</TableHead>
+                <TableHead>Current Price</TableHead>
+                <TableHead>Actual Price</TableHead>
                 <TableHead>Credits</TableHead>
-                <TableHead>Duration</TableHead>
-                <TableHead>Features</TableHead>
+                <TableHead>Offer</TableHead>
+                <TableHead>Sort Order</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -208,7 +201,7 @@ const AdminPackagesPage = () => {
             <TableBody>
               {filteredPackages.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                     No packages found
                   </TableCell>
                 </TableRow>
@@ -219,30 +212,34 @@ const AdminPackagesPage = () => {
                     <TableCell>
                       <div className="flex items-center gap-1">
                         <DollarSign className="w-4 h-4" />
-                        {pkg.price}
+                        ₹{pkg.currentPrice?.toLocaleString('en-IN') || 0}
                       </div>
+                    </TableCell>
+                    <TableCell>
+                      {pkg.actualPrice ? (
+                        <div className="flex items-center gap-1 text-muted-foreground line-through">
+                          ₹{pkg.actualPrice.toLocaleString('en-IN')}
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1">
                         <CreditCard className="w-4 h-4" />
-                        {pkg.credits}
+                        {pkg.includedCredits?.toLocaleString('en-IN') || 0}
                       </div>
                     </TableCell>
-                    <TableCell>{pkg.duration || 30} days</TableCell>
                     <TableCell>
-                      <div className="flex flex-wrap gap-1">
-                        {pkg.features?.slice(0, 2).map((feature, idx) => (
-                          <Badge key={idx} variant="secondary" className="text-xs">
-                            {feature}
-                          </Badge>
-                        ))}
-                        {pkg.features && pkg.features.length > 2 && (
-                          <Badge variant="outline" className="text-xs">
-                            +{pkg.features.length - 2}
-                          </Badge>
-                        )}
-                      </div>
+                      {pkg.offer ? (
+                        <Badge variant="secondary" className="text-xs">
+                          {pkg.offer}
+                        </Badge>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
                     </TableCell>
+                    <TableCell>{pkg.sortOrder ?? 0}</TableCell>
                     <TableCell>
                       <Badge variant={pkg.isActive ? "default" : "secondary"}>
                         {pkg.isActive ? "Active" : "Inactive"}
@@ -316,64 +313,88 @@ const AdminPackagesPage = () => {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium">Price *</label>
+                <label className="text-sm font-medium">Current Price (₹) *</label>
                 <Input
                   type="number"
-                  value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })}
+                  value={formData.currentPrice || ""}
+                  onChange={(e) => setFormData({ ...formData, currentPrice: parseFloat(e.target.value) || 0 })}
                   placeholder="0.00"
                   className="mt-1"
                   min="0"
                   step="0.01"
+                  required
                 />
               </div>
               <div>
-                <label className="text-sm font-medium">Credits *</label>
+                <label className="text-sm font-medium">Actual Price (₹)</label>
                 <Input
                   type="number"
-                  value={formData.credits}
-                  onChange={(e) => setFormData({ ...formData, credits: parseInt(e.target.value) || 0 })}
+                  value={formData.actualPrice || ""}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setFormData({ 
+                      ...formData, 
+                      actualPrice: value === "" ? undefined : parseFloat(value) || 0 
+                    });
+                  }}
+                  placeholder="Optional (for discounts)"
+                  className="mt-1"
+                  min="0"
+                  step="0.01"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Leave empty if no discount
+                </p>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium">Included Credits *</label>
+                <Input
+                  type="number"
+                  value={formData.includedCredits || ""}
+                  onChange={(e) => setFormData({ ...formData, includedCredits: parseInt(e.target.value) || 0 })}
+                  placeholder="0"
+                  className="mt-1"
+                  min="1"
+                  required
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Must be at least 1
+                </p>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Sort Order</label>
+                <Input
+                  type="number"
+                  value={formData.sortOrder || ""}
+                  onChange={(e) => setFormData({ ...formData, sortOrder: parseInt(e.target.value) || 0 })}
                   placeholder="0"
                   className="mt-1"
                   min="0"
                 />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Lower numbers appear first
+                </p>
               </div>
             </div>
             <div>
-              <label className="text-sm font-medium">Duration (days)</label>
+              <label className="text-sm font-medium">Offer Badge</label>
               <Input
-                type="number"
-                value={formData.duration}
-                onChange={(e) => setFormData({ ...formData, duration: parseInt(e.target.value) || 30 })}
-                placeholder="30"
+                value={formData.offer || ""}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setFormData({ 
+                    ...formData, 
+                    offer: value === "" ? null : value 
+                  });
+                }}
+                placeholder="e.g., 'New Year Offer', 'Best Value' (optional)"
                 className="mt-1"
-                min="1"
               />
-            </div>
-            <div>
-              <label className="text-sm font-medium">Features</label>
-              <div className="flex gap-2 mt-1">
-                <Input
-                  value={featureInput}
-                  onChange={(e) => setFeatureInput(e.target.value)}
-                  placeholder="Add a feature"
-                  onKeyPress={(e) => e.key === "Enter" && addFeature()}
-                />
-                <Button type="button" onClick={addFeature} variant="outline">
-                  Add
-                </Button>
-              </div>
-              <div className="flex flex-wrap gap-2 mt-2">
-                {formData.features?.map((feature, idx) => (
-                  <Badge key={idx} variant="secondary" className="gap-1">
-                    {feature}
-                    <X
-                      className="w-3 h-3 cursor-pointer"
-                      onClick={() => removeFeature(idx)}
-                    />
-                  </Badge>
-                ))}
-              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Leave empty to hide offer badge
+              </p>
             </div>
             <div className="flex items-center gap-2">
               <Switch

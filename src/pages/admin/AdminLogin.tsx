@@ -24,11 +24,23 @@ const AdminLogin = () => {
 
     setIsLoading(true);
     try {
-      await adminAPI.login(username, password);
+      const response = await adminAPI.login(username, password);
+      console.log("Admin login response:", response);
+      
+      // Verify tokens were set
+      const adminToken = localStorage.getItem("adminAccessToken");
+      const userToken = localStorage.getItem("accessToken");
+      
+      if (!adminToken && !userToken) {
+        toast.error("Login successful but tokens were not set. Please try again.");
+        return;
+      }
+      
       toast.success("Admin login successful!");
       navigate("/admin/dashboard");
     } catch (error: any) {
-      toast.error(error.message || "Admin login failed. Please try again.");
+      console.error("Admin login error:", error);
+      toast.error(error.message || "Admin login failed. Please check your credentials.");
     } finally {
       setIsLoading(false);
     }
@@ -61,11 +73,11 @@ const AdminLogin = () => {
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground flex items-center gap-2">
                 <User className="w-4 h-4 text-muted-foreground" />
-                Username
+                Username or Email
               </label>
               <Input
                 type="text"
-                placeholder="Enter your username"
+                placeholder="Enter your username or email"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="h-12 bg-background border-2 border-border focus:border-primary"
