@@ -218,11 +218,6 @@ const Navbar = () => {
                           scale: (isExpanded || isOpen) ? 1.5 : 1.3, 
                           x: (isExpanded || isOpen) ? 1 : 0,
                         }}
-                        style={{
-                          filter: theme === "dark" 
-                            ? "drop-shadow(0 0 1px #fff) drop-shadow(0 0 5px rgba(255,255,255,0.8))" 
-                            : "drop-shadow(0 0 1px #000) drop-shadow(0 0 5px rgba(0,0,0,0.3))",
-                        }}
                         className="absolute left-0 h-auto w-full max-w-[130px] origin-left object-contain" 
                       />
                     </AnimatePresence>
