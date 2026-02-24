@@ -125,33 +125,90 @@ const PricingSection = () => {
   const fetchPackages = async () => {
     try {
       setLoading(true);
+      console.log("Fetching packages...");
       const data = await packageAPI.getAll();
-      const packagesList = Array.isArray(data) ? data : (data.packages || []);
+      console.log("Packages API response:", data);
+      
+      // Handle different response formats
+      let packagesList: Package[] = [];
+      if (Array.isArray(data)) {
+        packagesList = data;
+      } else if (data && typeof data === 'object') {
+        packagesList = (data as any).packages || (data as any).data || [];
+        // If it's an object with package properties directly
+        if (!Array.isArray(packagesList) && (data as any)._id) {
+          packagesList = [data as Package];
+        }
+      }
+      
+      console.log("Parsed packages list:", packagesList);
+      
       const validPackages = packagesList
-        .filter((pkg: Package) => pkg && pkg.isActive !== false && pkg._id && pkg.name && pkg.price !== undefined)
+        .filter((pkg: any) => {
+          const isValid = pkg && 
+                         pkg.isActive !== false && 
+                         pkg._id && 
+                         pkg.name && 
+                         (pkg.price !== undefined && pkg.price !== null);
+          if (!isValid) {
+            console.log("Filtered out invalid package:", pkg);
+          }
+          return isValid;
+        })
         .sort((a: Package, b: Package) => a.price - b.price);
       
+      console.log("Valid packages:", validPackages);
       setPackages(validPackages);
       
-      // Map packages to plans (take first 3 packages or use static)
-      if (validPackages.length >= 3) {
+      // Map packages to plans (use available packages, fill with static if needed)
+      if (validPackages.length > 0) {
         const mappedPlans = validPackages.slice(0, 3).map((pkg, index) => ({
           name: pkg.name,
           icon: staticPlans[index]?.icon || Zap,
           price: `₹${pkg.price}`,
           period: pkg.duration ? `/${pkg.duration} days` : "/month",
           description: pkg.description || staticPlans[index]?.description || "",
-          features: pkg.features?.map(f => ({ name: f, included: true })) || staticPlans[index]?.features || [],
+          features: (pkg.features && Array.isArray(pkg.features) && pkg.features.length > 0) 
+            ? pkg.features.map((f: string) => ({ name: f, included: true })) 
+            : staticPlans[index]?.features || [],
           cta: "Buy Now",
-          highlighted: index === 1, // Middle plan is highlighted
+          highlighted: index === 1 && validPackages.length >= 2, // Middle plan is highlighted if we have at least 2
           packageId: pkg._id,
         }));
+        
+        // Fill remaining slots with static plans if we have less than 3 packages
+        while (mappedPlans.length < 3) {
+          const staticIndex = mappedPlans.length;
+          mappedPlans.push({
+            ...staticPlans[staticIndex],
+            cta: "Coming Soon",
+            packageId: null,
+          });
+        }
+        
+        console.log("Mapped plans:", mappedPlans);
         setPlans(mappedPlans);
+      } else {
+        // No packages available, use static plans but navigate to pricing page
+        console.log("No valid packages found, using static plans");
+        setPlans(staticPlans.map(plan => ({
+          ...plan,
+          cta: plan.cta === "Start Free" ? "Start Free" : "View Pricing",
+        })));
       }
     } catch (error: any) {
       console.error("Error fetching packages:", error);
-      // Keep static plans on error
-      setPlans(staticPlans);
+      console.error("Error details:", {
+        message: error.message,
+        stack: error.stack,
+        name: error.name,
+      });
+      // Keep static plans on error, but allow navigation to pricing page
+      setPlans(staticPlans.map(plan => ({
+        ...plan,
+        cta: plan.cta === "Start Free" ? "Start Free" : "View Pricing",
+      })));
+      // Don't show error toast here as it might be expected (no packages configured yet)
     } finally {
       setLoading(false);
     }
@@ -159,7 +216,8 @@ const PricingSection = () => {
 
   const handlePayment = async (packageId: string | null, planName: string) => {
     if (!packageId) {
-      toast.info("This plan is not available for purchase. Please contact support.");
+      // If no package ID, navigate to pricing page for more options
+      navigate("/pricing");
       return;
     }
 
@@ -172,7 +230,15 @@ const PricingSection = () => {
 
     try {
       setProcessing(packageId);
+      console.log("Creating order for package:", packageId);
       const orderData = await paymentAPI.createOrder(packageId);
+      console.log("Order data received:", orderData);
+
+      if (!orderData || !orderData.orderId || !orderData.keyId) {
+        toast.error("Invalid order data received from server");
+        setProcessing(null);
+        return;
+      }
 
       if (!window.Razorpay) {
         toast.error("Payment gateway not loaded. Please refresh the page.");
@@ -189,6 +255,7 @@ const PricingSection = () => {
         description: `Purchase ${planName}`,
         handler: async (response: any) => {
           try {
+            console.log("Payment response:", response);
             await paymentAPI.verify({
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
@@ -196,15 +263,18 @@ const PricingSection = () => {
             });
             toast.success("Payment successful! Credits have been added to your wallet.");
             setProcessing(null);
-            // Optionally navigate to dashboard
-            navigate("/dashboard");
+            // Navigate to dashboard after successful payment
+            setTimeout(() => {
+              navigate("/dashboard");
+            }, 1500);
           } catch (error: any) {
+            console.error("Payment verification error:", error);
             toast.error(error.message || "Payment verification failed");
             setProcessing(null);
           }
         },
         prefill: {
-          name: authAPI.getCurrentUser()?.username || "",
+          name: authAPI.getCurrentUser()?.username || authAPI.getCurrentUser()?.name || "",
           email: authAPI.getCurrentUser()?.email || "",
         },
         theme: {
@@ -212,15 +282,22 @@ const PricingSection = () => {
         },
         modal: {
           ondismiss: () => {
+            console.log("Payment modal dismissed");
             setProcessing(null);
           },
         },
       };
 
       const rzp = new window.Razorpay(options);
+      rzp.on("payment.failed", (response: any) => {
+        console.error("Payment failed:", response);
+        toast.error(response.error?.description || "Payment failed");
+        setProcessing(null);
+      });
       rzp.open();
     } catch (error: any) {
-      toast.error(error.message || "Failed to initiate payment");
+      console.error("Payment initiation error:", error);
+      toast.error(error.message || "Failed to initiate payment. Please try again.");
       setProcessing(null);
     }
   };
@@ -330,7 +407,14 @@ const PricingSection = () => {
                   variant={plan.highlighted ? "hero" : "outline"}
                   className="w-full"
                   size="lg"
-                  onClick={() => handlePayment(plan.packageId || null, plan.name)}
+                  onClick={() => {
+                    if (plan.packageId) {
+                      handlePayment(plan.packageId, plan.name);
+                    } else {
+                      // For static plans or plans without packageId, navigate to pricing page
+                      navigate("/pricing");
+                    }
+                  }}
                   disabled={processing === plan.packageId || loading}
                 >
                   {processing === plan.packageId ? (
